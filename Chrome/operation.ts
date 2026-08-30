@@ -1,0 +1,585 @@
+import { existsSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { requiresFinancialConfirmation } from "./modules/finance.ts";
+import {
+  BrowserClient,
+  DEFAULT_TARGET_POLICY,
+  PROTOCOL,
+  SOCKET_PATH,
+  capabilityAllowed,
+  authorityRoute,
+  installBrowserBridge,
+  loadAuthority,
+  safeBrowserUrl,
+  safeControlName,
+  safeForegroundUrl,
+  safePublicMultiline,
+  safePublicValue,
+  type BrowserAuthority,
+  type BrowserCommand,
+} from "./core.ts";
+import { acquireChromeOsLease } from "./os-lease.ts";
+
+export type BrowserContextInput = {
+  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "read_console" | "read_network" | "read_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate";
+  mode?: "start" | "stop" | "list" | "add" | "remove" | "clear";
+  url?: string;
+  role?: "button" | "link" | "menuitem" | "option" | "tab" | "combobox" | "textbox" | "checkbox" | "radio" | "switch";
+  name?: string;
+  screen_x?: number;
+  screen_y?: number;
+  client_x?: number;
+  client_y?: number;
+  delta_x?: number;
+  delta_y?: number;
+  key?: string;
+  max_chars?: number;
+  /** Semantic-snapshot element budget (default 60). */
+  max_elements?: number;
+  /** Internal-only; absent from the chrome Tool schema. */
+  readTextMode?: "advisor_reply";
+  context?: "dialog" | "form" | "main" | "header" | "navigation" | "page";
+  field?: string;
+  value?: string;
+  entries?: Record<string, string>;
+  script?: string;
+  selector?: string;
+  timeout_ms?: number;
+  level?: "info" | "warn" | "error";
+  bypass_cache?: boolean;
+  /** Internal-only; absent from the chrome Tool schema. */
+  publicTextMode?: "advisor_prompt";
+  route?: string;
+  source?: "ga4_service_account" | "clarity_domain" | "clarity_project_name" | "gsc_service_account";
+  foregroundConfirmed?: boolean;
+  ownerConfirmed?: boolean;
+  long?: boolean;
+};
+
+export type BrowserOperationContext = {
+  isProjectTrusted(): boolean;
+};
+
+export type BrowserContextOperation = (
+  params: BrowserContextInput,
+  signal: AbortSignal | undefined,
+  context: BrowserOperationContext,
+  sessionName?: string,
+  ownerRoute?: string,
+) => Promise<unknown>;
+
+type BrowserClientLike = Pick<BrowserClient, "available" | "request" | "closeGroup">;
+type TrustedForegroundLease = {
+  click(x: number, y: number): { ok: boolean; error?: string };
+  /** Measure the frontmost Chrome window bounds via System Events (global
+   *  screen points). Never trusts browser-reported screen geometry, which
+   *  drifts on scaled or Hackintosh displays. */
+  measureWindow(): { x: number; y: number; width: number; height: number } | { error: string };
+  /** Bring Google Chrome to the macOS frontmost position (window focus via
+   *  chrome.windows.update does not change the frontmost app on macOS). */
+  foreground(): { ok: boolean; error?: string };
+  restore(): { ok: boolean; error?: string };
+};
+
+function automationError(result: ReturnType<typeof spawnSync>): string {
+  return String(result.stderr || result.stdout || "osascript failed").trim().slice(0, 120);
+}
+
+function automationEnvironment(): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {};
+  for (const key of ["HOME", "PATH", "LANG", "LC_ALL", "TMPDIR", "USER"]) {
+    if (process.env[key] !== undefined) env[key] = process.env[key];
+  }
+  return env;
+}
+
+function acquireTrustedForegroundLease(): TrustedForegroundLease {
+  // OS-level input machinery lives in the computer extension (real CGEvent
+  // mouse stream, System Events activation and measurement, frontmost
+  // restore). Chrome only adapts the app-specific interface here; see
+  // tool/computer/operation.ts for the shared implementation.
+  const lease = acquireChromeOsLease();
+  return {
+    click(x, y) {
+      return lease.click({ x, y });
+    },
+    measureWindow() {
+      return lease.measureWindow("Google Chrome");
+    },
+    foreground() {
+      return lease.foreground("Google Chrome");
+    },
+    restore() {
+      return lease.restore();
+    },
+  };
+}
+
+function requireTrusted(trusted: boolean): void {
+  if (!trusted) throw new Error("Browser Context operation requires a trusted project");
+}
+
+/**
+ * One shared browser operation behind every consumer. Tool registration owns
+ * only the public ABI; other workflows may reuse this implementation.
+ */
+export function createBrowserContextOperation(options: {
+  authority?: BrowserAuthority;
+  client?: BrowserClientLike;
+  acquireTrustedForeground?: () => TrustedForegroundLease;
+  platform?: NodeJS.Platform;
+} = {}): BrowserContextOperation {
+  const authority = options.authority ?? loadAuthority();
+  const client = options.client ?? new BrowserClient();
+  const acquireTrustedForeground = options.acquireTrustedForeground ?? acquireTrustedForegroundLease;
+  const platform = options.platform ?? process.platform;
+
+  return async (params, signal, context, sessionName, ownerRoute) => {
+    requireTrusted(context.isProjectTrusted());
+    if (params.action === "status" || params.action === "repair") {
+      if (params.action === "repair") installBrowserBridge();
+      if (!client.available()) {
+        return {
+          installed_host: existsSync(SOCKET_PATH.replace(/control\.sock$/, "native-host")),
+          extension_connected: false,
+          setup: "Run /browser-setup once, then load the copied unpacked Extension path in the intended Chrome profile.",
+          focus_operations: false,
+          popup_ui: false,
+        };
+      }
+      return client.request({ protocol: PROTOCOL, action: params.action }, signal, sessionName, ownerRoute);
+    }
+
+    if (!params.url) throw new Error("url is required for this Browser Context action");
+    const url = params.action === "capture_screenshot" ? safeForegroundUrl(params.url) : safeBrowserUrl(params.url);
+    const financial = requiresFinancialConfirmation(params.action, url, [params.name, params.field]);
+    if (financial && params.ownerConfirmed !== true) {
+      throw new Error("financial_confirmation_required");
+    }
+    const ownerConfirmed = financial ? params.ownerConfirmed === true : true;
+    const allowActive = params.ownerConfirmed === true;
+
+    let command: BrowserCommand;
+    if (params.action === "read_text") {
+      command = {
+        protocol: PROTOCOL,
+        action: "read_text",
+        url,
+        max_chars: params.max_chars ?? 20000,
+        read_mode: params.readTextMode,
+        long: params.long,
+        owner_confirmed: ownerConfirmed,
+        allow_active: allowActive,
+      };
+    } else if (params.action === "semantic_snapshot") {
+      command = {
+        protocol: PROTOCOL,
+        action: "semantic_snapshot",
+        url,
+        max_elements: params.max_elements,
+        owner_confirmed: ownerConfirmed,
+        allow_active: allowActive,
+      };
+    } else if (params.action === "read_markdown") {
+      command = { protocol: PROTOCOL, action: "read_markdown", url, max_chars: params.max_chars, allow_active: allowActive };
+    } else if (params.action === "read_styles") {
+      command = { protocol: PROTOCOL, action: "read_styles", url, allow_active: allowActive };
+    } else if (params.action === "read_scripts") {
+      command = { protocol: PROTOCOL, action: "read_scripts", url, allow_active: allowActive };
+    } else if (params.action === "read_console") {
+      command = { protocol: PROTOCOL, action: "read_console", url, level: params.level, allow_active: allowActive };
+    } else if (params.action === "read_network") {
+      command = { protocol: PROTOCOL, action: "read_network", url, allow_active: allowActive };
+    } else if (params.action === "read_storage") {
+      command = { protocol: PROTOCOL, action: "read_storage", url, allow_active: allowActive };
+    } else if (params.action === "clear_storage") {
+      command = { protocol: PROTOCOL, action: "clear_storage", url, allow_active: allowActive };
+    } else if (params.action === "read_cookies") {
+      command = { protocol: PROTOCOL, action: "read_cookies", url, allow_active: allowActive };
+    } else if (params.action === "clear_cookies") {
+      command = { protocol: PROTOCOL, action: "clear_cookies", url, allow_active: allowActive };
+    } else if (params.action === "performance_metrics") {
+      command = { protocol: PROTOCOL, action: "performance_metrics", url, allow_active: allowActive };
+    } else if (params.action === "hover") {
+      command = {
+        protocol: PROTOCOL,
+        action: "hover",
+        url,
+        selector: params.selector,
+        field: params.field ?? params.name,
+        role: params.role,
+        context: params.context,
+        client_x: params.client_x,
+        client_y: params.client_y,
+        allow_active: allowActive,
+      };
+    } else if (params.action === "scroll") {
+      command = {
+        protocol: PROTOCOL,
+        action: "scroll",
+        url,
+        delta_x: params.delta_x,
+        delta_y: params.delta_y,
+        allow_active: allowActive,
+      };
+    } else if (params.action === "press_key") {
+      command = {
+        protocol: PROTOCOL,
+        action: "press_key",
+        url,
+        key: params.key,
+        allow_active: allowActive,
+      };
+    } else if (params.action === "wait_for") {
+      command = {
+        protocol: PROTOCOL,
+        action: "wait_for",
+        url,
+        selector: params.selector,
+        script: params.script,
+        timeout_ms: params.timeout_ms,
+        allow_active: allowActive,
+      };
+    } else if (params.action === "annotate") {
+      const mode = params.mode ?? "list";
+      const note = mode === "add" && params.value ? safePublicMultiline(params.value) : params.value;
+      command = {
+        protocol: PROTOCOL,
+        action: "annotate",
+        url,
+        mode,
+        value: note,
+        name: params.name ? safeControlName(params.name) : undefined,
+        field: params.field,
+        role: params.role,
+        context: params.context,
+        client_x: params.client_x,
+        client_y: params.client_y,
+        allow_active: true,
+      };
+    } else if (params.action === "inspect_element") {
+      command = {
+        protocol: PROTOCOL,
+        action: "inspect_element",
+        url,
+        selector: params.selector,
+        field: params.field ?? params.name,
+        role: params.role,
+        context: params.context,
+        allow_active: allowActive,
+      };
+    } else if (params.action === "evaluate_script") {
+      if (!params.script) throw new Error("script is required for evaluate_script");
+      command = { protocol: PROTOCOL, action: "evaluate_script", url, script: params.script, allow_active: allowActive };
+    } else if (params.action === "reload_page") {
+      command = { protocol: PROTOCOL, action: "reload_page", url, bypass_cache: params.bypass_cache, allow_active: allowActive };
+    } else if (params.action === "hot_reload") {
+      command = { protocol: PROTOCOL, action: "hot_reload", url, allow_active: allowActive };
+    } else if (params.action === "open" || params.action === "controls") {
+      command = {
+        protocol: PROTOCOL,
+        action: params.action,
+        url,
+        allow_active: allowActive,
+        ...(params.action === "controls" ? { owner_confirmed: ownerConfirmed } : {}),
+      };
+    } else if (params.action === "click") {
+      if (!params.name && (params.screen_x === undefined || params.screen_y === undefined)) {
+        throw new Error("name or screen coordinates are required for a browser click");
+      }
+      command = {
+        protocol: PROTOCOL,
+        action: "click",
+        url,
+        role: params.role,
+        name: params.name ? safeControlName(params.name) : undefined,
+        context: params.context,
+        screen_x: params.screen_x,
+        screen_y: params.screen_y,
+        owner_confirmed: ownerConfirmed,
+        foreground_confirmed: params.foregroundConfirmed === true,
+        allow_active: allowActive,
+      };
+      // A foreground-confirmed click is located without first dispatching a
+      // synthetic event. The bridge then focuses the exact managed tab, the
+      // host emits exactly one trusted click, and both Chrome and the prior
+      // foreground application are restored in finally blocks.
+      const clickResult = await client.request(command, signal, sessionName, ownerRoute) as Record<string, unknown>;
+      const diagnostics = (clickResult as { diagnostics?: Record<string, unknown> }).diagnostics;
+      const sx = typeof diagnostics?.screen_x === "number" && Number.isFinite(diagnostics.screen_x) && Math.abs(diagnostics.screen_x) <= 100_000
+        ? diagnostics.screen_x
+        : undefined;
+      const sy = typeof diagnostics?.screen_y === "number" && Number.isFinite(diagnostics.screen_y) && Math.abs(diagnostics.screen_y) <= 100_000
+        ? diagnostics.screen_y
+        : undefined;
+      // Pure CSS viewport coordinates reported by the content script; the
+      // host converts them to global screen points with an empirically
+      // measured window scale (never trusts browser screen geometry).
+      const clientX = typeof diagnostics?.client_x === "number" && Number.isFinite(diagnostics.client_x)
+        ? diagnostics.client_x
+        : undefined;
+      const clientY = typeof diagnostics?.client_y === "number" && Number.isFinite(diagnostics.client_y)
+        ? diagnostics.client_y
+        : undefined;
+      const viewportWidth = typeof diagnostics?.viewport_width === "number" && Number.isFinite(diagnostics.viewport_width) && diagnostics.viewport_width > 0
+        ? diagnostics.viewport_width
+        : undefined;
+      const viewportHeight = typeof diagnostics?.viewport_height === "number" && Number.isFinite(diagnostics.viewport_height) && diagnostics.viewport_height > 0
+        ? diagnostics.viewport_height
+        : undefined;
+      const trustedRequired = clickResult.status === "trusted_click_required";
+      if (trustedRequired && platform === "darwin" && params.foregroundConfirmed === true) {
+        let lease: TrustedForegroundLease;
+        try {
+          lease = acquireTrustedForeground();
+        } catch (error) {
+          clickResult.trusted_click = { attempted: true, ok: false, error: error instanceof Error ? error.message.slice(0, 120) : "automation unavailable" };
+          return clickResult;
+        }
+        let activationAttempted = false;
+        let activated = false;
+        let trusted: { ok: boolean; error?: string } = { ok: false, error: "activate failed" };
+        let bridgeRestore: { ok: boolean; error?: string } = { ok: true };
+        let px = sx ?? 0;
+        let py = sy ?? 0;
+        try {
+          activationAttempted = true;
+          const activation = await client.request(
+            { protocol: PROTOCOL, action: "activate", url, foreground_confirmed: true },
+            signal,
+            sessionName,
+            ownerRoute,
+          ) as Record<string, unknown>;
+          activated = activation.status === "activated" && activation.tab_active === true;
+          if (!activated) throw new Error("activate_target_not_foreground");
+          // chrome.windows.update(focused) does not raise Chrome above other
+          // apps on macOS; System Events needs Chrome as the frontmost app to
+          // enumerate its windows. Fail closed if it cannot be raised.
+          const raised = lease.foreground();
+          if (!raised.ok) throw new Error(raised.error ?? "chrome foreground failed");
+          // Chrome needs a beat to become the frontmost process before
+          // System Events can enumerate its windows; retry the measurement
+          // because activation timing varies under load. Only CSS points
+          // need a window measurement; raw screen points are used as-is.
+          // Prefer the managed window's own bounds reported by the worker
+          // over "largest Chrome window" enumeration: the active managed tab
+          // may live in a smaller window than an unrelated Chrome window.
+          if (clientX !== undefined && clientY !== undefined && viewportWidth !== undefined && viewportHeight !== undefined) {
+            const reported = activation.window_bounds as { width?: number; height?: number; left?: number; top?: number } | undefined;
+            let measured = (reported !== undefined && Number.isFinite(reported.width) && (reported.width ?? 0) > 0
+              && Number.isFinite(reported.height) && (reported.height ?? 0) > 0
+              && Number.isFinite(reported.left) && Number.isFinite(reported.top))
+              ? { x: reported.left as number, y: reported.top as number, width: reported.width as number, height: reported.height as number }
+              : undefined;
+            for (let attempt = 0; attempt < 3 && !measured; attempt += 1) {
+              const candidate = lease.measureWindow();
+              if (!("error" in candidate)) measured = candidate;
+              else await new Promise((resolve) => setTimeout(resolve, 400));
+            }
+            if (!measured) throw new Error("window bounds unavailable");
+            if (measured.width <= 0 || measured.height <= 0 || measured.width > 10_000 || measured.height > 10_000) {
+              // Fail closed: a zero/implausible window bounds means Chrome was
+              // not foregrounded (other apps cover it, windows minimized).
+              // Clicking at a stale/derived point is worse than failing.
+              throw new Error("window bounds unavailable (Chrome not foreground?)");
+            }
+            // Empirical scale: real window width (global points) over the
+            // CSS viewport width reported by the page. Correct even when the
+            // browser's devicePixelRatio or screenX lies (scaled/Hackintosh).
+            const scaleX = measured.width / viewportWidth;
+            const scaleY = measured.height / viewportHeight;
+            px = measured.x + clientX * scaleX;
+            py = measured.y + clientY * scaleY;
+          } else if (sx === undefined || sy === undefined) {
+            throw new Error("click point unavailable");
+          }
+          trusted = lease.click(px, py);
+        } catch (error) {
+          trusted = { ok: false, error: error instanceof Error ? error.message.slice(0, 120) : "trusted click failed" };
+        } finally {
+          if (activationAttempted) {
+            try {
+              const restored = await client.request(
+                { protocol: PROTOCOL, action: "restore_background", url },
+                undefined,
+                sessionName,
+                ownerRoute,
+              ) as Record<string, unknown>;
+              if (restored.status !== "restored" || restored.tab_active !== false) bridgeRestore = { ok: false, error: "browser background restoration failed" };
+            } catch (error) {
+              bridgeRestore = { ok: false, error: error instanceof Error ? error.message.slice(0, 120) : "browser background restoration failed" };
+            }
+          }
+          let appRestore: { ok: boolean; error?: string };
+          try {
+            appRestore = lease.restore();
+          } catch (error) {
+            appRestore = { ok: false, error: error instanceof Error ? error.message.slice(0, 120) : "foreground restoration failed" };
+          }
+          clickResult.trusted_click = {
+            attempted: true,
+            ok: trusted.ok,
+            ...(trusted.error ? { error: trusted.error } : {}),
+            x: Math.round(px),
+            y: Math.round(py),
+            ...(sx !== undefined && Math.abs(sx - px) > 1 ? { css_point: [Math.round(sx), Math.round(sy ?? 0)] } : {}),
+            browser_restored: bridgeRestore.ok,
+            foreground_restored: appRestore.ok,
+            ...(!bridgeRestore.ok ? { restoration_error: bridgeRestore.error } : {}),
+            ...(!appRestore.ok ? { foreground_restoration_error: appRestore.error } : {}),
+          };
+        }
+      }
+      return clickResult;
+    } else if (params.action === "press_enter") {
+      if (!params.field) throw new Error("field is required for a bounded Enter action");
+      command = {
+        protocol: PROTOCOL,
+        action: "press_enter",
+        url,
+        field: safeControlName(params.field),
+        context: params.context,
+        owner_confirmed: ownerConfirmed,
+        allow_active: allowActive,
+      };
+    } else if (params.action === "select_combobox") {
+      if (!params.field || !params.value) throw new Error("field and value are required for a searchable combobox selection");
+      command = {
+        protocol: PROTOCOL,
+        action: "select_combobox",
+        url,
+        field: safeControlName(params.field),
+        value: safePublicValue(params.value),
+        context: params.context,
+        owner_confirmed: ownerConfirmed,
+        allow_active: allowActive,
+      };
+    } else if (params.action === "cdp_key") {
+      if (typeof params.key !== "string" || !["Tab", "Enter", "Escape", "ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight", "Home", "End"].includes(params.key)) {
+        throw new Error("a bounded key is required for a CDP key dispatch");
+      }
+      // Owner directive 2026-08-12: automation is never obstructed except by
+      // financial actions. CDP input (trusted, no money) needs no per-step
+      // confirmation.
+      command = {
+        protocol: PROTOCOL,
+        action: "cdp_key",
+        url,
+        key: params.key,
+        owner_confirmed: true,
+        allow_active: true,
+      };
+    } else if (params.action === "cdp_click") {
+      if (params.client_x === undefined || params.client_y === undefined) {
+        throw new Error("client coordinates are required for a CDP click");
+      }
+      command = {
+        protocol: PROTOCOL,
+        action: "cdp_click",
+        url,
+        client_x: params.client_x,
+        client_y: params.client_y,
+        owner_confirmed: true,
+        allow_active: true,
+      };
+    } else if (params.action === "cdp_hover") {
+      if (params.client_x === undefined || params.client_y === undefined) {
+        throw new Error("client coordinates are required for a CDP hover");
+      }
+      command = {
+        protocol: PROTOCOL,
+        action: "cdp_hover",
+        url,
+        client_x: params.client_x,
+        client_y: params.client_y,
+        owner_confirmed: true,
+        allow_active: true,
+      };
+    } else if (params.action === "cdp_scroll") {
+      if (params.delta_x === undefined && params.delta_y === undefined) {
+        throw new Error("delta coordinates are required for a CDP scroll");
+      }
+      command = {
+        protocol: PROTOCOL,
+        action: "cdp_scroll",
+        url,
+        delta_x: params.delta_x ?? 0,
+        delta_y: params.delta_y ?? 0,
+        client_x: params.client_x,
+        client_y: params.client_y,
+        owner_confirmed: true,
+        allow_active: true,
+      };
+    } else if (params.action === "capture_session") {
+      if (!capabilityAllowed(DEFAULT_TARGET_POLICY, "session_read")) throw new Error("session_capability_not_authorized");
+      command = { protocol: PROTOCOL, action: "capture_session", url };
+    } else if (params.action === "capture_screenshot") {
+      if (!capabilityAllowed(DEFAULT_TARGET_POLICY, "screenshot")) throw new Error("screenshot_capability_not_authorized");
+      command = { protocol: PROTOCOL, action: "capture_screenshot", url, foreground_confirmed: true, long: params.long === true };
+    } else if (params.action === "capture_pdf") {
+      command = { protocol: PROTOCOL, action: "capture_pdf", url };
+    } else if (params.action === "capture_ga4_measurement_id") {
+      if (!params.route) throw new Error("route is required for GA4 measurement ID capture");
+      const route = authorityRoute(authority, params.route);
+      const target = (authority.targets ?? []).find((item) => item.route === route) as Record<string, unknown> | undefined;
+      if (!target) throw new Error("analytics_target_not_authorized");
+      let domain: string;
+      try { domain = new URL(String(target.origin)).hostname; } catch { throw new Error("analytics_target_origin_invalid"); }
+      command = {
+        protocol: PROTOCOL,
+        action: "capture_ga4_measurement_id",
+        url,
+        route,
+        stream_name: String(target.ga4_stream_name ?? target.ga4_display_name ?? ""),
+        domain,
+        identity_verified: false,
+      };
+    } else if (params.action === "capture_clarity_token") {
+      if (!params.route) throw new Error("route is required for Clarity token capture");
+      command = { protocol: PROTOCOL, action: "capture_clarity_token", url, route: authorityRoute(authority, params.route) };
+    } else if (params.action === "fill_form") {
+      if (!params.entries || typeof params.entries !== "object") {
+        throw new Error("entries object is required for fill_form");
+      }
+      command = {
+        protocol: PROTOCOL,
+        action: "fill_form",
+        url,
+        entries: params.entries,
+        context: params.context,
+        owner_confirmed: ownerConfirmed,
+        allow_active: allowActive,
+      };
+    } else if (params.action === "fill_public") {
+      if (!params.field || !params.value) throw new Error("field and value are required for a public browser fill");
+      const multiline = params.publicTextMode === "advisor_prompt";
+      command = {
+        protocol: PROTOCOL,
+        action: "fill",
+        url,
+        field: safeControlName(params.field),
+        value: multiline ? safePublicMultiline(params.value) : safePublicValue(params.value),
+        multiline_public: multiline,
+        context: params.context,
+        owner_confirmed: ownerConfirmed,
+        allow_active: allowActive,
+      };
+    } else {
+      if (!params.field || !params.source || !params.route) {
+        throw new Error("field, source, and route are required for a local browser fill");
+      }
+      command = {
+        protocol: PROTOCOL,
+        action: "fill_local",
+        url,
+        field: safeControlName(params.field),
+        context: params.context,
+        source: params.source,
+        route: authorityRoute(authority, params.route),
+        owner_confirmed: ownerConfirmed,
+        allow_active: allowActive,
+      };
+    }
+    return client.request(command, signal, sessionName, ownerRoute);
+  };
+}

@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Holar Browser Context",
+  "description": "Runs bounded contextual browser actions in inactive tabs through a local Native Messaging bridge.",
+  "version": "1.2.63",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApY2WiwVDmDSu/PTy94u7NKHuWhtul4OeMfsmEU2+1VQEE+MbvKQJLpY7wbu2zpd67PmmRO8OGEQeXIvE7A7tfMxlFWpV84BtcRQ31LgAcX5ALyYANIm8ovEcAoK1s4wo/o+lyB0z5KkG3Dr6tQcRxYzjIO2Yh4Z/GWxI8LzcrcB+Uukvn/3+a9PPeZXAe8WgWKG+JtMoRfAOXQB88Mb9XgnJjLOAcTkxY+ciZ2NLrduCxQmCpmyJbGLlZeylZGqwft2Zo+F4N3m7xGWphE79Tm/PyN3rMIQbJAxkeIORnxnaYflik7SzhjUmYGtoAAHYdG3RdIcP5dEgFO6JpjwO/QIDAQAB",
+  "permissions": [
+    "nativeMessaging",
+    "storage",
+    "activeTab",
+    "cookies",
+    "tabs",
+    "tabGroups",
+    "debugger"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_title": "Grant foreground screenshot"
+  },
+  "background": {
+    "service_worker": "worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "text.js",
+        "long-capture.js",
+        "annotation.js",
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ]
+}

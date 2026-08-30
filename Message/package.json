@@ -1,0 +1,17 @@
+{
+  "name": "message",
+  "private": true,
+  "exports": {
+    ".": "./operation.ts",
+    "./mcp": "./mcp-server.ts"
+  },
+  "mcp": {
+    "command": "bun",
+    "args": ["./serve.mjs"]
+  },
+  "pi": {
+    "extensions": [
+      "./pi.ts"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "mentalcraft-plugins",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "Chrome",
+    "Gefei",
+    "Message",
+    "Secret"
+  ],
+  "scripts": {
+    "test": "bun test Chrome/ && bun test Gefei/",
+    "test:chrome": "bun test Chrome/",
+    "test:gefei": "bun test Gefei/"
+  }
+}
