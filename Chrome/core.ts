@@ -38,7 +38,7 @@ export const MAX_BROWSER_RESPONSE_CHARS = 1_048_576;
 
 const EXTENSION_ROOT = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = resolve(EXTENSION_ROOT, "../..");
-const AUTHORITY_PATH = resolve(WORKSPACE_ROOT, ".governance/contract/browser.json");
+const AUTHORITY_PATH = resolve(EXTENSION_ROOT, "authority.json");
 const MANIFEST_PATH = resolve(EXTENSION_ROOT, "extension/manifest.json");
 const HOST_PATH = resolve(EXTENSION_ROOT, "host.mjs");
 const ROUTE = /^(?:Application|Business|Service|Interface)\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*$/;

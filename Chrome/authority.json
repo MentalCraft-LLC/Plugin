@@ -1,0 +1,30 @@
+{
+  "schema": "spiral.browser-authority.v1",
+  "status": "active",
+  "scope": {
+    "persistent_across_sessions": true,
+    "existing_chrome_profile": true,
+    "background_tabs": true,
+    "managed_tab_group": true,
+    "session_named_tab_group": true,
+    "local_secret_capture": true,
+    "self_repair": true,
+    "broad_http_https": true,
+    "cookie_read_or_export": true,
+    "cookie_local_handling": true,
+    "password_read_or_export": false,
+    "remote_debugging": false,
+    "focus_steal": false,
+    "popup_ui": false,
+    "per_session_confirmation": false
+  },
+  "origins": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "targets": [
+    { "route": "Application/Assessment/Example", "key": "example" },
+    { "route": "Application/SpriteFlow", "key": "spriteflow" },
+    { "route": "Interface/Svelte", "key": "interface" }
+  ]
+}
