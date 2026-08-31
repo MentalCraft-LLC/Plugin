@@ -168,7 +168,7 @@ export function extensionIdentity(manifestPath = MANIFEST_PATH): { id: string; m
   if (
     manifest.manifest_version !== 3
     || !foregroundAction
-    || JSON.stringify(manifest.permissions) !== JSON.stringify(["nativeMessaging", "storage", "activeTab", "cookies", "tabs", "tabGroups", "debugger"])
+    || JSON.stringify(manifest.permissions) !== JSON.stringify(["nativeMessaging", "storage", "activeTab", "cookies", "tabs", "tabGroups", "debugger", "scripting"])
     || JSON.stringify(manifest.host_permissions) !== JSON.stringify(["http://*/*", "https://*/*"])
     || JSON.stringify(manifest.content_scripts?.[0]?.matches) !== JSON.stringify(["http://*/*", "https://*/*"])
     || manifest.content_scripts?.[0]?.all_frames !== true

@@ -390,7 +390,7 @@ describe("Browser Context Extension", () => {
     expect(identity.manifest.name).toBe("Holar Browser Context");
     expect(identity.manifest.version).toBe("1.2.63");
     expect(identity.manifest.action).toEqual({ default_title: "Grant foreground screenshot" });
-    expect(identity.manifest.permissions).toEqual(["nativeMessaging", "storage", "activeTab", "cookies", "tabs", "tabGroups", "debugger"]);
+    expect(identity.manifest.permissions).toEqual(["nativeMessaging", "storage", "activeTab", "cookies", "tabs", "tabGroups", "debugger", "scripting"]);
     expect(identity.manifest.permissions).not.toContain("history");
     expect(identity.manifest.host_permissions).toEqual(["http://*/*", "https://*/*"]);
     expect(identity.manifest.content_scripts[0].matches).toEqual(["http://*/*", "https://*/*"]);
