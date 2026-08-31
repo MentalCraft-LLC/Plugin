@@ -187,10 +187,10 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     const res = await workflowOperation({ action: "export_schema_catalog" });
     expect(res.success).toBe(true);
     const data = res.data as any;
-    expect(data.openrpc).toBe("1.3.0");
+    expect(data.openrpc).toBe("1.3.2");
     expect(data.totalPlugins).toBe(6);
     expect(data.totalTools).toBe(6);
-    expect(data.totalMethods).toBe(79);
+    expect(data.totalMethods).toBe(106);
     expect(data.plugins.business).toBeDefined();
     expect(data.plugins.science).toBeDefined();
     expect(data.plugins.design).toBeDefined();
@@ -229,7 +229,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
       const schemaRes = await fetch("http://localhost:3999/schema");
       expect(schemaRes.status).toBe(200);
       const schemaData = await schemaRes.json() as any;
-      expect(schemaData.openrpc).toBe("1.3.0");
+      expect(schemaData.openrpc).toBe("1.3.2");
 
       const mcpHttpRes = await fetch("http://localhost:3999/mcp", {
         method: "POST",
@@ -390,8 +390,8 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.results.length).toBe(3);
   });
 
-  test("export_openapi_catalog exports standard OpenAPI 3.1 schema", async () => {
-    const res = await workflowOperation({ action: "export_openapi_catalog" });
+  test("export_openapi_spec exports standard OpenAPI 3.1 schema", async () => {
+    const res = await workflowOperation({ action: "export_openapi_spec" });
     expect(res.success).toBe(true);
     const data = res.data as any;
     expect(data.openapi).toBe("3.1.0");
@@ -399,8 +399,118 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.paths["/api/business"]).toBeDefined();
     expect(data.paths["/api/science"]).toBeDefined();
     expect(data.paths["/api/design"]).toBeDefined();
+    expect(data.paths["/api/chrome"]).toBeDefined();
     expect(data.paths["/api/message"]).toBeDefined();
     expect(data.components.schemas.BusinessInput).toBeDefined();
+  });
+
+  test("export_openrpc_spec exports standard OpenRPC 1.3.2 schema", async () => {
+    const res = await workflowOperation({ action: "export_openrpc_spec" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.openrpc).toBe("1.3.2");
+    expect(data.info.title).toContain("MentalCraft Unified Plugin");
+    expect(data.methods.length).toBeGreaterThanOrEqual(6);
+    expect(data.totalPlugins).toBe(6);
+    expect(data.totalMethods).toBe(106);
+    expect(data.methods.map((m: any) => m.name)).toContain("workflow");
+    expect(data.methods.map((m: any) => m.name)).toContain("business");
+    expect(data.methods.map((m: any) => m.name)).toContain("science");
+    expect(data.methods.map((m: any) => m.name)).toContain("design");
+    expect(data.methods.map((m: any) => m.name)).toContain("chrome");
+    expect(data.methods.map((m: any) => m.name)).toContain("message");
+  });
+
+  test("run_workflow executes ecommerce_full_launch_pipeline compound workflow", async () => {
+    const res = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "ecommerce_full_launch_pipeline",
+      parameters: {
+        venture_name: "AeroPulse Ergonomic Shop",
+        prompt: "AeroPulse Ergonomic Mechanical Keyboard",
+        cogs: 42,
+        shipping_cost: 7.5,
+      },
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.workflowId).toBe("ecommerce_full_launch_pipeline");
+    expect(data.stepsCount).toBe(5);
+    expect(data.stepResults[0].plugin).toBe("business");
+    expect(data.stepResults[0].action).toBe("venture_market_validation");
+    expect(data.stepResults[1].plugin).toBe("design");
+    expect(data.stepResults[1].action).toBe("generate_ui");
+    expect(data.stepResults[2].plugin).toBe("business");
+    expect(data.stepResults[2].action).toBe("venture_unit_economics");
+    expect(data.stepResults[3].plugin).toBe("business");
+    expect(data.stepResults[3].action).toBe("venture_expansion_moat");
+    expect(data.stepResults[4].plugin).toBe("message");
+    expect(data.stepResults[4].action).toBe("send");
+  });
+
+  test("run_workflow executes academic_manuscript_complete_lifecycle compound workflow", async () => {
+    const res = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "academic_manuscript_complete_lifecycle",
+      parameters: {
+        manuscript_title: "Deterministic Host-Agnostic Plugin Architecture for Autonomous Systems",
+        doi: "10.1038/s41586-024-07521-3",
+        desired_impact_factor_min: 5.0,
+      },
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.workflowId).toBe("academic_manuscript_complete_lifecycle");
+    expect(data.stepsCount).toBe(6);
+    expect(data.stepResults[0].action).toBe("paper_citation_verify");
+    expect(data.stepResults[1].action).toBe("paper_methodology_audit");
+    expect(data.stepResults[2].action).toBe("paper_latex_scaffold");
+    expect(data.stepResults[3].action).toBe("paper_peer_review_simulate");
+    expect(data.stepResults[4].action).toBe("journal_matcher");
+    expect(data.stepResults[5].action).toBe("journal_submission_checklist");
+  });
+
+  test("run_workflow executes startup_pmf_and_scale_sprint compound workflow", async () => {
+    const res = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "startup_pmf_and_scale_sprint",
+      parameters: {
+        venture_name: "CloudScale AI",
+        modality: "website",
+        pmf_score: 48,
+      },
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.workflowId).toBe("startup_pmf_and_scale_sprint");
+    expect(data.stepsCount).toBe(5);
+    expect(data.stepResults[0].action).toBe("venture_pmf_validation");
+    expect(data.stepResults[1].action).toBe("venture_activation_funnel");
+    expect(data.stepResults[2].action).toBe("venture_retention_curves");
+    expect(data.stepResults[3].action).toBe("venture_pricing_experiment");
+    expect(data.stepResults[4].action).toBe("venture_growth_playbook");
+  });
+
+  test("benchmark engine measures latency percentiles and ops/sec across all 6 subsystems", async () => {
+    const { executeBenchmark } = require("./operation.ts");
+    const bench = await executeBenchmark({ iterations: 50, warmupIterations: 5 });
+    expect(bench.totalSubsystems).toBe(6);
+    expect(bench.totalActionsTested).toBeGreaterThanOrEqual(18);
+    expect(bench.overallOpsPerSec).toBeGreaterThan(0);
+    expect(bench.summary.avgP50Ms).toBeGreaterThanOrEqual(0);
+    expect(bench.summary.avgP90Ms).toBeGreaterThanOrEqual(0);
+    expect(bench.summary.avgP99Ms).toBeGreaterThanOrEqual(0);
+    expect(bench.subsystems.business.length).toBeGreaterThanOrEqual(4);
+    expect(bench.subsystems.science.length).toBeGreaterThanOrEqual(4);
+    expect(bench.subsystems.design.length).toBeGreaterThanOrEqual(4);
+    expect(bench.subsystems.workflow.length).toBeGreaterThanOrEqual(4);
+    expect(bench.subsystems.chrome.length).toBeGreaterThanOrEqual(1);
+    expect(bench.subsystems.message.length).toBeGreaterThanOrEqual(2);
+
+    // Also verify via workflowOperation
+    const opRes = await workflowOperation({ action: "benchmark", benchmark_options: { iterations: 20 } });
+    expect(opRes.success).toBe(true);
+    expect((opRes.data as any).totalSubsystems).toBe(6);
   });
 
   test("compactWorkflowResult formats readable terminal summary", async () => {

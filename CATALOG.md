@@ -6,8 +6,8 @@
 
 | Subsystem | Actions | Protocol | Key Domain Scope |
 |---|---|---|---|
-| `Workflow` | 13 | `holar.workflow.v1` | Multi-plugin compound DAG execution, health diagnostics, telemetry & circuit breaker |
-| `Business` | 21 | `holar.business.v1` | 8-Stage Venture Lifecycle (Websites, Apps, Games), PMF, SEO KD, ASO, Steam, Activation, Unit Economics, Moats |
+| `Workflow` | 17 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |
+| `Business` | 21 | `holar.business.v1` | 8-Stage Venture Lifecycle (Websites, Apps, Games, Shops), PMF, SEO KD, ASO, Steam, Activation, Unit Economics, Moats |
 | `Science` | 16 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, Methodology, Grants, Authoring, Peer Review, Journals, Patents, Impact |
 | `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |
 | `Chrome` | 38 | `holar.browser.v1` | Inactive tab driving, CDP inspection, HUD annotations, storage/cookie receipts |
@@ -77,6 +77,37 @@
   6. **[business]** `venture_pricing_experiment`: Optimize bundle packaging, volume tiering, and AOV boost elasticity.
   7. **[business]** `venture_expansion_moat`: Calculate inventory reorder point (ROP), safety stock, and 3PL moats.
   8. **[business]** `venture_growth_playbook`: Generate 90-day omnichannel e-commerce launch sprint roadmap.
+
+### `ecommerce_full_launch_pipeline` — End-to-End E-Commerce Full Launch Pipeline
+- **Description**: Full-cycle e-commerce launch: Market validation (Shop) ➔ Svelte 5 PDP UI synthesis ➔ COGS/3PL unit economics ➔ Inventory ROP safety stock ➔ Telegram launch alert.
+- **Required Plugins**: `business` ➔ `design` ➔ `message`
+- **Execution Steps**:
+  1. **[business]** `venture_market_validation`: Validate e-commerce market viability, TAM/SAM/SOM, and omnichannel sourcing strategy.
+  2. **[design]** `generate_ui`: Synthesize high-converting e-commerce PDP (Product Detail Page) Svelte 5 component with runes.
+  3. **[business]** `venture_unit_economics`: Calculate COGS, 3PL warehousing, merchant gateway fees, blended ROAS, and net margin.
+  4. **[business]** `venture_expansion_moat`: Calculate inventory Reorder Point (ROP = LTD + SS), safety stock, and supply chain moats.
+  5. **[message]** `send`: Dispatch automated launch readiness and inventory notification to Telegram channel.
+
+### `academic_manuscript_complete_lifecycle` — Academic Manuscript Complete Lifecycle Pipeline
+- **Description**: Full-cycle academic production: Citation verify & BibTeX ➔ Methodology Cohen's d audit ➔ LaTeX scaffold ➔ Multi-reviewer peer review simulation ➔ Target journal matcher ➔ Camera-ready checklist.
+- **Required Plugins**: `science`
+- **Execution Steps**:
+  1. **[science]** `paper_citation_verify`: Verify DOI citations, bibliography integrity, and generate valid BibTeX records.
+  2. **[science]** `paper_methodology_audit`: Audit empirical methodology, sample size power, Cohen's d effect size, and baseline controls.
+  3. **[science]** `paper_latex_scaffold`: Scaffold publication-ready LaTeX manuscript structure and SIGCONF/IEEE templates.
+  4. **[science]** `paper_peer_review_simulate`: Simulate rigorous 3-reviewer peer review with constructive critiques, scores, and accept probability.
+  5. **[science]** `journal_matcher`: Match target journal venues based on Impact Factor, review turnaround time, and Open Access model.
+  6. **[science]** `journal_submission_checklist`: Verify camera-ready submission compliance, reproducibility checklist, and ethics declarations.
+
+### `startup_pmf_and_scale_sprint` — Startup PMF Validation & Scale Sprint Pipeline
+- **Description**: Full-cycle startup sprint: Sean Ellis PMF survey ➔ Activation funnel audit ➔ D1/D7/D30 retention curves ➔ Pricing elasticity experiment ➔ 90-day growth playbook.
+- **Required Plugins**: `business`
+- **Execution Steps**:
+  1. **[business]** `venture_pmf_validation`: Calculate Sean Ellis 40% PMF score and qualitative user feedback clusters.
+  2. **[business]** `venture_activation_funnel`: Audit visitor-to-signup and signup-to-activation conversion bottlenecks and Time-to-Value.
+  3. **[business]** `venture_retention_curves`: Evaluate D1, D7, and D30 cohort retention curves against SaaS industry benchmarks.
+  4. **[business]** `venture_pricing_experiment`: Simulate price elasticity curve to optimize Average Revenue Per User (ARPU) and revenue per visitor.
+  5. **[business]** `venture_growth_playbook`: Synthesize 90-day execution sprint roadmap with sequenced acquisition, activation, and monetization milestones.
 
 ### `automated_revenue_monitor` — Automated Competitor Revenue & Alert Monitor
 - **Description**: Track Stripe billing trajectory and dispatch milestone notifications to Telegram.

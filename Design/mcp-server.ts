@@ -29,7 +29,7 @@ export const DESIGN_INPUT_SCHEMA = {
     action: {
       type: "string",
       enum: DESIGN_ACTIONS,
-      description: "Design action: 'catalog' (list components), 'inspect_component' (deep schema/props/example), 'theme_tokens' (colors, spacing, radius), 'generate_ui' (Svelte 5 runes recipe), 'audit_ui' (A11y/Token linter), 'bridge_chrome' (DOM to component mapper), 'list_layers' (5-layer architecture), 'resolve_imports' (calculate on-demand subpaths & savings), 'domain_presets' (clinical, chat_ai, analytics packs), 'bundle_optimize' (refactor monolithic imports).",
+      description: "Design action: 'catalog' (list components), 'inspect_component' (deep schema/props/example), 'theme_tokens' (colors, spacing, radius), 'generate_ui' (Svelte 5 runes recipe), 'audit_ui' (A11y/Token linter), 'bridge_chrome' (DOM to component mapper), 'list_layers' (5-layer architecture), 'resolve_imports' (calculate on-demand subpaths & savings), 'domain_presets' (clinical, chat_ai, analytics, commerce, auth, ecommerce_pdp, ecommerce_checkout, academic_manuscript_viewer, venture_telemetry_dashboard), 'bundle_optimize' (refactor monolithic imports).",
     },
     layer: {
       type: "string",
@@ -52,7 +52,17 @@ export const DESIGN_INPUT_SCHEMA = {
     },
     preset_name: {
       type: "string",
-      enum: ["clinical", "chat_ai", "analytics", "commerce", "auth"],
+      enum: [
+        "clinical",
+        "chat_ai",
+        "analytics",
+        "commerce",
+        "auth",
+        "ecommerce_pdp",
+        "ecommerce_checkout",
+        "academic_manuscript_viewer",
+        "venture_telemetry_dashboard",
+      ],
       description: "Target domain preset pack.",
     },
     token_category: {
@@ -62,7 +72,19 @@ export const DESIGN_INPUT_SCHEMA = {
     },
     intent: {
       type: "string",
-      enum: ["marketing_hero", "auth_form", "screener", "chat_stream", "settings_panel", "pricing_table", "custom"],
+      enum: [
+        "marketing_hero",
+        "auth_form",
+        "screener",
+        "chat_stream",
+        "settings_panel",
+        "pricing_table",
+        "ecommerce_pdp",
+        "ecommerce_checkout",
+        "academic_manuscript_viewer",
+        "venture_telemetry_dashboard",
+        "custom",
+      ],
       description: "Intent for UI generation recipe.",
     },
     prompt: {

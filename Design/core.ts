@@ -72,14 +72,38 @@ export type TokenDefinition = {
   description: string;
 };
 
+export type DomainPresetId =
+  | "clinical"
+  | "chat_ai"
+  | "analytics"
+  | "commerce"
+  | "auth"
+  | "ecommerce_pdp"
+  | "ecommerce_checkout"
+  | "academic_manuscript_viewer"
+  | "venture_telemetry_dashboard";
+
 export type DomainPreset = {
-  id: "clinical" | "chat_ai" | "analytics" | "commerce" | "auth";
+  id: DomainPresetId;
   name: string;
   description: string;
   recommendedComponents: string[];
   tokensFocus: string[];
   snippet: string;
 };
+
+export type UIIntent =
+  | "marketing_hero"
+  | "auth_form"
+  | "screener"
+  | "chat_stream"
+  | "settings_panel"
+  | "pricing_table"
+  | "ecommerce_pdp"
+  | "ecommerce_checkout"
+  | "academic_manuscript_viewer"
+  | "venture_telemetry_dashboard"
+  | "custom";
 
 export type DesignAction =
   | "catalog"
@@ -99,9 +123,9 @@ export type DesignInput = {
   category?: ComponentCategory;
   component_id?: string;
   components?: string[];
-  preset_name?: "clinical" | "chat_ai" | "analytics" | "commerce" | "auth";
+  preset_name?: DomainPresetId;
   token_category?: DesignTokenCategory;
-  intent?: "marketing_hero" | "auth_form" | "screener" | "chat_stream" | "settings_panel" | "pricing_table" | "custom";
+  intent?: UIIntent;
   prompt?: string;
   template_code?: string;
   chrome_element?: {
@@ -300,6 +324,81 @@ export const COMPONENT_CATALOG: ComponentSpec[] = [
     ],
     example: `<Chart data={completionSeries} type="line" height={180} />`,
   },
+  {
+    id: "badge",
+    name: "Badge",
+    layer: "component",
+    category: "status",
+    description: "Compact status pill and numerical counter badge with multiple semantic tone variants.",
+    importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/component/feedback/badge",
+    estimatedSizeKb: 1.1,
+    variants: ["default", "primary", "success", "warning", "destructive", "outline", "pill"],
+    props: [
+      { name: "variant", type: "'default' | 'primary' | 'success' | 'warning' | 'destructive' | 'outline' | 'pill'", required: false, default: "'default'", description: "Visual style variant" },
+      { name: "size", type: "'sm' | 'md' | 'lg'", required: false, default: "'md'", description: "Scale size" },
+      { name: "pulse", type: "boolean", required: false, default: "false", description: "Animated urgency pulse indicator" },
+    ],
+    slots: ["children"],
+    a11yRole: "status",
+    example: `<Badge variant="success" pulse={true}>⚡ In Stock</Badge>`,
+  },
+  {
+    id: "drawer",
+    name: "Drawer",
+    layer: "composite",
+    category: "overlay",
+    description: "Slideout panel sheet anchored to screen edges with backdrop dismissal and focus management.",
+    importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/composite/overlay/drawer",
+    estimatedSizeKb: 3.8,
+    variants: ["right", "left", "bottom", "top"],
+    props: [
+      { name: "open", type: "boolean", required: true, description: "Controlled open/close state" },
+      { name: "position", type: "'right' | 'left' | 'bottom' | 'top'", required: false, default: "'right'", description: "Slideout anchor edge" },
+      { name: "title", type: "string", required: true, description: "Accessible drawer header title" },
+      { name: "onClose", type: "() => void", required: true, description: "Close request handler" },
+    ],
+    slots: ["header", "children", "footer"],
+    a11yRole: "dialog",
+    example: `<Drawer open={isCartOpen} title="Express Checkout" onClose={() => isCartOpen = false}>\n  <p>Itemized cart items...</p>\n</Drawer>`,
+  },
+  {
+    id: "table",
+    name: "Table",
+    layer: "component",
+    category: "display",
+    description: "Accessible tabular data grid with sortable column headers, heatmap cell styling, and responsive layout.",
+    importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/component/display/table",
+    estimatedSizeKb: 2.9,
+    props: [
+      { name: "headers", type: "Array<string>", required: true, description: "Column header titles" },
+      { name: "striped", type: "boolean", required: false, default: "false", description: "Alternating row backgrounds" },
+      { name: "compact", type: "boolean", required: false, default: "false", description: "High-density data row spacing" },
+    ],
+    slots: ["children"],
+    a11yRole: "table",
+    example: `<Table headers={['Cohort', 'D1', 'D7', 'D30']}>\n  {#each rows as row}\n    <tr><td>{row.name}</td><td>{row.d1}%</td></tr>\n  {/each}\n</Table>`,
+  },
+  {
+    id: "avatar",
+    name: "Avatar",
+    layer: "component",
+    category: "display",
+    description: "User profile thumbnail with initials fallback, online presence dot, and image loading state.",
+    importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/component/display/avatar",
+    estimatedSizeKb: 1.3,
+    props: [
+      { name: "src", type: "string", required: false, description: "Image source URL" },
+      { name: "name", type: "string", required: true, description: "Full name for alt text and fallback initials" },
+      { name: "size", type: "'sm' | 'md' | 'lg' | 'xl'", required: false, default: "'md'", description: "Avatar dimension" },
+      { name: "status", type: "'online' | 'offline' | 'busy' | 'away'", required: false, description: "Status indicator dot" },
+    ],
+    a11yRole: "img",
+    example: `<Avatar name="Satoshi Nakamoto" size="md" status="online" />`,
+  },
 ];
 
 /** Domain-Specific Plug-and-Play Design Slices */
@@ -324,17 +423,17 @@ export const DOMAIN_PRESETS: DomainPreset[] = [
     id: "analytics",
     name: "BI Dashboard & Metrics Pack",
     description: "Data visualization, metric summary cards, trend indicators, and data tables.",
-    recommendedComponents: ["Chart", "Card", "Button"],
+    recommendedComponents: ["Chart", "Card", "Button", "Table"],
     tokensFocus: ["--font-title-1", "--color-primary", "--color-border"],
-    snippet: `import { Chart, Card } from "infra-ui-svelte";\n// High-density analytics telemetry`,
+    snippet: `import { Chart, Card, Table } from "infra-ui-svelte";\n// High-density analytics telemetry`,
   },
   {
     id: "commerce",
     name: "Monetization & Subscription Checkout Pack",
     description: "Pricing comparison grids, subscription status pills, and billing receipts.",
-    recommendedComponents: ["Pricing", "Card", "Button"],
+    recommendedComponents: ["Pricing", "Card", "Button", "Badge"],
     tokensFocus: ["--color-primary", "--radius-md", "--font-title-2"],
-    snippet: `import { Pricing, Button, Card } from "infra-ui-svelte";\n// Zero-friction checkout funnel`,
+    snippet: `import { Pricing, Button, Card, Badge } from "infra-ui-svelte";\n// Zero-friction checkout funnel`,
   },
   {
     id: "auth",
@@ -343,6 +442,38 @@ export const DOMAIN_PRESETS: DomainPreset[] = [
     recommendedComponents: ["Card", "Input", "Button", "Dialog"],
     tokensFocus: ["--radius-md", "--color-primary", "--color-surface"],
     snippet: `import { Card, Input, Button } from "infra-ui-svelte";\n// Passwordless secure signin`,
+  },
+  {
+    id: "ecommerce_pdp",
+    name: "E-Commerce High-Converting PDP Pack",
+    description: "High-converting product detail page with reactive variant matrix, dynamic inventory urgency, pricing formulas, and instant 1-click checkout.",
+    recommendedComponents: ["Card", "Button", "Badge", "Input"],
+    tokensFocus: ["--color-primary", "--color-destructive", "--radius-md", "--font-title-1"],
+    snippet: `import { Card, Button, Badge } from "infra-ui-svelte";\n// High-conversion Svelte 5 Runes Product Detail Page`,
+  },
+  {
+    id: "ecommerce_checkout",
+    name: "E-Commerce Express Checkout Slideout Pack",
+    description: "Frictionless express slideout checkout with Apple/Shop Pay fast actions, itemized cart summary ledger, and dynamic promo code calculation.",
+    recommendedComponents: ["Drawer", "Card", "Button", "Input", "Badge"],
+    tokensFocus: ["--color-primary", "--color-surface-raised", "--radius-lg", "--font-title-2"],
+    snippet: `import { Drawer, Card, Button, Input, Badge } from "infra-ui-svelte";\n// Express 1-tap checkout slideout drawer`,
+  },
+  {
+    id: "academic_manuscript_viewer",
+    name: "Academic Manuscript & Citation Intelligence Pack",
+    description: "Research paper metadata card, LaTeX mathematical formula viewer, 1-click BibTeX citation generator, and 3-reviewer score radar badge.",
+    recommendedComponents: ["Card", "Badge", "Button", "Chart"],
+    tokensFocus: ["--font-title-2", "--color-foreground", "--color-surface-raised", "--radius-sm"],
+    snippet: `import { Card, Badge, Button, Chart } from "infra-ui-svelte";\n// Peer-reviewed academic manuscript & BibTeX viewer`,
+  },
+  {
+    id: "venture_telemetry_dashboard",
+    name: "Venture Telemetry & SaaS Growth Metrics Pack",
+    description: "Executive venture metrics, MRR/ARR growth rate cards, D1/D7/D30 cohort retention heatmap table, and interactive price elasticity simulation curve.",
+    recommendedComponents: ["Card", "Chart", "Badge", "Button", "Table"],
+    tokensFocus: ["--color-primary", "--color-success", "--font-title-1", "--space-md"],
+    snippet: `import { Card, Chart, Badge, Button, Table } from "infra-ui-svelte";\n// SaaS venture telemetry & retention heatmap dashboard`,
   },
 ];
 

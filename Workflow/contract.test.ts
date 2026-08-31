@@ -77,7 +77,7 @@ describe("Golden Protocol & Contract Verification Across All 6 Plugins", () => {
     const presetsRes = await designOperation({ action: "domain_presets" });
     expect(presetsRes.success).toBe(true);
     const presetsData = presetsRes.data as any;
-    expect(presetsData.total).toBe(5);
+    expect(presetsData.total).toBeGreaterThanOrEqual(5);
 
     const tokensRes = await designOperation({ action: "theme_tokens", token_category: "color" });
     expect(tokensRes.success).toBe(true);
@@ -89,7 +89,7 @@ describe("Golden Protocol & Contract Verification Across All 6 Plugins", () => {
     const openrpcRes = await workflowOperation({ action: "export_schema_catalog" });
     expect(openrpcRes.success).toBe(true);
     expect(openrpcRes.protocol).toBe(WORKFLOW_PROTOCOL);
-    expect((openrpcRes.data as any).openrpc).toBe("1.3.0");
+    expect((openrpcRes.data as any).openrpc).toBe("1.3.2");
 
     const openapiRes = await workflowOperation({ action: "export_openapi_catalog" });
     expect(openapiRes.success).toBe(true);

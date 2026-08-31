@@ -39,6 +39,9 @@ export type WorkflowId =
   | "patent_invention_pipeline"
   | "venture_growth_lifecycle"
   | "shop_ecommerce_lifecycle"
+  | "ecommerce_full_launch_pipeline"
+  | "academic_manuscript_complete_lifecycle"
+  | "startup_pmf_and_scale_sprint"
   | "automated_revenue_monitor"
   | "design_system_audit_pipeline"
   | (string & {});
@@ -181,6 +184,46 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
     ],
   },
   {
+    id: "ecommerce_full_launch_pipeline",
+    name: "End-to-End E-Commerce Full Launch Pipeline",
+    description: "Full-cycle e-commerce launch: Market validation (Shop) ➔ Svelte 5 PDP UI synthesis ➔ COGS/3PL unit economics ➔ Inventory ROP safety stock ➔ Telegram launch alert.",
+    requiredPlugins: ["business", "design", "message"],
+    steps: [
+      { step: 1, plugin: "business", action: "venture_market_validation", description: "Validate e-commerce market viability, TAM/SAM/SOM, and omnichannel sourcing strategy." },
+      { step: 2, plugin: "design", action: "generate_ui", description: "Synthesize high-converting e-commerce PDP (Product Detail Page) Svelte 5 component with runes." },
+      { step: 3, plugin: "business", action: "venture_unit_economics", description: "Calculate COGS, 3PL warehousing, merchant gateway fees, blended ROAS, and net margin." },
+      { step: 4, plugin: "business", action: "venture_expansion_moat", description: "Calculate inventory Reorder Point (ROP = LTD + SS), safety stock, and supply chain moats." },
+      { step: 5, plugin: "message", action: "send", description: "Dispatch automated launch readiness and inventory notification to Telegram channel." },
+    ],
+  },
+  {
+    id: "academic_manuscript_complete_lifecycle",
+    name: "Academic Manuscript Complete Lifecycle Pipeline",
+    description: "Full-cycle academic production: Citation verify & BibTeX ➔ Methodology Cohen's d audit ➔ LaTeX scaffold ➔ Multi-reviewer peer review simulation ➔ Target journal matcher ➔ Camera-ready checklist.",
+    requiredPlugins: ["science"],
+    steps: [
+      { step: 1, plugin: "science", action: "paper_citation_verify", description: "Verify DOI citations, bibliography integrity, and generate valid BibTeX records." },
+      { step: 2, plugin: "science", action: "paper_methodology_audit", description: "Audit empirical methodology, sample size power, Cohen's d effect size, and baseline controls." },
+      { step: 3, plugin: "science", action: "paper_latex_scaffold", description: "Scaffold publication-ready LaTeX manuscript structure and SIGCONF/IEEE templates." },
+      { step: 4, plugin: "science", action: "paper_peer_review_simulate", description: "Simulate rigorous 3-reviewer peer review with constructive critiques, scores, and accept probability." },
+      { step: 5, plugin: "science", action: "journal_matcher", description: "Match target journal venues based on Impact Factor, review turnaround time, and Open Access model." },
+      { step: 6, plugin: "science", action: "journal_submission_checklist", description: "Verify camera-ready submission compliance, reproducibility checklist, and ethics declarations." },
+    ],
+  },
+  {
+    id: "startup_pmf_and_scale_sprint",
+    name: "Startup PMF Validation & Scale Sprint Pipeline",
+    description: "Full-cycle startup sprint: Sean Ellis PMF survey ➔ Activation funnel audit ➔ D1/D7/D30 retention curves ➔ Pricing elasticity experiment ➔ 90-day growth playbook.",
+    requiredPlugins: ["business"],
+    steps: [
+      { step: 1, plugin: "business", action: "venture_pmf_validation", description: "Calculate Sean Ellis 40% PMF score and qualitative user feedback clusters." },
+      { step: 2, plugin: "business", action: "venture_activation_funnel", description: "Audit visitor-to-signup and signup-to-activation conversion bottlenecks and Time-to-Value." },
+      { step: 3, plugin: "business", action: "venture_retention_curves", description: "Evaluate D1, D7, and D30 cohort retention curves against SaaS industry benchmarks." },
+      { step: 4, plugin: "business", action: "venture_pricing_experiment", description: "Simulate price elasticity curve to optimize Average Revenue Per User (ARPU) and revenue per visitor." },
+      { step: 5, plugin: "business", action: "venture_growth_playbook", description: "Synthesize 90-day execution sprint roadmap with sequenced acquisition, activation, and monetization milestones." },
+    ],
+  },
+  {
     id: "automated_revenue_monitor",
     name: "Automated Competitor Revenue & Alert Monitor",
     description: "Track Stripe billing trajectory and dispatch milestone notifications to Telegram.",
@@ -221,6 +264,38 @@ export type SystemTelemetryReport = {
   metricsByAction: Record<string, ActionMetric>;
 };
 
+export type SubsystemBenchmarkResult = {
+  subsystem: PluginId;
+  action: string;
+  label: string;
+  iterations: number;
+  totalDurationMs: number;
+  opsPerSec: number;
+  avgMs: number;
+  minMs: number;
+  maxMs: number;
+  p50Ms: number;
+  p90Ms: number;
+  p99Ms: number;
+};
+
+export type BenchmarkSuiteResult = {
+  timestamp: string;
+  totalSubsystems: number;
+  totalActionsTested: number;
+  totalIterations: number;
+  totalDurationMs: number;
+  overallOpsPerSec: number;
+  subsystems: Record<string, SubsystemBenchmarkResult[]>;
+  summary: {
+    fastestAction: { label: string; p50Ms: number; opsPerSec: number };
+    slowestAction: { label: string; p50Ms: number; opsPerSec: number };
+    avgP50Ms: number;
+    avgP90Ms: number;
+    avgP99Ms: number;
+  };
+};
+
 export type WorkflowAction =
   | "list_workflows"
   | "run_workflow"
@@ -230,6 +305,9 @@ export type WorkflowAction =
   | "install_mcp_schemas"
   | "export_schema_catalog"
   | "export_openapi_catalog"
+  | "export_openrpc_spec"
+  | "export_openapi_spec"
+  | "benchmark"
   | "get_metrics"
   | "export_trace"
   | "export_mermaid_dag"
@@ -252,6 +330,11 @@ export type WorkflowInput = {
   concurrency?: number;
   client_target?: ClientTargetConfig;
   parameters?: Record<string, unknown>;
+  benchmark_options?: {
+    iterations?: number;
+    warmupIterations?: number;
+    subsystems?: PluginId[];
+  };
 };
 
 export type WorkflowResult = {
@@ -297,13 +380,19 @@ export function formatWorkflowSummary(result: WorkflowResult): string {
       const data = result.data as any;
       return `✓ Installed ${data.installedCount} MCP schemas to Antigravity directory (${data.installedPaths.length} tools registered)`;
     }
-    case "export_schema_catalog": {
+    case "export_schema_catalog":
+    case "export_openrpc_spec": {
       const data = result.data as any;
-      return `OpenRPC Catalog: ${data.totalTools} tools, ${data.totalMethods} methods across ${data.totalPlugins} plugins`;
+      return `OpenRPC ${data.openrpc ?? "1.3.2"}: ${data.methods?.length ?? data.totalMethods ?? 0} methods across ${data.totalPlugins ?? data.servers?.length ?? 6} subsystems`;
     }
-    case "export_openapi_catalog": {
+    case "export_openapi_catalog":
+    case "export_openapi_spec": {
       const data = result.data as any;
-      return `OpenAPI 3.1: ${Object.keys(data.paths).length} endpoints, ${data.info.title}`;
+      return `OpenAPI ${data.openapi ?? "3.1.0"}: ${Object.keys(data.paths ?? {}).length} paths registered (${data.info?.title})`;
+    }
+    case "benchmark": {
+      const data = result.data as BenchmarkSuiteResult;
+      return `⚡ Latency Benchmark: ${data.totalActionsTested} actions across ${data.totalSubsystems} subsystems (${data.overallOpsPerSec.toLocaleString()} ops/sec | avg P50: ${data.summary.avgP50Ms}ms | avg P99: ${data.summary.avgP99Ms}ms)`;
     }
     case "get_metrics": {
       const data = result.data as any;

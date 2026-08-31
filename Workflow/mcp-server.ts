@@ -13,6 +13,16 @@ export const WORKFLOW_ACTIONS = [
   "register_workflow",
   "get_workflow_history",
   "export_config",
+  "install_mcp_schemas",
+  "export_schema_catalog",
+  "export_openapi_catalog",
+  "export_openrpc_spec",
+  "export_openapi_spec",
+  "benchmark",
+  "get_metrics",
+  "export_trace",
+  "export_mermaid_dag",
+  "batch_run",
   "health_check",
   "dry_run",
 ] as const;
@@ -25,7 +35,7 @@ export const WORKFLOW_INPUT_SCHEMA = {
     action: {
       type: "string",
       enum: WORKFLOW_ACTIONS,
-      description: "Workflow action: 'list_workflows' (catalog of pipelines), 'run_workflow' (live execution), 'register_workflow' (define custom DAG), 'get_workflow_history' (past execution receipts), 'export_config' (generate MCP client JSON configs), 'health_check' (system diagnostics), 'dry_run' (plan graph inspection).",
+      description: "Workflow action: 'list_workflows' (catalog of pipelines), 'run_workflow' (live execution), 'register_workflow' (define custom DAG), 'get_workflow_history' (past execution receipts), 'export_config' (generate MCP client JSON configs), 'install_mcp_schemas' (install to Antigravity), 'export_schema_catalog' / 'export_openrpc_spec' (OpenRPC 1.3.2 specification), 'export_openapi_catalog' / 'export_openapi_spec' (OpenAPI 3.1.0 specification), 'benchmark' (P50/P90/P99 latency & ops/sec suite across all 6 subsystems), 'get_metrics' (live telemetry and circuit breaker state), 'export_trace' (OTel spans export), 'export_mermaid_dag' (Mermaid diagram), 'batch_run' (pooled parallel execution), 'health_check' (system diagnostics), 'dry_run' (plan graph inspection).",
     },
     workflow_id: {
       type: "string",
@@ -33,7 +43,7 @@ export const WORKFLOW_INPUT_SCHEMA = {
     },
     target_plugin: {
       type: "string",
-      enum: ["chrome", "design", "business", "science", "message", "secret", "all"],
+      enum: ["chrome", "design", "business", "science", "message", "secret", "workflow", "all"],
       description: "Target plugin for health check.",
     },
     client_target: {
@@ -45,9 +55,40 @@ export const WORKFLOW_INPUT_SCHEMA = {
       type: "object",
       description: "Custom workflow definition object containing id, name, description, requiredPlugins, and steps.",
     },
+    tasks: {
+      type: "array",
+      items: {
+        type: "object",
+        required: ["id", "plugin", "action"],
+        properties: {
+          id: { type: "string" },
+          plugin: { type: "string" },
+          action: { type: "string" },
+          parameters: { type: "object" },
+        },
+      },
+      description: "List of concurrent tasks for batch_run action.",
+    },
+    concurrency: {
+      type: "integer",
+      description: "Maximum concurrency pool limit for batch_run.",
+    },
     parameters: {
       type: "object",
       description: "Optional custom parameters passed to workflow pipeline steps.",
+    },
+    benchmark_options: {
+      type: "object",
+      description: "Options for benchmark execution (iterations, warmupIterations, subsystems).",
+      properties: {
+        iterations: { type: "integer", description: "Number of benchmark iterations per target." },
+        warmupIterations: { type: "integer", description: "Number of warmup iterations." },
+        subsystems: {
+          type: "array",
+          items: { type: "string" },
+          description: "Subsystems to include in benchmark.",
+        },
+      },
     },
   },
 } as const;

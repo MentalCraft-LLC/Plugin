@@ -22,7 +22,10 @@ import { join } from "node:path";
 const args = process.argv.slice(2);
 const command = args[0] || "help";
 
-const executeChrome = createBrowserContextOperation();
+const rawExecuteChrome = createBrowserContextOperation();
+const executeChrome = async (input: any) => {
+  return await rawExecuteChrome(input, undefined, { isProjectTrusted: () => true }, "cli_session", undefined);
+};
 const executeMessage = createMessageOperation();
 
 export async function executePluginAction(plugin: string, action: string, jsonArgs: Record<string, unknown> = {}): Promise<unknown> {
@@ -53,8 +56,8 @@ export function generateMarkdownCatalog(): string {
     "",
     "| Subsystem | Actions | Protocol | Key Domain Scope |",
     "|---|---|---|---|",
-    "| `Workflow` | 13 | `holar.workflow.v1` | Multi-plugin compound DAG execution, health diagnostics, telemetry & circuit breaker |",
-    "| `Business` | 21 | `holar.business.v1` | 8-Stage Venture Lifecycle (Websites, Apps, Games), PMF, SEO KD, ASO, Steam, Activation, Unit Economics, Moats |",
+    "| `Workflow` | 17 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |",
+    "| `Business` | 21 | `holar.business.v1` | 8-Stage Venture Lifecycle (Websites, Apps, Games, Shops), PMF, SEO KD, ASO, Steam, Activation, Unit Economics, Moats |",
     "| `Science` | 16 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, Methodology, Grants, Authoring, Peer Review, Journals, Patents, Impact |",
     "| `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |",
     "| `Chrome` | 38 | `holar.browser.v1` | Inactive tab driving, CDP inspection, HUD annotations, storage/cookie receipts |",
@@ -122,9 +125,12 @@ Available REPL Commands:
   metrics, telemetry       Show live latency & circuit breaker
   workflows, wf            List compound DAG pipelines
   run <workflow_id>        Execute workflow pipeline
-  bench                    Run microsecond benchmark suite
+  benchmark, bench         Run P50/P90/P99 latency benchmark suite
+  export-specs, specs      Export OpenRPC 1.3.2 & OpenAPI 3.1.0 specifications
+  openrpc, schema          Export OpenRPC 1.3.2 JSON spec
+  openapi                  Export OpenAPI 3.1.0 JSON spec
   exec <p> <a> [json]      Execute single action (e.g. exec business traffic_domain_overview {"domain":"mentalcraft.org"})
-  docs                     Generate CATALOG.md documentation
+  docs, catalog            Generate CATALOG.md documentation
   exit, quit               Exit the REPL
 `);
         } else if (sub === "list" || sub === "ls") {
@@ -133,12 +139,18 @@ Available REPL Commands:
           await mainCommand("health");
         } else if (sub === "metrics" || sub === "telemetry") {
           await mainCommand("metrics");
-        } else if (sub === "bench") {
-          await mainCommand("bench");
+        } else if (sub === "bench" || sub === "benchmark") {
+          await mainCommand("benchmark");
+        } else if (sub === "specs" || sub === "export-specs") {
+          await mainCommand("export-specs");
+        } else if (sub === "openrpc" || sub === "schema") {
+          await mainCommand("openrpc");
+        } else if (sub === "openapi") {
+          await mainCommand("openapi");
         } else if (sub === "workflows" || sub === "wf") {
           await mainCommand("workflows");
         } else if (sub === "run") {
-          const wfId = parts[1] || "clinical_study_to_screener";
+          const wfId = parts[1] || "ecommerce_full_launch_pipeline";
           const res = await workflowOperation({ action: "run_workflow", workflow_id: wfId as any });
           console.log(JSON.stringify(res, null, 2));
         } else if (sub === "exec") {
@@ -148,7 +160,7 @@ Available REPL Commands:
           const parsed = jsonStr ? JSON.parse(jsonStr) : {};
           const res = await executePluginAction(p, a, parsed);
           console.log(JSON.stringify(res, null, 2));
-        } else if (sub === "docs") {
+        } else if (sub === "docs" || sub === "catalog") {
           const doc = generateMarkdownCatalog();
           writeFileSync(join(import.meta.dir, "CATALOG.md"), doc, "utf-8");
           console.log("✓ Generated CATALOG.md");
@@ -170,9 +182,9 @@ async function mainCommand(cmd: string) {
     case "ls": {
       console.log("\n📦 Holar Plugin Registry\n" + "=".repeat(60));
       const plugins = [
-        { id: "workflow", name: "Workflow Orchestrator & Health Engine", actions: 9, desc: "Multi-plugin compound DAG execution & pre-flight health diagnostics" },
-        { id: "business", name: "Business & Market Intelligence", actions: 11, desc: "Gefei SEO KD, TrafficCV domain traffic & channels, Stripe Radar leaderboards" },
-        { id: "science", name: "Science & Research Intelligence", actions: 7, desc: "Clinical scoring (GAD-7/PHQ-9), 988 crisis safety, literature & patent novelty" },
+        { id: "workflow", name: "Workflow Orchestrator & Health Engine", actions: 17, desc: "Multi-plugin compound DAG execution, latency benchmark suite, OpenRPC/OpenAPI specs & pre-flight health diagnostics" },
+        { id: "business", name: "Business & Market Intelligence", actions: 21, desc: "8-Stage Venture Lifecycle (Websites, Apps, Games, Shops), Gefei SEO KD, TrafficCV domain traffic & channels, Stripe Radar" },
+        { id: "science", name: "Science & Research Intelligence", actions: 16, desc: "8-Stage Academic Production Lifecycle: Literature, Methodology, Grants, LaTeX, Peer Review, Journals, Patents" },
         { id: "design", name: "Design System & UI Intelligence", actions: 10, desc: "5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths" },
         { id: "chrome", name: "Chrome Automation & Native Bridge", actions: 38, desc: "Inactive-tab driving, CDP, HUD annotations, Storage" },
         { id: "message", name: "Agent Message Bus", actions: 4, desc: "Multi-channel priority dispatching (Telegram > iMessage > Email)" },
@@ -218,11 +230,11 @@ async function mainCommand(cmd: string) {
 ║ Overall Health: ${report.overallStatus === "healthy" ? "🟢 HEALTHY" : "🟡 DEGRADED"} (Score: ${report.healthScore}/100) | Healthy Plugins: ${report.healthyPlugins}/${report.totalPlugins}   ║
 ║ Protocols: MCP Stdio, HTTP/SSE (Port 3890), OpenRPC 1.3, OpenAPI 3.1           ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
-║ ACTIVE CAPABILITY SUBSYSTEMS (6 Modules / 102 Actions)                         ║
-║  • Business  [${report.plugins.business.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (21 actions) | 8-Stage Venture Lifecycle (Web/App/Game)    ║
+║ ACTIVE CAPABILITY SUBSYSTEMS (6 Modules / 106 Actions)                         ║
+║  • Business  [${report.plugins.business.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (21 actions) | 8-Stage Venture Lifecycle (Web/App/Game/Shop)║
 ║  • Science   [${report.plugins.science.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (16 actions) | 8-Stage Academic Production Lifecycle       ║
 ║  • Design    [${report.plugins.design.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (10 actions) | 5-Layer UI, Runes, Tokens, Presets     ║
-║  • Workflow  [${report.plugins.workflow.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (13 actions) | DAG Engine, OTel Spans, Batch Pool    ║
+║  • Workflow  [${report.plugins.workflow.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (17 actions) | DAG Engine, OTel Spans, Batch, Benchmark  ║
 ║  • Chrome    [${report.plugins.chrome.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (38 actions) | Tab HUD, Native Bridge, Session Vault  ║
 ║  • Message   [${report.plugins.message.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] ( 4 actions) | Telegram, iMessage, Email Secure Bus  ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
@@ -348,15 +360,37 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "export-specs":
+    case "specs": {
+      const outDirArg = args.find((a) => a.startsWith("--dir="));
+      const outDir = outDirArg ? outDirArg.split("=")[1] : import.meta.dir;
+      const rpcRes = await workflowOperation({ action: "export_openrpc_spec" });
+      const apiRes = await workflowOperation({ action: "export_openapi_spec" });
+
+      const rpcFile = join(outDir, "openrpc.json");
+      const apiFile = join(outDir, "openapi.json");
+
+      writeFileSync(rpcFile, JSON.stringify(rpcRes.data, null, 2), "utf-8");
+      writeFileSync(apiFile, JSON.stringify(apiRes.data, null, 2), "utf-8");
+
+      console.log("\n📋 Exported Interface Specifications\n" + "=".repeat(65));
+      console.log(`✓ OpenRPC 1.3.2: ${rpcFile}`);
+      console.log(`  (${(rpcRes.data as any).totalMethods} methods across ${(rpcRes.data as any).totalPlugins} plugins)`);
+      console.log(`✓ OpenAPI 3.1.0: ${apiFile}`);
+      console.log(`  (${Object.keys((apiRes.data as any).paths).length} REST paths registered)`);
+      console.log("=".repeat(65) + "\n");
+      break;
+    }
+
     case "schema":
     case "openrpc": {
-      const res = await workflowOperation({ action: "export_schema_catalog" });
+      const res = await workflowOperation({ action: "export_openrpc_spec" });
       console.log(JSON.stringify(res.data, null, 2));
       break;
     }
 
     case "openapi": {
-      const res = await workflowOperation({ action: "export_openapi_catalog" });
+      const res = await workflowOperation({ action: "export_openapi_spec" });
       console.log(JSON.stringify(res.data, null, 2));
       break;
     }
@@ -370,34 +404,36 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "benchmark":
     case "bench": {
-      console.log("\n⚡ Benchmarking In-Process Plugin Execution Performance (1,000 iterations each)\n" + "=".repeat(70));
-      const targets = [
-        { name: "Business: venture_market_validation", fn: () => businessOperation({ action: "venture_market_validation", modality: "game" }) },
-        { name: "Business: venture_unit_economics", fn: () => businessOperation({ action: "venture_unit_economics", modality: "website" }) },
-        { name: "Business: traffic_domain_overview", fn: () => businessOperation({ action: "traffic_domain_overview", domain: "mentalcraft.org" }) },
-        { name: "Science: paper_literature_search", fn: () => scienceOperation({ action: "paper_literature_search", query: "agent" }) },
-        { name: "Science: grant_criteria_audit", fn: () => scienceOperation({ action: "grant_criteria_audit", funding_agency: "NIH" }) },
-        { name: "Design: generate_ui (Runes)", fn: () => designOperation({ action: "generate_ui", intent: "screener" }) },
-        { name: "Design: resolve_imports (AST)", fn: () => designOperation({ action: "resolve_imports", components: ["Button", "Card", "Dialog"] }) },
-        { name: "Workflow: dry_run pipeline", fn: () => workflowOperation({ action: "dry_run", workflow_id: "launch_product_campaign" }) },
-      ];
+      const iterArg = args.find((a) => a.startsWith("--iterations=") || a.startsWith("-n="));
+      const iterations = iterArg ? parseInt(iterArg.split("=")[1], 10) : 200;
 
-      const iterations = 1000;
-      for (const t of targets) {
-        for (let i = 0; i < 50; i++) await t.fn();
+      console.log(`\n⚡ MentalCraft Multi-Subsystem Latency & Throughput Benchmark Suite (${iterations} iterations per action)\n` + "=".repeat(92));
 
-        const start = performance.now();
-        for (let i = 0; i < iterations; i++) {
-          await t.fn();
+      const res = await workflowOperation({ action: "benchmark", benchmark_options: { iterations } });
+      const data = res.data as any;
+
+      console.log("Subsystem   | Action / Target                          |  P50 (ms) |  P90 (ms) |  P99 (ms) | Throughput");
+      console.log("------------+------------------------------------------+-----------+-----------+-----------+------------");
+
+      for (const [subsystem, list] of Object.entries(data.subsystems) as any[]) {
+        for (const item of list) {
+          const subCol = subsystem.padEnd(11);
+          const actCol = item.action.slice(0, 40).padEnd(40);
+          const p50Col = item.p50Ms.toFixed(3).padStart(9);
+          const p90Col = item.p90Ms.toFixed(3).padStart(9);
+          const p99Col = item.p99Ms.toFixed(3).padStart(9);
+          const opsCol = `${item.opsPerSec.toLocaleString()} ops/s`.padStart(11);
+          console.log(`${subCol} | ${actCol} | ${p50Col} | ${p90Col} | ${p99Col} | ${opsCol}`);
         }
-        const totalMs = performance.now() - start;
-        const avgMs = totalMs / iterations;
-        const opsPerSec = Math.round((iterations / totalMs) * 1000);
-
-        console.log(`🔹 ${t.name.padEnd(42)} | ${avgMs.toFixed(3)} ms/op | ${opsPerSec.toLocaleString().padStart(9)} ops/sec`);
       }
-      console.log("=".repeat(70) + "\n");
+
+      console.log("=".repeat(92));
+      console.log(`Suite Summary: ${data.totalActionsTested} actions tested across ${data.totalSubsystems} subsystems | Total Ops: ${data.overallOpsPerSec.toLocaleString()} ops/sec`);
+      console.log(`Percentiles  : P50 Avg: ${data.summary.avgP50Ms} ms | P90 Avg: ${data.summary.avgP90Ms} ms | P99 Avg: ${data.summary.avgP99Ms} ms`);
+      console.log(`Peak Speed   : Fastest: ${data.summary.fastestAction.label} (${data.summary.fastestAction.opsPerSec.toLocaleString()} ops/sec, P50: ${data.summary.fastestAction.p50Ms}ms)`);
+      console.log("=".repeat(92) + "\n");
       break;
     }
 
@@ -485,10 +521,12 @@ Commands:
   run-workflow <id>        Execute a compound workflow pipeline
   history                  View past workflow execution receipts
   export-config [client]   Generate MCP config JSON for Claude Desktop / Cursor
+  export-specs [--dir=dir] Export OpenRPC 1.3.2 and OpenAPI 3.1.0 JSON specs
   install-mcp              Auto-install tool schemas to Antigravity MCP directory
-  schema, openrpc          Export complete OpenRPC 1.3 JSON specification
+  schema, openrpc          Export complete OpenRPC 1.3.2 JSON specification
+  openapi                  Export complete OpenAPI 3.1.0 JSON specification
   docs, catalog            Generate Markdown CATALOG.md documentation
-  bench                    Run microsecond benchmark performance suite
+  benchmark, bench         Run P50/P90/P99 latency & ops/sec benchmark suite
   metrics, telemetry       Show live telemetry & circuit breaker status
   repl, i                  Launch interactive developer REPL shell
   exec <p> <a> [d]         Execute an action on a plugin directly
