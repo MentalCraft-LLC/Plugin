@@ -210,6 +210,7 @@
     const headings = [];
     const texts = [];
     const controls = [];
+    const interactiveElements = [];
     const appendUnique = (arr, value) => {
       const key = value.trim();
       if (key && !seen.has(key)) {
@@ -230,22 +231,50 @@
     };
     const walk = (root) => {
       if (!root || typeof root.querySelectorAll !== "function") return;
-      const elements = root.querySelectorAll("h1, h2, h3, h4, button, a, input, textarea, select, [role], [aria-label], [data-testid]");
+      const elements = root.querySelectorAll("h1, h2, h3, h4, button, a, input, textarea, select, [role], [aria-label], [data-testid], [data-slot]");
       let index = 0;
       for (const el of elements) {
         index += 1;
         if (index > 400) break;
         const tag = el.tagName.toLowerCase();
-        const role = el.getAttribute("role");
+        const role = el.getAttribute("role") || elementRole(el);
         const label = shortLabel(el);
+        const slot = el.getAttribute("data-slot");
+        let computedSelector = el.id ? `#${el.id}` : tag;
+        if (slot) computedSelector += `[data-slot="${slot}"]`;
+        else if (el.className && typeof el.className === "string") {
+          const firstCls = el.className.trim().split(/\s+/)[0];
+          if (firstCls) computedSelector += `.${firstCls}`;
+        }
+
         if (tag.startsWith("h") && tag.length === 2) {
           appendUnique(headings, `${tag}: ${label}`);
         } else if (tag === "button" || tag === "a" || role === "button" || role === "link" || role === "tab" || role === "menuitem") {
           appendUnique(controls, `[${role || tag}] ${label}`);
+          if (interactiveElements.length < limit) {
+            interactiveElements.push({
+              tag,
+              role: role || tag,
+              name: label,
+              selector: computedSelector,
+              data_slot: slot || undefined,
+              disabled: el.disabled === true || el.getAttribute("aria-disabled") === "true",
+            });
+          }
         } else if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
           if (el.type === "password") continue;
           const state = el.disabled ? "disabled" : "enabled";
           appendUnique(controls, `[input:${el.type || "text"}:${state}] ${el.getAttribute("placeholder") || label}`);
+          if (interactiveElements.length < limit) {
+            interactiveElements.push({
+              tag,
+              role: "textbox",
+              name: el.getAttribute("placeholder") || label,
+              selector: computedSelector,
+              type: el.type || "text",
+              disabled: el.disabled === true,
+            });
+          }
         } else if (label) {
           appendUnique(texts, label);
         }
@@ -268,7 +297,8 @@
       title: document.title,
       headings: headings.slice(0, limit),
       controls: controls.slice(0, limit),
-      texts: texts.slice(0, limit / 2),
+      texts: texts.slice(0, Math.round(limit / 2)),
+      interactive_elements: interactiveElements.slice(0, limit),
       value_returned: true,
     };
   }

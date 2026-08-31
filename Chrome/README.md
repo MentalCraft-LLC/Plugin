@@ -90,24 +90,24 @@ The protocol accepts only:
 | `read_text` | extract page text; auto-sweeps virtualized threads unless `long=false`; `long=true` forces a full sweep of the conversation scroller and returns `turns` when user/model messages are present |
 | `read_markdown` | extract structured GitHub Flavored Markdown (headings, links, tables, code blocks) |
 | `read_styles` | extract root computed styles and CSS custom properties |
-| `inspect_element` | deep element geometry, computed styles, ARIA attributes, and interactive state inspection |
+| `inspect_element` | deep element geometry, computed styles, ARIA attributes, hierarchy path, and interactive state inspection |
 | `read_storage` | inspect `localStorage` and `sessionStorage` key-value pairs |
 | `clear_storage` | clear all `localStorage` and `sessionStorage` entries |
 | `read_cookies` | read sanitized site cookies via `chrome.cookies` API |
 | `clear_cookies` | clear site cookies via `chrome.cookies` API |
 | `performance_metrics` | read navigation timings, TTFB, DOM complete, and JS heap memory |
-| `wait_for` | poll for DOM selector existence or JavaScript predicate truthiness |
-| `evaluate_script` | execute bounded JavaScript expressions in page context |
+| `wait_for` | poll for DOM selector existence/visibility/hidden, text match, network idle, or JavaScript predicate |
+| `evaluate_script` | execute asynchronous/synchronous JavaScript expressions with full Promise unwrapping in page context |
 | `reload_page` | reload managed tab with optional cache bypass |
-| `click` | click semantic or CSS selector with automatic scroll into view |
-| `hover` | dispatch mouse hover to selector or coordinates |
+| `click` | click semantic role/name or universal CSS/XPath selector with visual feedback indicator |
+| `hover` | dispatch mouse hover to selector or coordinates with visual feedback |
 | `scroll` | dispatch instant viewport scroll |
 | `press_key` | dispatch keyboard event with modifier flags |
-| `fill_public` | fill single non-identity public value |
+| `fill_public` | fill single non-identity public value targeted by field or CSS selector |
 | `fill_form` | atomic batch form filling across multiple fields |
 | `fill_local` | direct private local-value projection without model exposure |
-| `press_enter` | exact Enter event on semantic textbox |
-| `select_combobox` | select value from searchable combobox dropdown |
+| `press_enter` | exact Enter event on semantic textbox or CSS selector |
+| `select_combobox` | select value from searchable combobox dropdown or CSS selector |
 | `terms_diagnostics` | bounded Provider terms classification with sanitized actionable labels |
 | `accept_standard_terms` | one exact ordinary no-cost Provider terms control |
 | `accept_owner_authorized_terms` | one uniquely identified combined terms checkbox after Owner confirmation |
@@ -117,9 +117,10 @@ The protocol accepts only:
 | `capture_clarity_project_id` | one-way capture of verified Clarity project ID into private local config |
 | `capture_clarity_token` | one-way Clarity API token write to declared local file |
 | `capture_session` | read site cookies into native-process vault |
-| `capture_screenshot` | capture local image receipt of managed tab; `long=true` tiles and stitches the primary scroller |
+| `capture_screenshot` | capture local image receipt of managed tab; supports `selector` for element-level clipped capture, `long=true` for full scroller capture |
 | `capture_pdf` | export vector PDF document via CDP `Page.printToPDF` |
-| `semantic_snapshot` | traverse Shadow DOM and capture accessible interactive controls |
+| `emulate` | emulate mobile/tablet screen dimensions, DPR, and `prefers-color-scheme: dark | light` |
+| `semantic_snapshot` | traverse Shadow DOM and capture accessible interactive controls and structured element selectors |
 | `annotate` | Cursor design mode: Option+click selects; on-page Send injects the Owner note and selected UI elements as an Owner user message into the watching agent session and exits design mode |
 | `close_group` | close all managed tabs in current session group |
 
