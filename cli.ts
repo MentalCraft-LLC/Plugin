@@ -210,6 +210,37 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "status":
+    case "top":
+    case "dash": {
+      const report = await executeHealthCheck();
+      const { getSystemTelemetry, getAllWorkflows } = require("./Workflow/operation.ts");
+      const telemetry = getSystemTelemetry();
+      const wfs = getAllWorkflows();
+
+      console.log(`
+╔════════════════════════════════════════════════════════════════════════════════╗
+║  ⚡ MentalCraft Universal Plugin Architecture — Live System Status              ║
+╠════════════════════════════════════════════════════════════════════════════════╣
+║ Overall Health: ${report.overallStatus === "healthy" ? "🟢 HEALTHY" : "🟡 DEGRADED"} (Score: ${report.healthScore}/100) | Healthy Plugins: ${report.healthyPlugins}/${report.totalPlugins}   ║
+║ Protocols: MCP Stdio, HTTP/SSE (Port 3890), OpenRPC 1.3, OpenAPI 3.1           ║
+╠════════════════════════════════════════════════════════════════════════════════╣
+║ ACTIVE CAPABILITY SUBSYSTEMS (6 Modules / 83 Actions)                          ║
+║  • Business  [${report.plugins.business.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (11 actions) | TrafficCV, SEO KD, Radar, MRR Trajectory  ║
+║  • Science   [${report.plugins.science.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] ( 7 actions) | GAD-7, PHQ-9, 988 Safety, Patent Audits║
+║  • Design    [${report.plugins.design.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (10 actions) | 5-Layer UI, Runes, Tokens, Presets     ║
+║  • Workflow  [${report.plugins.workflow.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (13 actions) | DAG Engine, OTel Spans, Batch Pool    ║
+║  • Chrome    [${report.plugins.chrome.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (38 actions) | Tab HUD, Native Bridge, Session Vault  ║
+║  • Message   [${report.plugins.message.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] ( 4 actions) | Telegram, iMessage, Email Secure Bus  ║
+╠════════════════════════════════════════════════════════════════════════════════╣
+║ METRICS & TELEMETRY                                                            ║
+║  Total Invocations: ${telemetry.totalInvocations} | Success Rate: ${telemetry.overallSuccessRate}% | Tracked Actions: ${Object.keys(telemetry.metricsByAction).length} ║
+║  Registered Workflows: ${wfs.length} total (${BUILTIN_WORKFLOWS.length} Builtin, ${wfs.length - BUILTIN_WORKFLOWS.length} Custom)               ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+`);
+      break;
+    }
+
     case "health":
     case "doctor": {
       const fixFlag = args.includes("--fix");

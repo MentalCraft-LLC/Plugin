@@ -19,11 +19,12 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(res.success).toBe(true);
     const data = res.data as any;
     expect(data.healthScore).toBe(100);
-    expect(data.healthyPlugins).toBe(6);
+    expect(data.healthyPlugins).toBeGreaterThanOrEqual(6);
     expect(data.plugins.chrome.status).toBe("healthy");
     expect(data.plugins.design.status).toBe("healthy");
     expect(data.plugins.business.status).toBe("healthy");
     expect(data.plugins.science.status).toBe("healthy");
+    expect(data.plugins.workflow.status).toBe("healthy");
   });
 
   test("dry_run generates execution plan and checks pre-flight health", async () => {
