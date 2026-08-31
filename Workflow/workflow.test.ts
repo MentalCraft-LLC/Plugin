@@ -182,6 +182,17 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(callRes.result.content[0].text).toContain("GAD-7");
   });
 
+  test("Root index.ts cleanly re-exports all 6 capabilities and gateway", async () => {
+    const root = await import("../index.ts");
+    expect(root.businessOperation).toBeDefined();
+    expect(root.scienceOperation).toBeDefined();
+    expect(root.designOperation).toBeDefined();
+    expect(root.workflowOperation).toBeDefined();
+    expect(root.createBrowserContextOperation).toBeDefined();
+    expect(root.createMessageOperation).toBeDefined();
+    expect(root.handleGatewayRpc).toBeDefined();
+  });
+
   test("compactWorkflowResult formats readable terminal summary", async () => {
     const res = await workflowOperation({ action: "health_check" });
     const log = compactWorkflowResult(res);
@@ -189,5 +200,6 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(log).toContain("HEALTHY");
   });
 });
+
 
 

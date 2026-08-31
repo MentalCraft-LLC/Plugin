@@ -166,6 +166,38 @@ async function main() {
       break;
     }
 
+    case "bench": {
+      console.log("\n⚡ Benchmarking In-Process Plugin Execution Performance (1,000 iterations each)\n" + "=".repeat(70));
+      const targets = [
+        { name: "Science: score_scale (GAD-7)", fn: () => scienceOperation({ action: "score_scale", scale: "gad7", answers: { q1: 3, q2: 2, q3: 3 } }) },
+        { name: "Science: crisis_boundary_check", fn: () => scienceOperation({ action: "crisis_boundary_check", answers: { item9: 2 } }) },
+        { name: "Business: traffic_domain_overview", fn: () => businessOperation({ action: "traffic_domain_overview", domain: "mentalcraft.org" }) },
+        { name: "Business: product_traction_score", fn: () => businessOperation({ action: "product_traction_score", domain: "mentalcraft.org" }) },
+        { name: "Design: catalog query", fn: () => designOperation({ action: "catalog", layer: "component" }) },
+        { name: "Design: generate_ui (Runes)", fn: () => designOperation({ action: "generate_ui", intent: "screener" }) },
+        { name: "Design: resolve_imports (AST)", fn: () => designOperation({ action: "resolve_imports", components: ["Button", "Card", "Dialog"] }) },
+        { name: "Workflow: dry_run pipeline", fn: () => workflowOperation({ action: "dry_run", workflow_id: "launch_product_campaign" }) },
+      ];
+
+      const iterations = 1000;
+      for (const t of targets) {
+        // Warmup
+        for (let i = 0; i < 50; i++) await t.fn();
+
+        const start = performance.now();
+        for (let i = 0; i < iterations; i++) {
+          await t.fn();
+        }
+        const totalMs = performance.now() - start;
+        const avgMs = totalMs / iterations;
+        const opsPerSec = Math.round((iterations / totalMs) * 1000);
+
+        console.log(`🔹 ${t.name.padEnd(42)} | ${avgMs.toFixed(3)} ms/op | ${opsPerSec.toLocaleString().padStart(9)} ops/sec`);
+      }
+      console.log("=".repeat(70) + "\n");
+      break;
+    }
+
     case "serve": {
       const httpFlag = args.includes("--http");
       const portArg = args.find((a) => a.startsWith("--port="));
