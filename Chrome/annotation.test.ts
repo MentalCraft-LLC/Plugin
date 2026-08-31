@@ -304,4 +304,19 @@ describe("annotation design mode", () => {
     }
     expect(() => api.spiralAnnotationAdd(button("overflow"), "too many")).toThrow("annotation_limit");
   });
+
+  test("calculates 4px modulus discipline and smart CSS selectors in annotation extra", () => {
+    const api = load();
+    const target = button("Confirm", {
+      getBoundingClientRect: () => ({ x: 0, y: 0, top: 0, left: 0, width: 96, height: 40 }),
+    });
+    const described = api.spiralDescribeElement(target, 0);
+    const extra = JSON.parse(described.extra);
+    expect(extra.selector).toBe("button[data-slot=\"submit\"]");
+    expect(extra.token_discipline).toEqual({
+      modulus_4px_width: true,
+      modulus_4px_height: true,
+      touch_target_accessible: true,
+    });
+  });
 });

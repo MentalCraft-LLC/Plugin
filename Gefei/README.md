@@ -21,8 +21,8 @@ Atomic Model Context Protocol (MCP) server providing deterministic SEO keyword d
 
 ```bash
 # Direct stdio invocation
-bun .plugin/gefei/serve.mjs
+bun Plugin/Gefei/serve.mjs
 
 # Running test suites
-bun test .plugin/gefei/gefei.test.ts
+bun test Plugin/Gefei/gefei.test.ts
 ```

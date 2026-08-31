@@ -175,11 +175,11 @@ Stable Provider sequences live under `scripts/` rather than being rebuilt from
 ad hoc Tool calls:
 
 ```bash
-bun .plugin/chrome/scripts/repair.mjs
-bun .plugin/chrome/scripts/bootstrap-ga4.mjs Application/Assessment/<Product> [--accept-standard-terms] [--accept-owner-authorized-terms] [--objective=<allowlisted-label>]
-bun .plugin/chrome/scripts/bootstrap-clarity.mjs Application/Assessment/<Product> [--accept-standard-terms]
-bun .plugin/chrome/scripts/bootstrap-clarity-id.mjs Application/Assessment/<Product>
-bun .plugin/chrome/scripts/bootstrap-clarity-token.mjs Application/Assessment/<Product>
+bun Plugin/Chrome/scripts/repair.mjs
+bun Plugin/Chrome/scripts/bootstrap-ga4.mjs Application/Assessment/<Product> [--accept-standard-terms] [--accept-owner-authorized-terms] [--objective=<allowlisted-label>]
+bun Plugin/Chrome/scripts/bootstrap-clarity.mjs Application/Assessment/<Product> [--accept-standard-terms]
+bun Plugin/Chrome/scripts/bootstrap-clarity-id.mjs Application/Assessment/<Product>
+bun Plugin/Chrome/scripts/bootstrap-clarity-token.mjs Application/Assessment/<Product>
 ```
 
 The GA4 workflow disables recognized optional account-data sharing and stops at

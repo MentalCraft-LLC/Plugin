@@ -422,16 +422,28 @@
     const react = spiralGetReactComponentInfo(element);
     const uniqueId = assignElementId(element);
     const hueIndex = index;
+    const width = Math.round(rect.width || 0);
+    const height = Math.round(rect.height || 0);
+    let selector = element.id ? `#${element.id}` : tag;
+    if (!element.id && element.getAttribute?.("data-slot")) selector += `[data-slot="${element.getAttribute("data-slot")}"]`;
+    else if (!element.id && element.getAttribute?.("data-testid")) selector += `[data-testid="${element.getAttribute("data-testid")}"]`;
+
     const extraObject = {
       id: element.id || "",
+      selector,
       className: classNameOf(element),
       attributes: attributeList(element),
       styles: {},
       rect: {
         top: Math.round(rect.top ?? rect.y ?? 0),
         left: Math.round(rect.left ?? rect.x ?? 0),
-        width: Math.round(rect.width || 0),
-        height: Math.round(rect.height || 0),
+        width,
+        height,
+      },
+      token_discipline: {
+        modulus_4px_width: width % 4 === 0,
+        modulus_4px_height: height % 4 === 0,
+        touch_target_accessible: width >= 32 && height >= 32,
       },
       reactComponent: react,
       uniqueId,
@@ -447,6 +459,9 @@
           backgroundColor: style.backgroundColor,
           fontSize: style.fontSize,
           fontFamily: style.fontFamily,
+          borderRadius: style.borderRadius,
+          padding: style.padding,
+          margin: style.margin,
           display: style.display,
           position: style.position,
         };

@@ -251,7 +251,7 @@ describe("Chrome MCP adapter", () => {
       mcpServers: { chrome: { command: string; args: string[] } };
     };
     expect(manifest.mcpServers.chrome.command).toBe("bun");
-    expect(manifest.mcpServers.chrome.args).toEqual([".plugin/chrome/serve.mjs"]);
+    expect(manifest.mcpServers.chrome.args).toEqual(["Plugin/Chrome/serve.mjs"]);
     expect(readFileSync(resolve(here, "./serve.mjs"), "utf8")).toContain("locateServer");
   });
 });

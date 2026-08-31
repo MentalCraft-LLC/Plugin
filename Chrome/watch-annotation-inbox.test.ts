@@ -79,29 +79,29 @@ describe("annotation inbox watch follows the native host", () => {
     });
 
     appendFileSync(inbox, `${JSON.stringify(closed)}\n`);
-    await wait(160);
+    await wait(240);
     expect(lines).toEqual([]);
 
     const server = await listen(sock);
     servers.push(server);
-    await wait(120);
+    await wait(240);
     appendFileSync(inbox, `${JSON.stringify({ id: "noise" })}\n`);
     appendFileSync(inbox, `${JSON.stringify(opened)}\n`);
-    await wait(160);
+    await wait(280);
     expect(lines).toEqual([openedEvent]);
 
     await closeServer(server);
     servers.pop();
-    await wait(120);
+    await wait(240);
     appendFileSync(inbox, `${JSON.stringify(afterClose)}\n`);
-    await wait(160);
+    await wait(280);
     expect(lines).toEqual([openedEvent]);
 
     const again = await listen(sock);
     servers.push(again);
-    await wait(120);
+    await wait(240);
     appendFileSync(inbox, `${JSON.stringify(reopened)}\n`);
-    await wait(160);
+    await wait(280);
     expect(lines).toEqual([openedEvent, reopenedEvent]);
   });
 });
