@@ -126,6 +126,40 @@ export function redactSensitiveData<T>(input: T): T {
   return result as T;
 }
 
+export function exportMermaidDag(wf: any): { mermaidCode: string; nodesCount: number; edgesCount: number } {
+  const lines: string[] = [
+    "graph TD",
+    "  classDef default fill:#1e1e2e,stroke:#3b4252,stroke-width:1px,color:#cdd6f4;",
+    "  classDef business fill:#003366,stroke:#0066cc,color:#ffffff;",
+    "  classDef science fill:#330066,stroke:#7700cc,color:#ffffff;",
+    "  classDef design fill:#004d40,stroke:#00bfa5,color:#ffffff;",
+    "  classDef chrome fill:#4a148c,stroke:#ab47bc,color:#ffffff;",
+    "  classDef message fill:#e65100,stroke:#ff9800,color:#ffffff;",
+  ];
+
+  let edgesCount = 0;
+  for (const s of wf.steps) {
+    const nodeLabel = `Step ${s.step}: [${s.plugin}] ${s.action}`;
+    lines.push(`  S${s.step}["${nodeLabel}"]:::${s.plugin}`);
+
+    if (s.dependsOn && s.dependsOn.length > 0) {
+      for (const dep of s.dependsOn) {
+        lines.push(`  S${dep} --> S${s.step}`);
+        edgesCount++;
+      }
+    } else if (s.step > 1 && (!wf.concurrencyMode || wf.concurrencyMode === "sequential")) {
+      lines.push(`  S${s.step - 1} --> S${s.step}`);
+      edgesCount++;
+    }
+  }
+
+  return {
+    mermaidCode: lines.join("\n"),
+    nodesCount: wf.steps.length,
+    edgesCount,
+  };
+}
+
 function loadPersistedState(): void {
   try {
     const { existsSync, readFileSync } = require("node:fs");
@@ -660,6 +694,35 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
           tracesCount: traces.length,
           totalSpans: traces.reduce((sum, t) => sum + t.spans.length, 0),
           traces,
+        },
+      };
+    }
+
+    case "export_mermaid_dag": {
+      const targetId = input.workflow_id ?? "clinical_study_to_screener";
+      const all = getAllWorkflows();
+      const wf = all.find((w) => w.id === targetId);
+      if (!wf) {
+        return {
+          protocol: WORKFLOW_PROTOCOL,
+          action: "export_mermaid_dag",
+          success: false,
+          timestamp,
+          data: null,
+          diagnostics: [`Workflow '${targetId}' not found. Available: ${all.map((w) => w.id).join(", ")}`],
+        };
+      }
+
+      const mermaid = exportMermaidDag(wf);
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "export_mermaid_dag",
+        success: true,
+        timestamp,
+        data: {
+          workflowId: targetId,
+          workflowName: wf.name,
+          ...mermaid,
         },
       };
     }

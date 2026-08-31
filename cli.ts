@@ -398,6 +398,17 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "graph":
+    case "mermaid": {
+      const wfId = (args[1] as any) ?? "launch_product_campaign";
+      const res = await workflowOperation({ action: "export_mermaid_dag", workflow_id: wfId });
+      const data = res.data as any;
+      console.log(`\n📊 Mermaid DAG Graph [${wfId}]\n` + "=".repeat(60));
+      console.log("```mermaid\n" + data.mermaidCode + "\n```");
+      console.log("=".repeat(60) + "\n");
+      break;
+    }
+
     case "repl":
     case "i": {
       await startInteractiveRepl();

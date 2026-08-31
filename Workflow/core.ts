@@ -175,6 +175,7 @@ export type WorkflowAction =
   | "export_schema_catalog"
   | "get_metrics"
   | "export_trace"
+  | "export_mermaid_dag"
   | "health_check"
   | "dry_run";
 
@@ -247,6 +248,10 @@ export function formatWorkflowSummary(result: WorkflowResult): string {
     case "export_trace": {
       const data = result.data as any;
       return `Trace Export: ${data.tracesCount} traces, ${data.totalSpans} spans formatted (${data.format})`;
+    }
+    case "export_mermaid_dag": {
+      const data = result.data as any;
+      return `Mermaid Graph [${data.workflowId}]: ${data.nodesCount} nodes, ${data.edgesCount} edges generated`;
     }
     case "run_workflow": {
       const data = result.data as any;

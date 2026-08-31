@@ -313,6 +313,19 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(redacted.user).toBe("alice");
   });
 
+  test("export_mermaid_dag generates valid Mermaid flowchart code", async () => {
+    const res = await workflowOperation({
+      action: "export_mermaid_dag",
+      workflow_id: "launch_product_campaign",
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.mermaidCode).toContain("graph TD");
+    expect(data.mermaidCode).toContain("seo_keyword_difficulty");
+    expect(data.nodesCount).toBe(6);
+    expect(data.edgesCount).toBe(5);
+  });
+
   test("compactWorkflowResult formats readable terminal summary", async () => {
     const res = await workflowOperation({ action: "health_check" });
     const log = compactWorkflowResult(res);
