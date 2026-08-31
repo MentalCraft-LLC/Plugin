@@ -7,7 +7,7 @@
 | Subsystem | Actions | Protocol | Key Domain Scope |
 |---|---|---|---|
 | `Workflow` | 13 | `holar.workflow.v1` | Multi-plugin compound DAG execution, health diagnostics, telemetry & circuit breaker |
-| `Business` | 11 | `holar.business.v1` | Google SEO KD (0-100), link budgets, TrafficCV traffic forensics, Stripe Radar leaderboards |
+| `Business` | 16 | `holar.business.v1` | Venture lifecycle (Websites, Apps, Games), SEO KD, ASO, Steam wishlists, CAC/LTV, Stripe billing |
 | `Science` | 11 | `holar.science.v1` | Academic production lifecycle: Paper authoring, Grant rubrics (NIH/NSF), Journal IF matching, Patent novelty |
 | `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |
 | `Chrome` | 38 | `holar.browser.v1` | Inactive tab driving, CDP inspection, HUD annotations, storage/cookie receipts |

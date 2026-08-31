@@ -1,30 +1,118 @@
 /**
- * Plugin/Business Core - Commercial, SEO & Multi-Source Market Intelligence Engine
+ * Plugin/Business Core - Business & Venture Lifecycle Intelligence Engine
  *
- * Symmetrical capability engine for Holar's Business pillar.
- * Integrates:
- * - Gefei SEO (Google KD 0-100, link budgets, SERP Top 10, Stripe Radar revenue leaderboards)
- * - TrafficCV (Global domain traffic visits, channel breakdown, geo distribution, competitor comparison)
- * - Traction Rank (Multidimensional product viability index)
+ * Symmetrical capability engine managing the full lifecycle of commercial ventures across:
+ * 1. Websites (Web Apps, SaaS, Content, E-commerce)
+ * 2. Mobile/Desktop Apps (iOS/Android App Store, ASO, IAP, Subscriptions)
+ * 3. Games (Steam, Mobile, WebGL, Engagement, ARPDAU, Gacha/Battle Pass)
+ *
+ * Covers all 5 stages of the business lifecycle:
+ * - Stage 1: Market & Idea Validation (TAM/SAM/SOM, Niche Viability)
+ * - Stage 2: Acquisition & Traffic Discovery (SEO KD, ASO, Steam Wishlists, TrafficCV)
+ * - Stage 3: Unit Economics & Financial Modeling (CAC, LTV, Payback, MRR/ARR/ARPDAU)
+ * - Stage 4: Retention & Cohort Engagement (D1/D7/D30 Curves, DAU/MAU Stickiness)
+ * - Stage 5: Monetization & Payment Telemetry (Stripe, App Store, Steam Invoicing)
  */
 
 export const BUSINESS_PROTOCOL = "holar.business.v1" as const;
 
-export type BusinessProvider = "gefei" | "trafficcv" | "auto";
+export type BusinessModality = "website" | "app" | "game";
+
+export type BusinessProvider = "gefei" | "trafficcv" | "store_radar" | "auto";
 
 export type BusinessAction =
+  | "venture_market_validation"
+  | "venture_acquisition_audit"
+  | "venture_unit_economics"
+  | "venture_retention_curves"
+  | "venture_monetization_telemetry"
   | "seo_keyword_difficulty"
   | "seo_batch_keywords"
   | "seo_link_budget"
-  | "market_stripe_radar"
-  | "market_site_trajectory"
-  | "market_niche_discovery"
   | "traffic_domain_overview"
   | "traffic_channel_breakdown"
   | "traffic_geo_distribution"
   | "traffic_competitor_comparison"
+  | "market_stripe_radar"
+  | "market_site_trajectory"
+  | "market_niche_discovery"
   | "product_traction_score"
   | "list_actions";
+
+export type MarketValidationResult = {
+  ventureName: string;
+  modality: BusinessModality;
+  viabilityScore: number; // 0-100
+  marketSize: {
+    tamUsd: number;
+    samUsd: number;
+    somUsd: number;
+  };
+  recommendedMonetization: string;
+  competitiveIntensity: "Low" | "Moderate" | "High" | "Fierce";
+  keyRisks: string[];
+  growthPlaybook: string[];
+};
+
+export type AcquisitionAuditResult = {
+  ventureName: string;
+  modality: BusinessModality;
+  primaryAcquisitionChannel: string;
+  channelScore: number; // 0-100
+  metrics: Record<string, unknown>;
+  actionableInsights: string[];
+};
+
+export type UnitEconomicsResult = {
+  ventureName: string;
+  modality: BusinessModality;
+  cacUsd: number;
+  ltvUsd: number;
+  ltvToCacRatio: number;
+  paybackPeriodMonths: number;
+  grossMarginPercent: number;
+  healthStatus: "🟢 Exceptional (LTV/CAC > 3x)" | "🟡 Borderline" | "🔴 Unprofitable Unit Economics";
+  modalityMetrics: {
+    mrrUsd?: number;
+    arrUsd?: number;
+    arpuUsd?: number;
+    arpdauUsd?: number;
+    storeCutPercent?: number;
+    netMarginPercent: number;
+  };
+};
+
+export type RetentionCurvesResult = {
+  ventureName: string;
+  modality: BusinessModality;
+  dauToMauRatio: number; // Stickiness
+  retentionCurve: {
+    d1Percent: number;
+    d7Percent: number;
+    d14Percent: number;
+    d30Percent: number;
+  };
+  industryBenchmark: {
+    d1Percent: number;
+    d7Percent: number;
+    d30Percent: number;
+  };
+  cohortHealth: "Top Quartile" | "Average" | "Underperforming";
+  churnRateMonthlyPercent: number;
+  recommendations: string[];
+};
+
+export type MonetizationTelemetryResult = {
+  ventureName: string;
+  modality: BusinessModality;
+  billingProvider: "Stripe" | "AppStore" | "GooglePlay" | "Steam";
+  totalRevenueUsd: number;
+  growthRateMoMPercent: number;
+  activePayingUsers: number;
+  refundRatePercent: number;
+  revenueTrajectory: "Exponential" | "Strong Growth" | "Plateau" | "Declining";
+  tierDistribution: Array<{ tierName: string; revenueSharePercent: number; users: number }>;
+};
 
 export type KeywordDifficultyResult = {
   keyword: string;
@@ -118,11 +206,23 @@ export type TractionScoreResult = {
 
 export type BusinessInput = {
   action: BusinessAction;
-  provider?: BusinessProvider;
+  modality?: BusinessModality;
+  venture_name?: string;
+  target_audience?: string;
+  monetization_model?: "subscription" | "freemium" | "iap" | "ads" | "one_time" | "battle_pass";
   keyword?: string;
   keywords?: string[];
   domain?: string;
   domains?: string[];
+  competitors?: string[];
+  cac?: number;
+  arpu?: number;
+  dau?: number;
+  mau?: number;
+  d1_retention?: number;
+  d7_retention?: number;
+  d30_retention?: number;
+  provider?: BusinessProvider;
   month?: string;
   query?: string;
   product_name?: string;
@@ -148,154 +248,57 @@ export function formatBusinessSummary(result: BusinessResult): string {
 
   switch (result.action) {
     case "list_actions": {
-      const data = result.data as { actions: Array<{ name: string }> };
-      return `Business Actions (${data.actions.length}): ${data.actions.map((a) => a.name).join(", ")}`;
+      const data = result.data as { totalActions: number; actions: Array<{ name: string }> };
+      return `Business Actions (${data.totalActions}): ${data.actions.map((a) => a.name).join(", ")}`;
+    }
+    case "venture_market_validation": {
+      const data = result.data as MarketValidationResult;
+      return `Market Validation [${data.modality.toUpperCase()}]: ${data.ventureName} → Viability ${data.viabilityScore}/100 (TAM: $${(data.marketSize.tamUsd / 1e9).toFixed(1)}B, Mon: ${data.recommendedMonetization})`;
+    }
+    case "venture_acquisition_audit": {
+      const data = result.data as AcquisitionAuditResult;
+      return `Acquisition Audit [${data.modality.toUpperCase()}]: Primary '${data.primaryAcquisitionChannel}' (Channel Score: ${data.channelScore}/100)`;
+    }
+    case "venture_unit_economics": {
+      const data = result.data as UnitEconomicsResult;
+      return `Unit Economics [${data.modality.toUpperCase()}]: LTV/CAC ${data.ltvToCacRatio.toFixed(1)}x (Payback: ${data.paybackPeriodMonths}mo, Margin: ${data.grossMarginPercent}%) [${data.healthStatus}]`;
+    }
+    case "venture_retention_curves": {
+      const data = result.data as RetentionCurvesResult;
+      return `Retention Curves [${data.modality.toUpperCase()}]: D1 ${data.retentionCurve.d1Percent}% | D7 ${data.retentionCurve.d7Percent}% | D30 ${data.retentionCurve.d30Percent}% (DAU/MAU: ${(data.dauToMauRatio * 100).toFixed(0)}% [${data.cohortHealth}])`;
+    }
+    case "venture_monetization_telemetry": {
+      const data = result.data as MonetizationTelemetryResult;
+      return `Monetization [${data.billingProvider}]: $${data.totalRevenueUsd.toLocaleString()} (+${data.growthRateMoMPercent}% MoM, Trajectory: ${data.revenueTrajectory})`;
     }
     case "seo_keyword_difficulty": {
-      const res = result.data as any;
-      const kd = res.difficulty ?? res.kd ?? "?";
-      const vol = res.search_volume ?? res.volume ?? "?";
-      return `Keyword: "${res.keyword ?? ""}" → KD ${kd}/100 | Vol: ${vol}`;
-    }
-    case "seo_batch_keywords": {
-      const items = Array.isArray(result.data) ? result.data : (result.data as any)?.keywords ?? [];
-      return `Batch Evaluated (${items.length} keywords)`;
-    }
-    case "seo_link_budget": {
-      const res = result.data as any;
-      return `Link Budget for "${res.keyword ?? ""}": Target ${res.target_backlinks ?? res.linkBudget?.requiredBacklinks ?? "?"} backlinks (DR ${res.min_dr ?? res.linkBudget?.targetDr ?? "40+"})`;
-    }
-    case "market_stripe_radar": {
-      const count = Array.isArray(result.data) ? result.data.length : ((result.data as any)?.darkhorses?.length ?? 0);
-      return `Stripe Radar Insights: ${count} verified revenue-generating products tracked`;
-    }
-    case "market_site_trajectory": {
-      const res = result.data as any;
-      return `Domain "${res.domain ?? ""}": Est. MRR ${res.estimated_mrr ?? res.estimatedMrr ?? "N/A"}`;
-    }
-    case "market_niche_discovery": {
-      const niches = Array.isArray(result.data) ? result.data : ((result.data as any)?.results ?? []);
-      return `Niche Discovery: ${niches.length} high-opportunity spaces found`;
+      const data = result.data as KeywordDifficultyResult;
+      return `SEO KD: "${data.keyword}" → KD ${data.kd}/100 [${data.difficultyTier}] | Vol: ${data.searchVolume.toLocaleString()} | Links needed: ${data.linkBudget.requiredBacklinks}`;
     }
     case "traffic_domain_overview": {
-      const data = result.data as any;
-      return `TrafficCV "${data.domain}": ${(data.monthlyVisits / 1000).toFixed(1)}k visits/mo (Rank #${data.globalRank}, Bounce: ${data.bounceRatePercent}%)`;
+      const data = result.data as TrafficCvDomainOverview;
+      return `TrafficCV: ${data.domain} → ${data.monthlyVisits.toLocaleString()} visits/mo (#${data.globalRank.toLocaleString()} global, Bounce: ${data.bounceRatePercent}%)`;
     }
     case "traffic_channel_breakdown": {
-      const data = result.data as any;
-      return `Traffic Channels "${data.domain}": Organic ${data.channels.organicSearch}%, Direct ${data.channels.direct}%, Referral ${data.channels.referral}%`;
-    }
-    case "traffic_geo_distribution": {
-      const data = result.data as any;
-      return `Geo Traffic "${data.domain}": Top: ${data.topCountries?.slice(0, 3).map((c: any) => `${c.countryCode} (${c.trafficSharePercent}%)`).join(", ")}`;
+      const data = result.data as TrafficCvChannelBreakdown;
+      return `Traffic Channels: ${data.domain} → Primary '${data.primaryChannel}' (${data.channels.organicSearch}% Search, ${data.channels.direct}% Direct, ${data.channels.referral}% Referral)`;
     }
     case "traffic_competitor_comparison": {
-      const data = result.data as any;
-      return `Competitor Traffic: Leader "${data.leaderDomain}" across ${data.domains?.length} domains`;
+      const data = result.data as TrafficCvCompetitorComparison;
+      return `Traffic Benchmark: Leader '${data.leaderDomain}' across ${data.domains.length} domains analyzed`;
     }
     case "product_traction_score": {
       const data = result.data as TractionScoreResult;
-      return `Product "${data.product}" Traction Score: ${data.score}/100 [Grade ${data.grade}]`;
+      return `Traction Rank: ${data.product} → Grade ${data.grade} (${data.score}/100) [Mkt: ${data.dimensions.marketOpportunity}, SEO: ${data.dimensions.seoViability}, Rev: ${data.dimensions.revenueAffordance}]`;
+    }
+    case "market_stripe_radar": {
+      const data = result.data as { total: number; leaderboards: StripeSiteInsight[] };
+      return `Stripe Radar: ${data.total} surged checkout domains tracked (Leader: ${data.leaderboards[0]?.domain ?? ""})`;
+    }
+    default: {
+      return `✓ Business ${result.action} executed successfully.`;
     }
   }
 }
 
 export const compactBusinessResult = formatBusinessSummary;
-
-/**
- * TrafficCV Engine Client
- */
-export class TrafficCvClient {
-  private baseUrl: string;
-
-  constructor(baseUrl = "https://api.trafficcv.com/v1") {
-    this.baseUrl = baseUrl;
-  }
-
-  async getDomainOverview(domain: string): Promise<TrafficCvDomainOverview> {
-    const cleanDomain = domain.replace(/^https?:\/\//, "").replace(/\/.*$/, "").toLowerCase();
-    const hash = cleanDomain.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
-    const baseVisits = Math.max(12000, (hash * 1374) % 1500000);
-    const uniqueVisitors = Math.round(baseVisits * 0.72);
-    const bounceRate = 35 + (hash % 30);
-    const duration = 90 + (hash % 180);
-    const pages = 2.1 + ((hash % 30) / 10);
-    const rank = Math.max(1500, (hash * 93) % 250000);
-    const value = Math.round(baseVisits * 0.45);
-
-    return {
-      domain: cleanDomain,
-      monthlyVisits: baseVisits,
-      monthlyUniqueVisitors: uniqueVisitors,
-      avgVisitDurationSeconds: duration,
-      pagesPerVisit: Math.round(pages * 10) / 10,
-      bounceRatePercent: bounceRate,
-      globalRank: rank,
-      category: "Software & Digital Tools",
-      estimatedTrafficValueUsd: value,
-    };
-  }
-
-  async getChannelBreakdown(domain: string): Promise<TrafficCvChannelBreakdown> {
-    const cleanDomain = domain.replace(/^https?:\/\//, "").replace(/\/.*$/, "").toLowerCase();
-    const hash = cleanDomain.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
-    const direct = 30 + (hash % 20);
-    const organic = 35 + ((hash * 3) % 25);
-    const referral = 10 + (hash % 15);
-    const social = 5 + (hash % 8);
-    const paid = 2 + (hash % 5);
-    const email = 100 - (direct + organic + referral + social + paid);
-
-    return {
-      domain: cleanDomain,
-      channels: {
-        direct,
-        organicSearch: organic,
-        referral,
-        social,
-        paidSearch: paid,
-        email: Math.max(1, email),
-      },
-      primaryChannel: organic >= direct ? "Organic Search" : "Direct",
-    };
-  }
-
-  async getGeoDistribution(domain: string): Promise<TrafficCvGeoDistribution> {
-    const cleanDomain = domain.replace(/^https?:\/\//, "").replace(/\/.*$/, "").toLowerCase();
-    return {
-      domain: cleanDomain,
-      topCountries: [
-        { countryCode: "US", countryName: "United States", trafficSharePercent: 42.5 },
-        { countryCode: "GB", countryName: "United Kingdom", trafficSharePercent: 12.8 },
-        { countryCode: "DE", countryName: "Germany", trafficSharePercent: 8.4 },
-        { countryCode: "CA", countryName: "Canada", trafficSharePercent: 6.7 },
-        { countryCode: "JP", countryName: "Japan", trafficSharePercent: 5.1 },
-        { countryCode: "OTHER", countryName: "Rest of World", trafficSharePercent: 24.5 },
-      ],
-    };
-  }
-
-  async compareCompetitors(domains: string[]): Promise<TrafficCvCompetitorComparison> {
-    const metrics = await Promise.all(
-      domains.map(async (d) => {
-        const overview = await this.getDomainOverview(d);
-        const channel = await this.getChannelBreakdown(d);
-        return {
-          domain: overview.domain,
-          monthlyVisits: overview.monthlyVisits,
-          organicShare: channel.channels.organicSearch,
-          bounceRate: overview.bounceRatePercent,
-          globalRank: overview.globalRank,
-        };
-      })
-    );
-
-    const sorted = [...metrics].sort((a, b) => b.monthlyVisits - a.monthlyVisits);
-
-    return {
-      domains: domains.map((d) => d.toLowerCase()),
-      metrics,
-      leaderDomain: sorted[0]?.domain ?? domains[0] ?? "",
-    };
-  }
-}

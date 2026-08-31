@@ -13,6 +13,11 @@ describe("Golden Protocol & Contract Verification Across All 6 Plugins", () => {
   test("Business plugin contract conforms to strict output schema", async () => {
     const actions = [
       "list_actions",
+      "venture_market_validation",
+      "venture_acquisition_audit",
+      "venture_unit_economics",
+      "venture_retention_curves",
+      "venture_monetization_telemetry",
       "traffic_domain_overview",
       "traffic_channel_breakdown",
       "traffic_competitor_comparison",
@@ -20,7 +25,7 @@ describe("Golden Protocol & Contract Verification Across All 6 Plugins", () => {
     ] as const;
 
     for (const action of actions) {
-      const res = await businessOperation({ action, domain: "mentalcraft.org", competitors: ["a.com", "b.com"] } as any);
+      const res = await businessOperation({ action, modality: "website", domain: "mentalcraft.org", competitors: ["a.com", "b.com"] } as any);
       expect(res.success).toBe(true);
       expect(res.protocol).toBe(BUSINESS_PROTOCOL);
       expect(res.timestamp).toBeDefined();

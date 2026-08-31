@@ -5,24 +5,29 @@
  * with 100% Agent-Less and host-agnostic guarantees.
  */
 
-// Business Pillar (SEO, TrafficCV, Stripe Radar, Traction Index)
+// Business Pillar (Venture Lifecycle across Websites, Apps, Games, SEO, ASO, Steam, Stripe)
 export {
   BUSINESS_PROTOCOL,
-  TrafficCvClient,
   formatBusinessSummary,
   compactBusinessResult,
   type BusinessAction,
+  type BusinessModality,
   type BusinessInput,
   type BusinessResult,
+  type MarketValidationResult,
+  type AcquisitionAuditResult,
+  type UnitEconomicsResult,
+  type RetentionCurvesResult,
+  type MonetizationTelemetryResult,
   type KeywordDifficultyResult,
   type StripeSiteInsight,
   type TrafficCvDomainOverview,
   type TrafficCvChannelBreakdown,
   type TractionScoreResult,
 } from "./Business/core.ts";
-export { businessOperation } from "./Business/operation.ts";
+export { businessOperation, TrafficCvClient } from "./Business/operation.ts";
 
-// Science Pillar (Clinical Scales, 988 Crisis Protocols, Literature & Patents)
+// Science Pillar (Academic Production Lifecycle across Paper, Grant, Journal, and Patent)
 export {
   SCIENCE_PROTOCOL,
   formatScienceSummary,
@@ -30,10 +35,13 @@ export {
   type ScienceAction,
   type ScienceInput,
   type ScienceResult,
-  type ClinicalScale,
-  type ClinicalScaleResult,
-  type CrisisEvaluationResult,
-  type PatentNoveltyResult,
+  type AcademicPaper,
+  type CitationStyle,
+  type ManuscriptSectionAudit,
+  type PeerReviewFeedback,
+  type GrantRubricScore,
+  type JournalRecommendation,
+  type PatentClaim,
 } from "./Science/core.ts";
 export { scienceOperation } from "./Science/operation.ts";
 
@@ -76,6 +84,12 @@ export {
   executeHealthCheck,
   getAllWorkflows,
   installMcpSchemasToAgy,
+  validateWorkflowDag,
+  exportMermaidDag,
+  exportOpenApiCatalog,
+  batchExecute,
+  withRetry,
+  redactSensitiveData,
 } from "./Workflow/operation.ts";
 
 // Chrome Subsystem (Browser Automation & Native Messaging Bridge)
@@ -100,9 +114,6 @@ export {
 // Master MCP Gateway
 export {
   handleGatewayRpc,
-  startGatewayMcpStdio,
   startGatewayMcpHttp,
   GATEWAY_TOOLS,
-  type JsonRpcRequest,
-  type JsonRpcResponse,
 } from "./gateway.ts";

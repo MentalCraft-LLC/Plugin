@@ -1,23 +1,28 @@
 /**
  * Plugin/Business MCP Protocol Server
  *
- * Exposes the 'business' commercial intelligence tool over JSON-RPC 2.0 stdio stream.
+ * Exposes the 'business' venture lifecycle & commercial intelligence tool over JSON-RPC 2.0 stdio stream.
  */
 
 import { businessOperation } from "./operation.ts";
 import { type BusinessInput } from "./core.ts";
 
 export const BUSINESS_ACTIONS = [
+  "venture_market_validation",
+  "venture_acquisition_audit",
+  "venture_unit_economics",
+  "venture_retention_curves",
+  "venture_monetization_telemetry",
   "seo_keyword_difficulty",
   "seo_batch_keywords",
   "seo_link_budget",
-  "market_stripe_radar",
-  "market_site_trajectory",
-  "market_niche_discovery",
   "traffic_domain_overview",
   "traffic_channel_breakdown",
   "traffic_geo_distribution",
   "traffic_competitor_comparison",
+  "market_stripe_radar",
+  "market_site_trajectory",
+  "market_niche_discovery",
   "product_traction_score",
   "list_actions",
 ] as const;
@@ -30,16 +35,34 @@ export const BUSINESS_INPUT_SCHEMA = {
     action: {
       type: "string",
       enum: BUSINESS_ACTIONS,
-      description: "Business intelligence action: 'seo_keyword_difficulty' (Google KD 0-100 & volume), 'seo_batch_keywords' (matrix evaluation), 'seo_link_budget' (backlinks & DR formula), 'market_stripe_radar' (Stripe monthly revenue leaderboard), 'market_site_trajectory' (competitor MRR & checkout growth), 'market_niche_discovery' (white-space SaaS ideas), 'traffic_domain_overview' (TrafficCV monthly visits & rank), 'traffic_channel_breakdown' (TrafficCV acquisition channels), 'traffic_geo_distribution' (TrafficCV country breakdown), 'traffic_competitor_comparison' (TrafficCV multi-domain comparison), 'product_traction_score' (commercial viability index), 'list_actions'.",
+      description: "Business action across the 5 venture lifecycle stages: 'venture_market_validation' (TAM/SAM/SOM & viability), 'venture_acquisition_audit' (SEO/ASO/Steam Wishlists), 'venture_unit_economics' (CAC, LTV, MRR/ARPDAU), 'venture_retention_curves' (D1/D7/D30 & DAU/MAU stickiness), 'venture_monetization_telemetry' (Stripe/AppStore/Steam billing), plus modular SEO/TrafficCV actions and 'list_actions'.",
+    },
+    modality: {
+      type: "string",
+      enum: ["website", "app", "game"],
+      description: "Commercial modality of the venture: 'website' (SaaS/Web App), 'app' (iOS/Android mobile/desktop app), 'game' (Steam/mobile/console game). Default is 'website'.",
+    },
+    venture_name: {
+      type: "string",
+      description: "Name of the business venture or product.",
+    },
+    target_audience: {
+      type: "string",
+      description: "Target demographic or customer persona.",
+    },
+    monetization_model: {
+      type: "string",
+      enum: ["subscription", "freemium", "iap", "ads", "one_time", "battle_pass"],
+      description: "Business monetization model.",
     },
     provider: {
       type: "string",
-      enum: ["gefei", "trafficcv", "auto"],
-      description: "Data provider: 'gefei' (Google SERP/KD & Stripe Radar), 'trafficcv' (Domain traffic & channel analytics), 'auto' (automatic optimal provider selection).",
+      enum: ["gefei", "trafficcv", "store_radar", "auto"],
+      description: "Data provider selection.",
     },
     keyword: {
       type: "string",
-      description: "Search keyword to analyze (e.g. 'anxiety test online', 'ai photo enhancer').",
+      description: "Search keyword to analyze (e.g. 'anxiety test online', 'deckbuilder roguelike').",
     },
     keywords: {
       type: "array",
@@ -55,6 +78,27 @@ export const BUSINESS_INPUT_SCHEMA = {
       items: { type: "string" },
       description: "Array of domain names for TrafficCV competitor comparison.",
     },
+    competitors: {
+      type: "array",
+      items: { type: "string" },
+      description: "List of competitor names or domains.",
+    },
+    cac: {
+      type: "number",
+      description: "Customer Acquisition Cost in USD.",
+    },
+    arpu: {
+      type: "number",
+      description: "Average Revenue Per User in USD.",
+    },
+    dau: {
+      type: "integer",
+      description: "Daily Active Users count.",
+    },
+    mau: {
+      type: "integer",
+      description: "Monthly Active Users count.",
+    },
     month: {
       type: "string",
       description: "Month in YYYYMM format (e.g. '202607').",
@@ -69,11 +113,11 @@ export const BUSINESS_INPUT_SCHEMA = {
     },
     gl: {
       type: "string",
-      description: "Google country code: us, gb, ca, au, de, jp, sg. Default is 'us'.",
+      description: "Google country code (default 'us').",
     },
     hl: {
       type: "string",
-      description: "Google language code: en, es, zh, etc. Default is 'en'.",
+      description: "Google language code (default 'en').",
     },
     force: {
       type: "boolean",
@@ -130,7 +174,7 @@ export async function handleBusinessRpc(request: JsonRpcRequest): Promise<JsonRp
         tools: [
           {
             name: "business",
-            description: "MentalCraft Business & Product Engineering Intelligence Engine. Google SEO KD calculation, link budgets, SERP competitor forensics, Stripe revenue leaderboards, and product traction indexing.",
+            description: "MentalCraft Business & Venture Lifecycle Intelligence Engine (Market validation, Acquisition across SEO/ASO/Steam, Unit economics CAC/LTV, D1/D7/D30 Retention curves, Stripe/AppStore monetization telemetry across Websites, Apps, and Games).",
             inputSchema: BUSINESS_INPUT_SCHEMA,
           },
         ],
@@ -140,20 +184,22 @@ export async function handleBusinessRpc(request: JsonRpcRequest): Promise<JsonRp
 
   if (request.method === "tools/call") {
     const params = request.params as { name?: string; arguments?: Record<string, unknown> } | undefined;
-    if (params?.name !== "business") {
+    const toolName = params?.name;
+    const args = params?.arguments ?? {};
+
+    if (toolName !== "business") {
       return {
         jsonrpc: "2.0",
         id,
         error: {
           code: -32601,
-          message: `Unknown tool: ${params?.name ?? "undefined"}`,
+          message: `Unknown tool: ${toolName ?? "undefined"}`,
         },
       };
     }
 
     try {
-      const input = (params.arguments ?? {}) as unknown as BusinessInput;
-      const result = await businessOperation(input);
+      const output = await businessOperation(args as unknown as BusinessInput);
       return {
         jsonrpc: "2.0",
         id,
@@ -161,7 +207,7 @@ export async function handleBusinessRpc(request: JsonRpcRequest): Promise<JsonRp
           content: [
             {
               type: "text",
-              text: JSON.stringify(result, null, 2),
+              text: JSON.stringify(output, null, 2),
             },
           ],
         },
@@ -188,7 +234,7 @@ export async function handleBusinessRpc(request: JsonRpcRequest): Promise<JsonRp
   };
 }
 
-export function startBusinessMcpStdio() {
+export function startBusinessMcpServer() {
   let buffer = "";
   process.stdin.setEncoding("utf-8");
 
@@ -218,5 +264,5 @@ export function startBusinessMcpStdio() {
 }
 
 if (import.meta.main) {
-  startBusinessMcpStdio();
+  startBusinessMcpServer();
 }

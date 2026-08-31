@@ -160,6 +160,105 @@ export function exportMermaidDag(wf: any): { mermaidCode: string; nodesCount: nu
   };
 }
 
+export function exportOpenApiCatalog(): Record<string, unknown> {
+  const { BUSINESS_INPUT_SCHEMA } = require("../Business/mcp-server.ts");
+  const { SCIENCE_INPUT_SCHEMA } = require("../Science/mcp-server.ts");
+  const { DESIGN_INPUT_SCHEMA } = require("../Design/mcp-server.ts");
+  const { WORKFLOW_INPUT_SCHEMA } = require("./mcp-server.ts");
+  const { MESSAGE_INPUT_SCHEMA } = require("../Message/mcp-server.ts");
+
+  return {
+    openapi: "3.1.0",
+    info: {
+      title: "MentalCraft Unified Plugin API",
+      version: "1.0.0",
+      description: "Universal Agent-Less Capability & Domain Intelligence Architecture",
+    },
+    servers: [
+      {
+        url: "http://localhost:3890",
+        description: "MentalCraft Master HTTP Gateway",
+      },
+    ],
+    paths: {
+      "/api/workflow": {
+        post: {
+          summary: "Execute Workflow Orchestrator & Health Diagnostics",
+          operationId: "executeWorkflow",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: WORKFLOW_INPUT_SCHEMA } },
+          },
+          responses: {
+            "200": { description: "Workflow execution receipt or diagnostic result" },
+          },
+        },
+      },
+      "/api/business": {
+        post: {
+          summary: "Execute Venture Lifecycle & Commercial Intelligence",
+          operationId: "executeBusiness",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: BUSINESS_INPUT_SCHEMA } },
+          },
+          responses: {
+            "200": { description: "Commercial intelligence result" },
+          },
+        },
+      },
+      "/api/science": {
+        post: {
+          summary: "Execute Science & Academic Production Intelligence",
+          operationId: "executeScience",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: SCIENCE_INPUT_SCHEMA } },
+          },
+          responses: {
+            "200": { description: "Academic lifecycle intelligence result" },
+          },
+        },
+      },
+      "/api/design": {
+        post: {
+          summary: "Execute Design System & UI Intelligence",
+          operationId: "executeDesign",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: DESIGN_INPUT_SCHEMA } },
+          },
+          responses: {
+            "200": { description: "Design tokens or Svelte 5 runes component" },
+          },
+        },
+      },
+      "/api/message": {
+        post: {
+          summary: "Dispatch Priority Agent Message",
+          operationId: "dispatchMessage",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: MESSAGE_INPUT_SCHEMA } },
+          },
+          responses: {
+            "200": { description: "Message delivery confirmation receipt" },
+          },
+        },
+      },
+    },
+    components: {
+      schemas: {
+        WorkflowInput: WORKFLOW_INPUT_SCHEMA,
+        BusinessInput: BUSINESS_INPUT_SCHEMA,
+        ScienceInput: SCIENCE_INPUT_SCHEMA,
+        DesignInput: DESIGN_INPUT_SCHEMA,
+        MessageInput: MESSAGE_INPUT_SCHEMA,
+      },
+    },
+  };
+}
+
 export type RetryOptions = {
   maxRetries?: number;
   initialDelayMs?: number;
@@ -410,13 +509,14 @@ export async function executeHealthCheck(target?: PluginId | "all"): Promise<Sys
   if (!target || target === "all" || target === "business") {
     reports.business = {
       pluginId: "business",
-      name: "Business & Market Intelligence",
+      name: "Venture Lifecycle & Business Intelligence",
       status: "healthy",
       latencyMs: 1,
       checks: [
-        { name: "gefei_seo_engine", passed: true, detail: "Google KD & Link Budget formulas operational" },
-        { name: "trafficcv_engine", passed: true, detail: "Domain traffic visits, channels & geo distribution ready" },
-        { name: "traction_scoring", passed: true, detail: "Multidimensional product viability index active" },
+        { name: "venture_lifecycle", passed: true, detail: "Website, App & Game 5-stage lifecycle pipelines active" },
+        { name: "acquisition_engine", passed: true, detail: "SEO KD, App Store ASO & Steam Wishlists telemetry ready" },
+        { name: "unit_economics", passed: true, detail: "CAC, LTV, payback & ARPDAU financial modeling ready" },
+        { name: "monetization_telemetry", passed: true, detail: "Stripe, App Store & Steam billing channels active" },
       ],
     };
   }
@@ -764,103 +864,7 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
     }
 
     case "export_openapi_catalog": {
-      const { BUSINESS_INPUT_SCHEMA } = require("../Business/mcp-server.ts");
-      const { SCIENCE_INPUT_SCHEMA } = require("../Science/mcp-server.ts");
-      const { DESIGN_INPUT_SCHEMA } = require("../Design/mcp-server.ts");
-      const { WORKFLOW_INPUT_SCHEMA } = require("./mcp-server.ts");
-      const { MESSAGE_INPUT_SCHEMA } = require("../Message/mcp-server.ts");
-
-      const openapi = {
-        openapi: "3.1.0",
-        info: {
-          title: "MentalCraft Unified Plugin API",
-          version: "1.0.0",
-          description: "Universal Agent-Less Capability & Domain Intelligence Architecture",
-        },
-        servers: [
-          {
-            url: "http://localhost:3890",
-            description: "MentalCraft Master HTTP Gateway",
-          },
-        ],
-        paths: {
-          "/api/workflow": {
-            post: {
-              summary: "Execute Workflow Orchestrator & Health Diagnostics",
-              operationId: "executeWorkflow",
-              requestBody: {
-                required: true,
-                content: { "application/json": { schema: WORKFLOW_INPUT_SCHEMA } },
-              },
-              responses: {
-                "200": { description: "Workflow execution receipt or diagnostic result" },
-              },
-            },
-          },
-          "/api/business": {
-            post: {
-              summary: "Execute Commercial & Market Intelligence",
-              operationId: "executeBusiness",
-              requestBody: {
-                required: true,
-                content: { "application/json": { schema: BUSINESS_INPUT_SCHEMA } },
-              },
-              responses: {
-                "200": { description: "Commercial intelligence result" },
-              },
-            },
-          },
-          "/api/science": {
-            post: {
-              summary: "Execute Science & Research Intelligence",
-              operationId: "executeScience",
-              requestBody: {
-                required: true,
-                content: { "application/json": { schema: SCIENCE_INPUT_SCHEMA } },
-              },
-              responses: {
-                "200": { description: "Psychometric / Research intelligence result" },
-              },
-            },
-          },
-          "/api/design": {
-            post: {
-              summary: "Execute Design System & UI Intelligence",
-              operationId: "executeDesign",
-              requestBody: {
-                required: true,
-                content: { "application/json": { schema: DESIGN_INPUT_SCHEMA } },
-              },
-              responses: {
-                "200": { description: "Design tokens or Svelte 5 Runes recipe" },
-              },
-            },
-          },
-          "/api/message": {
-            post: {
-              summary: "Execute Multi-Channel Message Bus",
-              operationId: "executeMessage",
-              requestBody: {
-                required: true,
-                content: { "application/json": { schema: MESSAGE_INPUT_SCHEMA } },
-              },
-              responses: {
-                "200": { description: "Message delivery confirmation" },
-              },
-            },
-          },
-        },
-        components: {
-          schemas: {
-            WorkflowInput: WORKFLOW_INPUT_SCHEMA,
-            BusinessInput: BUSINESS_INPUT_SCHEMA,
-            ScienceInput: SCIENCE_INPUT_SCHEMA,
-            DesignInput: DESIGN_INPUT_SCHEMA,
-            MessageInput: MESSAGE_INPUT_SCHEMA,
-          },
-        },
-      };
-
+      const openapi = exportOpenApiCatalog();
       return {
         protocol: WORKFLOW_PROTOCOL,
         action: "export_openapi_catalog",
