@@ -8,10 +8,12 @@ First-class plugins, browser automation tools, market intelligence engines, and 
 
 | Plugin Directory | Description | Key Capabilities |
 |---|---|---|
+| [`Business/`](./Business) | Commercial & Market Intelligence Engine | Google SEO KD (0-100), link budget formulas, Stripe Radar real revenue leaderboards, competitor MRR trajectories, product traction index |
 | [`Chrome/`](./Chrome) | Chrome Browser Automation & Native Bridge | Inactive-tab driving, screencast/video recording, semantic snapshots, visual annotations, Web Vitals profiling, CDP actions |
-| [`Design/`](./Design) | Design System & UI Intelligence Engine | 5-layer hierarchy, component catalog inspection, token export, Svelte 5 runes UI generation, A11y auditing, Chrome bridge |
-| [`Gefei/`](./Gefei) | Gefei SEO & Market Intelligence | Keyword difficulty scoring (KD 0-100), link budget calculators, Stripe Radar revenue tracking, niche discovery |
+| [`Design/`](./Design) | Design System & UI Intelligence Engine | 5-layer hierarchy, component catalog inspection, token export, Svelte 5 runes UI generation, on-demand subpaths, domain presets |
+| [`Gefei/`](./Gefei) | Gefei SEO Toolbox Client | Low-level client and bridge for seo.web.cafe endpoints |
 | [`Message/`](./Message) | Agent Message Bus | High-performance inter-agent message dispatching and mailbox synchronization |
+| [`Science/`](./Science) | Science & Research Intelligence Engine | Clinical psychometric scoring (GAD-7, PHQ-9), suicidal ideation safety protocol, academic literature discovery, patent novelty audits, grant rubrics |
 | [`Secret/`](./Secret) | Local Credential Vault | Zero-leakage token redacting and local filesystem authority verification |
 
 ---

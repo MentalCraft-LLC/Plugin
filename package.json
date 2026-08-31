@@ -4,10 +4,12 @@
   "private": true,
   "type": "module",
   "workspaces": [
+    "Business",
     "Chrome",
     "Design",
     "Gefei",
     "Message",
+    "Science",
     "Secret"
   ],
   "scripts": {
