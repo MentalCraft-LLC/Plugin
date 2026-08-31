@@ -8,8 +8,11 @@ The `workflow` plugin is the master orchestrator coordinating multi-plugin compo
 
 | Action | Description | Key Parameters |
 |---|---|---|
-| `list_workflows` | List all built-in compound multi-plugin pipelines | N/A |
-| `run_workflow` | Sequentially execute a compound workflow with state forwarding | `workflow_id`, `parameters` |
+| `list_workflows` | List all built-in and dynamic compound multi-plugin pipelines | N/A |
+| `run_workflow` | Sequentially execute a compound workflow with telemetry and receipts | `workflow_id`, `parameters` |
+| `register_workflow` | Dynamically register a custom multi-plugin DAG pipeline | `custom_workflow` |
+| `get_workflow_history` | Retrieve past workflow execution receipts and duration metrics | N/A |
+| `export_config` | Generate ready-to-use MCP configuration JSON for Claude Desktop, Cursor, etc. | `client_target` |
 | `dry_run` | Validate required plugins and inspect execution graph without running actions | `workflow_id` |
 | `health_check` | Run system-wide diagnostics across all 6 capability plugins | `target_plugin` |
 

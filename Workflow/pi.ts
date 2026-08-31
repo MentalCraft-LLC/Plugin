@@ -30,9 +30,21 @@ export function compactWorkflowResult(result: WorkflowResult): string {
       const data = result.data as { workflow: { name: string }; plan: Array<{ plugin: string; action: string }> };
       return `Dry Run [${data.workflow.name}]: Plan ${data.plan.map((p) => `${p.plugin}.${p.action}`).join(" ➔ ")}`;
     }
+    case "register_workflow": {
+      const data = result.data as any;
+      return `✓ Registered Workflow "${data.name}" (${data.registeredId}) with ${data.stepsCount} steps`;
+    }
+    case "get_workflow_history": {
+      const data = result.data as any;
+      return `Workflow History: ${data.totalRuns} total runs recorded`;
+    }
+    case "export_config": {
+      const data = result.data as any;
+      return `Exported MCP Client Config for [${data.target}]: ${Object.keys(data.configs.mcpServers ?? {}).length} servers configured`;
+    }
     case "run_workflow": {
-      const data = result.data as { name: string; executedStepsCount: number };
-      return `✓ Workflow [${data.name}]: All ${data.executedStepsCount} steps completed successfully`;
+      const data = result.data as any;
+      return `✓ Workflow [${data.workflowName ?? data.name}]: All ${data.stepsCount ?? data.executedStepsCount} steps completed (${data.durationMs ?? 0}ms)`;
     }
   }
 }

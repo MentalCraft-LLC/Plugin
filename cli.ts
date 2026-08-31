@@ -112,6 +112,29 @@ async function main() {
       break;
     }
 
+    case "history": {
+      const res = await workflowOperation({ action: "get_workflow_history" });
+      console.log("\n📜 Workflow Run History\n" + "=".repeat(60));
+      console.log(JSON.stringify(res.data, null, 2));
+      console.log("\n" + "=".repeat(60));
+      break;
+    }
+
+    case "export-config":
+    case "config": {
+      const target = (args[1] as any) ?? "claude_desktop";
+      const res = await workflowOperation({ action: "export_config", client_target: target });
+      const data = res.data as any;
+      console.log(`\n📋 MCP Client Config [${target}]\n` + "=".repeat(60));
+      console.log(JSON.stringify(data.configs, null, 2));
+      console.log("\nInstructions:");
+      for (const inst of data.commandInstructions) {
+        console.log(`  - ${inst}`);
+      }
+      console.log("\n" + "=".repeat(60));
+      break;
+    }
+
     case "serve": {
       console.error("Starting MentalCraft Gateway MCP Stdio Server...");
       startGatewayMcpStdio();
@@ -128,6 +151,8 @@ Commands:
   health, doctor           Run comprehensive diagnostics across all plugins
   workflows, wf            List compound cross-plugin automation workflows
   run-workflow <id>        Execute a compound workflow pipeline
+  history                  View past workflow execution receipts
+  export-config [client]   Generate MCP config JSON for Claude Desktop / Cursor
   exec <p> <a> [d]         Execute an action on a plugin directly
   serve                    Launch the unified master MCP stdio server
   help                     Show this help message

@@ -10,6 +10,9 @@ import { type WorkflowInput } from "./core.ts";
 export const WORKFLOW_ACTIONS = [
   "list_workflows",
   "run_workflow",
+  "register_workflow",
+  "get_workflow_history",
+  "export_config",
   "health_check",
   "dry_run",
 ] as const;
@@ -22,22 +25,25 @@ export const WORKFLOW_INPUT_SCHEMA = {
     action: {
       type: "string",
       enum: WORKFLOW_ACTIONS,
-      description: "Workflow action: 'list_workflows' (catalog of multi-plugin pipelines), 'run_workflow' (live sequential execution), 'health_check' (pre-flight diagnostics), 'dry_run' (plan graph inspection).",
+      description: "Workflow action: 'list_workflows' (catalog of pipelines), 'run_workflow' (live execution), 'register_workflow' (define custom DAG), 'get_workflow_history' (past execution receipts), 'export_config' (generate MCP client JSON configs), 'health_check' (system diagnostics), 'dry_run' (plan graph inspection).",
     },
     workflow_id: {
       type: "string",
-      enum: [
-        "launch_product_campaign",
-        "clinical_study_to_screener",
-        "automated_revenue_monitor",
-        "design_system_audit_pipeline",
-      ],
       description: "Target workflow identifier.",
     },
     target_plugin: {
       type: "string",
       enum: ["chrome", "design", "business", "science", "message", "secret", "all"],
       description: "Target plugin for health check.",
+    },
+    client_target: {
+      type: "string",
+      enum: ["claude_desktop", "cursor", "antigravity", "pi", "all"],
+      description: "Target IDE or agent client for export_config.",
+    },
+    custom_workflow: {
+      type: "object",
+      description: "Custom workflow definition object containing id, name, description, requiredPlugins, and steps.",
     },
     parameters: {
       type: "object",

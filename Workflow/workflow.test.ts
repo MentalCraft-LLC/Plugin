@@ -49,7 +49,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     });
     expect(res.success).toBe(true);
     const data = res.data as any;
-    expect(data.executedStepsCount).toBe(4);
+    expect(data.stepsCount).toBe(4);
     expect(data.stepResults.every((s: any) => s.success)).toBe(true);
   });
 
@@ -80,6 +80,59 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     const parsed = JSON.parse(content[0].text);
     expect(parsed.action).toBe("health_check");
     expect(parsed.success).toBe(true);
+  });
+
+  test("register_workflow dynamically registers custom multi-plugin pipeline", async () => {
+    const res = await workflowOperation({
+      action: "register_workflow",
+      custom_workflow: {
+        id: "custom_seo_to_ui",
+        name: "Custom SEO to UI Pipeline",
+        description: "Custom pipeline created by agent.",
+        requiredPlugins: ["business", "design"],
+        steps: [
+          { step: 1, plugin: "business", action: "seo_keyword_difficulty", description: "Keyword lookup" },
+          { step: 2, plugin: "design", action: "domain_presets", description: "Design preset" },
+        ],
+      },
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.registeredId).toBe("custom_seo_to_ui");
+    expect(data.stepsCount).toBe(2);
+
+    // Verify it appears in list_workflows
+    const listRes = await workflowOperation({ action: "list_workflows" });
+    const listData = listRes.data as any;
+    expect(listData.customCount).toBe(1);
+    expect(listData.workflows.map((w: any) => w.id)).toContain("custom_seo_to_ui");
+  });
+
+  test("get_workflow_history records and retrieves execution receipts", async () => {
+    await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "clinical_study_to_screener",
+    });
+    const res = await workflowOperation({ action: "get_workflow_history" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.totalRuns).toBeGreaterThan(0);
+    expect(data.recentRuns[0].runId).toBeDefined();
+    expect(data.recentRuns[0].durationMs).toBeGreaterThanOrEqual(0);
+  });
+
+  test("export_config generates standard multi-server client configurations", async () => {
+    const res = await workflowOperation({
+      action: "export_config",
+      client_target: "claude_desktop",
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.target).toBe("claude_desktop");
+    expect(data.configs.mcpServers["mentalcraft-gateway"]).toBeDefined();
+    expect(data.configs.mcpServers["mentalcraft-business"]).toBeDefined();
+    expect(data.configs.mcpServers["mentalcraft-workflow"]).toBeDefined();
+    expect(data.commandInstructions.length).toBeGreaterThan(0);
   });
 
   test("compactWorkflowResult formats readable terminal summary", async () => {

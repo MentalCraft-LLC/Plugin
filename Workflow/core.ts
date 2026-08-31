@@ -1,13 +1,13 @@
 /**
- * Plugin/Workflow Core - Cross-Plugin Orchestration & Diagnostics Engine
+ * Plugin/Workflow Core - Cross-Plugin Orchestration, Health & Diagnostics Engine
  *
  * Symmetrical capability engine for coordinating multi-plugin DAG pipelines,
- * pre-flight health diagnostics, and end-to-end autonomous business/science workflows.
+ * pre-flight health diagnostics, custom pipeline registration, and IDE configuration exports.
  */
 
 export const WORKFLOW_PROTOCOL = "holar.workflow.v1" as const;
 
-export type PluginId = "chrome" | "design" | "business" | "science" | "message" | "secret";
+export type PluginId = "chrome" | "design" | "business" | "science" | "message" | "secret" | "workflow";
 
 export type HealthStatus = "healthy" | "degraded" | "unreachable";
 
@@ -36,7 +36,8 @@ export type WorkflowId =
   | "launch_product_campaign"
   | "clinical_study_to_screener"
   | "automated_revenue_monitor"
-  | "design_system_audit_pipeline";
+  | "design_system_audit_pipeline"
+  | (string & {});
 
 export type WorkflowStep = {
   step: number;
@@ -51,6 +52,33 @@ export type WorkflowDefinition = {
   description: string;
   requiredPlugins: PluginId[];
   steps: WorkflowStep[];
+};
+
+export type WorkflowRunReceipt = {
+  runId: string;
+  workflowId: WorkflowId;
+  workflowName: string;
+  startTime: string;
+  endTime: string;
+  durationMs: number;
+  success: boolean;
+  stepsCount: number;
+  stepResults: Array<{
+    step: number;
+    plugin: PluginId;
+    action: string;
+    success: boolean;
+    durationMs: number;
+    data: unknown;
+  }>;
+};
+
+export type ClientTargetConfig = "claude_desktop" | "cursor" | "antigravity" | "pi" | "all";
+
+export type ExportConfigResult = {
+  target: ClientTargetConfig;
+  configs: Record<string, unknown>;
+  commandInstructions: string[];
 };
 
 export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
@@ -107,6 +135,9 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
 export type WorkflowAction =
   | "list_workflows"
   | "run_workflow"
+  | "register_workflow"
+  | "get_workflow_history"
+  | "export_config"
   | "health_check"
   | "dry_run";
 
@@ -114,6 +145,14 @@ export type WorkflowInput = {
   action: WorkflowAction;
   workflow_id?: WorkflowId;
   target_plugin?: PluginId | "all";
+  custom_workflow?: {
+    id: string;
+    name: string;
+    description: string;
+    requiredPlugins: PluginId[];
+    steps: WorkflowStep[];
+  };
+  client_target?: ClientTargetConfig;
   parameters?: Record<string, unknown>;
 };
 
