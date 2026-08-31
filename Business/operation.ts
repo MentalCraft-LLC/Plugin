@@ -30,6 +30,12 @@ import {
   type PricingExperimentResult,
   type GrowthPlaybookResult,
   type ExpansionMoatResult,
+  type SpriteFlowCohortMonth,
+  type SpriteFlowMrrEngineResult,
+  type PseoKeywordEntry,
+  type SpriteFlowPseoMatrixResult,
+  type ViralVectorDeliverable,
+  type ZeroCostViralLoopsResult,
 } from "./core.ts";
 
 export class TrafficCvClient {
@@ -112,7 +118,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
           timestamp,
           provider,
           data: {
-            totalActions: 21,
+            totalActions: 24,
             modalities: ["website", "app", "game", "shop"],
             lifecycleStages: {
               stage1_ideation: ["venture_market_validation", "market_niche_discovery"],
@@ -126,6 +132,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
                 "traffic_channel_breakdown",
                 "traffic_geo_distribution",
                 "traffic_competitor_comparison",
+                "spriteflow_pseo_matrix",
               ],
               stage4_activation: ["venture_activation_funnel"],
               stage5_retention: ["venture_retention_curves"],
@@ -135,11 +142,13 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
                 "market_stripe_radar",
                 "market_site_trajectory",
                 "product_traction_score",
+                "spriteflow_mrr_engine",
               ],
               stage7_pricing: ["venture_pricing_experiment"],
               stage8_scale_moats: [
                 "venture_growth_playbook",
                 "venture_expansion_moat",
+                "zero_cost_viral_loops",
               ],
             },
             actions: [
@@ -154,6 +163,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
               { name: "traffic_channel_breakdown", stage: 3, scope: "Traffic acquisition channels (Search, Direct, Referral, Social)" },
               { name: "traffic_geo_distribution", stage: 3, scope: "Visitor geographic distribution across top countries" },
               { name: "traffic_competitor_comparison", stage: 3, scope: "Multi-domain traffic benchmark" },
+              { name: "spriteflow_pseo_matrix", stage: 3, scope: "100+ low-KD programmatic SEO keyword matrix across Godot 4, Unity, Aseprite, TexturePacker, Unreal, and indie engines" },
               { name: "venture_activation_funnel", stage: 4, scope: "Onboarding step friction, Add-to-Cart (ATC), and abandoned checkout recovery" },
               { name: "venture_retention_curves", stage: 5, scope: "D1/D7/D30 retention curves and 30/60/90-day e-commerce repurchase rates" },
               { name: "venture_unit_economics", stage: 6, scope: "CAC, LTV, COGS, 3PL shipping, ROAS, MRR/ARR and ARPDAU financial models" },
@@ -161,9 +171,11 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
               { name: "market_stripe_radar", stage: 6, scope: "Stripe monthly revenue leaderboard (dark horses & surging)" },
               { name: "market_site_trajectory", stage: 6, scope: "Competitor domain MRR & checkout referral growth" },
               { name: "product_traction_score", stage: 6, scope: "Multidimensional product traction ranking" },
+              { name: "spriteflow_mrr_engine", stage: 6, scope: "SpriteFlow path to $10k MRR ($120k ARR), 420 Pro + 25 Studio subscribers, 12-mo cohort projection, LTV $542.86, $0 CAC payback" },
               { name: "venture_pricing_experiment", stage: 7, scope: "Simulated price elasticity curve, volume tiering, and AOV boost optimization" },
               { name: "venture_growth_playbook", stage: 8, scope: "90-day multi-channel sprint roadmap for Web, App, Game, or Shop" },
               { name: "venture_expansion_moat", stage: 8, scope: "Virality K-factor loop, inventory ROP safety stock, and supply chain moats" },
+              { name: "zero_cost_viral_loops", stage: 8, scope: "5 zero-cost growth vectors (GitHub OSS bridge, Itch.io packs, Reddit/HN technical show, Bilibili/YouTube tutorials, free web sandbox) with step-by-step deliverables & KPIs" },
             ],
           },
         };
@@ -1212,6 +1224,450 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
               "Optimize checkout conversion rate via Stripe Radar benchmarks.",
             ],
           },
+        };
+      }
+
+      case "spriteflow_mrr_engine": {
+        const targetMrr = input.target_mrr ?? 10000;
+        const targetArr = input.target_mrr ? input.target_mrr * 12 : 120000;
+        const proPrice = input.pro_price ?? 19;
+        const studioPrice = input.studio_price ?? 79;
+        const proSubscribers = input.pro_subscribers ?? 420;
+        const studioSubscribers = input.studio_subscribers ?? 25;
+        const totalSubscribers = proSubscribers + studioSubscribers;
+
+        const proRevenue = proSubscribers * proPrice; // 420 * 19 = 7980
+        const studioRevenue = studioSubscribers * studioPrice; // 25 * 79 = 1975
+        const totalActualMrrUsd = proRevenue + studioRevenue; // 9955 (~$10k)
+        const blendedArpu = totalActualMrrUsd / totalSubscribers; // 22.3707865
+        const monthlyChurnRatePercent = 4.120914; // 4.12%
+        const customerLifespanMonths = Math.round((100 / monthlyChurnRatePercent) * 100) / 100; // 24.27 months
+        const grossMarginPercent = 96.5;
+        const ltvUsd = 542.86; // Exact blended LTV ($22.37 / 0.04120914)
+        const organicCacUsd = 0.0;
+        const paybackPeriodMonths = 0.0;
+        const burnRateMonthlyUsd = 450;
+        const netMarginAtScalePercent = 92.0;
+
+        const cohortProjections: SpriteFlowCohortMonth[] = [
+          { month: 1, monthName: "Month 1", freeUsers: 1200, proSubscribers: 12, studioSubscribers: 1, totalSubscribers: 13, mrrUsd: 307, arrUsd: 3684, grossRevenueUsd: 307, churnedSubscribers: 0, churnedMrrUsd: 0, netNewMrrUsd: 307, cumulativeRevenueUsd: 307 },
+          { month: 2, monthName: "Month 2", freeUsers: 2500, proSubscribers: 28, studioSubscribers: 2, totalSubscribers: 30, mrrUsd: 690, arrUsd: 8280, grossRevenueUsd: 690, churnedSubscribers: 1, churnedMrrUsd: 19, netNewMrrUsd: 383, cumulativeRevenueUsd: 997 },
+          { month: 3, monthName: "Month 3", freeUsers: 4800, proSubscribers: 55, studioSubscribers: 4, totalSubscribers: 59, mrrUsd: 1361, arrUsd: 16332, grossRevenueUsd: 1361, churnedSubscribers: 2, churnedMrrUsd: 38, netNewMrrUsd: 671, cumulativeRevenueUsd: 2358 },
+          { month: 4, monthName: "Month 4", freeUsers: 7500, proSubscribers: 95, studioSubscribers: 6, totalSubscribers: 101, mrrUsd: 2279, arrUsd: 27348, grossRevenueUsd: 2279, churnedSubscribers: 4, churnedMrrUsd: 76, netNewMrrUsd: 918, cumulativeRevenueUsd: 4637 },
+          { month: 5, monthName: "Month 5", freeUsers: 11200, proSubscribers: 145, studioSubscribers: 9, totalSubscribers: 154, mrrUsd: 3466, arrUsd: 41592, grossRevenueUsd: 3466, churnedSubscribers: 6, churnedMrrUsd: 114, netNewMrrUsd: 1187, cumulativeRevenueUsd: 8103 },
+          { month: 6, monthName: "Month 6", freeUsers: 15800, proSubscribers: 195, studioSubscribers: 12, totalSubscribers: 207, mrrUsd: 4653, arrUsd: 55836, grossRevenueUsd: 4653, churnedSubscribers: 8, churnedMrrUsd: 152, netNewMrrUsd: 1187, cumulativeRevenueUsd: 12756 },
+          { month: 7, monthName: "Month 7", freeUsers: 20500, proSubscribers: 245, studioSubscribers: 15, totalSubscribers: 260, mrrUsd: 5840, arrUsd: 70080, grossRevenueUsd: 5840, churnedSubscribers: 10, churnedMrrUsd: 190, netNewMrrUsd: 1187, cumulativeRevenueUsd: 18596 },
+          { month: 8, monthName: "Month 8", freeUsers: 25600, proSubscribers: 295, studioSubscribers: 18, totalSubscribers: 313, mrrUsd: 7027, arrUsd: 84324, grossRevenueUsd: 7027, churnedSubscribers: 12, churnedMrrUsd: 228, netNewMrrUsd: 1187, cumulativeRevenueUsd: 25623 },
+          { month: 9, monthName: "Month 9", freeUsers: 30800, proSubscribers: 340, studioSubscribers: 20, totalSubscribers: 360, mrrUsd: 8040, arrUsd: 96480, grossRevenueUsd: 8040, churnedSubscribers: 14, churnedMrrUsd: 266, netNewMrrUsd: 1013, cumulativeRevenueUsd: 33663 },
+          { month: 10, monthName: "Month 10", freeUsers: 36000, proSubscribers: 375, studioSubscribers: 22, totalSubscribers: 397, mrrUsd: 8863, arrUsd: 106356, grossRevenueUsd: 8863, churnedSubscribers: 16, churnedMrrUsd: 304, netNewMrrUsd: 823, cumulativeRevenueUsd: 42526 },
+          { month: 11, monthName: "Month 11", freeUsers: 41500, proSubscribers: 400, studioSubscribers: 24, totalSubscribers: 424, mrrUsd: 9496, arrUsd: 113952, grossRevenueUsd: 9496, churnedSubscribers: 17, churnedMrrUsd: 323, netNewMrrUsd: 633, cumulativeRevenueUsd: 52022 },
+          { month: 12, monthName: "Month 12", freeUsers: 48000, proSubscribers, studioSubscribers, totalSubscribers, mrrUsd: totalActualMrrUsd, arrUsd: totalActualMrrUsd * 12, grossRevenueUsd: totalActualMrrUsd, churnedSubscribers: 18, churnedMrrUsd: 342, netNewMrrUsd: 459, cumulativeRevenueUsd: 61977 },
+        ];
+
+        const growthMilestones = [
+          { milestone: "Sprint Alpha: Hacker News & Reddit Seed Launch", targetMrrUsd: 1361, subscribersRequired: { pro: 55, studio: 4 }, projectedMonth: 3, tacticalFocus: "Show HN launch, r/godot & r/PixelArt 2D normal map showcase, open source Rust/WASM CLI" },
+          { milestone: "Sprint Beta: Programmatic SEO & Godot AssetLib Flywheel", targetMrrUsd: 4653, subscribersRequired: { pro: 195, studio: 12 }, projectedMonth: 6, tacticalFocus: "100+ low-KD pSEO landing pages indexed, official Godot Asset Library addon, Unity UPM package" },
+          { milestone: "Sprint Gamma: Itch.io Game Jams & Devlog Creator Seeding", targetMrrUsd: 8040, subscribersRequired: { pro: 340, studio: 20 }, projectedMonth: 9, tacticalFocus: "Sponsoring GMTK & Kenney jams, 4 free CC0 pixel art packs, YouTube/Bilibili indie dev tutorials" },
+          { milestone: "Sprint Delta: $10k MRR Scale & Studio Multi-Seat Expansion", targetMrrUsd: 9955, subscribersRequired: { pro: 420, studio: 25 }, projectedMonth: 12, tacticalFocus: "Studio multi-seat automated CI/CD CLI pipeline, TexturePacker displacement campaigns, enterprise indie studios" },
+        ];
+
+        const res: SpriteFlowMrrEngineResult = {
+          ventureName: input.venture_name ?? "SpriteFlow",
+          targetMrrUsd: targetMrr,
+          targetArrUsd: targetArr,
+          currentStatus: {
+            modelType: "Freemium + Developer SaaS Subscriptions",
+            currency: "USD",
+            breakEvenMonth: 2,
+          },
+          pricingTiers: {
+            freeUsd: 0,
+            proUsd: proPrice,
+            studioUsd: studioPrice,
+          },
+          targetSubscribers: {
+            pro: proSubscribers,
+            studio: studioSubscribers,
+            totalPaying: totalSubscribers,
+            proRevenueUsd: proRevenue,
+            studioRevenueUsd: studioRevenue,
+            totalActualMrrUsd: totalActualMrrUsd,
+            blendedArpuUsd: Math.round(blendedArpu * 100) / 100,
+          },
+          unitEconomics: {
+            blendedArpuUsd: Math.round(blendedArpu * 100) / 100,
+            monthlyChurnRatePercent: Math.round(monthlyChurnRatePercent * 100) / 100,
+            customerLifespanMonths,
+            grossMarginPercent,
+            ltvUsd,
+            organicCacUsd,
+            ltvToCacRatio: 999.0,
+            paybackPeriodMonths,
+            burnRateMonthlyUsd,
+            netMarginAtScalePercent,
+          },
+          cohortProjections,
+          growthMilestones,
+          zeroSpendPaybackVelocity: {
+            cacSpend: 0,
+            paybackVelocityDays: 0,
+            primaryFreeGrowthEngines: [
+              "Programmatic SEO matrix (100+ low-KD long-tail keywords)",
+              "GitHub OSS bridge & Godot Asset Library / Unity UPM packages",
+              "Itch.io CC0 curated pixel art asset packs with pre-baked SpriteFlow projects",
+              "Hacker News (Show HN) & Reddit technical deep-dives on MaxRects WebAssembly packing",
+              "Bilibili & YouTube 3-minute frictionless workflow tutorials",
+              "Zero-install client-side WebAssembly free sandbox with interactive 3D normal map preview sharing",
+            ],
+            capitalEfficiencyScore: "100% Bootstrapped / Infinite ROI",
+          },
+        };
+
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "spriteflow_mrr_engine",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data: res,
+        };
+      }
+
+      case "spriteflow_pseo_matrix": {
+        const rawKeywords: PseoKeywordEntry[] = [
+          // 1. Godot 4 Ecosystem (20 entries)
+          { keyword: "godot 4 sprite sheet packer", ecosystem: "Godot 4", searchIntent: "transactional", estimatedMonthlyVolume: 4400, kd: 14, cpcUsd: 1.25, slug: "/tools/godot-4-sprite-sheet-packer", priorityTier: "P0", targetPageType: "tool_landing" },
+          { keyword: "godot 4 texture packer alternative", ecosystem: "Godot 4", searchIntent: "commercial", estimatedMonthlyVolume: 2900, kd: 12, cpcUsd: 1.45, slug: "/alternatives/godot-4-texturepacker-alternative", priorityTier: "P0", targetPageType: "comparison_alternative" },
+          { keyword: "godot 4 sprite normal map generator", ecosystem: "Godot 4", searchIntent: "transactional", estimatedMonthlyVolume: 1800, kd: 16, cpcUsd: 1.10, slug: "/tools/godot-4-sprite-normal-map-generator", priorityTier: "P0", targetPageType: "tool_landing" },
+          { keyword: "godot 4 sprite sheet to animatedsprite2d", ecosystem: "Godot 4", searchIntent: "informational", estimatedMonthlyVolume: 3600, kd: 11, cpcUsd: 0.85, slug: "/tutorials/godot-4-sprite-sheet-animatedsprite2d", priorityTier: "P0", targetPageType: "tutorial_guide" },
+          { keyword: "godot 4 tilemap sprite slicer", ecosystem: "Godot 4", searchIntent: "transactional", estimatedMonthlyVolume: 2100, kd: 15, cpcUsd: 0.95, slug: "/tools/godot-4-tilemap-sprite-slicer", priorityTier: "P1", targetPageType: "tool_landing" },
+          { keyword: "godot 4 pixel art normal map tutorial", ecosystem: "Godot 4", searchIntent: "informational", estimatedMonthlyVolume: 1400, kd: 9, cpcUsd: 0.75, slug: "/tutorials/godot-4-pixel-art-normal-maps", priorityTier: "P1", targetPageType: "tutorial_guide" },
+          { keyword: "godot 4 2d animation atlas optimizer", ecosystem: "Godot 4", searchIntent: "commercial", estimatedMonthlyVolume: 1200, kd: 18, cpcUsd: 1.30, slug: "/tools/godot-4-sprite-atlas-optimizer", priorityTier: "P1", targetPageType: "tool_landing" },
+          { keyword: "godot 4 sprite sheet unpacker online", ecosystem: "Godot 4", searchIntent: "transactional", estimatedMonthlyVolume: 3200, kd: 8, cpcUsd: 0.65, slug: "/tools/godot-4-sprite-sheet-unpacker", priorityTier: "P0", targetPageType: "converter_utility" },
+          { keyword: "godot 4 aseprite wizard alternative", ecosystem: "Godot 4", searchIntent: "commercial", estimatedMonthlyVolume: 1900, kd: 17, cpcUsd: 1.20, slug: "/alternatives/godot-4-aseprite-wizard-alternative", priorityTier: "P1", targetPageType: "comparison_alternative" },
+          { keyword: "godot 4 pixel art lighting 2d normal map", ecosystem: "Godot 4", searchIntent: "informational", estimatedMonthlyVolume: 1600, kd: 13, cpcUsd: 0.90, slug: "/guides/godot-4-pixel-art-lighting-2d", priorityTier: "P1", targetPageType: "tutorial_guide" },
+          { keyword: "godot 4 auto trim sprite whitespace", ecosystem: "Godot 4", searchIntent: "transactional", estimatedMonthlyVolume: 950, kd: 10, cpcUsd: 0.70, slug: "/tools/godot-4-trim-sprite-whitespace", priorityTier: "P2", targetPageType: "converter_utility" },
+          { keyword: "godot 4 sprite sheet collision polygon generator", ecosystem: "Godot 4", searchIntent: "transactional", estimatedMonthlyVolume: 1100, kd: 21, cpcUsd: 1.15, slug: "/tools/godot-4-sprite-collision-polygon-generator", priorityTier: "P1", targetPageType: "tool_landing" },
+          { keyword: "godot 4 isometric sprite sheet packer", ecosystem: "Godot 4", searchIntent: "transactional", estimatedMonthlyVolume: 880, kd: 14, cpcUsd: 0.80, slug: "/tools/godot-4-isometric-sprite-packer", priorityTier: "P2", targetPageType: "tool_landing" },
+          { keyword: "godot 4 font sprite sheet generator", ecosystem: "Godot 4", searchIntent: "transactional", estimatedMonthlyVolume: 750, kd: 16, cpcUsd: 0.85, slug: "/tools/godot-4-font-sprite-sheet-generator", priorityTier: "P2", targetPageType: "converter_utility" },
+          { keyword: "godot 4 sprite atlas vs individual textures performance", ecosystem: "Godot 4", searchIntent: "informational", estimatedMonthlyVolume: 1350, kd: 12, cpcUsd: 1.05, slug: "/guides/godot-4-sprite-atlas-vs-individual-textures", priorityTier: "P1", targetPageType: "tutorial_guide" },
+          { keyword: "godot 4 batch export sprite sheets", ecosystem: "Godot 4", searchIntent: "transactional", estimatedMonthlyVolume: 1250, kd: 15, cpcUsd: 1.00, slug: "/tools/godot-4-batch-export-sprite-sheets", priorityTier: "P1", targetPageType: "tool_landing" },
+          { keyword: "godot 4 sprite frames json importer", ecosystem: "Godot 4", searchIntent: "transactional", estimatedMonthlyVolume: 980, kd: 11, cpcUsd: 0.75, slug: "/tools/godot-4-sprite-frames-json-importer", priorityTier: "P2", targetPageType: "integration_doc" },
+          { keyword: "godot 4 smart sprite padding extrude edges", ecosystem: "Godot 4", searchIntent: "informational", estimatedMonthlyVolume: 620, kd: 8, cpcUsd: 0.50, slug: "/guides/godot-4-extrude-sprite-edges-bleeding-fix", priorityTier: "P2", targetPageType: "tutorial_guide" },
+          { keyword: "godot 4 vram texture compression pixel art", ecosystem: "Godot 4", searchIntent: "informational", estimatedMonthlyVolume: 850, kd: 19, cpcUsd: 1.10, slug: "/guides/godot-4-vram-compression-pixel-art", priorityTier: "P2", targetPageType: "tutorial_guide" },
+          { keyword: "godot 4 export sprite atlas to png", ecosystem: "Godot 4", searchIntent: "transactional", estimatedMonthlyVolume: 1150, kd: 7, cpcUsd: 0.60, slug: "/tools/godot-4-export-sprite-atlas-to-png", priorityTier: "P1", targetPageType: "converter_utility" },
+
+          // 2. Aseprite Pipeline (18 entries)
+          { keyword: "aseprite batch export sprite sheet", ecosystem: "Aseprite", searchIntent: "transactional", estimatedMonthlyVolume: 4800, kd: 13, cpcUsd: 1.40, slug: "/tools/aseprite-batch-export-sprite-sheet", priorityTier: "P0", targetPageType: "tool_landing" },
+          { keyword: "aseprite to godot 4 automated export", ecosystem: "Aseprite", searchIntent: "transactional", estimatedMonthlyVolume: 3900, kd: 11, cpcUsd: 1.30, slug: "/tools/aseprite-to-godot-4-pipeline", priorityTier: "P0", targetPageType: "integration_doc" },
+          { keyword: "aseprite sprite sheet unpacker", ecosystem: "Aseprite", searchIntent: "transactional", estimatedMonthlyVolume: 3100, kd: 10, cpcUsd: 0.80, slug: "/tools/aseprite-sprite-sheet-unpacker", priorityTier: "P0", targetPageType: "converter_utility" },
+          { keyword: "aseprite normal map generator plugin", ecosystem: "Aseprite", searchIntent: "commercial", estimatedMonthlyVolume: 2400, kd: 15, cpcUsd: 1.50, slug: "/tools/aseprite-normal-map-generator", priorityTier: "P0", targetPageType: "tool_landing" },
+          { keyword: "aseprite texture packer json export", ecosystem: "Aseprite", searchIntent: "informational", estimatedMonthlyVolume: 2200, kd: 14, cpcUsd: 0.95, slug: "/guides/aseprite-texture-packer-json-export", priorityTier: "P1", targetPageType: "tutorial_guide" },
+          { keyword: "aseprite tags to unity animation clips", ecosystem: "Aseprite", searchIntent: "transactional", estimatedMonthlyVolume: 1750, kd: 16, cpcUsd: 1.15, slug: "/tools/aseprite-tags-to-unity-animation", priorityTier: "P1", targetPageType: "integration_doc" },
+          { keyword: "aseprite sprite atlas packing tool", ecosystem: "Aseprite", searchIntent: "transactional", estimatedMonthlyVolume: 2100, kd: 12, cpcUsd: 1.05, slug: "/tools/aseprite-sprite-atlas-packing-tool", priorityTier: "P1", targetPageType: "tool_landing" },
+          { keyword: "aseprite command line sprite sheet export", ecosystem: "Aseprite", searchIntent: "informational", estimatedMonthlyVolume: 1550, kd: 18, cpcUsd: 1.25, slug: "/guides/aseprite-cli-sprite-sheet-export", priorityTier: "P1", targetPageType: "tutorial_guide" },
+          { keyword: "aseprite to unity 2d workflow 2026", ecosystem: "Aseprite", searchIntent: "informational", estimatedMonthlyVolume: 1900, kd: 12, cpcUsd: 1.10, slug: "/guides/aseprite-to-unity-workflow", priorityTier: "P1", targetPageType: "tutorial_guide" },
+          { keyword: "aseprite slice tool export separate images", ecosystem: "Aseprite", searchIntent: "transactional", estimatedMonthlyVolume: 2800, kd: 9, cpcUsd: 0.70, slug: "/tools/aseprite-slice-tool-batch-exporter", priorityTier: "P0", targetPageType: "converter_utility" },
+          { keyword: "aseprite pixel art sprite sheet optimizer", ecosystem: "Aseprite", searchIntent: "transactional", estimatedMonthlyVolume: 1100, kd: 14, cpcUsd: 0.90, slug: "/tools/aseprite-pixel-art-sprite-sheet-optimizer", priorityTier: "P2", targetPageType: "tool_landing" },
+          { keyword: "aseprite rotoscope normal map generator", ecosystem: "Aseprite", searchIntent: "transactional", estimatedMonthlyVolume: 650, kd: 20, cpcUsd: 1.20, slug: "/tools/aseprite-rotoscope-normal-map", priorityTier: "P2", targetPageType: "tool_landing" },
+          { keyword: "aseprite tilemap export to godot 4", ecosystem: "Aseprite", searchIntent: "transactional", estimatedMonthlyVolume: 1450, kd: 15, cpcUsd: 1.10, slug: "/tools/aseprite-tilemap-export-to-godot-4", priorityTier: "P1", targetPageType: "integration_doc" },
+          { keyword: "aseprite sprite sheet grid aligner online", ecosystem: "Aseprite", searchIntent: "transactional", estimatedMonthlyVolume: 1850, kd: 7, cpcUsd: 0.60, slug: "/tools/aseprite-grid-aligner-online", priorityTier: "P1", targetPageType: "converter_utility" },
+          { keyword: "aseprite to defold atlas converter", ecosystem: "Aseprite", searchIntent: "transactional", estimatedMonthlyVolume: 420, kd: 8, cpcUsd: 0.50, slug: "/tools/aseprite-to-defold-converter", priorityTier: "P2", targetPageType: "converter_utility" },
+          { keyword: "aseprite to gamemaker sprite strip converter", ecosystem: "Aseprite", searchIntent: "transactional", estimatedMonthlyVolume: 780, kd: 11, cpcUsd: 0.70, slug: "/tools/aseprite-to-gamemaker-converter", priorityTier: "P2", targetPageType: "converter_utility" },
+          { keyword: "aseprite auto trim duplicate frames", ecosystem: "Aseprite", searchIntent: "transactional", estimatedMonthlyVolume: 920, kd: 14, cpcUsd: 0.85, slug: "/tools/aseprite-trim-duplicate-frames", priorityTier: "P2", targetPageType: "converter_utility" },
+          { keyword: "aseprite sprite sheet pivot point editor", ecosystem: "Aseprite", searchIntent: "transactional", estimatedMonthlyVolume: 840, kd: 16, cpcUsd: 0.95, slug: "/tools/aseprite-pivot-point-editor", priorityTier: "P2", targetPageType: "tool_landing" },
+
+          // 3. TexturePacker Alternatives (18 entries)
+          { keyword: "texturepacker free alternative", ecosystem: "TexturePacker", searchIntent: "commercial", estimatedMonthlyVolume: 6200, kd: 19, cpcUsd: 1.85, slug: "/alternatives/texturepacker-free-alternative", priorityTier: "P0", targetPageType: "comparison_alternative" },
+          { keyword: "texturepacker open source alternative", ecosystem: "TexturePacker", searchIntent: "commercial", estimatedMonthlyVolume: 4100, kd: 15, cpcUsd: 1.60, slug: "/alternatives/texturepacker-open-source-alternative", priorityTier: "P0", targetPageType: "comparison_alternative" },
+          { keyword: "texturepacker online free", ecosystem: "TexturePacker", searchIntent: "transactional", estimatedMonthlyVolume: 5400, kd: 16, cpcUsd: 1.70, slug: "/tools/texturepacker-online-free", priorityTier: "P0", targetPageType: "tool_landing" },
+          { keyword: "best sprite sheet packer 2026", ecosystem: "TexturePacker", searchIntent: "commercial", estimatedMonthlyVolume: 3800, kd: 22, cpcUsd: 1.95, slug: "/comparisons/best-sprite-sheet-packer", priorityTier: "P0", targetPageType: "comparison_alternative" },
+          { keyword: "free sprite sheet packer for godot 4", ecosystem: "TexturePacker", searchIntent: "transactional", estimatedMonthlyVolume: 3200, kd: 11, cpcUsd: 1.20, slug: "/tools/free-sprite-sheet-packer-godot-4", priorityTier: "P0", targetPageType: "tool_landing" },
+          { keyword: "texturepacker crack alternative safe", ecosystem: "TexturePacker", searchIntent: "commercial", estimatedMonthlyVolume: 4900, kd: 21, cpcUsd: 1.40, slug: "/alternatives/texturepacker-safe-free-alternative", priorityTier: "P0", targetPageType: "comparison_alternative" },
+          { keyword: "free texture atlas generator for indie devs", ecosystem: "TexturePacker", searchIntent: "transactional", estimatedMonthlyVolume: 2700, kd: 13, cpcUsd: 1.30, slug: "/tools/free-texture-atlas-generator", priorityTier: "P1", targetPageType: "tool_landing" },
+          { keyword: "texturepacker vs spriteflow benchmark", ecosystem: "TexturePacker", searchIntent: "commercial", estimatedMonthlyVolume: 1100, kd: 10, cpcUsd: 1.15, slug: "/comparisons/texturepacker-vs-spriteflow", priorityTier: "P1", targetPageType: "comparison_alternative" },
+          { keyword: "texturepacker json array format free exporter", ecosystem: "TexturePacker", searchIntent: "transactional", estimatedMonthlyVolume: 1850, kd: 12, cpcUsd: 0.95, slug: "/tools/texturepacker-json-array-exporter", priorityTier: "P1", targetPageType: "converter_utility" },
+          { keyword: "texturepacker polygon sprite mesh alternative", ecosystem: "TexturePacker", searchIntent: "commercial", estimatedMonthlyVolume: 1300, kd: 24, cpcUsd: 1.65, slug: "/alternatives/texturepacker-polygon-mesh-alternative", priorityTier: "P1", targetPageType: "comparison_alternative" },
+          { keyword: "texturepacker mac m1 m2 free alternative", ecosystem: "TexturePacker", searchIntent: "commercial", estimatedMonthlyVolume: 1600, kd: 14, cpcUsd: 1.35, slug: "/alternatives/texturepacker-mac-alternative", priorityTier: "P1", targetPageType: "comparison_alternative" },
+          { keyword: "texturepacker linux cli alternative", ecosystem: "TexturePacker", searchIntent: "commercial", estimatedMonthlyVolume: 950, kd: 16, cpcUsd: 1.20, slug: "/alternatives/texturepacker-linux-cli-alternative", priorityTier: "P2", targetPageType: "comparison_alternative" },
+          { keyword: "texturepacker student discount alternative", ecosystem: "TexturePacker", searchIntent: "commercial", estimatedMonthlyVolume: 1200, kd: 8, cpcUsd: 0.85, slug: "/alternatives/texturepacker-student-alternative", priorityTier: "P1", targetPageType: "comparison_alternative" },
+          { keyword: "texturepacker alternative with normal maps", ecosystem: "TexturePacker", searchIntent: "commercial", estimatedMonthlyVolume: 1400, kd: 15, cpcUsd: 1.50, slug: "/alternatives/texturepacker-normal-map-support", priorityTier: "P1", targetPageType: "comparison_alternative" },
+          { keyword: "free texturepacker pro features web", ecosystem: "TexturePacker", searchIntent: "commercial", estimatedMonthlyVolume: 1650, kd: 17, cpcUsd: 1.45, slug: "/alternatives/texturepacker-pro-free-web", priorityTier: "P1", targetPageType: "comparison_alternative" },
+          { keyword: "texturepacker replacement for webgl games", ecosystem: "TexturePacker", searchIntent: "commercial", estimatedMonthlyVolume: 820, kd: 13, cpcUsd: 1.10, slug: "/alternatives/texturepacker-webgl-replacement", priorityTier: "P2", targetPageType: "comparison_alternative" },
+          { keyword: "free sprite sheet packer without watermark", ecosystem: "TexturePacker", searchIntent: "transactional", estimatedMonthlyVolume: 3400, kd: 18, cpcUsd: 1.40, slug: "/tools/free-sprite-sheet-packer-no-watermark", priorityTier: "P0", targetPageType: "tool_landing" },
+          { keyword: "texturepacker data format parser typescript", ecosystem: "TexturePacker", searchIntent: "informational", estimatedMonthlyVolume: 580, kd: 9, cpcUsd: 0.70, slug: "/guides/texturepacker-data-format-parser-ts", priorityTier: "P2", targetPageType: "integration_doc" },
+
+          // 4. Unity 2D Ecosystem (18 entries)
+          { keyword: "unity sprite atlas generator online", ecosystem: "Unity", searchIntent: "transactional", estimatedMonthlyVolume: 5100, kd: 17, cpcUsd: 1.75, slug: "/tools/unity-sprite-atlas-generator", priorityTier: "P0", targetPageType: "tool_landing" },
+          { keyword: "unity 2d pixel art normal map tool", ecosystem: "Unity", searchIntent: "transactional", estimatedMonthlyVolume: 2800, kd: 16, cpcUsd: 1.50, slug: "/tools/unity-pixel-art-normal-map-tool", priorityTier: "P0", targetPageType: "tool_landing" },
+          { keyword: "unity sprite sheet slicer online free", ecosystem: "Unity", searchIntent: "transactional", estimatedMonthlyVolume: 4200, kd: 12, cpcUsd: 1.10, slug: "/tools/unity-sprite-sheet-slicer-online", priorityTier: "P0", targetPageType: "tool_landing" },
+          { keyword: "unity sprite sheet to animation clip batch", ecosystem: "Unity", searchIntent: "transactional", estimatedMonthlyVolume: 2900, kd: 15, cpcUsd: 1.35, slug: "/tools/unity-sprite-sheet-to-animation-clip", priorityTier: "P1", targetPageType: "converter_utility" },
+          { keyword: "unity 2d physics sprite polygon collider slicer", ecosystem: "Unity", searchIntent: "transactional", estimatedMonthlyVolume: 1650, kd: 21, cpcUsd: 1.60, slug: "/tools/unity-2d-physics-sprite-slicer", priorityTier: "P1", targetPageType: "tool_landing" },
+          { keyword: "unity sprite atlas tight packing vs rectangle", ecosystem: "Unity", searchIntent: "informational", estimatedMonthlyVolume: 1400, kd: 14, cpcUsd: 1.00, slug: "/guides/unity-sprite-atlas-packing-modes", priorityTier: "P1", targetPageType: "tutorial_guide" },
+          { keyword: "unity 2d lighting normal map sprite sheet", ecosystem: "Unity", searchIntent: "informational", estimatedMonthlyVolume: 2100, kd: 18, cpcUsd: 1.40, slug: "/guides/unity-2d-lighting-normal-maps", priorityTier: "P1", targetPageType: "tutorial_guide" },
+          { keyword: "unity sprite sheet unpacker to individual pngs", ecosystem: "Unity", searchIntent: "transactional", estimatedMonthlyVolume: 3500, kd: 9, cpcUsd: 0.85, slug: "/tools/unity-sprite-sheet-unpacker", priorityTier: "P0", targetPageType: "converter_utility" },
+          { keyword: "unity automated sprite atlas build pipeline", ecosystem: "Unity", searchIntent: "commercial", estimatedMonthlyVolume: 1150, kd: 20, cpcUsd: 1.80, slug: "/guides/unity-automated-sprite-atlas-pipeline", priorityTier: "P1", targetPageType: "integration_doc" },
+          { keyword: "unity aseprite importer free alternative", ecosystem: "Unity", searchIntent: "commercial", estimatedMonthlyVolume: 1800, kd: 13, cpcUsd: 1.25, slug: "/alternatives/unity-aseprite-importer-alternative", priorityTier: "P1", targetPageType: "comparison_alternative" },
+          { keyword: "unity sprite sheet pivot aligner tool", ecosystem: "Unity", searchIntent: "transactional", estimatedMonthlyVolume: 1050, kd: 11, cpcUsd: 0.90, slug: "/tools/unity-sprite-pivot-aligner", priorityTier: "P2", targetPageType: "tool_landing" },
+          { keyword: "unity 2d isometric sprite atlas packer", ecosystem: "Unity", searchIntent: "transactional", estimatedMonthlyVolume: 920, kd: 15, cpcUsd: 1.05, slug: "/tools/unity-isometric-sprite-packer", priorityTier: "P2", targetPageType: "tool_landing" },
+          { keyword: "unity sprite atlas memory reduction tips", ecosystem: "Unity", searchIntent: "informational", estimatedMonthlyVolume: 1300, kd: 16, cpcUsd: 1.15, slug: "/guides/unity-sprite-atlas-memory-optimization", priorityTier: "P1", targetPageType: "tutorial_guide" },
+          { keyword: "unity sprite sheet tilemap tearing bleeding fix", ecosystem: "Unity", searchIntent: "informational", estimatedMonthlyVolume: 1700, kd: 10, cpcUsd: 0.90, slug: "/guides/unity-sprite-sheet-bleeding-fix", priorityTier: "P1", targetPageType: "tutorial_guide" },
+          { keyword: "unity sprite sheet fps animation previewer web", ecosystem: "Unity", searchIntent: "transactional", estimatedMonthlyVolume: 1250, kd: 8, cpcUsd: 0.75, slug: "/tools/unity-sprite-animation-previewer-web", priorityTier: "P2", targetPageType: "tool_landing" },
+          { keyword: "unity 2d sprite dither normal map shader", ecosystem: "Unity", searchIntent: "informational", estimatedMonthlyVolume: 780, kd: 19, cpcUsd: 1.30, slug: "/guides/unity-2d-dither-normal-map-shader", priorityTier: "P2", targetPageType: "tutorial_guide" },
+          { keyword: "unity webgl sprite sheet size optimization", ecosystem: "Unity", searchIntent: "informational", estimatedMonthlyVolume: 960, kd: 14, cpcUsd: 1.00, slug: "/guides/unity-webgl-sprite-sheet-size", priorityTier: "P2", targetPageType: "tutorial_guide" },
+          { keyword: "unity 2d sprite normal map bake from diffuse", ecosystem: "Unity", searchIntent: "transactional", estimatedMonthlyVolume: 1500, kd: 17, cpcUsd: 1.25, slug: "/tools/unity-sprite-normal-map-diffuse-bake", priorityTier: "P1", targetPageType: "tool_landing" },
+
+          // 5. Unreal Engine 5 Ecosystem (10 entries)
+          { keyword: "unreal engine 5 paper2d sprite packer", ecosystem: "Unreal Engine 5", searchIntent: "transactional", estimatedMonthlyVolume: 2400, kd: 18, cpcUsd: 1.65, slug: "/tools/ue5-paper2d-sprite-packer", priorityTier: "P1", targetPageType: "tool_landing" },
+          { keyword: "ue5 2d sprite sheet animation flipbook generator", ecosystem: "Unreal Engine 5", searchIntent: "transactional", estimatedMonthlyVolume: 1950, kd: 16, cpcUsd: 1.40, slug: "/tools/ue5-sprite-flipbook-generator", priorityTier: "P1", targetPageType: "converter_utility" },
+          { keyword: "unreal engine 5 pixel art normal maps 2d", ecosystem: "Unreal Engine 5", searchIntent: "informational", estimatedMonthlyVolume: 1400, kd: 19, cpcUsd: 1.50, slug: "/guides/ue5-pixel-art-normal-maps", priorityTier: "P1", targetPageType: "tutorial_guide" },
+          { keyword: "ue5 sprite atlas packing maxrects", ecosystem: "Unreal Engine 5", searchIntent: "transactional", estimatedMonthlyVolume: 850, kd: 14, cpcUsd: 1.10, slug: "/tools/ue5-sprite-atlas-packer", priorityTier: "P2", targetPageType: "tool_landing" },
+          { keyword: "unreal engine 5 2d game texture sheet optimizer", ecosystem: "Unreal Engine 5", searchIntent: "commercial", estimatedMonthlyVolume: 950, kd: 15, cpcUsd: 1.30, slug: "/tools/ue5-2d-texture-sheet-optimizer", priorityTier: "P2", targetPageType: "tool_landing" },
+          { keyword: "ue5 paper zd sprite sheet unpacker", ecosystem: "Unreal Engine 5", searchIntent: "transactional", estimatedMonthlyVolume: 720, kd: 11, cpcUsd: 0.85, slug: "/tools/ue5-paper-zd-sprite-unpacker", priorityTier: "P2", targetPageType: "converter_utility" },
+          { keyword: "unreal engine 2d pixel perfect sprite settings", ecosystem: "Unreal Engine 5", searchIntent: "informational", estimatedMonthlyVolume: 1100, kd: 13, cpcUsd: 0.95, slug: "/guides/ue5-pixel-perfect-sprite-setup", priorityTier: "P2", targetPageType: "tutorial_guide" },
+          { keyword: "ue5 2d dynamic lighting sprite normal maps", ecosystem: "Unreal Engine 5", searchIntent: "informational", estimatedMonthlyVolume: 1050, kd: 20, cpcUsd: 1.55, slug: "/guides/ue5-2d-dynamic-lighting-sprite-normals", priorityTier: "P2", targetPageType: "tutorial_guide" },
+          { keyword: "unreal engine 5 sprite sheet json import", ecosystem: "Unreal Engine 5", searchIntent: "transactional", estimatedMonthlyVolume: 680, kd: 12, cpcUsd: 0.90, slug: "/tools/ue5-sprite-sheet-json-import", priorityTier: "P2", targetPageType: "integration_doc" },
+          { keyword: "ue5 pixel art sprite sheet collision hull generator", ecosystem: "Unreal Engine 5", searchIntent: "transactional", estimatedMonthlyVolume: 620, kd: 22, cpcUsd: 1.45, slug: "/tools/ue5-sprite-collision-hull-generator", priorityTier: "P2", targetPageType: "tool_landing" },
+
+          // 6. Cross-Platform & Indie Engines (36 entries)
+          { keyword: "free online sprite sheet packer", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 9800, kd: 21, cpcUsd: 1.50, slug: "/tools/online-sprite-sheet-packer", priorityTier: "P0", targetPageType: "tool_landing" },
+          { keyword: "sprite sheet unpacker online free", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 8400, kd: 13, cpcUsd: 0.90, slug: "/tools/sprite-sheet-unpacker-online", priorityTier: "P0", targetPageType: "converter_utility" },
+          { keyword: "pixel art normal map generator online free", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 6800, kd: 15, cpcUsd: 1.60, slug: "/tools/pixel-art-normal-map-generator", priorityTier: "P0", targetPageType: "tool_landing" },
+          { keyword: "sprite sheet to gif converter online", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 7200, kd: 11, cpcUsd: 0.80, slug: "/tools/sprite-sheet-to-gif", priorityTier: "P0", targetPageType: "converter_utility" },
+          { keyword: "sprite sheet grid slicer online", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 5600, kd: 10, cpcUsd: 0.75, slug: "/tools/sprite-sheet-grid-slicer", priorityTier: "P0", targetPageType: "converter_utility" },
+          { keyword: "sprite sheet animation previewer 60fps", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 4200, kd: 9, cpcUsd: 0.85, slug: "/tools/sprite-animation-previewer", priorityTier: "P0", targetPageType: "tool_landing" },
+          { keyword: "phaser 3 sprite sheet generator json hash", ecosystem: "Phaser", searchIntent: "transactional", estimatedMonthlyVolume: 2600, kd: 12, cpcUsd: 1.10, slug: "/tools/phaser-3-sprite-sheet-generator", priorityTier: "P1", targetPageType: "tool_landing" },
+          { keyword: "defold sprite atlas packer free", ecosystem: "Defold", searchIntent: "transactional", estimatedMonthlyVolume: 1100, kd: 8, cpcUsd: 0.65, slug: "/tools/defold-sprite-atlas-packer", priorityTier: "P1", targetPageType: "tool_landing" },
+          { keyword: "gamemaker sprite strip to sheet converter", ecosystem: "GameMaker", searchIntent: "transactional", estimatedMonthlyVolume: 2100, kd: 10, cpcUsd: 0.95, slug: "/tools/gamemaker-sprite-strip-converter", priorityTier: "P1", targetPageType: "converter_utility" },
+          { keyword: "bevy rust 2d sprite atlas packer", ecosystem: "Bevy", searchIntent: "transactional", estimatedMonthlyVolume: 1400, kd: 14, cpcUsd: 1.30, slug: "/tools/bevy-rust-sprite-atlas-packer", priorityTier: "P1", targetPageType: "tool_landing" },
+          { keyword: "pygame sprite sheet slicer helper script", ecosystem: "Pygame", searchIntent: "transactional", estimatedMonthlyVolume: 3100, kd: 11, cpcUsd: 0.80, slug: "/tools/pygame-sprite-sheet-slicer", priorityTier: "P1", targetPageType: "converter_utility" },
+          { keyword: "rpg maker mz sprite sheet size converter", ecosystem: "RPG Maker", searchIntent: "transactional", estimatedMonthlyVolume: 2900, kd: 12, cpcUsd: 0.90, slug: "/tools/rpg-maker-mz-sprite-size-converter", priorityTier: "P1", targetPageType: "converter_utility" },
+          { keyword: "auto trim transparent pixels sprite sheet", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 2400, kd: 11, cpcUsd: 0.85, slug: "/tools/auto-trim-transparent-pixels-sprite", priorityTier: "P1", targetPageType: "converter_utility" },
+          { keyword: "2d normal map height map generator pixel art", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 2200, kd: 16, cpcUsd: 1.40, slug: "/tools/2d-normal-map-height-map-pixel-art", priorityTier: "P1", targetPageType: "tool_landing" },
+          { keyword: "maxrects bin packing algorithm online demo", ecosystem: "Cross-Platform", searchIntent: "informational", estimatedMonthlyVolume: 1350, kd: 18, cpcUsd: 1.20, slug: "/guides/maxrects-bin-packing-algorithm-demo", priorityTier: "P2", targetPageType: "tutorial_guide" },
+          { keyword: "power of two texture atlas generator 2048x2048", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 1650, kd: 14, cpcUsd: 1.05, slug: "/tools/pot-texture-atlas-generator", priorityTier: "P2", targetPageType: "tool_landing" },
+          { keyword: "sprite sheet margin padding border extrude online", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 1800, kd: 9, cpcUsd: 0.70, slug: "/tools/sprite-sheet-padding-extrude", priorityTier: "P1", targetPageType: "converter_utility" },
+          { keyword: "pixi js sprite sheet json array generator", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 1900, kd: 13, cpcUsd: 1.15, slug: "/tools/pixi-js-sprite-sheet-generator", priorityTier: "P1", targetPageType: "tool_landing" },
+          { keyword: "webassembly sprite sheet packer fast", ecosystem: "Cross-Platform", searchIntent: "commercial", estimatedMonthlyVolume: 980, kd: 15, cpcUsd: 1.40, slug: "/tools/webassembly-fast-sprite-packer", priorityTier: "P2", targetPageType: "tool_landing" },
+          { keyword: "isometric tilemap sprite sheet slicer", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 1550, kd: 13, cpcUsd: 0.95, slug: "/tools/isometric-tilemap-slicer", priorityTier: "P1", targetPageType: "converter_utility" },
+          { keyword: "pixel art character 8 directional sprite sheet creator", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 3200, kd: 20, cpcUsd: 1.35, slug: "/tools/8-directional-sprite-sheet-creator", priorityTier: "P0", targetPageType: "tool_landing" },
+          { keyword: "sprite sheet pivot editor online free", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 1450, kd: 8, cpcUsd: 0.65, slug: "/tools/sprite-sheet-pivot-editor", priorityTier: "P1", targetPageType: "tool_landing" },
+          { keyword: "webp sprite sheet packer for html5 games", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 1150, kd: 12, cpcUsd: 0.90, slug: "/tools/webp-sprite-sheet-packer", priorityTier: "P2", targetPageType: "tool_landing" },
+          { keyword: "svg to sprite sheet png rasterizer", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 1750, kd: 14, cpcUsd: 1.10, slug: "/tools/svg-to-sprite-sheet-rasterizer", priorityTier: "P2", targetPageType: "converter_utility" },
+          { keyword: "gif to sprite sheet splitter online", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 4800, kd: 9, cpcUsd: 0.75, slug: "/tools/gif-to-sprite-sheet-splitter", priorityTier: "P0", targetPageType: "converter_utility" },
+          { keyword: "spritesmith online free alternative", ecosystem: "Cross-Platform", searchIntent: "commercial", estimatedMonthlyVolume: 850, kd: 10, cpcUsd: 0.85, slug: "/alternatives/spritesmith-online-alternative", priorityTier: "P2", targetPageType: "comparison_alternative" },
+          { keyword: "shoebox sprite sheet tool modern alternative", ecosystem: "Cross-Platform", searchIntent: "commercial", estimatedMonthlyVolume: 1900, kd: 15, cpcUsd: 1.30, slug: "/alternatives/shoebox-modern-alternative", priorityTier: "P1", targetPageType: "comparison_alternative" },
+          { keyword: "free sprite cutter grid split", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 2600, kd: 8, cpcUsd: 0.60, slug: "/tools/free-sprite-cutter-grid-split", priorityTier: "P1", targetPageType: "converter_utility" },
+          { keyword: "pixel art emission map sprite generator", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 1200, kd: 17, cpcUsd: 1.25, slug: "/tools/pixel-art-emission-map-generator", priorityTier: "P2", targetPageType: "tool_landing" },
+          { keyword: "sprite sheet metadata json parser online", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 750, kd: 9, cpcUsd: 0.65, slug: "/tools/sprite-sheet-metadata-parser", priorityTier: "P2", targetPageType: "integration_doc" },
+          { keyword: "love2d quads sprite sheet generator", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 920, kd: 11, cpcUsd: 0.80, slug: "/tools/love2d-quads-sprite-generator", priorityTier: "P2", targetPageType: "converter_utility" },
+          { keyword: "kaboom js sprite sheet atlas packer", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 680, kd: 7, cpcUsd: 0.55, slug: "/tools/kaboom-js-sprite-packer", priorityTier: "P2", targetPageType: "tool_landing" },
+          { keyword: "monogame sprite sheet xml generator", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 540, kd: 10, cpcUsd: 0.70, slug: "/tools/monogame-sprite-sheet-xml-generator", priorityTier: "P2", targetPageType: "converter_utility" },
+          { keyword: "libgdx texture packer free alternative online", ecosystem: "Cross-Platform", searchIntent: "commercial", estimatedMonthlyVolume: 1100, kd: 13, cpcUsd: 1.05, slug: "/alternatives/libgdx-texture-packer-alternative", priorityTier: "P2", targetPageType: "comparison_alternative" },
+          { keyword: "raylib sprite sheet animation loader tool", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 890, kd: 12, cpcUsd: 0.85, slug: "/tools/raylib-sprite-animation-loader", priorityTier: "P2", targetPageType: "converter_utility" },
+          { keyword: "pixel art specular roughness map generator 2d", ecosystem: "Cross-Platform", searchIntent: "transactional", estimatedMonthlyVolume: 1050, kd: 18, cpcUsd: 1.45, slug: "/tools/2d-pixel-art-specular-roughness-generator", priorityTier: "P2", targetPageType: "tool_landing" },
+        ];
+
+        let filtered = rawKeywords;
+        if (input.engine_filter) {
+          const ef = input.engine_filter.toLowerCase();
+          filtered = filtered.filter((k) => k.ecosystem.toLowerCase().includes(ef));
+        }
+        if (input.min_volume !== undefined) {
+          filtered = filtered.filter((k) => k.estimatedMonthlyVolume >= (input.min_volume ?? 0));
+        }
+        if (input.max_kd !== undefined) {
+          filtered = filtered.filter((k) => k.kd <= (input.max_kd ?? 100));
+        }
+
+        const totalVol = filtered.reduce((acc, k) => acc + k.estimatedMonthlyVolume, 0);
+        const avgKd = filtered.length > 0 ? Math.round((filtered.reduce((acc, k) => acc + k.kd, 0) / filtered.length) * 10) / 10 : 0;
+        const p0List = filtered.filter((k) => k.priorityTier === "P0");
+
+        const ecosystemBreakdown: Record<string, { count: number; totalVolume: number; avgKd: number }> = {};
+        for (const item of filtered) {
+          if (!ecosystemBreakdown[item.ecosystem]) {
+            ecosystemBreakdown[item.ecosystem] = { count: 0, totalVolume: 0, avgKd: 0 };
+          }
+          ecosystemBreakdown[item.ecosystem].count++;
+          ecosystemBreakdown[item.ecosystem].totalVolume += item.estimatedMonthlyVolume;
+        }
+        for (const eco of Object.keys(ecosystemBreakdown)) {
+          const ecoItems = filtered.filter((k) => k.ecosystem === eco);
+          ecosystemBreakdown[eco].avgKd = Math.round((ecoItems.reduce((a, b) => a + b.kd, 0) / ecoItems.length) * 10) / 10;
+        }
+
+        const intentBreakdown: Record<string, { count: number; totalVolume: number }> = {};
+        for (const item of filtered) {
+          if (!intentBreakdown[item.searchIntent]) {
+            intentBreakdown[item.searchIntent] = { count: 0, totalVolume: 0 };
+          }
+          intentBreakdown[item.searchIntent].count++;
+          intentBreakdown[item.searchIntent].totalVolume += item.estimatedMonthlyVolume;
+        }
+
+        const res: SpriteFlowPseoMatrixResult = {
+          ventureName: input.venture_name ?? "SpriteFlow",
+          totalKeywords: filtered.length,
+          totalMonthlySearchVolume: totalVol,
+          averageKd: avgKd,
+          highPriorityCount: p0List.length,
+          ecosystemBreakdown,
+          intentBreakdown,
+          keywords: filtered,
+          topP0Keywords: p0List,
+          programmaticSeoStrategy: {
+            slugArchitecture: "/:category/:engine-action-keyword (e.g. /tools/godot-4-sprite-sheet-packer, /alternatives/texturepacker-free-alternative)",
+            indexingCadence: "Batches of 25 programmatic pages per week with dynamic interactive Wasm preview widget embedded",
+            contentTemplateTypes: ["Interactive Browser Tool Landing", "Feature-by-Feature Competitor Alternative", "Engine Pipeline Step-by-Step Tutorial", "Batch Converter Utility"],
+            schemaMarkup: ["SoftwareApplication", "FAQPage", "HowTo", "BreadcrumbList"],
+            internalLinkingStrategy: "Cross-link related engines (Godot ➔ Aseprite ➔ Unity) and anchor text to free WebAssembly sandbox",
+          },
+        };
+
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "spriteflow_pseo_matrix",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data: res,
+        };
+      }
+
+      case "zero_cost_viral_loops": {
+        const vectors: ViralVectorDeliverable[] = [
+          {
+            vectorId: "vector_github_oss_bridge",
+            vectorName: "GitHub OSS Bridge & Engine Plugin Ecosystem",
+            channel: "GitHub & Godot/Unity Package Registries",
+            kFactorContribution: 0.28,
+            projectedMonthlySignups: 1400,
+            conversionToProPercent: 7.5,
+            stepByStepDeliverables: [
+              { stepNumber: 1, title: "Open-source Rust/WASM Core Engine", action: "Publish MIT-licensed `spriteflow-core` MaxRects bin packer on GitHub & crates.io/npm with benchmark suite", timeline: "Week 1-2", status: "Ready" },
+              { stepNumber: 2, title: "Godot 4 Editor Addon in AssetLib", action: "Submit official Godot 4 Editor Plugin with 1-click sprite sheet import and normal map preview directly in inspector", timeline: "Week 3-4", status: "In Progress" },
+              { stepNumber: 3, title: "Unity Package Manager (UPM) Git Package", action: "Publish UPM git package supporting automated sprite atlas generation upon sprite asset drag-and-drop", timeline: "Week 5-6", status: "Planned" },
+              { stepNumber: 4, title: "GitHub Actions CI/CD Sprite Builder", action: "Release reusable GitHub Action (`spriteflow-action`) for automated CI game asset builds with SpriteFlow Pro CLI bridge", timeline: "Week 7-8", status: "Planned" },
+            ],
+            kpis: [
+              { metric: "GitHub Repository Stars", target: "2,500+ Stars within 6 months", measurementWindow: "Monthly" },
+              { metric: "Godot AssetLib Monthly Installs", target: "1,200+ active installs/mo", measurementWindow: "Monthly" },
+              { metric: "README to Web Sandbox Referral CTR", target: "18.0% CTR", measurementWindow: "Weekly" },
+            ],
+          },
+          {
+            vectorId: "vector_itch_io_packs",
+            vectorName: "Itch.io CC0 Asset Packs & Game Jam Seeding",
+            channel: "Itch.io Game Dev Community & Game Jams (GMTK, Ludum Dare, Kenney Jam)",
+            kFactorContribution: 0.22,
+            projectedMonthlySignups: 1850,
+            conversionToProPercent: 5.2,
+            stepByStepDeliverables: [
+              { stepNumber: 1, title: "Curate 4 CC0 Pixel Art Asset Packs", action: "Release 4 high-quality pixel art packs (Cyberpunk Roguelike, Fantasy RPG, Sci-Fi Platformer, Isometric Dungeon) with pre-baked SpriteFlow projects", timeline: "Week 2-3", status: "Ready" },
+              { stepNumber: 2, title: "Game Jam Tool Sponsorship", action: "Sponsor GMTK Jam, Ludum Dare, and Kenney Jam with free 6-month Pro licenses for participants and 'Recommended Tool' badge", timeline: "Week 4-6", status: "In Progress" },
+              { stepNumber: 3, title: "Interactive WebGL Asset Explorer", action: "Embed playable WebGL sprite viewer on Itch.io page demonstrating real-time 2D lighting & normal map manipulation", timeline: "Week 7-8", status: "Planned" },
+              { stepNumber: 4, title: "Itch.io Developer Devlog Series", action: "Publish 4 devlogs on sprite sheet VRAM optimization and 60fps sprite performance for HTML5 games", timeline: "Week 9-10", status: "Planned" },
+            ],
+            kpis: [
+              { metric: "Total Itch.io Asset Pack Downloads", target: "20,000+ downloads", measurementWindow: "Quarterly" },
+              { metric: "Game Jam Submissions Using SpriteFlow", target: "600+ game submissions", measurementWindow: "Per Jam" },
+              { metric: "Itch Description Click-to-Signup Rate", target: "8.5% conversion rate", measurementWindow: "Monthly" },
+            ],
+          },
+          {
+            vectorId: "vector_reddit_hn_show",
+            vectorName: "Reddit & Hacker News Technical Deep Dives",
+            channel: "Hacker News (Show HN) & Reddit (r/godot, r/gamedev, r/PixelArt, r/Unity2D)",
+            kFactorContribution: 0.25,
+            projectedMonthlySignups: 2600,
+            conversionToProPercent: 6.4,
+            stepByStepDeliverables: [
+              { stepNumber: 1, title: "Show HN Technical Launch Post", action: "Post 'Show HN: We built a zero-dependency WebAssembly sprite atlas packer with 60fps real-time preview' with deep technical post-mortem", timeline: "Week 1", status: "Ready" },
+              { stepNumber: 2, title: "r/gamedev Algorithm Benchmark Teardown", action: "Share comprehensive benchmark: 'Why TexturePacker is bloated and how MaxRects algorithm runs at 120 FPS in browser with pure Wasm'", timeline: "Week 3", status: "Ready" },
+              { stepNumber: 3, title: "r/godot 2D Lighting Workflow Demo", action: "Post high-framerate video demonstration on r/godot showing 2D dynamic point lighting on pixel art with auto-generated normal maps", timeline: "Week 5", status: "In Progress" },
+              { stepNumber: 4, title: "r/PixelArt Weekly Lighting Challenge", action: "Host community challenge in r/PixelArt with free interactive sandbox links to inspect normal maps in browser", timeline: "Week 7", status: "Planned" },
+            ],
+            kpis: [
+              { metric: "Hacker News Front Page Upvotes", target: "Top 5 Front Page (350+ points, 15,000+ visitors in 48h)", measurementWindow: "Post Launch" },
+              { metric: "Reddit Community Upvotes", target: "600+ upvotes across r/godot and r/gamedev", measurementWindow: "Per Post" },
+              { metric: "Viral Traffic Spike Signups", target: "3,200+ account creations in launch week", measurementWindow: "Weekly" },
+            ],
+          },
+          {
+            vectorId: "vector_video_tutorials",
+            vectorName: "YouTube & Bilibili Indie Dev Devlog & Workflow Tutorials",
+            channel: "YouTube (Global) & Bilibili (China indie dev community)",
+            kFactorContribution: 0.18,
+            projectedMonthlySignups: 1650,
+            conversionToProPercent: 5.8,
+            stepByStepDeliverables: [
+              { stepNumber: 1, title: "5-Minute Pipeline Video Series", action: "Produce 5 punchy YouTube videos: 'Aseprite to Godot 4 in 60 Seconds', 'Pixel Art Normal Maps Explained', 'Free TexturePacker Alternative'", timeline: "Week 2-5", status: "Ready" },
+              { stepNumber: 2, title: "Indie Creator Devlog Placements", action: "Seed SpriteFlow into 6 popular indie dev vloggers (10k-50k subscribers) for organic workflow demonstrations", timeline: "Week 6-8", status: "In Progress" },
+              { stepNumber: 3, title: "Bilibili Chinese Localization Series", action: "Publish localized video series on Bilibili targeting Chinese indie gamedevs & university game design labs", timeline: "Week 8-10", status: "Planned" },
+              { stepNumber: 4, title: "YouTube Shorts / TikTok Lighting Clips", action: "Create 15-second viral before/after 2D normal mapping lighting clips with link in bio", timeline: "Week 10-12", status: "Planned" },
+            ],
+            kpis: [
+              { metric: "Total Video Views across Platforms", target: "85,000+ views in 90 days", measurementWindow: "Quarterly" },
+              { metric: "Video Description Click-Through Rate", target: "5.4% CTR to web sandbox", measurementWindow: "Monthly" },
+              { metric: "Organic Video Channel Attributed Signups", target: "2,100+ active signups", measurementWindow: "Monthly" },
+            ],
+          },
+          {
+            vectorId: "vector_web_sandbox_watermark",
+            vectorName: "Zero-Install Free Web Sandbox with Interactive Sharing",
+            channel: "Browser Web App (Self-Serve Product-Led Growth PLG)",
+            kFactorContribution: 0.32,
+            projectedMonthlySignups: 3500,
+            conversionToProPercent: 8.2,
+            stepByStepDeliverables: [
+              { stepNumber: 1, title: "Instant Drag-and-Drop Wasm Sandbox", action: "Deploy client-side pure WebAssembly sandbox with instant loading under 100ms and zero mandatory sign-in", timeline: "Week 1", status: "Ready" },
+              { stepNumber: 2, title: "1-Click Engine Export Presets", action: "Provide instant 1-click exports for Godot 4 Resource, Unity Sprite Atlas, and JSON Array with 'Exported with SpriteFlow' comment tag", timeline: "Week 2-3", status: "Ready" },
+              { stepNumber: 3, title: "Shareable Interactive 3D Preview Links", action: "Generate unique shareable URLs (`spriteflow.dev/v/:id`) allowing devs to showcase interactive 2D normal map lighting on Discord/Twitter", timeline: "Week 4-5", status: "In Progress" },
+              { stepNumber: 4, title: "Smart In-App Pro Paywall Triggers", action: "Trigger upgrade modal when user packs > 50 sprite sheets in batch or requests automated CLI token / normal map shader export", timeline: "Week 6-7", status: "Planned" },
+            ],
+            kpis: [
+              { metric: "Monthly Active Web Sandbox Sessions", target: "50,000+ sessions/mo", measurementWindow: "Monthly" },
+              { metric: "14-Day Sandbox Return Retention", target: "34.0% return rate", measurementWindow: "Bi-Weekly" },
+              { metric: "Shareable Preview Link Creations", target: "1,200+ links generated monthly", measurementWindow: "Monthly" },
+              { metric: "High-Frequency User Pro Upgrade Rate", target: "8.2% conversion rate", measurementWindow: "Monthly" },
+            ],
+          },
+        ];
+
+        const blendedKFactor = Math.round(vectors.reduce((acc, v) => acc + v.kFactorContribution, 0) * 100) / 100;
+        const totalMonthlyOrganicSignups = vectors.reduce((acc, v) => acc + v.projectedMonthlySignups, 0);
+
+        const res: ZeroCostViralLoopsResult = {
+          ventureName: input.venture_name ?? "SpriteFlow",
+          blendedKFactor,
+          viralLoopStatus: blendedKFactor >= 1.0 ? "🔥 Self-Sustaining Viral Loop (K > 1.0)" : "⚡ Viral Assisted (K 0.4 - 1.0)",
+          totalMonthlyOrganicSignups,
+          zeroCostMarketingBudgetUsd: 0,
+          vectors,
+          flywheelPhases: [
+            { phase: "1. Utility Ingestion", mechanism: "Developers find free online tool via 100+ low-KD pSEO pages or GitHub OSS plugin", compoundingEffect: "Instant frictionless Time-to-Value in < 30 seconds" },
+            { phase: "2. Social Demonstration", mechanism: "Developers share 3D interactive lighting previews on Twitter/Discord or embed export metadata in game jams", compoundingEffect: "Each export acts as an organic developer beacon reaching 5-20 peer game developers" },
+            { phase: "3. Engine Stickiness", mechanism: "Devs install Godot 4 AssetLib addon or Unity UPM package into their active commercial projects", compoundingEffect: "High retention, zero churn during active game development cycle (12-24 months)" },
+            { phase: "4. Pro / Studio Conversion", mechanism: "Indie teams hit automated CI/CD CLI limit or need multi-seat license for upcoming Steam release", compoundingEffect: "$19/mo Pro or $79/mo Studio upgrade with 0 marketing acquisition cost ($0 CAC)" },
+          ],
+          executionCalendar: [
+            { week: "Week 1-2", focusVector: "GitHub OSS Bridge & Reddit/HN Launch", primaryDeliverable: "Open source Wasm core, Show HN post, r/godot demo", targetMilestone: "1,000+ GitHub stars, 3,000+ sandbox visits" },
+            { week: "Week 3-4", focusVector: "Godot AssetLib Addon & Itch.io Packs", primaryDeliverable: "Godot official plugin release, 4 CC0 pixel art asset packs", targetMilestone: "500+ plugin installs, 5,000+ asset pack downloads" },
+            { week: "Week 5-6", focusVector: "Unity UPM Package & YouTube Devlogs", primaryDeliverable: "Unity Package Manager git integration, 5 fast-paced video tutorials", targetMilestone: "20,000+ video views, 1,500+ monthly signups" },
+            { week: "Week 7-8", focusVector: "Game Jam Sponsorships & Sharing Links", primaryDeliverable: "GMTK/Kenney Jam tool sponsorship, interactive shareable preview URLs", targetMilestone: "600+ jam submissions, K-factor > 1.25 achieved" },
+            { week: "Week 9-10", focusVector: "Bilibili Localization & Itch Devlogs", primaryDeliverable: "Chinese video series on Bilibili, VRAM optimization articles", targetMilestone: "30,000+ Bilibili views, 100+ Pro subscribers" },
+            { week: "Week 11-12", focusVector: "Studio CLI Pipeline & Multi-Seat Expansion", primaryDeliverable: "Enterprise CI/CD automation token, multi-seat studio pricing", targetMilestone: "$10,000 MRR milestone achieved" },
+          ],
+        };
+
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "zero_cost_viral_loops",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data: res,
         };
       }
 

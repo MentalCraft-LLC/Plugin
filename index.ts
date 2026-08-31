@@ -29,6 +29,10 @@ export {
   type TrafficCvDomainOverview,
   type TrafficCvChannelBreakdown,
   type TractionScoreResult,
+  type SpriteFlowMrrEngineResult,
+  type SpriteFlowPseoMatrixResult,
+  type ZeroCostViralLoopsResult,
+  type PseoKeywordEntry,
 } from "./Business/core.ts";
 export { businessOperation, TrafficCvClient } from "./Business/operation.ts";
 
@@ -61,6 +65,10 @@ export {
   type JournalRecommendation,
   type JournalChecklistItem,
   type JournalSubmissionChecklistResult,
+  type SocialScienceReviewAuditResult,
+  type ChineseAcademicFormatterResult,
+  type SsciJournalMatcherResult,
+  type SsciTopJournalInfo,
   type PatentNoveltyResult,
   type PatentClaim,
   type PatentClaimStructureResult,
@@ -74,6 +82,9 @@ export {
   computeStatisticalPower,
   computeCohensD,
   validateClaimAntecedentBasis,
+  performSocialScienceReviewAudit,
+  formatChineseAcademicPaper,
+  matchSsciTopJournals,
 } from "./Science/operation.ts";
 
 // Design Pillar (5-Layer Architecture, Svelte 5 Runes UI, On-Demand Subpaths, Tokens)

@@ -105,7 +105,10 @@ flowchart LR
 | `market_site_trajectory` | `gefei` | Competitor domain historical checkout and referral trends | `domain` |
 | `market_niche_discovery` | `auto` | High-revenue whitespace niche opportunities | `query`, `month` |
 | `product_traction_score` | `auto` | Multidimensional product commercial viability index | `product_name` |
-| `list_actions` | `auto` | List all 21 venture lifecycle capabilities | N/A |
+| `spriteflow_mrr_engine` | `auto` | SpriteFlow path to $10,000 MRR ($120k ARR), 420 Pro + 25 Studio subscribers, LTV $542.86, $0-spend payback | `target_mrr`, `pro_price`, `studio_price`, `pro_subscribers`, `studio_subscribers` |
+| `spriteflow_pseo_matrix` | `auto` | 100+ low-KD programmatic SEO keyword combinations across Godot 4, Unity, Aseprite, TexturePacker, Unreal | `engine_filter`, `min_volume`, `max_kd` |
+| `zero_cost_viral_loops` | `auto` | 5 zero-cost growth vectors (GitHub OSS, Itch.io, Reddit/HN, YouTube/Bilibili, Web Sandbox) with deliverables & KPIs | N/A |
+| `list_actions` | `auto` | List all 24 venture lifecycle capabilities | N/A |
 
 ---
 

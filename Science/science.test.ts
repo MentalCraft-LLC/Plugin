@@ -6,24 +6,28 @@ import {
   computeStatisticalPower,
   computeCohensD,
   validateClaimAntecedentBasis,
+  formatChineseHeadingHierarchy,
+  formatGbt7714Reference,
+  parseClcCategory,
+  INDEXED_SSCI_JOURNALS_DB,
 } from "./operation.ts";
 import { handleScienceRpc, SCIENCE_INPUT_SCHEMA } from "./mcp-server.ts";
 import { SCIENCE_PROTOCOL, compactScienceResult, formatScienceSummary } from "./core.ts";
 
 describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
   // Discovery & Inventory
-  test("list_actions returns all 16 academic actions across the 8 production stages", async () => {
+  test("list_actions returns all 19 academic actions across the 8 production stages", async () => {
     const res = await scienceOperation({ action: "list_actions" });
     expect(res.success).toBe(true);
     expect(res.protocol).toBe(SCIENCE_PROTOCOL);
     const data = res.data as any;
-    expect(data.totalActions).toBe(16);
+    expect(data.totalActions).toBe(19);
     expect(data.stages.stage1_literature.length).toBe(2);
     expect(data.stages.stage2_methodology.length).toBe(1);
     expect(data.stages.stage3_grants.length).toBe(3);
-    expect(data.stages.stage4_authoring.length).toBe(2);
-    expect(data.stages.stage5_peer_review.length).toBe(1);
-    expect(data.stages.stage6_journal_submission.length).toBe(2);
+    expect(data.stages.stage4_authoring.length).toBe(3);
+    expect(data.stages.stage5_peer_review.length).toBe(2);
+    expect(data.stages.stage6_journal_submission.length).toBe(3);
     expect(data.stages.stage7_intellectual_property.length).toBe(3);
     expect(data.stages.stage8_scholarly_impact.length).toBe(1);
   });
@@ -280,6 +284,95 @@ describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
       expect(ieeeData.latexCode).toContain("\\documentclass[journal,compsoc]{IEEEtran}");
       expect(ieeeData.latexCode).toContain("IEEEkeywords");
     });
+
+    test("chinese_academic_formatter formats paper according to GB/T 7714-2015, CLC, and hierarchical headings", async () => {
+      const res = await scienceOperation({
+        action: "chinese_academic_formatter",
+        chinese_paper: {
+          title: "算法中介与数字劳动者的主体性建构：基于多案例扎根理论的经验研究",
+          english_title: "Algorithmic Mediation and the Subjectivity Construction of Digital Laborers",
+          clc_code: "C912.6",
+          document_code: "A",
+          fund_project: "*基金项目：国家社会科学基金重大项目（项目编号：22&ZD188）",
+          author_bio: "作者简介：张来勇，MentalCraft计算社会学实验室研究员。",
+          headings: [
+            "# 问题提出与文献回顾",
+            "## 算法治理与劳动过程理论脉络",
+            "### 既有研究的解释限度",
+            "# 研究设计与数据收集",
+            "## 案例选择与实地调查过程",
+          ],
+        },
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.clcCode).toBe("C912.6");
+      expect(data.clcCategory).toContain("社会学");
+      expect(data.documentCode).toBe("A");
+      expect(data.headingHierarchyValid).toBe(true);
+      expect(data.formattedHeadingsCount).toBe(5);
+      expect(data.formattedHeadings[0].prefix).toBe("一、");
+      expect(data.formattedHeadings[1].prefix).toBe("（一）");
+      expect(data.formattedHeadings[2].prefix).toBe("1.");
+      expect(data.formattedHeadings[3].prefix).toBe("二、");
+      expect(data.gbt7714References.length).toBeGreaterThanOrEqual(4);
+      expect(data.gbt7714References[0].formattedString).toContain("[1]");
+      expect(data.gbt7714References[0].formattedString).toContain("[M]");
+      expect(data.formattedArticleMarkdown).toContain("【中图分类号】C912.6");
+      expect(data.formattedArticleMarkdown).toContain("【文献标识码】A");
+      expect(data.formattedArticleMarkdown).toContain("### 参考文献");
+      expect(data.complianceChecks.every((c: any) => c.status === "passed")).toBe(true);
+    });
+
+    test("formatChineseHeadingHierarchy standardizes 5-tier Chinese headings 一、（一）、1、（1）、①", () => {
+      const headings = [
+        "引言与理论脉络",
+        "# 一、研究问题",
+        "## （一）概念界定",
+        "### 1. 核心变量操作化",
+        "#### （1）量表信效度",
+        "##### ① 探索性因子分析",
+      ];
+      const formatted = formatChineseHeadingHierarchy(headings);
+      expect(formatted.length).toBe(6);
+      expect(formatted[0].prefix).toBe("一、");
+      expect(formatted[1].prefix).toBe("二、");
+      expect(formatted[2].prefix).toBe("（一）");
+      expect(formatted[3].prefix).toBe("1.");
+      expect(formatted[4].prefix).toBe("（1）");
+      expect(formatted[5].prefix).toBe("①");
+    });
+
+    test("formatGbt7714Reference formats journals, monographs, conferences, dissertations, and electronic resources", () => {
+      const jRef = formatGbt7714Reference({
+        authors: ["邱泽奇", "张树沁", "刘世定", "阮荣平"],
+        title: "从数字鸿沟到红利差异——互联网资本的视角",
+        journal: "中国社会科学",
+        year: 2016,
+        issue: "10",
+        pages: "93-115",
+        type: "J",
+      }, 1);
+      expect(jRef.referenceType).toBe("J");
+      expect(jRef.formattedString).toContain("[1] 邱泽奇, 张树沁, 刘世定, 等. 从数字鸿沟到红利差异——互联网资本的视角[J]. 中国社会科学, 2016(10): 93-115.");
+
+      const mRef = formatGbt7714Reference({
+        authors: ["周雪光"],
+        title: "中国国家治理的制度逻辑：一个组织学研究",
+        publisher: "北京: 读书·新知·三联书店",
+        year: 2017,
+        type: "M",
+      }, 2);
+      expect(mRef.referenceType).toBe("M");
+      expect(mRef.formattedString).toContain("[2] 周雪光. 中国国家治理的制度逻辑：一个组织学研究[M]. 北京: 读书·新知·三联书店, 2017.");
+    });
+
+    test("parseClcCategory maps Chinese Library Classification codes accurately", () => {
+      expect(parseClcCategory("C912.6").category).toContain("社会学");
+      expect(parseClcCategory("G206").category).toContain("信息与传播");
+      expect(parseClcCategory("B849").category).toContain("心理学");
+      expect(parseClcCategory("F270").category).toContain("经济管理");
+    });
   });
 
   // Stage 5: Simulated Peer Review & Rebuttal
@@ -296,6 +389,54 @@ describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
       expect(data.rebuttalMatrix[0].critique).toBeDefined();
       expect(data.rebuttalMatrix[0].suggestedResponse).toBeDefined();
       expect(data.rebuttalMatrix[0].actionItem).toBeDefined();
+    });
+
+    test("social_science_peer_review_audit audits CSSCI top & SSCI Q1 manuscripts with triangulation", async () => {
+      const res = await scienceOperation({
+        action: "social_science_peer_review_audit",
+        manuscript_title: "数字技术赋能中国式基层社会治理的理论逻辑与实证检验",
+        target_cssci_journal: "《社会学研究》",
+        target_ssci_journal: "New Media & Society",
+        empirical_data: {
+          survey_sample_size: 1450,
+          interview_count: 42,
+          fieldwork_duration_months: 18,
+          mixed_methods: true,
+          common_method_bias_checked: true,
+          theoretical_saturation: true,
+        },
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.overallScore).toBeGreaterThanOrEqual(90);
+      expect(data.recommendation).toBe("Strong Accept");
+      expect(data.empiricalTriangulation.triangulationGrade).toBe("A (Complete Mixed-Methods)");
+      expect(data.empiricalTriangulation.quantitativeEvaluation.targetSampleSizeMet).toBe(true);
+      expect(data.empiricalTriangulation.qualitativeEvaluation.targetInterviewsMet).toBe(true);
+      expect(data.cssciReadiness.ready).toBe(true);
+      expect(data.cssciReadiness.journalFit).toContain("《中国社会科学》");
+      expect(data.ssciReadiness.ready).toBe(true);
+      expect(data.rebuttalAndRevisionRoadmap.length).toBeGreaterThanOrEqual(4);
+    });
+
+    test("social_science_peer_review_audit flags gaps when empirical triangulation sample sizes are below threshold", async () => {
+      const res = await scienceOperation({
+        action: "social_science_peer_review_audit",
+        manuscript_title: "Preliminary Study on Digital Community Platforms",
+        empirical_data: {
+          survey_sample_size: 200,
+          interview_count: 8,
+          mixed_methods: false,
+          common_method_bias_checked: false,
+          theoretical_saturation: false,
+        },
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.empiricalTriangulation.triangulationGrade).toBe("C (Single-Method / Gaps)");
+      expect(data.empiricalTriangulation.quantitativeEvaluation.targetSampleSizeMet).toBe(false);
+      expect(data.empiricalTriangulation.qualitativeEvaluation.targetInterviewsMet).toBe(false);
+      expect(data.recommendation).not.toBe("Strong Accept");
     });
   });
 
@@ -322,6 +463,32 @@ describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
       expect(data.passedChecks).toBe(8);
       expect(data.readyForSubmission).toBe(true);
       expect(data.creditTaxonomyCovered).toBe(true);
+    });
+
+    test("ssci_top_journal_matcher matches top SSCI Q1 journals with exact IF, word limits, and review turnaround", async () => {
+      const res = await scienceOperation({
+        action: "ssci_top_journal_matcher",
+        manuscript_title: "Human-AI Interaction Dynamics in Sociotechnical Platforms",
+        social_science_field: "Communication & Human-Computer Behavior",
+        desired_impact_factor_min: 5.0,
+        target_review_weeks_max: 12,
+        word_count_limit_max: 8500,
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.matchedCount).toBeGreaterThan(0);
+      expect(data.recommendations[0].jcrQuartile).toBe("Q1");
+      expect(data.recommendations[0].impactFactor).toBeGreaterThanOrEqual(5.0);
+      expect(data.recommendations[0].avgReviewWeeks).toBeLessThanOrEqual(12);
+      expect(data.formattingGuidelines.citationStyle).toContain("APA 7th");
+      expect(data.formattingGuidelines.dataAvailabilityRequirement).toContain("Zenodo");
+    });
+
+    test("INDEXED_SSCI_JOURNALS_DB contains premier venues with exact metadata", () => {
+      expect(INDEXED_SSCI_JOURNALS_DB.some((j) => j.name === "Nature Human Behaviour" && j.impactFactor === 21.4)).toBe(true);
+      expect(INDEXED_SSCI_JOURNALS_DB.some((j) => j.name === "Computers in Human Behavior" && j.impactFactor === 9.0)).toBe(true);
+      expect(INDEXED_SSCI_JOURNALS_DB.some((j) => j.name === "New Media & Society" && j.impactFactor === 5.8)).toBe(true);
+      expect(INDEXED_SSCI_JOURNALS_DB.some((j) => j.name === "Information, Communication & Society" && j.impactFactor === 4.8)).toBe(true);
     });
   });
 
@@ -418,7 +585,7 @@ describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
 
       const listRes = await handleScienceRpc({ jsonrpc: "2.0", id: 2, method: "tools/list" });
       expect(listRes.result.tools[0].name).toBe("science");
-      expect(SCIENCE_INPUT_SCHEMA.properties.action.enum.length).toBe(16);
+      expect(SCIENCE_INPUT_SCHEMA.properties.action.enum.length).toBe(19);
 
       const callRes = await handleScienceRpc({
         jsonrpc: "2.0",
@@ -430,12 +597,23 @@ describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
         },
       });
       expect(callRes.result.content[0].text).toContain("projectedCitationsYear3");
+
+      const ssciCallRes = await handleScienceRpc({
+        jsonrpc: "2.0",
+        id: 4,
+        method: "tools/call",
+        params: {
+          name: "science",
+          arguments: { action: "ssci_top_journal_matcher", social_science_field: "Communication" },
+        },
+      });
+      expect(ssciCallRes.result.content[0].text).toContain("Nature Human Behaviour");
     });
 
     test("MCP Protocol server rejects unknown tools and invalid methods", async () => {
       const badToolRes = await handleScienceRpc({
         jsonrpc: "2.0",
-        id: 4,
+        id: 5,
         method: "tools/call",
         params: { name: "invalid_tool", arguments: {} },
       });
@@ -444,7 +622,7 @@ describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
 
       const badMethodRes = await handleScienceRpc({
         jsonrpc: "2.0",
-        id: 5,
+        id: 6,
         method: "unknown_method",
       });
       expect(badMethodRes.error?.code).toBe(-32601);
@@ -457,13 +635,16 @@ describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
         "paper_citation_verify",
         "paper_methodology_audit",
         "paper_structure_audit",
-        "paper_peer_review_simulate",
         "paper_latex_scaffold",
+        "chinese_academic_formatter",
+        "paper_peer_review_simulate",
+        "social_science_peer_review_audit",
+        "journal_matcher",
+        "journal_submission_checklist",
+        "ssci_top_journal_matcher",
         "grant_criteria_audit",
         "grant_budget_calculator",
         "grant_aims_alignment",
-        "journal_matcher",
-        "journal_submission_checklist",
         "patent_novelty_check",
         "patent_claim_structure",
         "patent_spec_scaffold",

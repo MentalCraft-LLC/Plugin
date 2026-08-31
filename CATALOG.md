@@ -116,6 +116,35 @@
   1. **[business]** `market_site_trajectory`: Fetch latest month-over-month checkout referral growth.
   2. **[message]** `send`: Dispatch encrypted summary message to designated bot channel.
 
+### `spriteflow_10k_mrr_growth_pipeline` — SpriteFlow $10,000 MRR Zero-Cost Growth Pipeline
+- **Description**: End-to-end $10k MRR growth pipeline: 120-keyword pSEO matrix → 12-month cohort MRR economics → Svelte 5 pricing funnel → 5 zero-cost viral loops (K=1.25).
+- **Required Plugins**: `business` ➔ `design`
+- **Execution Steps**:
+  1. **[business]** `spriteflow_pseo_matrix`: Generate 120 curated low-KD programmatic SEO keyword targets across Godot, Unity, Aseprite.
+  2. **[business]** `spriteflow_mrr_engine`: Model $10,000 MRR milestone with 420 Pro ($19/mo) + 25 Studio ($79/mo) cohorts and LTV $542.86.
+  3. **[design]** `generate_ui`: Generate high-converting Svelte 5 pricing table and checkout funnel.
+  4. **[business]** `zero_cost_viral_loops`: Synthesize 5 zero-cost viral loops (GitHub bridge, Itch.io packs, Reddit/HN deep dives, tutorials).
+  5. **[business]** `venture_monetization_telemetry`: Track real-time Stripe telemetry and churn decay.
+
+### `social_science_top_journal_pipeline` — Top Social Science Journal (CSSCI & SSCI Q1) Publication Pipeline
+- **Description**: Publication pipeline: CSSCI/SSCI peer review audit → GB/T 7714 & Chinese heading formatting → SSCI Q1 journal matching → 3-reviewer panel simulation & rebuttal matrix.
+- **Required Plugins**: `science`
+- **Execution Steps**:
+  1. **[science]** `social_science_peer_review_audit`: Audit theoretical conceptualization, empirical triangulation, and ethical reflexivity.
+  2. **[science]** `chinese_academic_formatter`: Format manuscript to GB/T 7714-2015 citation and Chinese hierarchical heading standards.
+  3. **[science]** `ssci_top_journal_matcher`: Match top SSCI Q1 journals (Nature Human Behaviour, Computers in Human Behavior, New Media & Society).
+  4. **[science]** `paper_peer_review_simulate`: Simulate 3-reviewer diverse blind review panel and generate score matrix.
+  5. **[science]** `journal_submission_checklist`: Perform 8-point camera-ready pre-submission compliance audit.
+
+### `zero_cost_bootstrap_engine` — Zero-Cost Bootstrap & Organic PLG Engine ($0 Spend)
+- **Description**: Zero paid marketing engine: Viral K-factor loops → Programmatic SEO difficulty ranking → Organic domain traffic forensics → Telemetry monitoring.
+- **Required Plugins**: `business`
+- **Execution Steps**:
+  1. **[business]** `zero_cost_viral_loops`: Deploy 5 self-sustaining viral loops (GitHub, Itch.io, Reddit/HN, Bilibili, Web sandbox).
+  2. **[business]** `seo_batch_keywords`: Rank low-KD high-intent organic search terms for programmatic expansion.
+  3. **[business]** `product_traction_score`: Calculate multidimensional product traction and viral affordance.
+  4. **[business]** `venture_growth_playbook`: Generate 90-day zero-cost organic sprint roadmap.
+
 ### `design_system_audit_pipeline` — Design System & A11y Compliance Pipeline
 - **Description**: Audit template code for tokens, resolve minimal subpath imports, and verify DOM tokens via Chrome.
 - **Required Plugins**: `design` ➔ `chrome`

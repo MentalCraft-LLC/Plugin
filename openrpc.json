@@ -199,9 +199,12 @@
                   "venture_pricing_experiment",
                   "venture_growth_playbook",
                   "venture_expansion_moat",
+                  "spriteflow_mrr_engine",
+                  "spriteflow_pseo_matrix",
+                  "zero_cost_viral_loops",
                   "list_actions"
                 ],
-                "description": "Business action across the 8 venture lifecycle stages: Stage 1 Ideation ('venture_market_validation', 'market_niche_discovery'), Stage 2 PMF ('venture_pmf_validation'), Stage 3 Acquisition ('venture_acquisition_audit', SEO/TrafficCV actions), Stage 4 Activation ('venture_activation_funnel'), Stage 5 Retention ('venture_retention_curves'), Stage 6 Unit Economics ('venture_unit_economics', 'venture_monetization_telemetry', 'market_stripe_radar', 'market_site_trajectory', 'product_traction_score'), Stage 7 Pricing ('venture_pricing_experiment'), Stage 8 Scale & Moats ('venture_growth_playbook', 'venture_expansion_moat'), and 'list_actions'."
+                "description": "Business action across the 8 venture lifecycle stages: Stage 1 Ideation ('venture_market_validation', 'market_niche_discovery'), Stage 2 PMF ('venture_pmf_validation'), Stage 3 Acquisition ('venture_acquisition_audit', SEO/TrafficCV actions), Stage 4 Activation ('venture_activation_funnel'), Stage 5 Retention ('venture_retention_curves'), Stage 6 Unit Economics ('venture_unit_economics', 'venture_monetization_telemetry', 'market_stripe_radar', 'market_site_trajectory', 'product_traction_score'), Stage 7 Pricing ('venture_pricing_experiment'), Stage 8 Scale & Moats ('venture_growth_playbook', 'venture_expansion_moat'), SpriteFlow & Indie SaaS Growth Engines ('spriteflow_mrr_engine', 'spriteflow_pseo_matrix', 'zero_cost_viral_loops'), and 'list_actions'."
               },
               "modality": {
                 "type": "string",
@@ -372,6 +375,38 @@
               "force": {
                 "type": "boolean",
                 "description": "Bypass cache and force fresh SERP evaluation."
+              },
+              "target_mrr": {
+                "type": "number",
+                "description": "Target MRR in USD for SpriteFlow MRR engine (e.g. 10000)."
+              },
+              "pro_price": {
+                "type": "number",
+                "description": "Pro tier monthly subscription price in USD (e.g. 19)."
+              },
+              "studio_price": {
+                "type": "number",
+                "description": "Studio tier monthly subscription price in USD (e.g. 79)."
+              },
+              "pro_subscribers": {
+                "type": "integer",
+                "description": "Target Pro subscriber count (e.g. 420)."
+              },
+              "studio_subscribers": {
+                "type": "integer",
+                "description": "Target Studio subscriber count (e.g. 25)."
+              },
+              "engine_filter": {
+                "type": "string",
+                "description": "Game engine or ecosystem filter for pSEO matrix (e.g. 'Godot 4', 'Unity', 'Aseprite')."
+              },
+              "min_volume": {
+                "type": "integer",
+                "description": "Minimum monthly search volume filter for pSEO keywords."
+              },
+              "max_kd": {
+                "type": "integer",
+                "description": "Maximum keyword difficulty (KD) filter for pSEO matrix."
               }
             }
           }
@@ -418,9 +453,12 @@
                   "patent_claim_structure",
                   "patent_spec_scaffold",
                   "scholarly_impact_forecast",
+                  "social_science_peer_review_audit",
+                  "chinese_academic_formatter",
+                  "ssci_top_journal_matcher",
                   "list_actions"
                 ],
-                "description": "Science intelligence action across the 8 academic production lifecycle stages: Stage 1 Literature ('paper_literature_search', 'paper_citation_verify'), Stage 2 Methodology ('paper_methodology_audit'), Stage 3 Grants ('grant_criteria_audit', 'grant_aims_alignment', 'grant_budget_calculator'), Stage 4 Authoring ('paper_structure_audit', 'paper_latex_scaffold'), Stage 5 Peer Review ('paper_peer_review_simulate'), Stage 6 Journal Submission ('journal_matcher', 'journal_submission_checklist'), Stage 7 Intellectual Property ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), Stage 8 Scholarly Impact ('scholarly_impact_forecast'), and 'list_actions'."
+                "description": "Science intelligence action across the 8 academic production lifecycle stages: Stage 1 Literature ('paper_literature_search', 'paper_citation_verify'), Stage 2 Methodology ('paper_methodology_audit'), Stage 3 Grants ('grant_criteria_audit', 'grant_aims_alignment', 'grant_budget_calculator'), Stage 4 Authoring ('paper_structure_audit', 'paper_latex_scaffold', 'chinese_academic_formatter'), Stage 5 Peer Review ('paper_peer_review_simulate', 'social_science_peer_review_audit'), Stage 6 Journal Submission ('journal_matcher', 'journal_submission_checklist', 'ssci_top_journal_matcher'), Stage 7 Intellectual Property ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), Stage 8 Scholarly Impact ('scholarly_impact_forecast'), and 'list_actions'."
               },
               "query": {
                 "type": "string",
@@ -578,6 +616,30 @@
                 "minimum": 1,
                 "maximum": 50,
                 "description": "Max results to return."
+              },
+              "target_cssci_journal": {
+                "type": "string",
+                "description": "Target Chinese CSSCI journal name (e.g., '《中国社会科学》', '《社会学研究》', '《心理学报》', '《管理世界》', '《新闻与传播研究》')."
+              },
+              "target_ssci_journal": {
+                "type": "string",
+                "description": "Target SSCI Q1 journal name (e.g., 'Nature Human Behaviour', 'Computers in Human Behavior', 'New Media & Society')."
+              },
+              "social_science_field": {
+                "type": "string",
+                "description": "Social science field of study ('Sociology', 'Psychology', 'Communication', 'Management', 'Interdisciplinary')."
+              },
+              "empirical_data": {
+                "type": "object",
+                "description": "Empirical triangulation metadata (survey_sample_size, interview_count, fieldwork_duration_months, mixed_methods, common_method_bias_checked, theoretical_saturation)."
+              },
+              "chinese_paper": {
+                "type": "object",
+                "description": "Chinese academic manuscript structure (title, english_title, clc_code, document_code, fund_project, author_bio, headings, chinese_abstract, chinese_keywords, references)."
+              },
+              "word_count_limit_max": {
+                "type": "integer",
+                "description": "Maximum allowable manuscript word count for SSCI matching."
               }
             }
           }
@@ -1020,9 +1082,12 @@
               "venture_pricing_experiment",
               "venture_growth_playbook",
               "venture_expansion_moat",
+              "spriteflow_mrr_engine",
+              "spriteflow_pseo_matrix",
+              "zero_cost_viral_loops",
               "list_actions"
             ],
-            "description": "Business action across the 8 venture lifecycle stages: Stage 1 Ideation ('venture_market_validation', 'market_niche_discovery'), Stage 2 PMF ('venture_pmf_validation'), Stage 3 Acquisition ('venture_acquisition_audit', SEO/TrafficCV actions), Stage 4 Activation ('venture_activation_funnel'), Stage 5 Retention ('venture_retention_curves'), Stage 6 Unit Economics ('venture_unit_economics', 'venture_monetization_telemetry', 'market_stripe_radar', 'market_site_trajectory', 'product_traction_score'), Stage 7 Pricing ('venture_pricing_experiment'), Stage 8 Scale & Moats ('venture_growth_playbook', 'venture_expansion_moat'), and 'list_actions'."
+            "description": "Business action across the 8 venture lifecycle stages: Stage 1 Ideation ('venture_market_validation', 'market_niche_discovery'), Stage 2 PMF ('venture_pmf_validation'), Stage 3 Acquisition ('venture_acquisition_audit', SEO/TrafficCV actions), Stage 4 Activation ('venture_activation_funnel'), Stage 5 Retention ('venture_retention_curves'), Stage 6 Unit Economics ('venture_unit_economics', 'venture_monetization_telemetry', 'market_stripe_radar', 'market_site_trajectory', 'product_traction_score'), Stage 7 Pricing ('venture_pricing_experiment'), Stage 8 Scale & Moats ('venture_growth_playbook', 'venture_expansion_moat'), SpriteFlow & Indie SaaS Growth Engines ('spriteflow_mrr_engine', 'spriteflow_pseo_matrix', 'zero_cost_viral_loops'), and 'list_actions'."
           },
           "modality": {
             "type": "string",
@@ -1193,6 +1258,38 @@
           "force": {
             "type": "boolean",
             "description": "Bypass cache and force fresh SERP evaluation."
+          },
+          "target_mrr": {
+            "type": "number",
+            "description": "Target MRR in USD for SpriteFlow MRR engine (e.g. 10000)."
+          },
+          "pro_price": {
+            "type": "number",
+            "description": "Pro tier monthly subscription price in USD (e.g. 19)."
+          },
+          "studio_price": {
+            "type": "number",
+            "description": "Studio tier monthly subscription price in USD (e.g. 79)."
+          },
+          "pro_subscribers": {
+            "type": "integer",
+            "description": "Target Pro subscriber count (e.g. 420)."
+          },
+          "studio_subscribers": {
+            "type": "integer",
+            "description": "Target Studio subscriber count (e.g. 25)."
+          },
+          "engine_filter": {
+            "type": "string",
+            "description": "Game engine or ecosystem filter for pSEO matrix (e.g. 'Godot 4', 'Unity', 'Aseprite')."
+          },
+          "min_volume": {
+            "type": "integer",
+            "description": "Minimum monthly search volume filter for pSEO keywords."
+          },
+          "max_kd": {
+            "type": "integer",
+            "description": "Maximum keyword difficulty (KD) filter for pSEO matrix."
           }
         }
       },
@@ -1221,9 +1318,12 @@
               "patent_claim_structure",
               "patent_spec_scaffold",
               "scholarly_impact_forecast",
+              "social_science_peer_review_audit",
+              "chinese_academic_formatter",
+              "ssci_top_journal_matcher",
               "list_actions"
             ],
-            "description": "Science intelligence action across the 8 academic production lifecycle stages: Stage 1 Literature ('paper_literature_search', 'paper_citation_verify'), Stage 2 Methodology ('paper_methodology_audit'), Stage 3 Grants ('grant_criteria_audit', 'grant_aims_alignment', 'grant_budget_calculator'), Stage 4 Authoring ('paper_structure_audit', 'paper_latex_scaffold'), Stage 5 Peer Review ('paper_peer_review_simulate'), Stage 6 Journal Submission ('journal_matcher', 'journal_submission_checklist'), Stage 7 Intellectual Property ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), Stage 8 Scholarly Impact ('scholarly_impact_forecast'), and 'list_actions'."
+            "description": "Science intelligence action across the 8 academic production lifecycle stages: Stage 1 Literature ('paper_literature_search', 'paper_citation_verify'), Stage 2 Methodology ('paper_methodology_audit'), Stage 3 Grants ('grant_criteria_audit', 'grant_aims_alignment', 'grant_budget_calculator'), Stage 4 Authoring ('paper_structure_audit', 'paper_latex_scaffold', 'chinese_academic_formatter'), Stage 5 Peer Review ('paper_peer_review_simulate', 'social_science_peer_review_audit'), Stage 6 Journal Submission ('journal_matcher', 'journal_submission_checklist', 'ssci_top_journal_matcher'), Stage 7 Intellectual Property ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), Stage 8 Scholarly Impact ('scholarly_impact_forecast'), and 'list_actions'."
           },
           "query": {
             "type": "string",
@@ -1381,6 +1481,30 @@
             "minimum": 1,
             "maximum": 50,
             "description": "Max results to return."
+          },
+          "target_cssci_journal": {
+            "type": "string",
+            "description": "Target Chinese CSSCI journal name (e.g., '《中国社会科学》', '《社会学研究》', '《心理学报》', '《管理世界》', '《新闻与传播研究》')."
+          },
+          "target_ssci_journal": {
+            "type": "string",
+            "description": "Target SSCI Q1 journal name (e.g., 'Nature Human Behaviour', 'Computers in Human Behavior', 'New Media & Society')."
+          },
+          "social_science_field": {
+            "type": "string",
+            "description": "Social science field of study ('Sociology', 'Psychology', 'Communication', 'Management', 'Interdisciplinary')."
+          },
+          "empirical_data": {
+            "type": "object",
+            "description": "Empirical triangulation metadata (survey_sample_size, interview_count, fieldwork_duration_months, mixed_methods, common_method_bias_checked, theoretical_saturation)."
+          },
+          "chinese_paper": {
+            "type": "object",
+            "description": "Chinese academic manuscript structure (title, english_title, clc_code, document_code, fund_project, author_bio, headings, chinese_abstract, chinese_keywords, references)."
+          },
+          "word_count_limit_max": {
+            "type": "integer",
+            "description": "Maximum allowable manuscript word count for SSCI matching."
           }
         }
       },
@@ -1638,9 +1762,12 @@
               "venture_pricing_experiment",
               "venture_growth_playbook",
               "venture_expansion_moat",
+              "spriteflow_mrr_engine",
+              "spriteflow_pseo_matrix",
+              "zero_cost_viral_loops",
               "list_actions"
             ],
-            "description": "Business action across the 8 venture lifecycle stages: Stage 1 Ideation ('venture_market_validation', 'market_niche_discovery'), Stage 2 PMF ('venture_pmf_validation'), Stage 3 Acquisition ('venture_acquisition_audit', SEO/TrafficCV actions), Stage 4 Activation ('venture_activation_funnel'), Stage 5 Retention ('venture_retention_curves'), Stage 6 Unit Economics ('venture_unit_economics', 'venture_monetization_telemetry', 'market_stripe_radar', 'market_site_trajectory', 'product_traction_score'), Stage 7 Pricing ('venture_pricing_experiment'), Stage 8 Scale & Moats ('venture_growth_playbook', 'venture_expansion_moat'), and 'list_actions'."
+            "description": "Business action across the 8 venture lifecycle stages: Stage 1 Ideation ('venture_market_validation', 'market_niche_discovery'), Stage 2 PMF ('venture_pmf_validation'), Stage 3 Acquisition ('venture_acquisition_audit', SEO/TrafficCV actions), Stage 4 Activation ('venture_activation_funnel'), Stage 5 Retention ('venture_retention_curves'), Stage 6 Unit Economics ('venture_unit_economics', 'venture_monetization_telemetry', 'market_stripe_radar', 'market_site_trajectory', 'product_traction_score'), Stage 7 Pricing ('venture_pricing_experiment'), Stage 8 Scale & Moats ('venture_growth_playbook', 'venture_expansion_moat'), SpriteFlow & Indie SaaS Growth Engines ('spriteflow_mrr_engine', 'spriteflow_pseo_matrix', 'zero_cost_viral_loops'), and 'list_actions'."
           },
           "modality": {
             "type": "string",
@@ -1811,6 +1938,38 @@
           "force": {
             "type": "boolean",
             "description": "Bypass cache and force fresh SERP evaluation."
+          },
+          "target_mrr": {
+            "type": "number",
+            "description": "Target MRR in USD for SpriteFlow MRR engine (e.g. 10000)."
+          },
+          "pro_price": {
+            "type": "number",
+            "description": "Pro tier monthly subscription price in USD (e.g. 19)."
+          },
+          "studio_price": {
+            "type": "number",
+            "description": "Studio tier monthly subscription price in USD (e.g. 79)."
+          },
+          "pro_subscribers": {
+            "type": "integer",
+            "description": "Target Pro subscriber count (e.g. 420)."
+          },
+          "studio_subscribers": {
+            "type": "integer",
+            "description": "Target Studio subscriber count (e.g. 25)."
+          },
+          "engine_filter": {
+            "type": "string",
+            "description": "Game engine or ecosystem filter for pSEO matrix (e.g. 'Godot 4', 'Unity', 'Aseprite')."
+          },
+          "min_volume": {
+            "type": "integer",
+            "description": "Minimum monthly search volume filter for pSEO keywords."
+          },
+          "max_kd": {
+            "type": "integer",
+            "description": "Maximum keyword difficulty (KD) filter for pSEO matrix."
           }
         }
       }
@@ -1843,9 +2002,12 @@
               "patent_claim_structure",
               "patent_spec_scaffold",
               "scholarly_impact_forecast",
+              "social_science_peer_review_audit",
+              "chinese_academic_formatter",
+              "ssci_top_journal_matcher",
               "list_actions"
             ],
-            "description": "Science intelligence action across the 8 academic production lifecycle stages: Stage 1 Literature ('paper_literature_search', 'paper_citation_verify'), Stage 2 Methodology ('paper_methodology_audit'), Stage 3 Grants ('grant_criteria_audit', 'grant_aims_alignment', 'grant_budget_calculator'), Stage 4 Authoring ('paper_structure_audit', 'paper_latex_scaffold'), Stage 5 Peer Review ('paper_peer_review_simulate'), Stage 6 Journal Submission ('journal_matcher', 'journal_submission_checklist'), Stage 7 Intellectual Property ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), Stage 8 Scholarly Impact ('scholarly_impact_forecast'), and 'list_actions'."
+            "description": "Science intelligence action across the 8 academic production lifecycle stages: Stage 1 Literature ('paper_literature_search', 'paper_citation_verify'), Stage 2 Methodology ('paper_methodology_audit'), Stage 3 Grants ('grant_criteria_audit', 'grant_aims_alignment', 'grant_budget_calculator'), Stage 4 Authoring ('paper_structure_audit', 'paper_latex_scaffold', 'chinese_academic_formatter'), Stage 5 Peer Review ('paper_peer_review_simulate', 'social_science_peer_review_audit'), Stage 6 Journal Submission ('journal_matcher', 'journal_submission_checklist', 'ssci_top_journal_matcher'), Stage 7 Intellectual Property ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), Stage 8 Scholarly Impact ('scholarly_impact_forecast'), and 'list_actions'."
           },
           "query": {
             "type": "string",
@@ -2003,6 +2165,30 @@
             "minimum": 1,
             "maximum": 50,
             "description": "Max results to return."
+          },
+          "target_cssci_journal": {
+            "type": "string",
+            "description": "Target Chinese CSSCI journal name (e.g., '《中国社会科学》', '《社会学研究》', '《心理学报》', '《管理世界》', '《新闻与传播研究》')."
+          },
+          "target_ssci_journal": {
+            "type": "string",
+            "description": "Target SSCI Q1 journal name (e.g., 'Nature Human Behaviour', 'Computers in Human Behavior', 'New Media & Society')."
+          },
+          "social_science_field": {
+            "type": "string",
+            "description": "Social science field of study ('Sociology', 'Psychology', 'Communication', 'Management', 'Interdisciplinary')."
+          },
+          "empirical_data": {
+            "type": "object",
+            "description": "Empirical triangulation metadata (survey_sample_size, interview_count, fieldwork_duration_months, mixed_methods, common_method_bias_checked, theoretical_saturation)."
+          },
+          "chinese_paper": {
+            "type": "object",
+            "description": "Chinese academic manuscript structure (title, english_title, clc_code, document_code, fund_project, author_bio, headings, chinese_abstract, chinese_keywords, references)."
+          },
+          "word_count_limit_max": {
+            "type": "integer",
+            "description": "Maximum allowable manuscript word count for SSCI matching."
           }
         }
       }

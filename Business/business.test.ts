@@ -4,22 +4,22 @@ import { handleBusinessRpc } from "./mcp-server.ts";
 import { BUSINESS_PROTOCOL, compactBusinessResult } from "./core.ts";
 
 describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
-  test("list_actions returns all 21 actions across the 8 venture lifecycle stages and 4 modalities", async () => {
+  test("list_actions returns all 24 actions across the 8 venture lifecycle stages and 4 modalities", async () => {
     const res = await businessOperation({ action: "list_actions" });
     expect(res.success).toBe(true);
     expect(res.protocol).toBe(BUSINESS_PROTOCOL);
     const data = res.data as any;
-    expect(data.totalActions).toBe(21);
+    expect(data.totalActions).toBe(24);
     expect(data.modalities).toEqual(["website", "app", "game", "shop"]);
     expect(data.lifecycleStages.stage1_ideation.length).toBe(2);
     expect(data.lifecycleStages.stage2_pmf_validation.length).toBe(1);
-    expect(data.lifecycleStages.stage3_acquisition.length).toBe(8);
+    expect(data.lifecycleStages.stage3_acquisition.length).toBe(9);
     expect(data.lifecycleStages.stage4_activation.length).toBe(1);
     expect(data.lifecycleStages.stage5_retention.length).toBe(1);
-    expect(data.lifecycleStages.stage6_unit_economics.length).toBe(5);
+    expect(data.lifecycleStages.stage6_unit_economics.length).toBe(6);
     expect(data.lifecycleStages.stage7_pricing.length).toBe(1);
-    expect(data.lifecycleStages.stage8_scale_moats.length).toBe(2);
-    expect(data.actions.length).toBe(21);
+    expect(data.lifecycleStages.stage8_scale_moats.length).toBe(3);
+    expect(data.actions.length).toBe(24);
   });
 
   test("Stage 1: Market Validation models all 4 modalities (website, app, game, shop)", async () => {
@@ -410,5 +410,244 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
 
     const expRes = await businessOperation({ action: "venture_expansion_moat", modality: "shop" });
     expect(compactBusinessResult(expRes)).toContain("Expansion & Moats [SHOP]");
+
+    const mrrRes = await businessOperation({ action: "spriteflow_mrr_engine" });
+    expect(compactBusinessResult(mrrRes)).toContain("SpriteFlow MRR Engine: $10,000 MRR");
+    expect(compactBusinessResult(mrrRes)).toContain("420 Pro");
+    expect(compactBusinessResult(mrrRes)).toContain("25 Studio");
+    expect(compactBusinessResult(mrrRes)).toContain("LTV: $542.86");
+
+    const pseoRes = await businessOperation({ action: "spriteflow_pseo_matrix" });
+    expect(compactBusinessResult(pseoRes)).toContain("SpriteFlow pSEO: Generated");
+    expect(compactBusinessResult(pseoRes)).toContain("low-KD keywords");
+
+    const viralRes = await businessOperation({ action: "zero_cost_viral_loops" });
+    expect(compactBusinessResult(viralRes)).toContain("Zero-Cost Viral Loops: 5 vectors analyzed");
+    expect(compactBusinessResult(viralRes)).toContain("Blended K-Factor: 1.25");
+  });
+
+  test("SpriteFlow MRR Engine: Models path to $10,000 MRR with 420 Pro + 25 Studio, LTV $542.86, and 12-month cohort", async () => {
+    const res = await businessOperation({ action: "spriteflow_mrr_engine" });
+    expect(res.success).toBe(true);
+    expect(res.protocol).toBe(BUSINESS_PROTOCOL);
+    const data = res.data as any;
+
+    expect(data.ventureName).toBe("SpriteFlow");
+    expect(data.targetMrrUsd).toBe(10000);
+    expect(data.targetArrUsd).toBe(120000);
+    expect(data.pricingTiers.freeUsd).toBe(0);
+    expect(data.pricingTiers.proUsd).toBe(19);
+    expect(data.pricingTiers.studioUsd).toBe(79);
+
+    // Subscribers & Revenue breakdown
+    expect(data.targetSubscribers.pro).toBe(420);
+    expect(data.targetSubscribers.studio).toBe(25);
+    expect(data.targetSubscribers.totalPaying).toBe(445);
+    expect(data.targetSubscribers.proRevenueUsd).toBe(7980);
+    expect(data.targetSubscribers.studioRevenueUsd).toBe(1975);
+    expect(data.targetSubscribers.totalActualMrrUsd).toBe(9955);
+    expect(data.targetSubscribers.blendedArpuUsd).toBe(22.37);
+
+    // Unit Economics & LTV
+    expect(data.unitEconomics.ltvUsd).toBe(542.86);
+    expect(data.unitEconomics.blendedArpuUsd).toBe(22.37);
+    expect(data.unitEconomics.monthlyChurnRatePercent).toBe(4.12);
+    expect(data.unitEconomics.customerLifespanMonths).toBeGreaterThan(24);
+    expect(data.unitEconomics.grossMarginPercent).toBe(96.5);
+    expect(data.unitEconomics.organicCacUsd).toBe(0);
+    expect(data.unitEconomics.paybackPeriodMonths).toBe(0);
+    expect(data.unitEconomics.netMarginAtScalePercent).toBe(92.0);
+
+    // 12-month cohort projection
+    expect(data.cohortProjections.length).toBe(12);
+    expect(data.cohortProjections[0].month).toBe(1);
+    expect(data.cohortProjections[0].mrrUsd).toBe(307);
+    expect(data.cohortProjections[11].month).toBe(12);
+    expect(data.cohortProjections[11].proSubscribers).toBe(420);
+    expect(data.cohortProjections[11].studioSubscribers).toBe(25);
+    expect(data.cohortProjections[11].totalSubscribers).toBe(445);
+    expect(data.cohortProjections[11].mrrUsd).toBe(9955);
+    expect(data.cohortProjections[11].cumulativeRevenueUsd).toBeGreaterThan(60000);
+
+    // Growth milestones
+    expect(data.growthMilestones.length).toBe(4);
+    expect(data.growthMilestones[0].milestone).toContain("Hacker News");
+    expect(data.growthMilestones[3].milestone).toContain("$10k MRR");
+
+    // Zero-spend payback velocity
+    expect(data.zeroSpendPaybackVelocity.cacSpend).toBe(0);
+    expect(data.zeroSpendPaybackVelocity.paybackVelocityDays).toBe(0);
+    expect(data.zeroSpendPaybackVelocity.capitalEfficiencyScore).toContain("Infinite ROI");
+    expect(data.zeroSpendPaybackVelocity.primaryFreeGrowthEngines.length).toBeGreaterThanOrEqual(5);
+
+    // Custom overrides
+    const customRes = await businessOperation({
+      action: "spriteflow_mrr_engine",
+      venture_name: "PixelAtlas Pro",
+      target_mrr: 20000,
+      pro_price: 29,
+      studio_price: 99,
+      pro_subscribers: 500,
+      studio_subscribers: 60,
+    });
+    expect(customRes.success).toBe(true);
+    const customData = customRes.data as any;
+    expect(customData.ventureName).toBe("PixelAtlas Pro");
+    expect(customData.targetMrrUsd).toBe(20000);
+    expect(customData.targetArrUsd).toBe(240000);
+    expect(customData.pricingTiers.proUsd).toBe(29);
+    expect(customData.pricingTiers.studioUsd).toBe(99);
+    expect(customData.targetSubscribers.proRevenueUsd).toBe(14500);
+    expect(customData.targetSubscribers.studioRevenueUsd).toBe(5940);
+    expect(customData.targetSubscribers.totalActualMrrUsd).toBe(20440);
+  });
+
+  test("SpriteFlow pSEO Matrix: Generates 100+ low-KD keywords across Godot 4, Unity, Aseprite, TexturePacker, Unreal, and indie engines", async () => {
+    const res = await businessOperation({ action: "spriteflow_pseo_matrix" });
+    expect(res.success).toBe(true);
+    expect(res.protocol).toBe(BUSINESS_PROTOCOL);
+    const data = res.data as any;
+
+    expect(data.totalKeywords).toBeGreaterThanOrEqual(100);
+    expect(data.averageKd).toBeLessThan(30);
+    expect(data.totalMonthlySearchVolume).toBeGreaterThan(100000);
+    expect(data.highPriorityCount).toBeGreaterThan(10);
+
+    // Check all entries have valid schema
+    for (const kw of data.keywords) {
+      expect(kw.keyword).toBeDefined();
+      expect(kw.ecosystem).toBeDefined();
+      expect(["informational", "transactional", "commercial", "navigational"]).toContain(kw.searchIntent);
+      expect(kw.estimatedMonthlyVolume).toBeGreaterThan(0);
+      expect(kw.kd).toBeGreaterThanOrEqual(0);
+      expect(kw.kd).toBeLessThanOrEqual(30); // All low-KD
+      expect(kw.slug.startsWith("/")).toBe(true);
+      expect(["P0", "P1", "P2"]).toContain(kw.priorityTier);
+      expect(["tool_landing", "comparison_alternative", "tutorial_guide", "converter_utility", "integration_doc"]).toContain(kw.targetPageType);
+    }
+
+    // Check key ecosystems are present
+    expect(data.ecosystemBreakdown["Godot 4"]).toBeDefined();
+    expect(data.ecosystemBreakdown["Godot 4"].count).toBeGreaterThanOrEqual(15);
+    expect(data.ecosystemBreakdown["Unity"]).toBeDefined();
+    expect(data.ecosystemBreakdown["Unity"].count).toBeGreaterThanOrEqual(15);
+    expect(data.ecosystemBreakdown["Aseprite"]).toBeDefined();
+    expect(data.ecosystemBreakdown["Aseprite"].count).toBeGreaterThanOrEqual(15);
+    expect(data.ecosystemBreakdown["TexturePacker"]).toBeDefined();
+    expect(data.ecosystemBreakdown["TexturePacker"].count).toBeGreaterThanOrEqual(15);
+    expect(data.ecosystemBreakdown["Unreal Engine 5"]).toBeDefined();
+    expect(data.ecosystemBreakdown["Cross-Platform"]).toBeDefined();
+
+    // Check specific anchor keywords
+    const kwNames = data.keywords.map((k: any) => k.keyword);
+    expect(kwNames).toContain("godot 4 sprite sheet packer");
+    expect(kwNames).toContain("texturepacker free alternative");
+    expect(kwNames).toContain("aseprite batch export sprite sheet");
+    expect(kwNames).toContain("unity sprite atlas generator online");
+    expect(kwNames).toContain("unreal engine 5 paper2d sprite packer");
+
+    // Check filtering
+    const godotRes = await businessOperation({ action: "spriteflow_pseo_matrix", engine_filter: "Godot 4" });
+    expect(godotRes.success).toBe(true);
+    const godotData = godotRes.data as any;
+    expect(godotData.keywords.every((k: any) => k.ecosystem === "Godot 4")).toBe(true);
+
+    const highVolRes = await businessOperation({ action: "spriteflow_pseo_matrix", min_volume: 3000, max_kd: 15 });
+    expect(highVolRes.success).toBe(true);
+    const highVolData = highVolRes.data as any;
+    expect(highVolData.keywords.every((k: any) => k.estimatedMonthlyVolume >= 3000 && k.kd <= 15)).toBe(true);
+  });
+
+  test("Zero-Cost Viral Loops: 5 viral vectors with step-by-step deliverables, KPIs, and K-Factor > 1.0", async () => {
+    const res = await businessOperation({ action: "zero_cost_viral_loops" });
+    expect(res.success).toBe(true);
+    expect(res.protocol).toBe(BUSINESS_PROTOCOL);
+    const data = res.data as any;
+
+    expect(data.vectors.length).toBe(5);
+    expect(data.blendedKFactor).toBe(1.25);
+    expect(data.blendedKFactor).toBeGreaterThan(1.0);
+    expect(data.viralLoopStatus).toContain("Self-Sustaining Viral Loop");
+    expect(data.totalMonthlyOrganicSignups).toBe(11000);
+    expect(data.zeroCostMarketingBudgetUsd).toBe(0);
+
+    // Vector 1: GitHub OSS Bridge
+    const v1 = data.vectors.find((v: any) => v.vectorId === "vector_github_oss_bridge");
+    expect(v1).toBeDefined();
+    expect(v1.kFactorContribution).toBe(0.28);
+    expect(v1.projectedMonthlySignups).toBe(1400);
+    expect(v1.stepByStepDeliverables.length).toBe(4);
+    expect(v1.stepByStepDeliverables[0].action).toContain("spriteflow-core");
+    expect(v1.kpis.length).toBe(3);
+
+    // Vector 2: Itch.io Asset Packs
+    const v2 = data.vectors.find((v: any) => v.vectorId === "vector_itch_io_packs");
+    expect(v2).toBeDefined();
+    expect(v2.kFactorContribution).toBe(0.22);
+    expect(v2.stepByStepDeliverables.length).toBe(4);
+    expect(v2.kpis[0].target).toContain("20,000+");
+
+    // Vector 3: Reddit/HN Deep Dives
+    const v3 = data.vectors.find((v: any) => v.vectorId === "vector_reddit_hn_show");
+    expect(v3).toBeDefined();
+    expect(v3.kFactorContribution).toBe(0.25);
+    expect(v3.stepByStepDeliverables[0].action).toContain("Show HN");
+
+    // Vector 4: YouTube & Bilibili Tutorials
+    const v4 = data.vectors.find((v: any) => v.vectorId === "vector_video_tutorials");
+    expect(v4).toBeDefined();
+    expect(v4.kFactorContribution).toBe(0.18);
+    expect(v4.stepByStepDeliverables[2].action).toContain("Bilibili");
+
+    // Vector 5: Free Web Sandbox
+    const v5 = data.vectors.find((v: any) => v.vectorId === "vector_web_sandbox_watermark");
+    expect(v5).toBeDefined();
+    expect(v5.kFactorContribution).toBe(0.32);
+    expect(v5.projectedMonthlySignups).toBe(3500);
+
+    // Flywheel phases & execution calendar
+    expect(data.flywheelPhases.length).toBe(4);
+    expect(data.executionCalendar.length).toBe(6);
+  });
+
+  test("MCP Protocol server handles SpriteFlow MRR engine, pSEO matrix, and zero-cost viral loops", async () => {
+    // Test tools/call for spriteflow_mrr_engine
+    const mrrRpc = await handleBusinessRpc({
+      jsonrpc: "2.0",
+      id: 10,
+      method: "tools/call",
+      params: {
+        name: "business",
+        arguments: { action: "spriteflow_mrr_engine" },
+      },
+    });
+    expect(mrrRpc.result.content[0].text).toContain("SpriteFlow");
+    expect(mrrRpc.result.content[0].text).toContain("542.86");
+    expect(mrrRpc.result.content[0].text).toContain("420");
+
+    // Test tools/call for spriteflow_pseo_matrix
+    const pseoRpc = await handleBusinessRpc({
+      jsonrpc: "2.0",
+      id: 11,
+      method: "tools/call",
+      params: {
+        name: "business",
+        arguments: { action: "spriteflow_pseo_matrix", engine_filter: "Godot 4" },
+      },
+    });
+    expect(pseoRpc.result.content[0].text).toContain("godot 4 sprite sheet packer");
+
+    // Test tools/call for zero_cost_viral_loops
+    const viralRpc = await handleBusinessRpc({
+      jsonrpc: "2.0",
+      id: 12,
+      method: "tools/call",
+      params: {
+        name: "business",
+        arguments: { action: "zero_cost_viral_loops" },
+      },
+    });
+    expect(viralRpc.result.content[0].text).toContain("GitHub OSS Bridge");
+    expect(viralRpc.result.content[0].text).toContain("1.25");
   });
 });

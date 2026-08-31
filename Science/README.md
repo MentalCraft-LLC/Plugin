@@ -23,7 +23,7 @@ graph LR
 
 ---
 
-## ⚡ Protocol Actions (16 Actions across 8 Stages)
+## ⚡ Protocol Actions (19 Actions across 8 Stages)
 
 ### Stage 1: Literature & Citation Discovery
 - **`paper_literature_search`**: Search indexed peer-reviewed papers, arXiv preprints, DOIs, citation counts, and topic tags.
@@ -43,28 +43,26 @@ graph LR
 - **`grant_budget_calculator`**: Calculate multi-year direct costs, personnel fringe benefits (**28%**), Modified Total Direct Costs (**MTDC** exclusions: equipment >$5k, subawards over $25k, participant support), Facilities & Administrative indirect costs (**F&A 52%**), and annual cost-of-living escalation (**3%**).
   - *Parameters*: `duration_years`, `direct_costs`, `fringe_rate_percent`, `indirect_rate_percent`, `annual_escalation_percent`
 
-### Stage 4: Manuscript Authoring & LaTeX Scaffolding
+### Stage 4: Manuscript Authoring & LaTeX / Chinese Scaffolding
 - **`paper_structure_audit`**: Audit section completeness (Abstract, Introduction, Related Work, Methodology, Experiments, Discussion, References), target word count proportions, and LaTeX syntax balance.
   - *Parameters*: `manuscript_title`, `manuscript_text`, `sections`
 - **`paper_latex_scaffold`**: Generate clean, compilation-ready LaTeX source code for **ACM SIGCONF** (`acmart`) and **IEEE Transactions** (`IEEEtran`) with modern preambles, algorithm blocks, tables, and sample BibTeX entries.
   - *Parameters*: `manuscript_title`, `latex_template` (`"acm"` | `"ieee"`)
+- **`chinese_academic_formatter`**: Format Chinese manuscripts according to **GB/T 7714-2015** (journal [J], book [M], conference [C], dissertation [D], online [EB/OL]), standard Chinese 5-tier hierarchical headings (**一、（一）、1、（1）、①**), **CLC classification** (中图分类号, e.g. C91, G206, B84), **document code** (文献标识码 [A]), fund project & author bio footnotes, and bilingual abstracts/keywords.
+  - *Parameters*: `chinese_paper` (`title`, `clc_code`, `document_code`, `fund_project`, `author_bio`, `headings`, `chinese_abstract`, `chinese_keywords`, `references`)
 
 ### Stage 5: Simulated Peer Review & Rebuttal
 - **`paper_peer_review_simulate`**: Simulate a diverse 3-reviewer expert panel (Theoretical Foundations, Systems Architecture, Applications & Reproducibility) with criteria ratings (1-10), reviewer confidence (1-5), consensus recommendation, and a comprehensive point-by-point rebuttal matrix.
   - *Parameters*: `manuscript_title`, `manuscript_text`
+- **`social_science_peer_review_audit`**: Rigorous peer review evaluation for Chinese **CSSCI top journals** (《中国社会科学》《社会学研究》《心理学报》《管理世界》《新闻与传播研究》) and English **SSCI Q1 journals** (Nature Human Behaviour, Computers in Human Behavior, New Media & Society) evaluating theoretical conceptualization, **empirical triangulation** ($N \ge 1000$ quantitative survey + $N \ge 30$ qualitative fieldwork interviews), common method bias (CMB), theoretical saturation, ethical reflexivity, and endogeneity identification strategies.
+  - *Parameters*: `manuscript_title`, `target_cssci_journal`, `target_ssci_journal`, `empirical_data`
 
 ### Stage 6: Target Journal Matching & Camera-Ready Submission
 - **`journal_matcher`**: Match research manuscripts against indexed JCR/Scimago venues by Impact Factor, H-index, acceptance rate, review turnaround weeks, and Open Access model (Gold, Hybrid, Diamond).
   - *Parameters*: `field_of_study`, `desired_impact_factor_min`, `target_review_weeks_max`, `open_access_preference`
-- **`journal_submission_checklist`**: Comprehensive 8-point camera-ready pre-submission audit:
-  1. CRediT Author Taxonomy
-  2. Data Availability Statement
-  3. Code & Artifact Availability Statement
-  4. Ethics & IRB Exemption Statement
-  5. High-Resolution Vector Figures (300+ DPI)
-  6. LaTeX / Template & Margin Compliance
-  7. Conflict of Interest Declaration
-  8. Cover Letter & Non-Conflicted Reviewer Suggestions
+- **`journal_submission_checklist`**: Comprehensive 8-point camera-ready pre-submission audit (CRediT, Data/Code, Ethics, Figures, LaTeX margins, COI, Cover Letter).
+- **`ssci_top_journal_matcher`**: Specialized matching against premier **SSCI Q1 venues** (*Nature Human Behaviour*, *Computers in Human Behavior*, *New Media & Society*, *Information, Communication & Society*, *Journal of Communication*, *Information Systems Research*, *Annual Review of Sociology*, *Journal of Computer-Mediated Communication*, *Telematics and Informatics*) with exact IF, acceptance rates, word limits, turnaround times, and APA 7th / OSF pre-registration requirements.
+  - *Parameters*: `social_science_field`, `desired_impact_factor_min`, `target_review_weeks_max`, `word_count_limit_max`, `open_access_preference`
 
 ### Stage 7: Intellectual Property & Patent Conversion
 - **`patent_novelty_check`**: Evaluate invention patentability under US Patent Law:
@@ -82,7 +80,7 @@ graph LR
   - *Parameters*: `manuscript_title`
 
 ### Core Discovery
-- **`list_actions`**: Return the complete inventory of all 16 academic production actions structured across the 8 lifecycle stages.
+- **`list_actions`**: Return the complete inventory of all 19 academic production actions structured across the 8 lifecycle stages.
 
 ---
 

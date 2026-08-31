@@ -46,6 +46,9 @@ export type BusinessAction =
   | "venture_pricing_experiment"
   | "venture_growth_playbook"
   | "venture_expansion_moat"
+  | "spriteflow_mrr_engine"
+  | "spriteflow_pseo_matrix"
+  | "zero_cost_viral_loops"
   | "list_actions";
 
 export type MarketValidationResult = {
@@ -309,6 +312,157 @@ export type TractionScoreResult = {
   recommendations: string[];
 };
 
+export type SpriteFlowCohortMonth = {
+  month: number;
+  monthName: string;
+  freeUsers: number;
+  proSubscribers: number;
+  studioSubscribers: number;
+  totalSubscribers: number;
+  mrrUsd: number;
+  arrUsd: number;
+  grossRevenueUsd: number;
+  churnedSubscribers: number;
+  churnedMrrUsd: number;
+  netNewMrrUsd: number;
+  cumulativeRevenueUsd: number;
+};
+
+export type SpriteFlowMrrEngineResult = {
+  ventureName: string;
+  targetMrrUsd: number;
+  targetArrUsd: number;
+  currentStatus: {
+    modelType: "Freemium + Developer SaaS Subscriptions";
+    currency: "USD";
+    breakEvenMonth: number;
+  };
+  pricingTiers: {
+    freeUsd: number;
+    proUsd: number;
+    studioUsd: number;
+  };
+  targetSubscribers: {
+    pro: number;
+    studio: number;
+    totalPaying: number;
+    proRevenueUsd: number;
+    studioRevenueUsd: number;
+    totalActualMrrUsd: number;
+    blendedArpuUsd: number;
+  };
+  unitEconomics: {
+    blendedArpuUsd: number;
+    monthlyChurnRatePercent: number;
+    customerLifespanMonths: number;
+    grossMarginPercent: number;
+    ltvUsd: number;
+    organicCacUsd: number;
+    ltvToCacRatio: number;
+    paybackPeriodMonths: number;
+    burnRateMonthlyUsd: number;
+    netMarginAtScalePercent: number;
+  };
+  cohortProjections: SpriteFlowCohortMonth[];
+  growthMilestones: Array<{
+    milestone: string;
+    targetMrrUsd: number;
+    subscribersRequired: { pro: number; studio: number };
+    projectedMonth: number;
+    tacticalFocus: string;
+  }>;
+  zeroSpendPaybackVelocity: {
+    cacSpend: number;
+    paybackVelocityDays: number;
+    primaryFreeGrowthEngines: string[];
+    capitalEfficiencyScore: string;
+  };
+};
+
+export type PseoKeywordEntry = {
+  keyword: string;
+  ecosystem:
+    | "Godot 4"
+    | "Unity"
+    | "Aseprite"
+    | "TexturePacker"
+    | "Unreal Engine 5"
+    | "GameMaker"
+    | "Phaser"
+    | "Defold"
+    | "Cross-Platform"
+    | "RPG Maker"
+    | "Bevy"
+    | "Pygame";
+  searchIntent: "informational" | "transactional" | "commercial" | "navigational";
+  estimatedMonthlyVolume: number;
+  kd: number;
+  cpcUsd: number;
+  slug: string;
+  priorityTier: "P0" | "P1" | "P2";
+  targetPageType: "tool_landing" | "comparison_alternative" | "tutorial_guide" | "converter_utility" | "integration_doc";
+};
+
+export type SpriteFlowPseoMatrixResult = {
+  ventureName: string;
+  totalKeywords: number;
+  totalMonthlySearchVolume: number;
+  averageKd: number;
+  highPriorityCount: number;
+  ecosystemBreakdown: Record<string, { count: number; totalVolume: number; avgKd: number }>;
+  intentBreakdown: Record<string, { count: number; totalVolume: number }>;
+  keywords: PseoKeywordEntry[];
+  topP0Keywords: PseoKeywordEntry[];
+  programmaticSeoStrategy: {
+    slugArchitecture: string;
+    indexingCadence: string;
+    contentTemplateTypes: string[];
+    schemaMarkup: string[];
+    internalLinkingStrategy: string;
+  };
+};
+
+export type ViralVectorDeliverable = {
+  vectorId: string;
+  vectorName: string;
+  channel: string;
+  kFactorContribution: number;
+  projectedMonthlySignups: number;
+  conversionToProPercent: number;
+  stepByStepDeliverables: Array<{
+    stepNumber: number;
+    title: string;
+    action: string;
+    timeline: string;
+    status: "Ready" | "In Progress" | "Planned";
+  }>;
+  kpis: Array<{
+    metric: string;
+    target: string;
+    measurementWindow: string;
+  }>;
+};
+
+export type ZeroCostViralLoopsResult = {
+  ventureName: string;
+  blendedKFactor: number;
+  viralLoopStatus: "🔥 Self-Sustaining Viral Loop (K > 1.0)" | "⚡ Viral Assisted (K 0.4 - 1.0)" | "Paid / Organic Dependent (K < 0.4)";
+  totalMonthlyOrganicSignups: number;
+  zeroCostMarketingBudgetUsd: number;
+  vectors: ViralVectorDeliverable[];
+  flywheelPhases: Array<{
+    phase: string;
+    mechanism: string;
+    compoundingEffect: string;
+  }>;
+  executionCalendar: Array<{
+    week: string;
+    focusVector: string;
+    primaryDeliverable: string;
+    targetMilestone: string;
+  }>;
+};
+
 export type BusinessInput = {
   action: BusinessAction;
   modality?: BusinessModality;
@@ -345,6 +499,15 @@ export type BusinessInput = {
   gl?: string;
   hl?: string;
   force?: boolean;
+  // SpriteFlow & Growth Action Parameters
+  target_mrr?: number;
+  pro_price?: number;
+  studio_price?: number;
+  pro_subscribers?: number;
+  studio_subscribers?: number;
+  engine_filter?: string;
+  min_volume?: number;
+  max_kd?: number;
 };
 
 export type BusinessResult = {
@@ -454,6 +617,18 @@ export function formatBusinessSummary(result: BusinessResult): string {
     case "market_site_trajectory": {
       const data = result.data as { domain: string; estimatedMonthlyRevenueUsd?: number };
       return `Site Trajectory: ${data.domain} billing telemetry tracked`;
+    }
+    case "spriteflow_mrr_engine": {
+      const data = result.data as SpriteFlowMrrEngineResult;
+      return `SpriteFlow MRR Engine: $${data.targetMrrUsd.toLocaleString()} MRR ($${data.targetArrUsd.toLocaleString()} ARR) → Target: ${data.targetSubscribers.pro} Pro ($${data.pricingTiers.proUsd}/mo) + ${data.targetSubscribers.studio} Studio ($${data.pricingTiers.studioUsd}/mo) | LTV: $${data.unitEconomics.ltvUsd.toFixed(2)} (Payback: ${data.unitEconomics.paybackPeriodMonths}mo, CAC: $${data.unitEconomics.organicCacUsd})`;
+    }
+    case "spriteflow_pseo_matrix": {
+      const data = result.data as SpriteFlowPseoMatrixResult;
+      return `SpriteFlow pSEO: Generated ${data.totalKeywords} low-KD keywords across ${Object.keys(data.ecosystemBreakdown).length} ecosystems (Total Vol: ${data.totalMonthlySearchVolume.toLocaleString()}/mo, Avg KD: ${data.averageKd})`;
+    }
+    case "zero_cost_viral_loops": {
+      const data = result.data as ZeroCostViralLoopsResult;
+      return `Zero-Cost Viral Loops: ${data.vectors.length} vectors analyzed → Blended K-Factor: ${data.blendedKFactor.toFixed(2)} [${data.viralLoopStatus}] (Projected Organic Signups: ${data.totalMonthlyOrganicSignups.toLocaleString()}/mo)`;
     }
     default: {
       return `✓ Business ${result.action} executed successfully.`;

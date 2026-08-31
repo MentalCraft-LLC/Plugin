@@ -23,6 +23,9 @@ export const SCIENCE_ACTIONS = [
   "patent_claim_structure",
   "patent_spec_scaffold",
   "scholarly_impact_forecast",
+  "social_science_peer_review_audit",
+  "chinese_academic_formatter",
+  "ssci_top_journal_matcher",
   "list_actions",
 ] as const;
 
@@ -35,7 +38,7 @@ export const SCIENCE_INPUT_SCHEMA = {
       type: "string",
       enum: SCIENCE_ACTIONS,
       description:
-        "Science intelligence action across the 8 academic production lifecycle stages: Stage 1 Literature ('paper_literature_search', 'paper_citation_verify'), Stage 2 Methodology ('paper_methodology_audit'), Stage 3 Grants ('grant_criteria_audit', 'grant_aims_alignment', 'grant_budget_calculator'), Stage 4 Authoring ('paper_structure_audit', 'paper_latex_scaffold'), Stage 5 Peer Review ('paper_peer_review_simulate'), Stage 6 Journal Submission ('journal_matcher', 'journal_submission_checklist'), Stage 7 Intellectual Property ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), Stage 8 Scholarly Impact ('scholarly_impact_forecast'), and 'list_actions'.",
+        "Science intelligence action across the 8 academic production lifecycle stages: Stage 1 Literature ('paper_literature_search', 'paper_citation_verify'), Stage 2 Methodology ('paper_methodology_audit'), Stage 3 Grants ('grant_criteria_audit', 'grant_aims_alignment', 'grant_budget_calculator'), Stage 4 Authoring ('paper_structure_audit', 'paper_latex_scaffold', 'chinese_academic_formatter'), Stage 5 Peer Review ('paper_peer_review_simulate', 'social_science_peer_review_audit'), Stage 6 Journal Submission ('journal_matcher', 'journal_submission_checklist', 'ssci_top_journal_matcher'), Stage 7 Intellectual Property ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), Stage 8 Scholarly Impact ('scholarly_impact_forecast'), and 'list_actions'.",
     },
     query: {
       type: "string",
@@ -156,6 +159,30 @@ export const SCIENCE_INPUT_SCHEMA = {
       minimum: 1,
       maximum: 50,
       description: "Max results to return.",
+    },
+    target_cssci_journal: {
+      type: "string",
+      description: "Target Chinese CSSCI journal name (e.g., '《中国社会科学》', '《社会学研究》', '《心理学报》', '《管理世界》', '《新闻与传播研究》').",
+    },
+    target_ssci_journal: {
+      type: "string",
+      description: "Target SSCI Q1 journal name (e.g., 'Nature Human Behaviour', 'Computers in Human Behavior', 'New Media & Society').",
+    },
+    social_science_field: {
+      type: "string",
+      description: "Social science field of study ('Sociology', 'Psychology', 'Communication', 'Management', 'Interdisciplinary').",
+    },
+    empirical_data: {
+      type: "object",
+      description: "Empirical triangulation metadata (survey_sample_size, interview_count, fieldwork_duration_months, mixed_methods, common_method_bias_checked, theoretical_saturation).",
+    },
+    chinese_paper: {
+      type: "object",
+      description: "Chinese academic manuscript structure (title, english_title, clc_code, document_code, fund_project, author_bio, headings, chinese_abstract, chinese_keywords, references).",
+    },
+    word_count_limit_max: {
+      type: "integer",
+      description: "Maximum allowable manuscript word count for SSCI matching.",
     },
   },
 } as const;

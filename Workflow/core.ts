@@ -42,6 +42,9 @@ export type WorkflowId =
   | "ecommerce_full_launch_pipeline"
   | "academic_manuscript_complete_lifecycle"
   | "startup_pmf_and_scale_sprint"
+  | "spriteflow_10k_mrr_growth_pipeline"
+  | "social_science_top_journal_pipeline"
+  | "zero_cost_bootstrap_engine"
   | "automated_revenue_monitor"
   | "design_system_audit_pipeline"
   | (string & {});
@@ -231,6 +234,44 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
     steps: [
       { step: 1, plugin: "business", action: "market_site_trajectory", description: "Fetch latest month-over-month checkout referral growth." },
       { step: 2, plugin: "message", action: "send", description: "Dispatch encrypted summary message to designated bot channel." },
+    ],
+  },
+  {
+    id: "spriteflow_10k_mrr_growth_pipeline",
+    name: "SpriteFlow $10,000 MRR Zero-Cost Growth Pipeline",
+    description: "End-to-end $10k MRR growth pipeline: 120-keyword pSEO matrix → 12-month cohort MRR economics → Svelte 5 pricing funnel → 5 zero-cost viral loops (K=1.25).",
+    requiredPlugins: ["business", "design"],
+    steps: [
+      { step: 1, plugin: "business", action: "spriteflow_pseo_matrix", description: "Generate 120 curated low-KD programmatic SEO keyword targets across Godot, Unity, Aseprite." },
+      { step: 2, plugin: "business", action: "spriteflow_mrr_engine", description: "Model $10,000 MRR milestone with 420 Pro ($19/mo) + 25 Studio ($79/mo) cohorts and LTV $542.86." },
+      { step: 3, plugin: "design", action: "generate_ui", description: "Generate high-converting Svelte 5 pricing table and checkout funnel." },
+      { step: 4, plugin: "business", action: "zero_cost_viral_loops", description: "Synthesize 5 zero-cost viral loops (GitHub bridge, Itch.io packs, Reddit/HN deep dives, tutorials)." },
+      { step: 5, plugin: "business", action: "venture_monetization_telemetry", description: "Track real-time Stripe telemetry and churn decay." },
+    ],
+  },
+  {
+    id: "social_science_top_journal_pipeline",
+    name: "Top Social Science Journal (CSSCI & SSCI Q1) Publication Pipeline",
+    description: "Publication pipeline: CSSCI/SSCI peer review audit → GB/T 7714 & Chinese heading formatting → SSCI Q1 journal matching → 3-reviewer panel simulation & rebuttal matrix.",
+    requiredPlugins: ["science"],
+    steps: [
+      { step: 1, plugin: "science", action: "social_science_peer_review_audit", description: "Audit theoretical conceptualization, empirical triangulation, and ethical reflexivity." },
+      { step: 2, plugin: "science", action: "chinese_academic_formatter", description: "Format manuscript to GB/T 7714-2015 citation and Chinese hierarchical heading standards." },
+      { step: 3, plugin: "science", action: "ssci_top_journal_matcher", description: "Match top SSCI Q1 journals (Nature Human Behaviour, Computers in Human Behavior, New Media & Society)." },
+      { step: 4, plugin: "science", action: "paper_peer_review_simulate", description: "Simulate 3-reviewer diverse blind review panel and generate score matrix." },
+      { step: 5, plugin: "science", action: "journal_submission_checklist", description: "Perform 8-point camera-ready pre-submission compliance audit." },
+    ],
+  },
+  {
+    id: "zero_cost_bootstrap_engine",
+    name: "Zero-Cost Bootstrap & Organic PLG Engine ($0 Spend)",
+    description: "Zero paid marketing engine: Viral K-factor loops → Programmatic SEO difficulty ranking → Organic domain traffic forensics → Telemetry monitoring.",
+    requiredPlugins: ["business"],
+    steps: [
+      { step: 1, plugin: "business", action: "zero_cost_viral_loops", description: "Deploy 5 self-sustaining viral loops (GitHub, Itch.io, Reddit/HN, Bilibili, Web sandbox)." },
+      { step: 2, plugin: "business", action: "seo_batch_keywords", description: "Rank low-KD high-intent organic search terms for programmatic expansion." },
+      { step: 3, plugin: "business", action: "product_traction_score", description: "Calculate multidimensional product traction and viral affordance." },
+      { step: 4, plugin: "business", action: "venture_growth_playbook", description: "Generate 90-day zero-cost organic sprint roadmap." },
     ],
   },
   {

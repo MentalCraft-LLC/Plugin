@@ -437,6 +437,47 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "spriteflow":
+    case "sprite": {
+      console.log("\n🚀 Executing SpriteFlow $10,000 MRR Zero-Cost Growth Pipeline...\n" + "=".repeat(80));
+      const res = await workflowOperation({
+        action: "run_workflow",
+        workflow_id: "spriteflow_10k_mrr_growth_pipeline",
+        parameters: { venture_name: "SpriteFlow" },
+      });
+      const data = res.data as any;
+      console.log(`Pipeline: ${data.workflowName} (${data.stepsCount} steps completed in ${data.durationMs}ms)`);
+      console.log("-".repeat(80));
+      for (const s of data.stepResults) {
+        console.log(`✓ Step ${s.step}: [${s.plugin}] ${s.action} (${s.durationMs}ms)`);
+      }
+      console.log("=".repeat(80) + "\n");
+      break;
+    }
+
+    case "paper-audit":
+    case "paper": {
+      const title = args[1] || "算法代哺：数智社会的亲子关系变迁";
+      console.log(`\n🎓 Executing Top Social Science Publication Pipeline for '${title}'...\n` + "=".repeat(80));
+      const res = await workflowOperation({
+        action: "run_workflow",
+        workflow_id: "social_science_top_journal_pipeline",
+        parameters: {
+          manuscript_title: title,
+          target_cssci_journal: "《中国社会科学》",
+          target_ssci_journal: "Nature Human Behaviour",
+        },
+      });
+      const data = res.data as any;
+      console.log(`Pipeline: ${data.workflowName} (${data.stepsCount} steps completed in ${data.durationMs}ms)`);
+      console.log("-".repeat(80));
+      for (const s of data.stepResults) {
+        console.log(`✓ Step ${s.step}: [${s.plugin}] ${s.action} (${s.durationMs}ms)`);
+      }
+      console.log("=".repeat(80) + "\n");
+      break;
+    }
+
     case "metrics":
     case "telemetry": {
       const res = await workflowOperation({ action: "get_metrics" });

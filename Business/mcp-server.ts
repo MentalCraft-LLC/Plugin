@@ -29,6 +29,9 @@ export const BUSINESS_ACTIONS = [
   "venture_pricing_experiment",
   "venture_growth_playbook",
   "venture_expansion_moat",
+  "spriteflow_mrr_engine",
+  "spriteflow_pseo_matrix",
+  "zero_cost_viral_loops",
   "list_actions",
 ] as const;
 
@@ -40,7 +43,7 @@ export const BUSINESS_INPUT_SCHEMA = {
     action: {
       type: "string",
       enum: BUSINESS_ACTIONS,
-      description: "Business action across the 8 venture lifecycle stages: Stage 1 Ideation ('venture_market_validation', 'market_niche_discovery'), Stage 2 PMF ('venture_pmf_validation'), Stage 3 Acquisition ('venture_acquisition_audit', SEO/TrafficCV actions), Stage 4 Activation ('venture_activation_funnel'), Stage 5 Retention ('venture_retention_curves'), Stage 6 Unit Economics ('venture_unit_economics', 'venture_monetization_telemetry', 'market_stripe_radar', 'market_site_trajectory', 'product_traction_score'), Stage 7 Pricing ('venture_pricing_experiment'), Stage 8 Scale & Moats ('venture_growth_playbook', 'venture_expansion_moat'), and 'list_actions'.",
+      description: "Business action across the 8 venture lifecycle stages: Stage 1 Ideation ('venture_market_validation', 'market_niche_discovery'), Stage 2 PMF ('venture_pmf_validation'), Stage 3 Acquisition ('venture_acquisition_audit', SEO/TrafficCV actions), Stage 4 Activation ('venture_activation_funnel'), Stage 5 Retention ('venture_retention_curves'), Stage 6 Unit Economics ('venture_unit_economics', 'venture_monetization_telemetry', 'market_stripe_radar', 'market_site_trajectory', 'product_traction_score'), Stage 7 Pricing ('venture_pricing_experiment'), Stage 8 Scale & Moats ('venture_growth_playbook', 'venture_expansion_moat'), SpriteFlow & Indie SaaS Growth Engines ('spriteflow_mrr_engine', 'spriteflow_pseo_matrix', 'zero_cost_viral_loops'), and 'list_actions'.",
     },
     modality: {
       type: "string",
@@ -185,6 +188,38 @@ export const BUSINESS_INPUT_SCHEMA = {
       type: "boolean",
       description: "Bypass cache and force fresh SERP evaluation.",
     },
+    target_mrr: {
+      type: "number",
+      description: "Target MRR in USD for SpriteFlow MRR engine (e.g. 10000).",
+    },
+    pro_price: {
+      type: "number",
+      description: "Pro tier monthly subscription price in USD (e.g. 19).",
+    },
+    studio_price: {
+      type: "number",
+      description: "Studio tier monthly subscription price in USD (e.g. 79).",
+    },
+    pro_subscribers: {
+      type: "integer",
+      description: "Target Pro subscriber count (e.g. 420).",
+    },
+    studio_subscribers: {
+      type: "integer",
+      description: "Target Studio subscriber count (e.g. 25).",
+    },
+    engine_filter: {
+      type: "string",
+      description: "Game engine or ecosystem filter for pSEO matrix (e.g. 'Godot 4', 'Unity', 'Aseprite').",
+    },
+    min_volume: {
+      type: "integer",
+      description: "Minimum monthly search volume filter for pSEO keywords.",
+    },
+    max_kd: {
+      type: "integer",
+      description: "Maximum keyword difficulty (KD) filter for pSEO matrix.",
+    },
   },
 } as const;
 
@@ -236,7 +271,7 @@ export async function handleBusinessRpc(request: JsonRpcRequest): Promise<JsonRp
         tools: [
           {
             name: "business",
-            description: "MentalCraft Business & Venture 8-Stage Lifecycle Intelligence Engine across 4 modalities (Website, App, Game, Shop): Market validation, PMF survey, Acquisition SEO/ASO/Steam/TikTok, Activation funnel, D1/D7/D30/D90 Retention, Unit economics CAC/LTV/COGS/3PL, Price elasticity & AOV boost, Moats & Inventory ROP.",
+            description: "MentalCraft Business & Venture 8-Stage Lifecycle Intelligence Engine across 4 modalities (Website, App, Game, Shop): Market validation, PMF survey, Acquisition SEO/ASO/Steam/TikTok, Activation funnel, D1/D7/D30/D90 Retention, Unit economics CAC/LTV/COGS/3PL, Price elasticity & AOV boost, Moats & Inventory ROP, SpriteFlow MRR $10k engine, 100+ low-KD pSEO matrix, and zero-cost viral loops.",
             inputSchema: BUSINESS_INPUT_SCHEMA,
           },
         ],

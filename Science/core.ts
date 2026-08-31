@@ -30,6 +30,9 @@ export type ScienceAction =
   | "patent_claim_structure"
   | "patent_spec_scaffold"
   | "scholarly_impact_forecast"
+  | "social_science_peer_review_audit"
+  | "chinese_academic_formatter"
+  | "ssci_top_journal_matcher"
   | "list_actions";
 
 export type CitationStyle = "apa" | "ieee" | "nature" | "acm" | "chicago";
@@ -345,6 +348,144 @@ export type LatexScaffoldResult = {
   packagesIncluded?: string[];
 };
 
+export type SocialScienceReviewAuditResult = {
+  manuscriptTitle: string;
+  targetTier: "CSSCI_TOP" | "SSCI_Q1" | "HYBRID";
+  targetJournals: string[];
+  overallScore: number; // 0-100
+  recommendation: "Strong Accept" | "Minor Revision" | "Major Revision" | "Reject & Resubmit" | "Reject";
+  theoreticalConceptualization: {
+    score: number; // 0-100
+    paradigmDialogue: string;
+    constructClarity: string;
+    theoreticalContribution: "Incremental" | "Substantial" | "Paradigm-Shifting";
+    strengths: string[];
+    gaps: string[];
+  };
+  empiricalTriangulation: {
+    triangulationGrade: "A (Complete Mixed-Methods)" | "B (Partial Triangulation)" | "C (Single-Method / Gaps)";
+    quantitativeEvaluation: {
+      sampleSizeN: number;
+      targetSampleSizeMet: boolean; // N >= 1000
+      samplingMethod: string;
+      commonMethodBiasChecked: boolean;
+      statisticalRigor: string;
+    };
+    qualitativeEvaluation: {
+      interviewCountN: number;
+      targetInterviewsMet: boolean; // N >= 30
+      fieldworkDuration: string;
+      theoreticalSaturationReached: boolean;
+      codingMethodology: string;
+    };
+    convergenceAssessment: string;
+  };
+  ethicalReflexivity: {
+    score: number; // 0-100
+    irbApprovalOrExemption: boolean;
+    informedConsentStatement: boolean;
+    researcherPositionalityStated: boolean;
+    anonymizationProtocol: string;
+  };
+  argumentEvidenceConsistency: {
+    score: number; // 0-100
+    identificationStrategy: string;
+    endogeneityAddressed: boolean;
+    rivalHypothesesRuledOut: boolean;
+  };
+  cssciReadiness: {
+    chineseContextualization: string;
+    journalFit: string[];
+    ready: boolean;
+    keyAdjustments: string[];
+  };
+  ssciReadiness: {
+    globalTheoreticalGeneralizability: string;
+    journalFit: string[];
+    ready: boolean;
+    keyAdjustments: string[];
+  };
+  rebuttalAndRevisionRoadmap: Array<{
+    dimension: string;
+    critique: string;
+    revisionStrategy: string;
+    actionableFix: string;
+  }>;
+};
+
+export type Gbt7714ReferenceType = "J" | "M" | "C" | "D" | "R" | "N" | "EB/OL" | "P" | "S" | "G";
+
+export type Gbt7714ReferenceItem = {
+  index: number;
+  referenceType: Gbt7714ReferenceType;
+  formattedString: string;
+  rawSource?: string;
+};
+
+export type ChineseHeadingItem = {
+  level: 1 | 2 | 3 | 4 | 5;
+  prefix: string; // e.g. "一、", "（一）", "1.", "（1）", "①"
+  title: string;
+  original?: string;
+};
+
+export type ChineseAcademicFormatterResult = {
+  title: string;
+  englishTitle?: string;
+  clcCode: string; // 中图分类号, e.g. "C912.6", "G206", "B84"
+  clcCategory: string; // e.g. "社会学 - 青年社会学", "信息与传播 - 新闻学与传播学"
+  documentCode: "A" | "B" | "C" | "D" | "E"; // 文献标识码
+  fundProjectFootnote?: string;
+  authorBioFootnote?: string;
+  headingHierarchyValid: boolean;
+  formattedHeadingsCount: number;
+  formattedHeadings: ChineseHeadingItem[];
+  abstractStructure: {
+    chineseAbstract: string;
+    chineseKeywords: string[];
+    englishAbstract?: string;
+    englishKeywords?: string[];
+  };
+  referencesCount: number;
+  gbt7714References: Gbt7714ReferenceItem[];
+  formattedArticleMarkdown: string;
+  complianceChecks: Array<{
+    check: string;
+    status: "passed" | "warning" | "failed";
+    details: string;
+  }>;
+};
+
+export type SsciTopJournalInfo = {
+  name: string;
+  publisher: string;
+  impactFactor: number;
+  jcrQuartile: "Q1" | "Q2";
+  ssciRankCategory: string;
+  acceptanceRatePercent: number;
+  avgReviewWeeks: number;
+  wordLimitMax: number;
+  openAccess: "Gold" | "Green" | "Hybrid" | "Closed" | "Diamond";
+  methodologyPreference: string;
+  theoreticalScope: string;
+  aimsAndScopeFit: number; // 0-100
+  submissionRequirements: string[];
+};
+
+export type SsciJournalMatcherResult = {
+  manuscriptTitle: string;
+  fieldOfStudy: string;
+  matchedCount: number;
+  topTargetRecommendation: string;
+  recommendations: Array<SsciTopJournalInfo & { matchScore: number; matchReasons: string[] }>;
+  formattingGuidelines: {
+    recommendedWordCount: string;
+    citationStyle: string;
+    dataAvailabilityRequirement: string;
+    ethicsPreRegistrationNotice: string;
+  };
+};
+
 export type ScienceInput = {
   action: ScienceAction;
   query?: string;
@@ -392,6 +533,49 @@ export type ScienceInput = {
     dependsOnClaim?: number;
   }>;
   limit?: number;
+  // Specialized Social Science Publication Parameters
+  target_cssci_journal?: string;
+  target_ssci_journal?: string;
+  social_science_field?: "Sociology" | "Psychology" | "Communication" | "Management" | "Interdisciplinary" | string;
+  empirical_data?: {
+    survey_sample_size?: number;
+    interview_count?: number;
+    fieldwork_duration_months?: number;
+    qualitative_method?: string;
+    quantitative_method?: string;
+    mixed_methods?: boolean;
+    common_method_bias_checked?: boolean;
+    theoretical_saturation?: boolean;
+    sampling_strategy?: string;
+  };
+  chinese_paper?: {
+    title?: string;
+    english_title?: string;
+    clc_code?: string;
+    document_code?: "A" | "B" | "C" | "D" | "E";
+    fund_project?: string;
+    author_bio?: string;
+    chinese_abstract?: string;
+    chinese_keywords?: string[];
+    english_abstract?: string;
+    english_keywords?: string[];
+    headings?: string[];
+    raw_markdown?: string;
+    references?: Array<{
+      authors?: string[];
+      title: string;
+      journal?: string;
+      publisher?: string;
+      year: number | string;
+      volume?: string;
+      issue?: string;
+      pages?: string;
+      doi?: string;
+      url?: string;
+      type?: Gbt7714ReferenceType;
+    } | string>;
+  };
+  word_count_limit_max?: number;
 };
 
 export type ScienceResult = {
@@ -472,6 +656,18 @@ export function formatScienceSummary(result: ScienceResult): string {
     case "scholarly_impact_forecast": {
       const data = result.data as ScholarlyImpactForecastResult;
       return `Scholarly Impact Forecast: ~${data.projectedCitationsYear3} citations (3-Year), Altmetric Score ~${data.projectedAltmetricScore}`;
+    }
+    case "social_science_peer_review_audit": {
+      const data = result.data as SocialScienceReviewAuditResult;
+      return `Social Science Peer Review: ${data.recommendation} (${data.overallScore}/100) [Triangulation: ${data.empiricalTriangulation.triangulationGrade}] | CSSCI: ${data.cssciReadiness.ready ? "Ready" : "Gaps"}, SSCI Q1: ${data.ssciReadiness.ready ? "Ready" : "Gaps"}`;
+    }
+    case "chinese_academic_formatter": {
+      const data = result.data as ChineseAcademicFormatterResult;
+      return `Chinese Academic Formatter: CLC [${data.clcCode} ${data.clcCategory}], 文献标识码 [${data.documentCode}], ${data.formattedHeadingsCount} headings, ${data.referencesCount} GB/T 7714 references formatted`;
+    }
+    case "ssci_top_journal_matcher": {
+      const data = result.data as SsciJournalMatcherResult;
+      return `SSCI Q1 Top Matches (${data.matchedCount}): Top target '${data.topTargetRecommendation}' (IF: ${data.recommendations[0]?.impactFactor ?? 0}, Review: ${data.recommendations[0]?.avgReviewWeeks ?? 0}w, Max: ${data.recommendations[0]?.wordLimitMax ?? 0} words)`;
     }
   }
 }

@@ -42,7 +42,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.plan[4].plugin).toBe("chrome");
   });
 
-  test("run_workflow executes Academic Paper, Grant, Patent, and Venture Growth pipelines", async () => {
+  test("run_workflow executes Academic Paper, Grant, and Patent pipelines", async () => {
     // 1. Academic Paper
     const paperRes = await workflowOperation({
       action: "run_workflow",
@@ -66,7 +66,9 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     });
     expect(patentRes.success).toBe(true);
     expect((patentRes.data as any).stepsCount).toBe(3);
+  });
 
+  test("run_workflow executes Venture Growth and Shop E-Commerce pipelines", async () => {
     // 4. Venture Growth Lifecycle (Game)
     const ventureRes = await workflowOperation({
       action: "run_workflow",
@@ -84,6 +86,39 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     });
     expect(shopWfRes.success).toBe(true);
     expect((shopWfRes.data as any).stepsCount).toBe(8);
+  });
+
+  test("run_workflow executes SpriteFlow $10k MRR, Social Science, and Zero-Cost pipelines", async () => {
+    // 6. SpriteFlow $10k MRR Growth Pipeline
+    const spriteRes = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "spriteflow_10k_mrr_growth_pipeline",
+      parameters: { venture_name: "SpriteFlow" },
+    });
+    expect(spriteRes.success).toBe(true);
+    expect((spriteRes.data as any).stepsCount).toBe(5);
+
+    // 7. Top Social Science Publication Pipeline
+    const socSciRes = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "social_science_top_journal_pipeline",
+      parameters: {
+        manuscript_title: "算法代哺：数智社会的亲子关系变迁",
+        target_cssci_journal: "《中国社会科学》",
+        target_ssci_journal: "Nature Human Behaviour",
+      },
+    });
+    expect(socSciRes.success).toBe(true);
+    expect((socSciRes.data as any).stepsCount).toBe(5);
+
+    // 8. Zero-Cost Bootstrap Engine ($0 spend)
+    const zeroCostRes = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "zero_cost_bootstrap_engine",
+      parameters: { venture_name: "SpriteFlow" },
+    });
+    expect(zeroCostRes.success).toBe(true);
+    expect((zeroCostRes.data as any).stepsCount).toBe(4);
   });
 
   test("MCP Protocol server handles initialize, tools/list, and tools/call", async () => {
