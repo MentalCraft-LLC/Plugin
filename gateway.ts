@@ -247,6 +247,11 @@ export function startGatewayMcpHttp(port = 3890) {
         return new Response(JSON.stringify(res.data, null, 2), { status: 200, headers: corsHeaders });
       }
 
+      if (url.pathname === "/openapi.json" || url.pathname === "/openapi") {
+        const res = await workflowOperation({ action: "export_openapi_catalog" });
+        return new Response(JSON.stringify(res.data, null, 2), { status: 200, headers: corsHeaders });
+      }
+
       if (req.method === "POST" && (url.pathname === "/mcp" || url.pathname === "/")) {
         try {
           const body = (await req.json()) as JsonRpcRequest;

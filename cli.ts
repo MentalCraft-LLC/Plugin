@@ -331,6 +331,12 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "openapi": {
+      const res = await workflowOperation({ action: "export_openapi_catalog" });
+      console.log(JSON.stringify(res.data, null, 2));
+      break;
+    }
+
     case "docs":
     case "catalog": {
       const doc = generateMarkdownCatalog();

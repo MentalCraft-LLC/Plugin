@@ -749,6 +749,113 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
       };
     }
 
+    case "export_openapi_catalog": {
+      const { BUSINESS_INPUT_SCHEMA } = require("../Business/mcp-server.ts");
+      const { SCIENCE_INPUT_SCHEMA } = require("../Science/mcp-server.ts");
+      const { DESIGN_INPUT_SCHEMA } = require("../Design/mcp-server.ts");
+      const { WORKFLOW_INPUT_SCHEMA } = require("./mcp-server.ts");
+      const { MESSAGE_INPUT_SCHEMA } = require("../Message/mcp-server.ts");
+
+      const openapi = {
+        openapi: "3.1.0",
+        info: {
+          title: "MentalCraft Unified Plugin API",
+          version: "1.0.0",
+          description: "Universal Agent-Less Capability & Domain Intelligence Architecture",
+        },
+        servers: [
+          {
+            url: "http://localhost:3890",
+            description: "MentalCraft Master HTTP Gateway",
+          },
+        ],
+        paths: {
+          "/api/workflow": {
+            post: {
+              summary: "Execute Workflow Orchestrator & Health Diagnostics",
+              operationId: "executeWorkflow",
+              requestBody: {
+                required: true,
+                content: { "application/json": { schema: WORKFLOW_INPUT_SCHEMA } },
+              },
+              responses: {
+                "200": { description: "Workflow execution receipt or diagnostic result" },
+              },
+            },
+          },
+          "/api/business": {
+            post: {
+              summary: "Execute Commercial & Market Intelligence",
+              operationId: "executeBusiness",
+              requestBody: {
+                required: true,
+                content: { "application/json": { schema: BUSINESS_INPUT_SCHEMA } },
+              },
+              responses: {
+                "200": { description: "Commercial intelligence result" },
+              },
+            },
+          },
+          "/api/science": {
+            post: {
+              summary: "Execute Science & Research Intelligence",
+              operationId: "executeScience",
+              requestBody: {
+                required: true,
+                content: { "application/json": { schema: SCIENCE_INPUT_SCHEMA } },
+              },
+              responses: {
+                "200": { description: "Psychometric / Research intelligence result" },
+              },
+            },
+          },
+          "/api/design": {
+            post: {
+              summary: "Execute Design System & UI Intelligence",
+              operationId: "executeDesign",
+              requestBody: {
+                required: true,
+                content: { "application/json": { schema: DESIGN_INPUT_SCHEMA } },
+              },
+              responses: {
+                "200": { description: "Design tokens or Svelte 5 Runes recipe" },
+              },
+            },
+          },
+          "/api/message": {
+            post: {
+              summary: "Execute Multi-Channel Message Bus",
+              operationId: "executeMessage",
+              requestBody: {
+                required: true,
+                content: { "application/json": { schema: MESSAGE_INPUT_SCHEMA } },
+              },
+              responses: {
+                "200": { description: "Message delivery confirmation" },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            WorkflowInput: WORKFLOW_INPUT_SCHEMA,
+            BusinessInput: BUSINESS_INPUT_SCHEMA,
+            ScienceInput: SCIENCE_INPUT_SCHEMA,
+            DesignInput: DESIGN_INPUT_SCHEMA,
+            MessageInput: MESSAGE_INPUT_SCHEMA,
+          },
+        },
+      };
+
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "export_openapi_catalog",
+        success: true,
+        timestamp,
+        data: openapi,
+      };
+    }
+
     case "get_metrics": {
       const telemetry = getSystemTelemetry();
       return {

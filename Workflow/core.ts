@@ -173,6 +173,7 @@ export type WorkflowAction =
   | "export_config"
   | "install_mcp_schemas"
   | "export_schema_catalog"
+  | "export_openapi_catalog"
   | "get_metrics"
   | "export_trace"
   | "export_mermaid_dag"
@@ -243,6 +244,10 @@ export function formatWorkflowSummary(result: WorkflowResult): string {
     case "export_schema_catalog": {
       const data = result.data as any;
       return `OpenRPC Catalog: ${data.totalTools} tools, ${data.totalMethods} methods across ${data.totalPlugins} plugins`;
+    }
+    case "export_openapi_catalog": {
+      const data = result.data as any;
+      return `OpenAPI 3.1: ${Object.keys(data.paths).length} endpoints, ${data.info.title}`;
     }
     case "get_metrics": {
       const data = result.data as any;

@@ -356,6 +356,19 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.results.length).toBe(3);
   });
 
+  test("export_openapi_catalog exports standard OpenAPI 3.1 schema", async () => {
+    const res = await workflowOperation({ action: "export_openapi_catalog" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.openapi).toBe("3.1.0");
+    expect(data.paths["/api/workflow"]).toBeDefined();
+    expect(data.paths["/api/business"]).toBeDefined();
+    expect(data.paths["/api/science"]).toBeDefined();
+    expect(data.paths["/api/design"]).toBeDefined();
+    expect(data.paths["/api/message"]).toBeDefined();
+    expect(data.components.schemas.BusinessInput).toBeDefined();
+  });
+
   test("compactWorkflowResult formats readable terminal summary", async () => {
     const res = await workflowOperation({ action: "health_check" });
     const log = compactWorkflowResult(res);
