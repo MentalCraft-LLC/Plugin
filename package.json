@@ -13,7 +13,9 @@
     "Secret"
   ],
   "scripts": {
-    "test": "bun test"
+    "test": "bun test",
+    "gateway": "bun gateway.ts",
+    "cli": "bun cli.ts"
   },
   "devDependencies": {
     "marked": "^18.0.11",
