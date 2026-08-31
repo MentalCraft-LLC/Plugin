@@ -100,4 +100,24 @@ describe("Gefei Atomic MCP Server", () => {
 
     expect(res?.error?.code).toBe(-32601);
   });
+
+  it("formats compact terminal summaries for Pi adapter", () => {
+    const { compactGefeiResult } = require("./pi.ts");
+    const kdLog = compactGefeiResult("estimate_keyword_difficulty", {
+      keyword: "online anxiety test",
+      kd: 24,
+      volume: "18.1k",
+      opportunity: "High Opportunity",
+    });
+    expect(kdLog).toContain("online anxiety test");
+    expect(kdLog).toContain("KD 24/100");
+
+    const linkLog = compactGefeiResult("calculate_link_budget", {
+      keyword: "phq-9 online",
+      target_backlinks: 6,
+      min_dr: "35+",
+    });
+    expect(linkLog).toContain("phq-9 online");
+    expect(linkLog).toContain("Target 6 backlinks");
+  });
 });
