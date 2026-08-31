@@ -1251,7 +1251,7 @@ async function handle(command) {
   // including a managed tab the Owner is already viewing. Never touch a
   // tab outside that group. New tabs stay inactive so they cannot displace
   // a foreign page.
-  const readOnly = ["read_text", "read_styles", "read_scripts", "controls", "semantic_snapshot"].includes(command.action);
+  const readOnly = ["read_text", "read_styles", "read_scripts", "controls", "semantic_snapshot", "disassemble"].includes(command.action);
   const state = await ensureTab(command.url, command.action === "open" || command.navigate === true, session, command.allow_active === true || readOnly);
   if (state.status !== "ready") {
     return {
@@ -1304,6 +1304,8 @@ async function handle(command) {
     }
     const snapshot = await sendToContent(state.tab.id, { action: "semantic_snapshot", max_elements: command.max_elements ?? 60 });
     return { status: "semantic_snapshot", tab_active: false, focus_changed: false, popup_opened: false, ...snapshot };
+  } else if (command.action === "disassemble") {
+    result = await sendToContent(state.tab.id, { action: "disassemble", max_sections: command.max_sections });
   } else if (command.action === "read_styles") {
     result = await sendToContent(state.tab.id, { action: "read_styles" });
   } else if (command.action === "read_scripts") {

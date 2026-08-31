@@ -34,6 +34,7 @@ describe("Chrome MCP adapter", () => {
       "read_markdown",
       "read_styles",
       "read_scripts",
+      "disassemble",
       "read_console",
       "read_network",
       "read_storage",

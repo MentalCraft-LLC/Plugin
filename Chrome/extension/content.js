@@ -1513,6 +1513,7 @@
         controls: safeControlRows(),
       };
     }
+    if (message.action === "disassemble") return disassemblePage(message);
     if (message.action === "read_styles") return readStyles();
     if (message.action === "read_scripts") return readScripts();
     if (message.action === "read_text") {
@@ -2324,6 +2325,173 @@
       css_rules: [...new Set(css)].slice(0, 40),
       element_samples: samples,
       value_returned: true,
+    };
+  }
+
+  function disassemblePage(options = {}) {
+    const maxSections = options.max_sections || 20;
+    const bodyStyle = window.getComputedStyle(document.body);
+    
+    // 1. Extract Global Design Tokens
+    const colorMap = new Map();
+    const radiusMap = new Map();
+    const fontMap = new Map();
+    
+    function record(map, key) {
+      if (!key || key === "transparent" || key === "rgba(0, 0, 0, 0)" || key === "none") return;
+      map.set(key, (map.get(key) || 0) + 1);
+    }
+
+    const allElements = document.querySelectorAll("header, nav, main, section, article, footer, aside, h1, h2, h3, h4, p, button, a, input, [class*='card'], [class*='hero'], [class*='grid']");
+    for (const el of allElements) {
+      const s = window.getComputedStyle(el);
+      record(colorMap, s.backgroundColor);
+      record(colorMap, s.color);
+      record(colorMap, s.borderColor);
+      record(radiusMap, s.borderRadius);
+      record(fontMap, s.fontFamily);
+    }
+
+    const topColors = [...colorMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 16).map(([c]) => c);
+    const topRadii = [...radiusMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([r]) => r);
+    const topFonts = [...fontMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([f]) => f.slice(0, 120));
+
+    // Typography scale
+    const headings = {};
+    for (let level = 1; level <= 6; level++) {
+      const hEl = document.querySelector(`h${level}`);
+      if (hEl) {
+        const hs = window.getComputedStyle(hEl);
+        headings[`h${level}`] = {
+          fontSize: hs.fontSize,
+          fontWeight: hs.fontWeight,
+          lineHeight: hs.lineHeight,
+          letterSpacing: hs.letterSpacing,
+          fontFamily: hs.fontFamily.slice(0, 100),
+          color: hs.color,
+          sampleText: (hEl.textContent || "").trim().slice(0, 80),
+        };
+      }
+    }
+
+    const bodyTextSample = document.querySelector("p");
+    const bodyTypography = bodyTextSample ? {
+      fontSize: window.getComputedStyle(bodyTextSample).fontSize,
+      lineHeight: window.getComputedStyle(bodyTextSample).lineHeight,
+      fontWeight: window.getComputedStyle(bodyTextSample).fontWeight,
+      color: window.getComputedStyle(bodyTextSample).color,
+    } : {
+      fontSize: bodyStyle.fontSize,
+      lineHeight: bodyStyle.lineHeight,
+      color: bodyStyle.color,
+    };
+
+    // 2. Structural Section Blueprint Breakdown
+    const sections = [];
+    const sectionCandidates = document.querySelectorAll("header, nav, section, [role='region'], main > div, footer");
+    
+    for (const sec of sectionCandidates) {
+      if (sections.length >= maxSections) break;
+      const rect = sec.getBoundingClientRect();
+      if (rect.height < 50 || rect.width < 100) continue;
+
+      const tagName = sec.tagName.toLowerCase();
+      const h = sec.querySelector("h1, h2, h3, h4");
+      const title = h ? (h.textContent || "").trim().slice(0, 100) : "";
+      const p = sec.querySelector("p");
+      const desc = p ? (p.textContent || "").trim().slice(0, 150) : "";
+      
+      const buttons = [...sec.querySelectorAll("button, a[class*='btn'], a[class*='button'], a[role='button']")].slice(0, 4).map(b => (b.textContent || "").trim().slice(0, 40)).filter(Boolean);
+      const items = sec.querySelectorAll("[class*='card'], [class*='item'], li, article").length;
+      
+      let archetype = "content";
+      const textSnippet = (sec.textContent || "").slice(0, 500).toLowerCase();
+      
+      if (tagName === "header" || tagName === "nav" || sec.getAttribute("role") === "navigation") archetype = "header";
+      else if (tagName === "footer" || sec.getAttribute("role") === "contentinfo") archetype = "footer";
+      else if (h?.tagName === "H1" || sec.classList.contains("hero") || (textSnippet.includes("get started") && sections.length <= 1)) archetype = "hero";
+      else if (textSnippet.includes("pricing") || textSnippet.includes("per month") || textSnippet.includes("/mo")) archetype = "pricing";
+      else if (textSnippet.includes("frequently asked") || textSnippet.includes("faq") || sec.querySelector("details")) archetype = "question";
+      else if (textSnippet.includes("changelog") || textSnippet.includes("release notes")) archetype = "changelog";
+      else if (textSnippet.includes("testimonial") || textSnippet.includes("what our customers say") || sec.querySelector("blockquote")) archetype = "testimonial";
+      else if (textSnippet.includes("compare") || sec.querySelector("table")) archetype = "comparator";
+      else if (items >= 3) archetype = "listing";
+
+      sections.push({
+        index: sections.length,
+        archetype,
+        tagName,
+        title,
+        description: desc,
+        ctaButtons: buttons,
+        itemsCount: items,
+        computedStyles: {
+          background: window.getComputedStyle(sec).backgroundColor,
+          padding: `${window.getComputedStyle(sec).paddingTop} ${window.getComputedStyle(sec).paddingRight} ${window.getComputedStyle(sec).paddingBottom} ${window.getComputedStyle(sec).paddingLeft}`,
+          display: window.getComputedStyle(sec).display,
+          gridTemplateColumns: window.getComputedStyle(sec).gridTemplateColumns,
+        },
+      });
+    }
+
+    // 3. SVG & Icon Extraction
+    const svgs = [];
+    const svgNodes = document.querySelectorAll("svg");
+    for (const svg of svgNodes) {
+      if (svgs.length >= 15) break;
+      const viewBox = svg.getAttribute("viewBox") || "";
+      const width = svg.clientWidth || svg.getAttribute("width") || "";
+      const height = svg.clientHeight || svg.getAttribute("height") || "";
+      const ariaLabel = svg.getAttribute("aria-label") || svg.closest("button, a")?.getAttribute("aria-label") || "";
+      svgs.push({ viewBox, width, height, label: ariaLabel });
+    }
+
+    // 4. CSS Custom Variables
+    const cssVars = {};
+    for (const sheet of document.styleSheets) {
+      try {
+        for (const rule of sheet.cssRules) {
+          if (rule.selectorText === ":root" || rule.selectorText === "html" || rule.selectorText === "body") {
+            const style = rule.style;
+            for (let i = 0; i < style.length; i++) {
+              const prop = style[i];
+              if (prop.startsWith("--")) {
+                cssVars[prop] = style.getPropertyValue(prop).trim().slice(0, 100);
+              }
+            }
+          }
+        }
+      } catch { /* ignore cross-origin stylesheets */ }
+    }
+
+    return {
+      action: "disassemble",
+      url: location.href,
+      title: document.title,
+      theme: bodyStyle.backgroundColor.includes("rgb(0, 0, 0)") || bodyStyle.backgroundColor.includes("rgb(1") || bodyStyle.backgroundColor.includes("rgb(2") ? "dark" : "light",
+      tokens: {
+        body: {
+          background: bodyStyle.backgroundColor,
+          color: bodyStyle.color,
+          fontFamily: bodyStyle.fontFamily.slice(0, 150),
+        },
+        typography: {
+          headings,
+          body: bodyTypography,
+        },
+        colors: topColors,
+        radii: topRadii,
+        fonts: topFonts,
+        cssVariables: Object.entries(cssVars).slice(0, 30),
+      },
+      sections,
+      svgCount: svgNodes.length,
+      sampleSvgs: svgs,
+      meta: {
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight,
+        timestamp: new Date().toISOString(),
+      },
     };
   }
 

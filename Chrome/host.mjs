@@ -164,7 +164,7 @@ function prepareCommand(command) {
     }
     return { ...command, session };
   }
-  if (command.action === "read_styles") {
+  if (command.action === "read_styles" || command.action === "disassemble") {
     return { ...command, session };
   }
   if (command.action !== "fill_local") return { ...command, session };

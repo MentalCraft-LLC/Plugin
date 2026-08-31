@@ -31,6 +31,7 @@ export const CHROME_ACTIONS = [
   "read_markdown",
   "read_styles",
   "read_scripts",
+  "disassemble",
   "read_console",
   "read_network",
   "read_storage",
@@ -72,7 +73,8 @@ export const CHROME_INPUT_SCHEMA = {
   required: ["action"],
   properties: {
     action: { type: "string", enum: [...CHROME_ACTIONS] },
-    url: { type: "string", minLength: 10, maxLength: 2000, pattern: "^https?://" },
+    url: { type: "string", minLength: 6, maxLength: 2000 },
+    max_sections: { type: "integer", minimum: 1, maximum: 50 },
     role: {
       type: "string",
       enum: ["button", "link", "menuitem", "option", "tab", "combobox", "textbox", "checkbox", "radio", "switch"],

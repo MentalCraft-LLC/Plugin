@@ -21,9 +21,10 @@ import {
 import { acquireChromeOsLease } from "./os-lease.ts";
 
 export type BrowserContextInput = {
-  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "read_console" | "read_network" | "read_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate";
+  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate";
   mode?: "start" | "stop" | "list" | "add" | "remove" | "clear";
   url?: string;
+  max_sections?: number;
   role?: "button" | "link" | "menuitem" | "option" | "tab" | "combobox" | "textbox" | "checkbox" | "radio" | "switch";
   name?: string;
   screen_x?: number;
@@ -184,6 +185,8 @@ export function createBrowserContextOperation(options: {
       command = { protocol: PROTOCOL, action: "read_markdown", url, max_chars: params.max_chars, allow_active: allowActive };
     } else if (params.action === "read_styles") {
       command = { protocol: PROTOCOL, action: "read_styles", url, allow_active: allowActive };
+    } else if (params.action === "disassemble") {
+      command = { protocol: PROTOCOL, action: "disassemble", url, max_sections: params.max_sections, allow_active: true };
     } else if (params.action === "read_scripts") {
       command = { protocol: PROTOCOL, action: "read_scripts", url, allow_active: allowActive };
     } else if (params.action === "read_console") {
