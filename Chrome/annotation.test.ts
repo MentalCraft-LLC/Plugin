@@ -124,9 +124,10 @@ describe("annotation design mode", () => {
       "component",
       "class",
     ]);
+    expect(api.spiralAnnotationHoverLabelFor(element)).toBe("button · Button · trigger");
+    api.spiralAnnotationSetClassVisible(false);
     expect(api.spiralAnnotationHoverLabelFor(element)).toBe("button · Button");
     api.spiralAnnotationSetClassVisible(true);
-    expect(api.spiralAnnotationHoverLabelFor(element)).toBe("button · Button · trigger");
     expect(described.color).toBe("#3a96dd");
   });
 
@@ -281,9 +282,10 @@ describe("annotation design mode", () => {
       component: "Submit",
       className: "clickable variant-ghost",
     });
+    expect(api.spiralAnnotationHoverLabelFor(target)).toContain("variant-ghost");
+    api.spiralAnnotationSetClassVisible(false);
     expect(api.spiralAnnotationHoverLabelFor(target)).not.toContain("variant-ghost");
     api.spiralAnnotationSetClassVisible(true);
-    expect(api.spiralAnnotationHoverLabelFor(target)).toContain("variant-ghost");
     const added = api.spiralAnnotationAdd(target, "");
     expect(added.annotation.className).toContain("variant-ghost");
     expect(api.spiralAnnotationChipLabel(added.annotation)).toContain("variant-ghost");
