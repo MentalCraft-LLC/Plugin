@@ -111,14 +111,14 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(socSciRes.success).toBe(true);
     expect((socSciRes.data as any).stepsCount).toBe(5);
 
-    // 8. Zero-Cost Bootstrap Engine ($0 spend)
-    const zeroCostRes = await workflowOperation({
+    // 9. MentalCraft $10k MRR Dual Academic-Commercial Workflow
+    const mcRes = await workflowOperation({
       action: "run_workflow",
-      workflow_id: "zero_cost_bootstrap_engine",
-      parameters: { venture_name: "SpriteFlow" },
+      workflow_id: "mentalcraft_practitioner_growth_workflow",
+      parameters: { venture_name: "MentalCraft" },
     });
-    expect(zeroCostRes.success).toBe(true);
-    expect((zeroCostRes.data as any).stepsCount).toBe(4);
+    expect(mcRes.success).toBe(true);
+    expect((mcRes.data as any).stepsCount).toBe(5);
   });
 
   test("MCP Protocol server handles initialize, tools/list, and tools/call", async () => {

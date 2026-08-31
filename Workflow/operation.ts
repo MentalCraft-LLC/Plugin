@@ -1831,6 +1831,33 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
         const s5 = performance.now();
         const r5 = await businessOperation({ action: "venture_monetization_telemetry", modality: "website", venture_name: vName });
         stepResults.push({ step: 5, plugin: "business", action: "venture_monetization_telemetry", success: r5.success, durationMs: Math.round(performance.now() - s5), data: r5.data });
+      } else if (targetId === "mentalcraft_practitioner_growth_workflow") {
+        const vName = (input.parameters as any)?.venture_name ?? "MentalCraft";
+
+        // Step 1: science.social_science_peer_review_audit (Research integrity check)
+        const s1 = performance.now();
+        const r1 = await scienceOperation({ action: "social_science_peer_review_audit", manuscript_title: "青少年抑郁风险的智能体辅助识别与数智教养量表效度验证", target_cssci_journal: "《心理学报》", target_ssci_journal: "Computers in Human Behavior", social_science_field: "Psychology & Digital Health", empirical_data: { survey_sample_size: 2450, interview_count: 42, common_method_bias_checked: true, theoretical_saturation: true } });
+        stepResults.push({ step: 1, plugin: "science", action: "social_science_peer_review_audit", success: r1.success, durationMs: Math.round(performance.now() - s1), data: r1.data });
+
+        // Step 2: business.venture_market_validation
+        const s2 = performance.now();
+        const r2 = await businessOperation({ action: "venture_market_validation", modality: "website", venture_name: vName });
+        stepResults.push({ step: 2, plugin: "business", action: "venture_market_validation", success: r2.success, durationMs: Math.round(performance.now() - s2), data: r2.data });
+
+        // Step 3: design.generate_ui (practitioner workbench)
+        const s3 = performance.now();
+        const r3 = await designOperation({ action: "generate_ui", intent: "venture_telemetry_dashboard", prompt: "MentalCraft Practitioner Pro Workbench and Assessment Brief" });
+        stepResults.push({ step: 3, plugin: "design", action: "generate_ui", success: r3.success, durationMs: Math.round(performance.now() - s3), data: r3.data });
+
+        // Step 4: business.venture_unit_economics ($10,000 MRR milestone)
+        const s4 = performance.now();
+        const r4 = await businessOperation({ action: "venture_unit_economics", modality: "website", venture_name: vName, cogs: 5, shipping_cost: 0 });
+        stepResults.push({ step: 4, plugin: "business", action: "venture_unit_economics", success: r4.success, durationMs: Math.round(performance.now() - s4), data: r4.data });
+
+        // Step 5: business.venture_monetization_telemetry
+        const s5 = performance.now();
+        const r5 = await businessOperation({ action: "venture_monetization_telemetry", modality: "website", venture_name: vName });
+        stepResults.push({ step: 5, plugin: "business", action: "venture_monetization_telemetry", success: r5.success, durationMs: Math.round(performance.now() - s5), data: r5.data });
       } else if (targetId === "social_science_top_journal_pipeline") {
         const title = (input.parameters as any)?.manuscript_title ?? "算法代哺：数智社会的亲子关系变迁";
         const cssci = (input.parameters as any)?.target_cssci_journal ?? "《中国社会科学》";

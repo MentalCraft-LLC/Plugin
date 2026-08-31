@@ -43,6 +43,7 @@ export type WorkflowId =
   | "academic_manuscript_complete_lifecycle"
   | "startup_pmf_and_scale_sprint"
   | "spriteflow_10k_mrr_growth_pipeline"
+  | "mentalcraft_practitioner_growth_workflow"
   | "social_science_top_journal_pipeline"
   | "zero_cost_bootstrap_engine"
   | "automated_revenue_monitor"
@@ -247,6 +248,19 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
       { step: 3, plugin: "design", action: "generate_ui", description: "Generate high-converting Svelte 5 pricing table and checkout funnel." },
       { step: 4, plugin: "business", action: "zero_cost_viral_loops", description: "Synthesize 5 zero-cost viral loops (GitHub bridge, Itch.io packs, Reddit/HN deep dives, tutorials)." },
       { step: 5, plugin: "business", action: "venture_monetization_telemetry", description: "Track real-time Stripe telemetry and churn decay." },
+    ],
+  },
+  {
+    id: "mentalcraft_practitioner_growth_workflow",
+    name: "MentalCraft Academic-to-Commercial $10,000 MRR Engine",
+    description: "Dual academic-commercial engine: Academic IRB survey integrity check → B2B practitioner scale workbench ($29/mo) + B2C in-depth parenting diagnostic reports ($9.90) → Real-time telemetry.",
+    requiredPlugins: ["science", "business", "design"],
+    steps: [
+      { step: 1, plugin: "science", action: "social_science_peer_review_audit", description: "Audit academic scale validity, psychometrics, and IRB ethical boundary compliance." },
+      { step: 2, plugin: "business", action: "venture_market_validation", description: "Model practitioner and parent TAM/SAM/SOM and willingness-to-pay elasticity." },
+      { step: 3, plugin: "design", action: "generate_ui", description: "Generate Svelte 5 Runes practitioner screening workbench and assessment summary card." },
+      { step: 4, plugin: "business", action: "venture_unit_economics", description: "Model $10,000 MRR: 250 Practitioner Pro ($29/mo) + 300 In-Depth Reports ($9.90/mo)." },
+      { step: 5, plugin: "business", action: "venture_monetization_telemetry", description: "Monitor active practitioner retention, screening link throughput, and Stripe ARR." },
     ],
   },
   {
