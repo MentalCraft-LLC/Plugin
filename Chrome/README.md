@@ -90,21 +90,25 @@ The protocol accepts only:
 | `read_text` | extract page text; auto-sweeps virtualized threads unless `long=false`; `long=true` forces a full sweep of the conversation scroller and returns `turns` when user/model messages are present |
 | `read_markdown` | extract structured GitHub Flavored Markdown (headings, links, tables, code blocks) |
 | `read_styles` | extract root computed styles and CSS custom properties |
-| `inspect_element` | deep element geometry, computed styles, ARIA attributes, hierarchy path, and interactive state inspection |
-| `read_storage` | inspect `localStorage` and `sessionStorage` key-value pairs |
-| `clear_storage` | clear all `localStorage` and `sessionStorage` entries |
+| `inspect_element` | deep element geometry, computed styles, ARIA attributes, hierarchy path, interactive state, and floating HUD overlay |
+| `read_storage` | inspect `localStorage` and `sessionStorage` with optional `key` and `storage_type` filtering |
+| `set_storage` | write key-value pairs to `localStorage` or `sessionStorage` |
+| `clear_storage` | clear all or specific keys from `localStorage` / `sessionStorage` |
 | `read_cookies` | read sanitized site cookies via `chrome.cookies` API |
 | `clear_cookies` | clear site cookies via `chrome.cookies` API |
+| `read_network` | inspect HTTP/HTTPS network entries with in-flight tracking, URL pattern filtering, redacted response previews, and request bodies |
 | `performance_metrics` | read navigation timings, TTFB, DOM complete, and JS heap memory |
 | `wait_for` | poll for DOM selector existence/visibility/hidden, text match, network idle, or JavaScript predicate |
 | `evaluate_script` | execute asynchronous/synchronous JavaScript expressions with full Promise unwrapping in page context |
 | `reload_page` | reload managed tab with optional cache bypass |
-| `click` | click semantic role/name or universal CSS/XPath selector with visual feedback indicator |
+| `click` | click semantic role/name or universal CSS/XPath selector with visual ripple glow |
 | `hover` | dispatch mouse hover to selector or coordinates with visual feedback |
-| `scroll` | dispatch instant viewport scroll |
-| `press_key` | dispatch keyboard event with modifier flags |
-| `fill_public` | fill single non-identity public value targeted by field or CSS selector |
-| `fill_form` | atomic batch form filling across multiple fields |
+| `scroll` | dispatch directional scroll (`top`, `bottom`, `page_down`, `page_up`), element centering (`selector`), or delta offsets |
+| `press_key` | dispatch keyboard event with key combos (e.g. `Control+A`, `Meta+K`) or modifier flags to active/targeted element |
+| `drag_and_drop` | simulate smooth 5-step pointer and HTML5 drag-and-drop between selectors or coordinates |
+| `upload_file` | inject local text or base64 binary files into file inputs without OS modal dialogs |
+| `fill_public` | fill single non-identity public value targeted by field or CSS selector with visual pulse |
+| `fill_form` | atomic batch form filling across multiple fields with sequential visual indicators |
 | `fill_local` | direct private local-value projection without model exposure |
 | `press_enter` | exact Enter event on semantic textbox or CSS selector |
 | `select_combobox` | select value from searchable combobox dropdown or CSS selector |
