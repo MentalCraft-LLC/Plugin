@@ -48,6 +48,22 @@ export function compactBusinessResult(result: BusinessResult): string {
       const niches = Array.isArray(result.data) ? result.data : ((result.data as any)?.results ?? []);
       return `Niche Discovery: ${niches.length} high-opportunity spaces found`;
     }
+    case "traffic_domain_overview": {
+      const data = result.data as any;
+      return `TrafficCV "${data.domain}": ${(data.monthlyVisits / 1000).toFixed(1)}k visits/mo (Rank #${data.globalRank}, Bounce: ${data.bounceRatePercent}%)`;
+    }
+    case "traffic_channel_breakdown": {
+      const data = result.data as any;
+      return `Traffic Channels "${data.domain}": Organic ${data.channels.organicSearch}%, Direct ${data.channels.direct}%, Referral ${data.channels.referral}%`;
+    }
+    case "traffic_geo_distribution": {
+      const data = result.data as any;
+      return `Geo Traffic "${data.domain}": Top: ${data.topCountries?.slice(0, 3).map((c: any) => `${c.countryCode} (${c.trafficSharePercent}%)`).join(", ")}`;
+    }
+    case "traffic_competitor_comparison": {
+      const data = result.data as any;
+      return `Competitor Traffic: Leader "${data.leaderDomain}" across ${data.domains?.length} domains`;
+    }
     case "product_traction_score": {
       const data = result.data as TractionScoreResult;
       return `Product "${data.product}" Traction Score: ${data.score}/100 [Grade ${data.grade}]`;
@@ -58,13 +74,15 @@ export function compactBusinessResult(result: BusinessResult): string {
 export const businessTool = {
   name: "business",
   label: "Business Intelligence",
-  description: "MentalCraft Business & Product Engineering Intelligence Engine. Google SEO KD calculation, link budgets, SERP competitor forensics, Stripe revenue leaderboards, and product traction indexing.",
+  description: "MentalCraft Business & Product Engineering Intelligence Engine. Google SEO KD calculation, link budgets, SERP competitor forensics, Stripe revenue leaderboards, TrafficCV domain traffic analytics, and product traction indexing.",
   parameters: Type.Object(
     {
       action: StringEnum(BUSINESS_ACTIONS),
+      provider: Type.Optional(StringEnum(["gefei", "trafficcv", "auto"] as const)),
       keyword: Type.Optional(Type.String({ description: "Target search keyword." })),
       keywords: Type.Optional(Type.Array(Type.String(), { description: "List of keywords for batch evaluation." })),
-      domain: Type.Optional(Type.String({ description: "Target domain for Stripe trajectory." })),
+      domain: Type.Optional(Type.String({ description: "Target domain for Stripe trajectory or TrafficCV analytics." })),
+      domains: Type.Optional(Type.Array(Type.String(), { description: "Domains for competitor benchmark." })),
       month: Type.Optional(Type.String({ description: "Month format YYYYMM for Stripe insights." })),
       query: Type.Optional(Type.String({ description: "Search query for niche ideas." })),
       product_name: Type.Optional(Type.String({ description: "Product name for traction scoring." })),

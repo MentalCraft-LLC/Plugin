@@ -13,7 +13,7 @@ describe("Plugin Gateway & Orchestrator", () => {
       "secret",
     ]);
     expect(PLUGIN_REGISTRY.design.actionsCount).toBe(10);
-    expect(PLUGIN_REGISTRY.business.actionsCount).toBe(8);
+    expect(PLUGIN_REGISTRY.business.actionsCount).toBe(11);
     expect(PLUGIN_REGISTRY.science.actionsCount).toBe(7);
   });
 

@@ -1,12 +1,23 @@
 /**
- * Plugin/Business Core - Commercial, SEO & Market Intelligence Engine
+ * Plugin/Business Core - Commercial, SEO & Multi-Source Market Intelligence Engine
  *
  * Symmetrical capability engine for Holar's Business pillar.
- * Integrates Google SEO keyword difficulty, SERP forensics, Stripe Radar revenue leaderboards,
- * competitor MRR trajectories, and product monetization traction metrics.
+ * Integrates:
+ * - Gefei SEO (Google KD 0-100, link budgets, SERP Top 10, Stripe Radar revenue leaderboards)
+ * - TrafficCV (Global domain traffic visits, channel breakdown, geo distribution, competitor comparison)
+ * - Traction Rank (Multidimensional product viability index)
  */
 
+import type {
+  TrafficCvDomainOverview,
+  TrafficCvChannelBreakdown,
+  TrafficCvGeoDistribution,
+  TrafficCvCompetitorComparison,
+} from "./trafficcv.ts";
+
 export const BUSINESS_PROTOCOL = "holar.business.v1" as const;
+
+export type BusinessProvider = "gefei" | "trafficcv" | "auto";
 
 export type BusinessAction =
   | "seo_keyword_difficulty"
@@ -15,6 +26,10 @@ export type BusinessAction =
   | "market_stripe_radar"
   | "market_site_trajectory"
   | "market_niche_discovery"
+  | "traffic_domain_overview"
+  | "traffic_channel_breakdown"
+  | "traffic_geo_distribution"
+  | "traffic_competitor_comparison"
   | "product_traction_score"
   | "list_actions";
 
@@ -63,9 +78,11 @@ export type TractionScoreResult = {
 
 export type BusinessInput = {
   action: BusinessAction;
+  provider?: BusinessProvider;
   keyword?: string;
   keywords?: string[];
   domain?: string;
+  domains?: string[];
   month?: string;
   query?: string;
   product_name?: string;
@@ -79,6 +96,14 @@ export type BusinessResult = {
   action: BusinessAction;
   success: boolean;
   timestamp: string;
+  provider?: BusinessProvider;
   data: unknown;
   diagnostics?: string[];
+};
+
+export type {
+  TrafficCvDomainOverview,
+  TrafficCvChannelBreakdown,
+  TrafficCvGeoDistribution,
+  TrafficCvCompetitorComparison,
 };

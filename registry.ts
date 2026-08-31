@@ -62,12 +62,13 @@ export const PLUGIN_REGISTRY: Record<PluginId, PluginDescriptor> = {
     name: "Business & Market Intelligence",
     version: "1.0.0",
     pillar: "Business & Product",
-    description: "Google SEO KD calculation, link budget formulas, Stripe Radar real revenue leaderboards, competitor MRR trajectories, and product traction indexing.",
-    actionsCount: 8,
+    description: "Multi-provider commercial intelligence (Gefei SEO + TrafficCV + Traction Rank): Google KD 0-100, TrafficCV web traffic visits, channels, geo, Stripe Radar revenue leaderboards, and product traction indexing.",
+    actionsCount: 11,
     actions: [
       "seo_keyword_difficulty", "seo_batch_keywords", "seo_link_budget",
       "market_stripe_radar", "market_site_trajectory", "market_niche_discovery",
-      "product_traction_score", "list_actions"
+      "traffic_domain_overview", "traffic_channel_breakdown", "traffic_geo_distribution",
+      "traffic_competitor_comparison", "product_traction_score", "list_actions"
     ],
     mcpToolName: "business",
     hasPiAdapter: true,

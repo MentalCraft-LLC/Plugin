@@ -14,6 +14,10 @@ export const BUSINESS_ACTIONS = [
   "market_stripe_radar",
   "market_site_trajectory",
   "market_niche_discovery",
+  "traffic_domain_overview",
+  "traffic_channel_breakdown",
+  "traffic_geo_distribution",
+  "traffic_competitor_comparison",
   "product_traction_score",
   "list_actions",
 ] as const;
@@ -26,7 +30,12 @@ export const BUSINESS_INPUT_SCHEMA = {
     action: {
       type: "string",
       enum: BUSINESS_ACTIONS,
-      description: "Business intelligence action: 'seo_keyword_difficulty' (Google KD 0-100 & volume), 'seo_batch_keywords' (matrix evaluation), 'seo_link_budget' (backlinks & DR formula), 'market_stripe_radar' (Stripe monthly revenue leaderboard), 'market_site_trajectory' (competitor MRR & checkout growth), 'market_niche_discovery' (white-space SaaS ideas), 'product_traction_score' (commercial viability index), 'list_actions'.",
+      description: "Business intelligence action: 'seo_keyword_difficulty' (Google KD 0-100 & volume), 'seo_batch_keywords' (matrix evaluation), 'seo_link_budget' (backlinks & DR formula), 'market_stripe_radar' (Stripe monthly revenue leaderboard), 'market_site_trajectory' (competitor MRR & checkout growth), 'market_niche_discovery' (white-space SaaS ideas), 'traffic_domain_overview' (TrafficCV monthly visits & rank), 'traffic_channel_breakdown' (TrafficCV acquisition channels), 'traffic_geo_distribution' (TrafficCV country breakdown), 'traffic_competitor_comparison' (TrafficCV multi-domain comparison), 'product_traction_score' (commercial viability index), 'list_actions'.",
+    },
+    provider: {
+      type: "string",
+      enum: ["gefei", "trafficcv", "auto"],
+      description: "Data provider: 'gefei' (Google SERP/KD & Stripe Radar), 'trafficcv' (Domain traffic & channel analytics), 'auto' (automatic optimal provider selection).",
     },
     keyword: {
       type: "string",
@@ -39,7 +48,12 @@ export const BUSINESS_INPUT_SCHEMA = {
     },
     domain: {
       type: "string",
-      description: "Competitor domain name for Stripe billing trajectory analysis.",
+      description: "Domain name for Stripe billing trajectory or TrafficCV analytics.",
+    },
+    domains: {
+      type: "array",
+      items: { type: "string" },
+      description: "Array of domain names for TrafficCV competitor comparison.",
     },
     month: {
       type: "string",

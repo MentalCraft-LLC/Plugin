@@ -9,10 +9,52 @@ describe("Plugin/Business Intelligence Engine", () => {
     const res = await businessOperation({ action: "list_actions" });
     expect(res.success).toBe(true);
     expect(res.protocol).toBe(BUSINESS_PROTOCOL);
-    const data = res.data as { actions: Array<{ name: string }> };
-    expect(data.actions.length).toBe(7);
+    const data = res.data as { actions: Array<{ name: string }>; providers: string[] };
+    expect(data.actions.length).toBe(11);
+    expect(data.providers).toContain("trafficcv");
+    expect(data.providers).toContain("gefei");
+    expect(data.actions.map((a) => a.name)).toContain("traffic_domain_overview");
     expect(data.actions.map((a) => a.name)).toContain("seo_keyword_difficulty");
     expect(data.actions.map((a) => a.name)).toContain("product_traction_score");
+  });
+
+  test("traffic_domain_overview fetches domain visits and rank via TrafficCV", async () => {
+    const res = await businessOperation({
+      action: "traffic_domain_overview",
+      domain: "lovable.dev",
+    });
+    expect(res.success).toBe(true);
+    expect(res.provider).toBe("trafficcv");
+    const data = res.data as any;
+    expect(data.domain).toBe("lovable.dev");
+    expect(data.monthlyVisits).toBeGreaterThan(10000);
+    expect(data.bounceRatePercent).toBeGreaterThan(0);
+    expect(data.globalRank).toBeGreaterThan(0);
+  });
+
+  test("traffic_channel_breakdown decomposes acquisition channels", async () => {
+    const res = await businessOperation({
+      action: "traffic_channel_breakdown",
+      domain: "cursor.com",
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.domain).toBe("cursor.com");
+    expect(data.channels.organicSearch).toBeGreaterThan(0);
+    expect(data.channels.direct).toBeGreaterThan(0);
+    expect(data.primaryChannel).toBeDefined();
+  });
+
+  test("traffic_competitor_comparison benchmarks multi-domain traffic", async () => {
+    const res = await businessOperation({
+      action: "traffic_competitor_comparison",
+      domains: ["lovable.dev", "v0.dev"],
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.domains.length).toBe(2);
+    expect(data.metrics.length).toBe(2);
+    expect(data.leaderDomain).toBeDefined();
   });
 
   test("product_traction_score calculates multi-dimensional viability", async () => {
