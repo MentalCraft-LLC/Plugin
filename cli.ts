@@ -73,6 +73,22 @@ async function main() {
       break;
     }
 
+    case "health":
+    case "doctor": {
+      const { runPluginHealthCheck } = await import("./health.ts");
+      const report = await runPluginHealthCheck();
+      console.log("\n🩺 Plugin System Health & Diagnostics Dashboard\n" + "=".repeat(60));
+      console.log(`Status: ${report.overallStatus === "healthy" ? "🟢 HEALTHY" : "🟡 DEGRADED"} (${report.healthScore}/100) | Healthy Plugins: ${report.healthyPlugins}/${report.totalPlugins}`);
+      for (const [id, p] of Object.entries(report.plugins)) {
+        console.log(`\n🔹 [${id.toUpperCase()}] ${p.name} [${p.status.toUpperCase()}] (${p.latencyMs}ms)`);
+        for (const c of p.checks) {
+          console.log(`   ${c.passed ? "✓" : "✗"} ${c.name}: ${c.detail}`);
+        }
+      }
+      console.log("\n" + "=".repeat(60));
+      break;
+    }
+
     case "serve": {
       console.error("Starting MentalCraft Gateway MCP Stdio Server...");
       startGatewayMcpStdio();
@@ -86,6 +102,7 @@ MentalCraft Plugin CLI Hub
 
 Commands:
   list, ls          List all registered capability plugins
+  health, doctor    Run comprehensive diagnostics across all 6 plugins
   workflows, wf     List compound cross-plugin automation workflows
   exec <p> <a> [d]  Execute an action on a plugin directly
   serve             Launch the unified master MCP stdio server

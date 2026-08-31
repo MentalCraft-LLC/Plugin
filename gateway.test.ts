@@ -102,5 +102,36 @@ describe("Plugin Gateway & Orchestrator", () => {
     const sciContent = JSON.parse((scienceRes.result as any).content[0].text);
     expect(sciContent.action).toBe("score_scale");
     expect(sciContent.success).toBe(true);
+
+    // 7. plugin_health call
+    const healthRes = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 7,
+      method: "tools/call",
+      params: {
+        name: "plugin_health",
+        arguments: { target: "all" },
+      },
+    });
+    expect(healthRes.id).toBe(7);
+    const healthContent = JSON.parse((healthRes.result as any).content[0].text);
+    expect(healthContent.healthScore).toBe(100);
+    expect(healthContent.healthyPlugins).toBe(6);
+
+    // 8. live compound workflow execution
+    const liveWfRes = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 8,
+      method: "tools/call",
+      params: {
+        name: "plugin_workflow",
+        arguments: { workflow_id: "clinical_study_to_screener", dry_run: false },
+      },
+    });
+    expect(liveWfRes.id).toBe(8);
+    const liveWfContent = JSON.parse((liveWfRes.result as any).content[0].text);
+    expect(liveWfContent.status).toBe("completed");
+    expect(liveWfContent.executedStepsCount).toBe(4);
+    expect(liveWfContent.stepResults.every((s: any) => s.success)).toBe(true);
   });
 });
