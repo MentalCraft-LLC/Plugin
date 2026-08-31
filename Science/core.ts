@@ -33,6 +33,16 @@ export type ScienceAction =
   | "social_science_peer_review_audit"
   | "chinese_academic_formatter"
   | "ssci_top_journal_matcher"
+  | "css_digital_trace_audit"
+  | "css_nlp_sentiment_trajectory"
+  | "css_causal_inference_did"
+  | "css_abm_simulation"
+  | "css_telemetry_preprocess"
+  | "css_nlp_sentiment_score"
+  | "css_topic_bertopic_cluster"
+  | "css_did_regression"
+  | "css_parallel_trends_test"
+  | "css_abm_step"
   | "list_actions";
 
 export type CitationStyle = "apa" | "ieee" | "nature" | "acm" | "chicago";
@@ -486,6 +496,217 @@ export type SsciJournalMatcherResult = {
   };
 };
 
+export type TelemetryEvent = {
+  eventId: string;
+  userId: string;
+  deviceId?: string;
+  timestamp: number | string;
+  eventType: string; // e.g. "session_start", "screen_unlock", "app_open", "notification_ack", "handoff", "task_complete"
+  durationSeconds?: number;
+  payload?: Record<string, unknown>;
+};
+
+export type TelemetryPreprocessResult = {
+  totalEventsProcessed: number;
+  validEvents: number;
+  droppedAnomalies: number;
+  uniqueUsers: number;
+  sessionCount: number;
+  meanInterSessionIntervalMinutes: number;
+  burstinessIndex: number;
+  processedTraces: Array<{
+    userId: string;
+    sessionDurationMinutes: number;
+    burstEventsCount: number;
+    interSessionIntervalHours: number;
+  }>;
+};
+
+export type DigitalTraceAuditResult = {
+  manuscriptTitle: string;
+  totalEvents: number;
+  uniqueHouseholds: number;
+  observationDays: number;
+  sessionMetrics: {
+    meanSessionDurationMinutes: number;
+    exponentialDecayAlpha: number;
+    p95SessionDurationMinutes: number;
+    dailyActiveSessionsPerUser: number;
+  };
+  screenTimeHandoff: {
+    parentToChildHandoffCount: number;
+    peakHandoffWindow: string;
+    handoffLatencyMinutes: number;
+    coUsePercentage: number;
+  };
+  platformDistribution: Record<string, number>;
+  empiricalRigorMetrics: {
+    powerAdequate: boolean;
+    highDensitySampling: boolean;
+    auditSummary: string;
+  };
+};
+
+export type NlpSentimentScoreResult = {
+  totalSnippets: number;
+  meanValence: number;
+  meanArousal: number;
+  affectiveToInstrumentalRatio: number;
+  sentimentDistribution: {
+    positive: number;
+    neutral: number;
+    negative: number;
+  };
+  scoredSnippets: Array<{
+    text: string;
+    valence: number;
+    arousal: number;
+    classification: "affective" | "instrumental" | "mixed";
+  }>;
+};
+
+export type TopicClusterResult = {
+  totalTopics: number;
+  clusters: Array<{
+    topicId: number;
+    label: string;
+    cTfIdfKeywords: string[];
+    prevalence: number;
+    coherenceScore: number;
+    exemplaryQuotes: string[];
+  }>;
+  dynamicShift?: Array<{
+    period: string;
+    topicShifts: Record<string, number>;
+  }>;
+};
+
+export type NlpSentimentTrajectoryResult = {
+  corpusSize: number;
+  totalConversations: number;
+  dynamicTopicClusters: Array<{
+    topicId: number;
+    name: string;
+    topTerms: string[];
+    sharePercent: number;
+    valenceShift: number;
+  }>;
+  valenceTrajectory: Array<{
+    period: string;
+    valenceMean: number;
+    valenceStd: number;
+    instrumentalDominanceRatio: number;
+  }>;
+  affectiveShift: {
+    prePeriodAffectiveRatio: number;
+    postPeriodAffectiveRatio: number;
+    netDepletionDelta: number;
+  };
+  linguisticMarkers: Array<{
+    marker: string;
+    frequencyChangePercent: number;
+    significancePValue: number;
+  }>;
+};
+
+export type DidRegressionResult = {
+  beta: number;
+  standardError: number;
+  tStatistic: number;
+  pValue: number;
+  confidenceInterval95: [number, number];
+  rSquared: number;
+  observationsN: number;
+  treatmentUnitsN: number;
+  controlUnitsN: number;
+  fixedEffects: {
+    entityFixed: boolean;
+    timeFixed: boolean;
+    covariatesIncluded: string[];
+  };
+  interpretation: string;
+};
+
+export type ParallelTrendsTestResult = {
+  passedParallelTrends: boolean;
+  leadLagEstimates: Array<{
+    periodRelative: number;
+    coefficient: number;
+    se: number;
+    pValue: number;
+    significantAt05: boolean;
+  }>;
+  fStatisticPreTrends: number;
+  fTestPValue: number;
+  placeboTestPassed: boolean;
+  placeboCoeff: number;
+  placeboPValue: number;
+  conclusion: string;
+};
+
+export type CausalInferenceDidResult = {
+  modelSpecification: string;
+  outcomeVariable: string;
+  treatmentVariable: string;
+  didEstimate: DidRegressionResult;
+  parallelTrends: ParallelTrendsTestResult;
+  covariateBalance: Array<{
+    variable: string;
+    treatedMean: number;
+    controlMean: number;
+    standardizedMeanDiff: number;
+    balanced: boolean;
+  }>;
+  robustnessChecks: {
+    placeboPolicyDatePassed: boolean;
+    leaveOneOutStable: boolean;
+    wildClusterBootstrapPValue: number;
+  };
+};
+
+export type AbmAgentState = {
+  id: number;
+  state: "quiescent" | "engaged" | "saturated" | "fatigued" | "conflict";
+  algorithmicNudgeLevel: number;
+  parentalControlLevel: number;
+  interactionCount: number;
+  intimacyScore: number;
+};
+
+export type AbmStepResult = {
+  step: number;
+  populationSize: number;
+  stateDistribution: Record<string, number>;
+  meanIntimacyScore: number;
+  conflictEventRate: number;
+  transitionsOccurred: number;
+  emergentFeedbackIndex: number;
+};
+
+export type AbmSimulationResult = {
+  agentsCount: number;
+  totalSimulationSteps: number;
+  initialParameters: {
+    feedbackStrength: number;
+    interventionAdoptionRate: number;
+    baselineIntimacy: number;
+    decayLambda: number;
+  };
+  trajectory: Array<{
+    step: number;
+    engagedAgents: number;
+    fatiguedAgents: number;
+    conflictRate: number;
+    averageIntimacy: number;
+  }>;
+  macroEmergenceSummary: {
+    tippingPointStep: number;
+    polarizationIndex: number;
+    equilibriumState: string;
+    theoreticalImplications: string[];
+  };
+};
+
 export type ScienceInput = {
   action: ScienceAction;
   query?: string;
@@ -576,6 +797,48 @@ export type ScienceInput = {
     } | string>;
   };
   word_count_limit_max?: number;
+  // Computational Social Science (CSS) Parameters
+  css_telemetry_events?: TelemetryEvent[];
+  css_nlp_corpus?: Array<{
+    text: string;
+    timestamp?: string | number;
+    speaker?: "parent" | "child" | string;
+    period?: string;
+  }>;
+  css_snippets?: Array<{ text: string; id?: string | number }>;
+  css_did_data?: {
+    treated_post_mean?: number;
+    treated_pre_mean?: number;
+    control_post_mean?: number;
+    control_pre_mean?: number;
+    sample_size?: number;
+    treatment_units?: number;
+    control_units?: number;
+    covariates_included?: string[];
+    panels?: Array<{
+      unit_id: string;
+      period: number;
+      treated: boolean;
+      post: boolean;
+      outcome: number;
+      covariates?: Record<string, number>;
+    }>;
+  };
+  css_event_study_leads?: Array<{
+    periodRelative: number;
+    coefficient: number;
+    se: number;
+  }>;
+  css_abm_params?: {
+    agent_count?: number;
+    steps?: number;
+    feedback_strength?: number;
+    intervention_rate?: number;
+    decay_lambda?: number;
+    baseline_intimacy?: number;
+  };
+  css_abm_agents?: AbmAgentState[];
+  css_step_number?: number;
 };
 
 export type ScienceResult = {
@@ -668,6 +931,46 @@ export function formatScienceSummary(result: ScienceResult): string {
     case "ssci_top_journal_matcher": {
       const data = result.data as SsciJournalMatcherResult;
       return `SSCI Q1 Top Matches (${data.matchedCount}): Top target '${data.topTargetRecommendation}' (IF: ${data.recommendations[0]?.impactFactor ?? 0}, Review: ${data.recommendations[0]?.avgReviewWeeks ?? 0}w, Max: ${data.recommendations[0]?.wordLimitMax ?? 0} words)`;
+    }
+    case "css_digital_trace_audit": {
+      const data = result.data as DigitalTraceAuditResult;
+      return `Digital Trace Audit: ${data.totalEvents.toLocaleString()} events across ${data.uniqueHouseholds.toLocaleString()} households (${data.observationDays} days) | Decay α: ${data.sessionMetrics.exponentialDecayAlpha.toFixed(3)}, Co-Use: ${data.screenTimeHandoff.coUsePercentage}%`;
+    }
+    case "css_nlp_sentiment_trajectory": {
+      const data = result.data as NlpSentimentTrajectoryResult;
+      return `NLP Sentiment Trajectory: N=${data.corpusSize.toLocaleString()} snippets, ${data.dynamicTopicClusters.length} topic clusters | Affective ratio: ${data.affectiveShift.prePeriodAffectiveRatio.toFixed(2)} → ${data.affectiveShift.postPeriodAffectiveRatio.toFixed(2)} (Δ=${data.affectiveShift.netDepletionDelta.toFixed(2)})`;
+    }
+    case "css_causal_inference_did": {
+      const data = result.data as CausalInferenceDidResult;
+      return `Causal DID Estimation: β = ${data.didEstimate.beta.toFixed(3)} (SE = ${data.didEstimate.standardError.toFixed(3)}, t = ${data.didEstimate.tStatistic.toFixed(2)}, p < 0.001) | Parallel Trends: ${data.parallelTrends.passedParallelTrends ? "Passed" : "Failed"}, Placebo: ${data.parallelTrends.placeboTestPassed ? "Passed" : "Failed"}`;
+    }
+    case "css_abm_simulation": {
+      const data = result.data as AbmSimulationResult;
+      return `ABM Simulation: N=${data.agentsCount.toLocaleString()} agents over ${data.totalSimulationSteps} steps | Tipping Point: Step ${data.macroEmergenceSummary.tippingPointStep}, Polarization: ${data.macroEmergenceSummary.polarizationIndex.toFixed(3)} [${data.macroEmergenceSummary.equilibriumState}]`;
+    }
+    case "css_telemetry_preprocess": {
+      const data = result.data as TelemetryPreprocessResult;
+      return `Telemetry Preprocess: ${data.totalEventsProcessed} events (${data.validEvents} valid, ${data.droppedAnomalies} dropped) across ${data.uniqueUsers} users | Mean ISI: ${data.meanInterSessionIntervalMinutes.toFixed(1)}m, Burstiness: ${data.burstinessIndex.toFixed(2)}`;
+    }
+    case "css_nlp_sentiment_score": {
+      const data = result.data as NlpSentimentScoreResult;
+      return `NLP Sentiment Score: ${data.totalSnippets} snippets | Mean Valence: ${data.meanValence.toFixed(2)}, Arousal: ${data.meanArousal.toFixed(2)}, Affective/Instrumental: ${data.affectiveToInstrumentalRatio.toFixed(2)}`;
+    }
+    case "css_topic_bertopic_cluster": {
+      const data = result.data as TopicClusterResult;
+      return `BERTopic Dynamic Clustering: ${data.totalTopics} topics extracted | Top: "${data.clusters[0]?.label ?? ""}" (${((data.clusters[0]?.prevalence ?? 0) * 100).toFixed(1)}%, Coherence: ${data.clusters[0]?.coherenceScore.toFixed(2)})`;
+    }
+    case "css_did_regression": {
+      const data = result.data as DidRegressionResult;
+      return `DID Regression: β = ${data.beta.toFixed(3)} (SE = ${data.standardError.toFixed(3)}, t = ${data.tStatistic.toFixed(2)}, p = ${data.pValue < 0.001 ? "<0.001" : data.pValue.toFixed(3)}) | N = ${data.observationsN.toLocaleString()}, R² = ${data.rSquared.toFixed(3)}`;
+    }
+    case "css_parallel_trends_test": {
+      const data = result.data as ParallelTrendsTestResult;
+      return `Parallel Trends Test: ${data.passedParallelTrends ? "PASSED (Parallel pre-trends hold)" : "FAILED"} (F = ${data.fStatisticPreTrends.toFixed(2)}, p = ${data.fTestPValue.toFixed(3)}) | Placebo: ${data.placeboTestPassed ? "Passed" : "Failed"}`;
+    }
+    case "css_abm_step": {
+      const data = result.data as AbmStepResult;
+      return `ABM Step ${data.step}: N=${data.populationSize} | Intimacy: ${data.meanIntimacyScore.toFixed(2)}, Conflict Rate: ${(data.conflictEventRate * 100).toFixed(1)}%, Transitions: ${data.transitionsOccurred}`;
     }
   }
 }

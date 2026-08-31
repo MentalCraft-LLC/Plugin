@@ -456,9 +456,19 @@
                   "social_science_peer_review_audit",
                   "chinese_academic_formatter",
                   "ssci_top_journal_matcher",
+                  "css_digital_trace_audit",
+                  "css_nlp_sentiment_trajectory",
+                  "css_causal_inference_did",
+                  "css_abm_simulation",
+                  "css_telemetry_preprocess",
+                  "css_nlp_sentiment_score",
+                  "css_topic_bertopic_cluster",
+                  "css_did_regression",
+                  "css_parallel_trends_test",
+                  "css_abm_step",
                   "list_actions"
                 ],
-                "description": "Science intelligence action across the 8 academic production lifecycle stages: Stage 1 Literature ('paper_literature_search', 'paper_citation_verify'), Stage 2 Methodology ('paper_methodology_audit'), Stage 3 Grants ('grant_criteria_audit', 'grant_aims_alignment', 'grant_budget_calculator'), Stage 4 Authoring ('paper_structure_audit', 'paper_latex_scaffold', 'chinese_academic_formatter'), Stage 5 Peer Review ('paper_peer_review_simulate', 'social_science_peer_review_audit'), Stage 6 Journal Submission ('journal_matcher', 'journal_submission_checklist', 'ssci_top_journal_matcher'), Stage 7 Intellectual Property ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), Stage 8 Scholarly Impact ('scholarly_impact_forecast'), and 'list_actions'."
+                "description": "Science intelligence action across the 8 academic production lifecycle stages and Computational Social Science (CSS) modules: Stage 1 Literature ('paper_literature_search', 'paper_citation_verify'), Stage 2 Methodology ('paper_methodology_audit', 'css_digital_trace_audit', 'css_nlp_sentiment_trajectory', 'css_causal_inference_did', 'css_abm_simulation', 'css_telemetry_preprocess', 'css_nlp_sentiment_score', 'css_topic_bertopic_cluster', 'css_did_regression', 'css_parallel_trends_test', 'css_abm_step'), Stage 3 Grants ('grant_criteria_audit', 'grant_aims_alignment', 'grant_budget_calculator'), Stage 4 Authoring ('paper_structure_audit', 'paper_latex_scaffold', 'chinese_academic_formatter'), Stage 5 Peer Review ('paper_peer_review_simulate', 'social_science_peer_review_audit'), Stage 6 Journal Submission ('journal_matcher', 'journal_submission_checklist', 'ssci_top_journal_matcher'), Stage 7 Intellectual Property ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), Stage 8 Scholarly Impact ('scholarly_impact_forecast'), and 'list_actions'."
               },
               "query": {
                 "type": "string",
@@ -640,6 +650,53 @@
               "word_count_limit_max": {
                 "type": "integer",
                 "description": "Maximum allowable manuscript word count for SSCI matching."
+              },
+              "css_telemetry_events": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Digital telemetry event traces for preprocessing or digital trace audit (eventId, userId, timestamp, eventType, durationSeconds)."
+              },
+              "css_nlp_corpus": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Conversational corpus for BERTopic dynamic topic modeling & sentiment valence trajectory."
+              },
+              "css_snippets": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Text snippets for atomic NLP sentiment scoring or BERTopic topic clustering."
+              },
+              "css_did_data": {
+                "type": "object",
+                "description": "Difference-in-Differences panel and estimation data (treated_post_mean, treated_pre_mean, control_post_mean, control_pre_mean, sample_size, panels)."
+              },
+              "css_event_study_leads": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Event-study lead and lag coefficients for pre-treatment parallel trends testing."
+              },
+              "css_abm_params": {
+                "type": "object",
+                "description": "Agent-Based Modeling parameters (agent_count, steps, feedback_strength, intervention_rate, decay_lambda, baseline_intimacy)."
+              },
+              "css_abm_agents": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "Current agent population states for discrete ABM simulation step."
+              },
+              "css_step_number": {
+                "type": "integer",
+                "description": "Discrete step number for ABM simulation step."
               }
             }
           }
@@ -1321,9 +1378,19 @@
               "social_science_peer_review_audit",
               "chinese_academic_formatter",
               "ssci_top_journal_matcher",
+              "css_digital_trace_audit",
+              "css_nlp_sentiment_trajectory",
+              "css_causal_inference_did",
+              "css_abm_simulation",
+              "css_telemetry_preprocess",
+              "css_nlp_sentiment_score",
+              "css_topic_bertopic_cluster",
+              "css_did_regression",
+              "css_parallel_trends_test",
+              "css_abm_step",
               "list_actions"
             ],
-            "description": "Science intelligence action across the 8 academic production lifecycle stages: Stage 1 Literature ('paper_literature_search', 'paper_citation_verify'), Stage 2 Methodology ('paper_methodology_audit'), Stage 3 Grants ('grant_criteria_audit', 'grant_aims_alignment', 'grant_budget_calculator'), Stage 4 Authoring ('paper_structure_audit', 'paper_latex_scaffold', 'chinese_academic_formatter'), Stage 5 Peer Review ('paper_peer_review_simulate', 'social_science_peer_review_audit'), Stage 6 Journal Submission ('journal_matcher', 'journal_submission_checklist', 'ssci_top_journal_matcher'), Stage 7 Intellectual Property ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), Stage 8 Scholarly Impact ('scholarly_impact_forecast'), and 'list_actions'."
+            "description": "Science intelligence action across the 8 academic production lifecycle stages and Computational Social Science (CSS) modules: Stage 1 Literature ('paper_literature_search', 'paper_citation_verify'), Stage 2 Methodology ('paper_methodology_audit', 'css_digital_trace_audit', 'css_nlp_sentiment_trajectory', 'css_causal_inference_did', 'css_abm_simulation', 'css_telemetry_preprocess', 'css_nlp_sentiment_score', 'css_topic_bertopic_cluster', 'css_did_regression', 'css_parallel_trends_test', 'css_abm_step'), Stage 3 Grants ('grant_criteria_audit', 'grant_aims_alignment', 'grant_budget_calculator'), Stage 4 Authoring ('paper_structure_audit', 'paper_latex_scaffold', 'chinese_academic_formatter'), Stage 5 Peer Review ('paper_peer_review_simulate', 'social_science_peer_review_audit'), Stage 6 Journal Submission ('journal_matcher', 'journal_submission_checklist', 'ssci_top_journal_matcher'), Stage 7 Intellectual Property ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), Stage 8 Scholarly Impact ('scholarly_impact_forecast'), and 'list_actions'."
           },
           "query": {
             "type": "string",
@@ -1505,6 +1572,53 @@
           "word_count_limit_max": {
             "type": "integer",
             "description": "Maximum allowable manuscript word count for SSCI matching."
+          },
+          "css_telemetry_events": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Digital telemetry event traces for preprocessing or digital trace audit (eventId, userId, timestamp, eventType, durationSeconds)."
+          },
+          "css_nlp_corpus": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Conversational corpus for BERTopic dynamic topic modeling & sentiment valence trajectory."
+          },
+          "css_snippets": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Text snippets for atomic NLP sentiment scoring or BERTopic topic clustering."
+          },
+          "css_did_data": {
+            "type": "object",
+            "description": "Difference-in-Differences panel and estimation data (treated_post_mean, treated_pre_mean, control_post_mean, control_pre_mean, sample_size, panels)."
+          },
+          "css_event_study_leads": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Event-study lead and lag coefficients for pre-treatment parallel trends testing."
+          },
+          "css_abm_params": {
+            "type": "object",
+            "description": "Agent-Based Modeling parameters (agent_count, steps, feedback_strength, intervention_rate, decay_lambda, baseline_intimacy)."
+          },
+          "css_abm_agents": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Current agent population states for discrete ABM simulation step."
+          },
+          "css_step_number": {
+            "type": "integer",
+            "description": "Discrete step number for ABM simulation step."
           }
         }
       },
@@ -2005,9 +2119,19 @@
               "social_science_peer_review_audit",
               "chinese_academic_formatter",
               "ssci_top_journal_matcher",
+              "css_digital_trace_audit",
+              "css_nlp_sentiment_trajectory",
+              "css_causal_inference_did",
+              "css_abm_simulation",
+              "css_telemetry_preprocess",
+              "css_nlp_sentiment_score",
+              "css_topic_bertopic_cluster",
+              "css_did_regression",
+              "css_parallel_trends_test",
+              "css_abm_step",
               "list_actions"
             ],
-            "description": "Science intelligence action across the 8 academic production lifecycle stages: Stage 1 Literature ('paper_literature_search', 'paper_citation_verify'), Stage 2 Methodology ('paper_methodology_audit'), Stage 3 Grants ('grant_criteria_audit', 'grant_aims_alignment', 'grant_budget_calculator'), Stage 4 Authoring ('paper_structure_audit', 'paper_latex_scaffold', 'chinese_academic_formatter'), Stage 5 Peer Review ('paper_peer_review_simulate', 'social_science_peer_review_audit'), Stage 6 Journal Submission ('journal_matcher', 'journal_submission_checklist', 'ssci_top_journal_matcher'), Stage 7 Intellectual Property ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), Stage 8 Scholarly Impact ('scholarly_impact_forecast'), and 'list_actions'."
+            "description": "Science intelligence action across the 8 academic production lifecycle stages and Computational Social Science (CSS) modules: Stage 1 Literature ('paper_literature_search', 'paper_citation_verify'), Stage 2 Methodology ('paper_methodology_audit', 'css_digital_trace_audit', 'css_nlp_sentiment_trajectory', 'css_causal_inference_did', 'css_abm_simulation', 'css_telemetry_preprocess', 'css_nlp_sentiment_score', 'css_topic_bertopic_cluster', 'css_did_regression', 'css_parallel_trends_test', 'css_abm_step'), Stage 3 Grants ('grant_criteria_audit', 'grant_aims_alignment', 'grant_budget_calculator'), Stage 4 Authoring ('paper_structure_audit', 'paper_latex_scaffold', 'chinese_academic_formatter'), Stage 5 Peer Review ('paper_peer_review_simulate', 'social_science_peer_review_audit'), Stage 6 Journal Submission ('journal_matcher', 'journal_submission_checklist', 'ssci_top_journal_matcher'), Stage 7 Intellectual Property ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), Stage 8 Scholarly Impact ('scholarly_impact_forecast'), and 'list_actions'."
           },
           "query": {
             "type": "string",
@@ -2189,6 +2313,53 @@
           "word_count_limit_max": {
             "type": "integer",
             "description": "Maximum allowable manuscript word count for SSCI matching."
+          },
+          "css_telemetry_events": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Digital telemetry event traces for preprocessing or digital trace audit (eventId, userId, timestamp, eventType, durationSeconds)."
+          },
+          "css_nlp_corpus": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Conversational corpus for BERTopic dynamic topic modeling & sentiment valence trajectory."
+          },
+          "css_snippets": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Text snippets for atomic NLP sentiment scoring or BERTopic topic clustering."
+          },
+          "css_did_data": {
+            "type": "object",
+            "description": "Difference-in-Differences panel and estimation data (treated_post_mean, treated_pre_mean, control_post_mean, control_pre_mean, sample_size, panels)."
+          },
+          "css_event_study_leads": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Event-study lead and lag coefficients for pre-treatment parallel trends testing."
+          },
+          "css_abm_params": {
+            "type": "object",
+            "description": "Agent-Based Modeling parameters (agent_count, steps, feedback_strength, intervention_rate, decay_lambda, baseline_intimacy)."
+          },
+          "css_abm_agents": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Current agent population states for discrete ABM simulation step."
+          },
+          "css_step_number": {
+            "type": "integer",
+            "description": "Discrete step number for ABM simulation step."
           }
         }
       }

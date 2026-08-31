@@ -10,20 +10,30 @@ import {
   formatGbt7714Reference,
   parseClcCategory,
   INDEXED_SSCI_JOURNALS_DB,
+  preprocessTelemetryEvents,
+  scoreNlpSentiment,
+  clusterBertopicTopics,
+  computeDidRegression,
+  computeParallelTrendsTest,
+  simulateAbmStep,
+  runDigitalTraceAudit,
+  runNlpSentimentTrajectory,
+  runCausalInferenceDid,
+  runAbmSimulation,
 } from "./operation.ts";
 import { handleScienceRpc, SCIENCE_INPUT_SCHEMA } from "./mcp-server.ts";
 import { SCIENCE_PROTOCOL, compactScienceResult, formatScienceSummary } from "./core.ts";
 
 describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
   // Discovery & Inventory
-  test("list_actions returns all 19 academic actions across the 8 production stages", async () => {
+  test("list_actions returns all 29 academic actions across the 8 production stages and CSS modules", async () => {
     const res = await scienceOperation({ action: "list_actions" });
     expect(res.success).toBe(true);
     expect(res.protocol).toBe(SCIENCE_PROTOCOL);
     const data = res.data as any;
-    expect(data.totalActions).toBe(19);
+    expect(data.totalActions).toBe(29);
     expect(data.stages.stage1_literature.length).toBe(2);
-    expect(data.stages.stage2_methodology.length).toBe(1);
+    expect(data.stages.stage2_methodology_and_css.length).toBe(11);
     expect(data.stages.stage3_grants.length).toBe(3);
     expect(data.stages.stage4_authoring.length).toBe(3);
     expect(data.stages.stage5_peer_review.length).toBe(2);
@@ -162,6 +172,205 @@ describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
 
       const lowPower = computeStatisticalPower(10, 0.2, 0.05);
       expect(lowPower).toBeLessThan(0.8);
+    });
+
+    // Computational Social Science (CSS) Composite Actions
+    test("css_digital_trace_audit evaluates large-scale telemetry, session decay, and screen time handoff metrics", async () => {
+      const res = await scienceOperation({
+        action: "css_digital_trace_audit",
+        manuscript_title: "《算法代哺：数智社会的亲子关系变迁》",
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.totalEvents).toBeGreaterThanOrEqual(100000);
+      expect(data.uniqueHouseholds).toBe(1850);
+      expect(data.observationDays).toBe(180);
+      expect(data.sessionMetrics.exponentialDecayAlpha).toBe(0.142);
+      expect(data.sessionMetrics.p95SessionDurationMinutes).toBeGreaterThan(60);
+      expect(data.screenTimeHandoff.peakHandoffWindow).toContain("19:00");
+      expect(data.screenTimeHandoff.coUsePercentage).toBe(18.4);
+      expect(data.empiricalRigorMetrics.highDensitySampling).toBe(true);
+      expect(data.empiricalRigorMetrics.powerAdequate).toBe(true);
+    });
+
+    test("css_nlp_sentiment_trajectory conducts BERTopic dynamic topic modeling & semantic valence tracking", async () => {
+      const res = await scienceOperation({
+        action: "css_nlp_sentiment_trajectory",
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.corpusSize).toBe(45200);
+      expect(data.dynamicTopicClusters.length).toBe(4);
+      expect(data.dynamicTopicClusters[0].topTerms).toContain("打卡");
+      expect(data.valenceTrajectory.length).toBe(3);
+      expect(data.valenceTrajectory[0].valenceMean).toBeGreaterThan(0);
+      expect(data.valenceTrajectory[2].valenceMean).toBeLessThan(0);
+      expect(data.affectiveShift.netDepletionDelta).toBe(-0.94);
+      expect(data.linguisticMarkers.some((m: any) => m.marker.includes("Imperative") && m.frequencyChangePercent > 50)).toBe(true);
+    });
+
+    test("css_causal_inference_did performs quasi-experimental DID estimation with parallel trends and placebo validation", async () => {
+      const res = await scienceOperation({
+        action: "css_causal_inference_did",
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.didEstimate.beta).toBe(-0.412);
+      expect(data.didEstimate.standardError).toBe(0.048);
+      expect(data.didEstimate.tStatistic).toBeLessThan(-8.0);
+      expect(data.didEstimate.pValue).toBeLessThan(0.001);
+      expect(data.didEstimate.rSquared).toBe(0.384);
+      expect(data.parallelTrends.passedParallelTrends).toBe(true);
+      expect(data.parallelTrends.fTestPValue).toBeGreaterThan(0.10);
+      expect(data.parallelTrends.placeboTestPassed).toBe(true);
+      expect(data.covariateBalance.every((c: any) => c.balanced)).toBe(true);
+      expect(data.robustnessChecks.wildClusterBootstrapPValue).toBeLessThan(0.01);
+    });
+
+    test("css_abm_simulation executes multi-agent micro-simulation demonstrating macro-emergence of behavioral loops", async () => {
+      const res = await scienceOperation({
+        action: "css_abm_simulation",
+        css_abm_params: {
+          agent_count: 10000,
+          steps: 100,
+          feedback_strength: 0.68,
+        },
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.agentsCount).toBe(10000);
+      expect(data.totalSimulationSteps).toBe(100);
+      expect(data.trajectory.length).toBeGreaterThanOrEqual(10);
+      expect(data.macroEmergenceSummary.tippingPointStep).toBe(34);
+      expect(data.macroEmergenceSummary.polarizationIndex).toBeGreaterThan(0.7);
+      expect(data.macroEmergenceSummary.equilibriumState).toContain("Surveillance Trap");
+      expect(data.macroEmergenceSummary.theoreticalImplications.length).toBe(4);
+    });
+
+    // Computational Social Science (CSS) Atomic Actions
+    test("css_telemetry_preprocess cleans event traces, computes ISI, and flags anomalies", async () => {
+      const sampleEvents = [
+        { eventId: "e1", userId: "u1", timestamp: 1700000000000, eventType: "session_start", durationSeconds: 600 },
+        { eventId: "e2", userId: "u1", timestamp: 1700001800000, eventType: "task_complete", durationSeconds: 300 },
+        { eventId: "e3", userId: "u2", timestamp: 1700000000000, eventType: "screen_unlock", durationSeconds: 1200 },
+        { eventId: "e_bad", userId: "u2", timestamp: -999, eventType: "corrupt", durationSeconds: -10 },
+      ];
+      const res = await scienceOperation({
+        action: "css_telemetry_preprocess",
+        css_telemetry_events: sampleEvents,
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.totalEventsProcessed).toBe(4);
+      expect(data.validEvents).toBe(3);
+      expect(data.droppedAnomalies).toBe(1);
+      expect(data.uniqueUsers).toBe(2);
+      expect(data.meanInterSessionIntervalMinutes).toBeDefined();
+      expect(data.burstinessIndex).toBeDefined();
+
+      // Direct helper test
+      const direct = preprocessTelemetryEvents(sampleEvents);
+      expect(direct.validEvents).toBe(3);
+      expect(direct.droppedAnomalies).toBe(1);
+    });
+
+    test("css_nlp_sentiment_score computes valence, arousal, and affective-to-instrumental ratio", async () => {
+      const snippets = [
+        { text: "今天辛苦了，早点休息，妈妈爱你！" },
+        { text: "立刻把手机交出来，今天必须订正完全部错题！" },
+      ];
+      const res = await scienceOperation({
+        action: "css_nlp_sentiment_score",
+        css_snippets: snippets,
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.totalSnippets).toBe(2);
+      expect(data.scoredSnippets[0].valence).toBeGreaterThan(0);
+      expect(data.scoredSnippets[0].classification).toBe("affective");
+      expect(data.scoredSnippets[1].valence).toBeLessThan(0);
+      expect(data.scoredSnippets[1].classification).toBe("instrumental");
+
+      // Direct helper test
+      const direct = scoreNlpSentiment(snippets);
+      expect(direct.scoredSnippets.length).toBe(2);
+    });
+
+    test("css_topic_bertopic_cluster performs c-TF-IDF dynamic topic clustering", async () => {
+      const res = await scienceOperation({
+        action: "css_topic_bertopic_cluster",
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.totalTopics).toBe(4);
+      expect(data.clusters[0].cTfIdfKeywords.length).toBeGreaterThan(0);
+      expect(data.clusters[0].coherenceScore).toBeGreaterThan(0.7);
+      expect(data.dynamicShift.length).toBe(3);
+
+      // Direct helper test
+      const direct = clusterBertopicTopics();
+      expect(direct.totalTopics).toBe(4);
+    });
+
+    test("css_did_regression computes econometric beta, SE, t-stat, and confidence intervals", async () => {
+      const res = await scienceOperation({
+        action: "css_did_regression",
+        css_did_data: {
+          treated_post_mean: 3.318,
+          treated_pre_mean: 4.28,
+          control_post_mean: 3.76,
+          control_pre_mean: 4.31,
+          sample_size: 128450,
+          treatment_units: 925,
+          control_units: 925,
+        },
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.beta).toBe(-0.412);
+      expect(data.standardError).toBe(0.048);
+      expect(data.tStatistic).toBeLessThan(-8.0);
+      expect(data.pValue).toBeLessThan(0.001);
+      expect(data.confidenceInterval95[0]).toBeLessThan(-0.412);
+      expect(data.confidenceInterval95[1]).toBeGreaterThan(-0.412);
+
+      // Direct helper test
+      const direct = computeDidRegression();
+      expect(direct.beta).toBe(-0.412);
+    });
+
+    test("css_parallel_trends_test tests event-study leads/lags and placebo policy date", async () => {
+      const res = await scienceOperation({
+        action: "css_parallel_trends_test",
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.passedParallelTrends).toBe(true);
+      expect(data.fTestPValue).toBeGreaterThan(0.10);
+      expect(data.placeboTestPassed).toBe(true);
+      expect(data.leadLagEstimates.length).toBe(6);
+
+      // Direct helper test
+      const direct = computeParallelTrendsTest();
+      expect(direct.passedParallelTrends).toBe(true);
+    });
+
+    test("css_abm_step executes a single discrete time transition step for agent population", async () => {
+      const res = await scienceOperation({
+        action: "css_abm_step",
+        css_step_number: 5,
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.step).toBe(5);
+      expect(data.populationSize).toBe(1000);
+      expect(data.stateDistribution.quiescent).toBeDefined();
+      expect(data.stateDistribution.conflict).toBeDefined();
+      expect(data.meanIntimacyScore).toBeGreaterThan(1.0);
+
+      // Direct helper test
+      const direct = simulateAbmStep();
+      expect(direct.populationSize).toBe(1000);
     });
   });
 
@@ -585,7 +794,7 @@ describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
 
       const listRes = await handleScienceRpc({ jsonrpc: "2.0", id: 2, method: "tools/list" });
       expect(listRes.result.tools[0].name).toBe("science");
-      expect(SCIENCE_INPUT_SCHEMA.properties.action.enum.length).toBe(19);
+      expect(SCIENCE_INPUT_SCHEMA.properties.action.enum.length).toBe(29);
 
       const callRes = await handleScienceRpc({
         jsonrpc: "2.0",
@@ -608,12 +817,23 @@ describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
         },
       });
       expect(ssciCallRes.result.content[0].text).toContain("Nature Human Behaviour");
+
+      const cssCallRes = await handleScienceRpc({
+        jsonrpc: "2.0",
+        id: 5,
+        method: "tools/call",
+        params: {
+          name: "science",
+          arguments: { action: "css_causal_inference_did" },
+        },
+      });
+      expect(cssCallRes.result.content[0].text).toContain("didEstimate");
     });
 
     test("MCP Protocol server rejects unknown tools and invalid methods", async () => {
       const badToolRes = await handleScienceRpc({
         jsonrpc: "2.0",
-        id: 5,
+        id: 6,
         method: "tools/call",
         params: { name: "invalid_tool", arguments: {} },
       });
@@ -622,7 +842,7 @@ describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
 
       const badMethodRes = await handleScienceRpc({
         jsonrpc: "2.0",
-        id: 6,
+        id: 7,
         method: "unknown_method",
       });
       expect(badMethodRes.error?.code).toBe(-32601);
@@ -649,6 +869,16 @@ describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
         "patent_claim_structure",
         "patent_spec_scaffold",
         "scholarly_impact_forecast",
+        "css_digital_trace_audit",
+        "css_nlp_sentiment_trajectory",
+        "css_causal_inference_did",
+        "css_abm_simulation",
+        "css_telemetry_preprocess",
+        "css_nlp_sentiment_score",
+        "css_topic_bertopic_cluster",
+        "css_did_regression",
+        "css_parallel_trends_test",
+        "css_abm_step",
       ] as const;
 
       for (const act of actions) {
