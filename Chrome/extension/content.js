@@ -894,6 +894,64 @@
     } catch {}
   }
 
+  function flashInspectorHUD(element) {
+    if (!element || !(element instanceof Element) || typeof document === "undefined" || !document.body) return;
+    try {
+      const box = element.getBoundingClientRect();
+      if (box.width <= 0 || box.height <= 0) return;
+      const overlay = document.createElement("div");
+      overlay.setAttribute("data-holar-inspector-hud", "true");
+      let radius = "4px";
+      try { radius = window.getComputedStyle(element).borderRadius || "4px"; } catch {}
+      Object.assign(overlay.style, {
+        position: "fixed",
+        top: `${Math.round(box.top)}px`,
+        left: `${Math.round(box.left)}px`,
+        width: `${Math.round(box.width)}px`,
+        height: `${Math.round(box.height)}px`,
+        borderRadius: radius,
+        border: "1.5px solid rgba(59, 130, 246, 0.9)",
+        backgroundColor: "rgba(59, 130, 246, 0.08)",
+        boxShadow: "0 0 0 1px rgba(59, 130, 246, 0.3), inset 0 0 12px rgba(59, 130, 246, 0.12)",
+        pointerEvents: "none",
+        zIndex: "2147483647",
+        transition: "opacity 400ms ease-out, transform 400ms ease-out",
+        opacity: "1",
+      });
+
+      const tag = document.createElement("div");
+      const tagName = element.tagName.toLowerCase();
+      const idPart = element.id ? `#${element.id}` : "";
+      const classPart = element.classList && element.classList.length > 0 ? `.${element.classList[0]}` : "";
+      const labelText = `${tagName}${idPart}${classPart} · ${Math.round(box.width)}×${Math.round(box.height)}`;
+      tag.innerText = labelText;
+      Object.assign(tag.style, {
+        position: "absolute",
+        top: box.top > 28 ? "-24px" : `${Math.round(box.height) + 4}px`,
+        left: "0px",
+        background: "rgba(15, 23, 42, 0.92)",
+        color: "#ffffff",
+        padding: "2px 8px",
+        borderRadius: "4px",
+        fontSize: "11px",
+        fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+        lineHeight: "14px",
+        whiteSpace: "nowrap",
+        boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
+        border: "1px solid rgba(255, 255, 255, 0.15)",
+      });
+      overlay.appendChild(tag);
+      document.body.appendChild(overlay);
+
+      setTimeout(() => {
+        overlay.style.opacity = "0";
+      }, 1000);
+      setTimeout(() => {
+        try { overlay.remove(); } catch {}
+      }, 1450);
+    } catch {}
+  }
+
   function elementHierarchyPath(element) {
     if (!element || !(element instanceof Element)) return "";
     const path = [];
@@ -2084,6 +2142,7 @@
           if (element && fillableText(element)) {
             try { element.scrollIntoView({ block: "nearest", inline: "nearest" }); } catch {}
             setNativeValue(element, String(val));
+            flashActionIndicator(element, "fill");
             results.push({ field: key, success: true });
           } else {
             results.push({ field: key, success: false, error: "not_fillable" });
@@ -2151,7 +2210,7 @@
       const isChecked = element instanceof HTMLInputElement ? element.checked : element.getAttribute("aria-checked") === "true";
       const isSelected = element.getAttribute("aria-selected") === "true";
       const isExpanded = element.getAttribute("aria-expanded") === "true";
-      return {
+      const resultData = {
         action: "inspect_element",
         found: true,
         tag: element.tagName.toLowerCase(),
@@ -2198,6 +2257,8 @@
           editable: isEditable,
         },
       };
+      flashInspectorHUD(element);
+      return resultData;
     }
     if (message.action === "read_markdown") {
       const maxChars = Number.isInteger(message.max_chars) && message.max_chars > 0 ? message.max_chars : 25000;
