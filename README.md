@@ -9,6 +9,7 @@ First-class plugins, browser automation tools, market intelligence engines, and 
 | Plugin Directory | Description | Key Capabilities |
 |---|---|---|
 | [`Chrome/`](./Chrome) | Chrome Browser Automation & Native Bridge | Inactive-tab driving, screencast/video recording, semantic snapshots, visual annotations, Web Vitals profiling, CDP actions |
+| [`Design/`](./Design) | Design System & UI Intelligence Engine | 5-layer hierarchy, component catalog inspection, token export, Svelte 5 runes UI generation, A11y auditing, Chrome bridge |
 | [`Gefei/`](./Gefei) | Gefei SEO & Market Intelligence | Keyword difficulty scoring (KD 0-100), link budget calculators, Stripe Radar revenue tracking, niche discovery |
 | [`Message/`](./Message) | Agent Message Bus | High-performance inter-agent message dispatching and mailbox synchronization |
 | [`Secret/`](./Secret) | Local Credential Vault | Zero-leakage token redacting and local filesystem authority verification |

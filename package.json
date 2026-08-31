@@ -5,6 +5,7 @@
   "type": "module",
   "workspaces": [
     "Chrome",
+    "Design",
     "Gefei",
     "Message",
     "Secret"
