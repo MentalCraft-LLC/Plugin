@@ -12,7 +12,7 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
     expect(data.totalActions).toBe(43);
     expect(data.modalities).toEqual(["website", "app", "game", "shop"]);
     expect(data.modules.application.name).toBe("Application (产品与软件工程线)");
-    expect(data.modules.service.name).toBe("Service (专业服务与履约线)");
+    expect(data.modules.service.name).toBe("Service (通用软件服务与基础设施)");
     expect(data.modules.company.name).toBe("Company (公司财务与增长线)");
     expect(data.lifecycleStages.stage1_ideation.length).toBe(2);
     expect(data.lifecycleStages.stage2_pmf_validation.length).toBe(1);
@@ -655,22 +655,41 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
   });
 
   test("Service and Module aliases execute successfully with pure contracts", async () => {
-    // 1. service_practitioner_workbench
-    const wbRes = await businessOperation({ action: "service_practitioner_workbench", owner_key: "test_key_123" } as any);
-    expect(wbRes.success).toBe(true);
-    expect((wbRes.data as any).tier).toBe("pro");
+    // Universal Software Services (Cloudflare Workers for Holar products)
+    // 1. service_auth_verify (holar-auth / auth.essaydetector.org)
+    const authRes = await businessOperation({ action: "service_auth_verify" } as any);
+    expect(authRes.success).toBe(true);
+    expect((authRes.data as any).serviceName).toBe("holar-auth");
+    expect((authRes.data as any).verified).toBe(true);
 
-    // 2. service_scale_battery_config
-    const scaleRes = await businessOperation({ action: "service_scale_battery_config" } as any);
-    expect(scaleRes.success).toBe(true);
-    expect((scaleRes.data as any).scales.length).toBeGreaterThanOrEqual(3);
+    // 2. service_monetization_checkout (holar-monetization / Stripe & D1)
+    const checkoutRes = await businessOperation({ action: "service_monetization_checkout", amount_usd: 29.0 } as any);
+    expect(checkoutRes.success).toBe(true);
+    expect((checkoutRes.data as any).serviceName).toBe("holar-monetization");
+    expect((checkoutRes.data as any).supportedGateways).toContain("Stripe");
 
-    // 3. service_referral_dispatch
-    const refRes = await businessOperation({ action: "service_referral_dispatch" } as any);
-    expect(refRes.success).toBe(true);
-    expect((refRes.data as any).referralPathways.length).toBe(3);
+    // 3. service_event_dispatch (holar-event / async queue)
+    const eventRes = await businessOperation({ action: "service_event_dispatch", event_type: "user.subscription.activated" } as any);
+    expect(eventRes.success).toBe(true);
+    expect((eventRes.data as any).serviceName).toBe("holar-event");
 
-    // 4. Module Aliases (application_* and company_*)
+    // 4. service_storage_presign (holar-storage / Cloudflare R2)
+    const storageRes = await businessOperation({ action: "service_storage_presign" } as any);
+    expect(storageRes.success).toBe(true);
+    expect((storageRes.data as any).storageProvider).toContain("Cloudflare R2");
+
+    // 5. service_notification_deliver (holar-notification)
+    const notifyRes = await businessOperation({ action: "service_notification_deliver", channel: "telegram" } as any);
+    expect(notifyRes.success).toBe(true);
+    expect((notifyRes.data as any).deliveryStatus).toBe("delivered");
+
+    // 6. service_health_telemetry
+    const healthRes = await businessOperation({ action: "service_health_telemetry" } as any);
+    expect(healthRes.success).toBe(true);
+    expect((healthRes.data as any).clusterStatus).toBe("healthy");
+    expect((healthRes.data as any).d1Databases).toContain("auth-db");
+
+    // 7. Module Aliases (application_* and company_*)
     const appMarketRes = await businessOperation({ action: "application_market_validation", venture_name: "MentalCraft" } as any);
     expect(appMarketRes.success).toBe(true);
 
