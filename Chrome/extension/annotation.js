@@ -247,17 +247,15 @@
       "display:grid",
       `grid-template-columns:repeat(${columns}, minmax(0, 1fr))`,
       "align-items:stretch",
-      "background:rgba(15,23,42,0.45)",
+      "background:#0f172a",
       "color:#fff",
-      "border:1px solid rgba(255,255,255,0.22)",
+      "border:1px solid rgba(255,255,255,0.16)",
       "border-radius:6px",
-      "box-shadow:0 20px 48px -4px rgba(0,0,0,0.38), inset 0 1px 0 0 rgba(255,255,255,0.35), inset 0 -1px 0 0 rgba(0,0,0,0.15), inset 0 0 16px rgba(255,255,255,0.04)",
+      "box-shadow:0 4px 12px rgba(0,0,0,0.3)",
       "overflow:hidden",
       "pointer-events:none",
       "z-index:2147483647",
       "box-sizing:border-box",
-      "backdrop-filter:blur(28px) saturate(220%) brightness(1.1)",
-      "-webkit-backdrop-filter:blur(28px) saturate(220%) brightness(1.1)",
       "transition:transform 80ms ease, opacity 80ms ease",
     ].join(";");
     fillCardRow(row, cards, color, rect);
@@ -737,17 +735,15 @@
       "align-items:center",
       "gap:10px",
       "padding:8px 10px 8px 14px",
-      "background:rgba(15,23,42,0.48)",
+      "background:#0f172a",
       "color:#fff",
-      "border:1px solid rgba(255,255,255,0.22)",
+      "border:1px solid rgba(255,255,255,0.16)",
       "border-radius:8px",
-      "box-shadow:0 20px 48px -4px rgba(0,0,0,0.38), inset 0 1px 0 0 rgba(255,255,255,0.35)",
+      "box-shadow:0 4px 16px rgba(0,0,0,0.3)",
       "pointer-events:auto",
       "z-index:2147483647",
       "width:min(580px, calc(100vw - 24px))",
       "box-sizing:border-box",
-      "backdrop-filter:blur(32px) saturate(220%) brightness(1.1)",
-      "-webkit-backdrop-filter:blur(32px) saturate(220%) brightness(1.1)",
     ].join(";");
     const chips = document.createElement("div");
     chips.setAttribute(HOST_ATTR, "chips");
@@ -843,7 +839,7 @@
     const toast = document.createElement("div");
     toast.setAttribute(HOST_ATTR, "toast");
     toast.textContent = message;
-    toast.style.cssText = "position:fixed;bottom:20px;right:20px;background:rgba(15,23,42,0.52);color:#fff;border:1px solid rgba(255,255,255,0.22);padding:8px 16px;border-radius:6px;pointer-events:none;z-index:2147483647;box-shadow:0 16px 36px rgba(0,0,0,0.35), inset 0 1px 0 0 rgba(255,255,255,0.3);backdrop-filter:blur(28px) saturate(200%);-webkit-backdrop-filter:blur(28px) saturate(200%);font:500 12px/1.3 ui-sans-serif,system-ui,sans-serif;text-shadow:0 1px 2px rgba(0,0,0,0.5);";
+    toast.style.cssText = "position:fixed;bottom:20px;right:20px;background:#0f172a;color:#fff;border:1px solid rgba(255,255,255,0.16);padding:8px 16px;border-radius:6px;pointer-events:none;z-index:2147483647;box-shadow:0 4px 12px rgba(0,0,0,0.3);font:500 12px/1.3 ui-sans-serif,system-ui,sans-serif;";
     host.appendChild(toast);
     setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2400);
   }
