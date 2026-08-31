@@ -108,7 +108,7 @@ export const CHROME_INPUT_SCHEMA = {
       type: "string",
       minLength: 10,
       maxLength: 200,
-      pattern: "^(?:Application|Business|Service|Interface)/[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*$",
+      pattern: "^(?:Application|Business|Service|Design)/[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*$",
     },
     source: {
       type: "string",

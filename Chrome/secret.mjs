@@ -3,7 +3,7 @@ import { chmodSync, lstatSync, mkdirSync, readFileSync, renameSync, rmSync, writ
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 
 const CLARITY_TOKEN = /^[A-Za-z0-9_-]{8,2048}\.[A-Za-z0-9_-]{8,4096}\.[A-Za-z0-9_-]{8,4096}$/;
-const ROUTE = /^(?:Application|Business|Service|Interface)\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*$/;
+const ROUTE = /^(?:Application|Business|Service|Design)\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*$/;
 const CLARITY_PROJECT = /^[A-Za-z0-9_-]{5,64}$/;
 const GA4_MEASUREMENT_ID = /^G-[A-Z0-9]{6,20}$/;
 

@@ -25,6 +25,6 @@
   "targets": [
     { "route": "Application/Assessment/Example", "key": "example" },
     { "route": "Application/SpriteFlow", "key": "spriteflow" },
-    { "route": "Interface/Svelte", "key": "interface" }
+    { "route": "Design/Website", "key": "design" }
   ]
 }

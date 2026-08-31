@@ -25,7 +25,7 @@ export async function runClarityTarget(route, options = {}) {
 }
 
 if (import.meta.main) {
-  const route = process.argv.find((value) => value.startsWith("Application/") || value.startsWith("Business/") || value.startsWith("Service/") || value.startsWith("Interface/"));
+  const route = process.argv.find((value) => value.startsWith("Application/") || value.startsWith("Business/") || value.startsWith("Service/") || value.startsWith("Design/"));
   if (!route) throw new Error("analytics_route_required");
   const result = await runClarityTarget(route, { acceptStandardTerms: process.argv.includes("--accept-standard-terms") });
   console.log(JSON.stringify(result, null, 2));

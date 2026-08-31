@@ -41,7 +41,7 @@ export async function runGa4Target(route, options = {}) {
 }
 
 if (import.meta.main) {
-  const route = process.argv.find((value) => value.startsWith("Application/") || value.startsWith("Business/") || value.startsWith("Service/") || value.startsWith("Interface/"));
+  const route = process.argv.find((value) => value.startsWith("Application/") || value.startsWith("Business/") || value.startsWith("Service/") || value.startsWith("Design/"));
   if (!route) throw new Error("analytics_route_required");
   const objectiveArg = process.argv.find((value) => value.startsWith("--objective="));
   const result = await runGa4Target(route, {

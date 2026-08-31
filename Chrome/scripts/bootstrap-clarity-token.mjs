@@ -36,7 +36,7 @@ export async function runClarityTokenTarget(route, tokenName = "spiral-analytics
 }
 
 if (import.meta.main) {
-  const route = process.argv.find((value) => value.startsWith("Application/") || value.startsWith("Business/") || value.startsWith("Service/") || value.startsWith("Interface/"));
+  const route = process.argv.find((value) => value.startsWith("Application/") || value.startsWith("Business/") || value.startsWith("Service/") || value.startsWith("Design/"));
   if (!route) throw new Error("analytics_route_required");
   console.log(JSON.stringify(await runClarityTokenTarget(route), null, 2));
 }
