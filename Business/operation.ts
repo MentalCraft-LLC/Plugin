@@ -6,9 +6,9 @@
  */
 
 import { GefeiClient } from "../Gefei/core.ts";
-import { TrafficCvClient } from "./trafficcv.ts";
 import {
   BUSINESS_PROTOCOL,
+  TrafficCvClient,
   type BusinessInput,
   type BusinessResult,
   type TractionScoreResult,
