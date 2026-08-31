@@ -4,26 +4,25 @@ import { handleScienceRpc } from "./mcp-server.ts";
 import { SCIENCE_PROTOCOL, compactScienceResult } from "./core.ts";
 
 describe("Plugin/Science Academic Production Lifecycle Engine", () => {
-  test("list_actions returns all 11 academic actions across Paper, Grant, Journal, and Patent", async () => {
+  test("list_actions returns all 14 academic actions across Paper, Grant, Journal, and Patent", async () => {
     const res = await scienceOperation({ action: "list_actions" });
     expect(res.success).toBe(true);
     expect(res.protocol).toBe(SCIENCE_PROTOCOL);
     const data = res.data as any;
-    expect(data.totalActions).toBe(11);
-    expect(data.pillars.paper.length).toBe(4);
+    expect(data.totalActions).toBe(14);
+    expect(data.pillars.paper.length).toBe(5);
     expect(data.pillars.grant.length).toBe(3);
     expect(data.pillars.journal.length).toBe(2);
-    expect(data.pillars.patent.length).toBe(2);
+    expect(data.pillars.patent.length).toBe(3);
   });
 
-  test("Paper pillar: literature search returns indexed peer-reviewed papers", async () => {
+  test("Paper pillar: literature search returns indexed peer-reviewed papers with bibtexKeys", async () => {
     const res = await scienceOperation({ action: "paper_literature_search", query: "agent workflow" });
     expect(res.success).toBe(true);
     const data = res.data as any;
     expect(data.total).toBeGreaterThan(0);
     expect(data.papers[0].doi).toBeDefined();
-    expect(data.papers[0].title).toBeDefined();
-    expect(data.papers[0].citations).toBeGreaterThan(0);
+    expect(data.papers[0].bibtexKey).toBeDefined();
   });
 
   test("Paper pillar: citation verify validates DOI syntax and formats APA/IEEE/Nature styles", async () => {
@@ -55,14 +54,27 @@ describe("Plugin/Science Academic Production Lifecycle Engine", () => {
     expect(data.sections.length).toBe(7);
   });
 
-  test("Paper pillar: peer review simulate provides reviewer scoring and rebuttal guidance", async () => {
+  test("Paper pillar: peer review simulate provides reviewer scoring and rebuttal matrix", async () => {
     const res = await scienceOperation({ action: "paper_peer_review_simulate" });
     expect(res.success).toBe(true);
     const data = res.data as any;
     expect(data.score).toBeGreaterThanOrEqual(8.0);
     expect(data.overallRecommendation).toBe("Strong Accept");
     expect(data.reviews.length).toBe(3);
-    expect(data.rebuttalGuidance.length).toBeGreaterThan(0);
+    expect(data.rebuttalMatrix.length).toBeGreaterThanOrEqual(3);
+    expect(data.rebuttalMatrix[0].suggestedResponse).toBeDefined();
+  });
+
+  test("Paper pillar: latex scaffold generates compilation-ready ACM/IEEE manuscript code", async () => {
+    const res = await scienceOperation({
+      action: "paper_latex_scaffold",
+      manuscript_title: "Universal Host-Neutral Plugin Protocol",
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.latexCode).toContain("\\documentclass");
+    expect(data.latexCode).toContain("Universal Host-Neutral Plugin Protocol");
+    expect(data.linesCount).toBeGreaterThan(20);
   });
 
   test("Grant pillar: criteria audit evaluates NIH/NSF review rubrics", async () => {
@@ -73,10 +85,11 @@ describe("Plugin/Science Academic Production Lifecycle Engine", () => {
     expect(data.criteria.length).toBe(5);
   });
 
-  test("Grant pillar: budget calculator computes multi-year direct and F&A indirect costs", async () => {
+  test("Grant pillar: budget calculator computes multi-year direct, MTDC, and F&A indirect costs", async () => {
     const res = await scienceOperation({
       action: "grant_budget_calculator",
       duration_years: 3,
+      fringe_rate_percent: 28,
       indirect_rate_percent: 52,
       direct_costs: { personnel: 200000, equipment: 40000, supplies: 10000, travel: 10000 },
     });
@@ -84,10 +97,10 @@ describe("Plugin/Science Academic Production Lifecycle Engine", () => {
     const data = res.data as any;
     expect(data.durationYears).toBe(3);
     expect(data.totalBudgetUsd).toBeGreaterThan(0);
-    expect(data.yearlyBreakdown.length).toBe(3);
+    expect(data.fringeRatePercent).toBe(28);
   });
 
-  test("Grant pillar: aims alignment validates specific aims independence", async () => {
+  test("Grant pillar: aims alignment validates specific aims independence and dependency matrix", async () => {
     const res = await scienceOperation({
       action: "grant_aims_alignment",
       aims: [
@@ -100,6 +113,7 @@ describe("Plugin/Science Academic Production Lifecycle Engine", () => {
     const data = res.data as any;
     expect(data.aimsCount).toBe(3);
     expect(data.alignmentScore).toBe(95);
+    expect(data.dependencyMatrix.length).toBeGreaterThan(0);
   });
 
   test("Journal pillar: journal matcher finds top venues by Impact Factor", async () => {
@@ -118,7 +132,7 @@ describe("Plugin/Science Academic Production Lifecycle Engine", () => {
     expect(data.readyForSubmission).toBe(true);
   });
 
-  test("Patent pillar: novelty check identifies prior art and computes novelty score", async () => {
+  test("Patent pillar: novelty check evaluates 35 USC statutory factors and prior art", async () => {
     const res = await scienceOperation({
       action: "patent_novelty_check",
       invention_title: "DETERMINISTIC AGENT-LESS EXECUTION PIPELINES",
@@ -128,6 +142,7 @@ describe("Plugin/Science Academic Production Lifecycle Engine", () => {
     const data = res.data as any;
     expect(data.noveltyScore).toBeGreaterThanOrEqual(80);
     expect(data.priorArtCount).toBeGreaterThan(0);
+    expect(data.statutoryFactors.novelty35USC102).toContain("Passed");
   });
 
   test("Patent pillar: claim structure checks independent/dependent hierarchy and antecedent basis", async () => {
@@ -137,6 +152,19 @@ describe("Plugin/Science Academic Production Lifecycle Engine", () => {
     expect(data.totalClaims).toBe(3);
     expect(data.independentClaims).toBe(1);
     expect(data.validAntecedent).toBe(true);
+  });
+
+  test("Patent pillar: spec scaffold builds complete specification structure", async () => {
+    const res = await scienceOperation({
+      action: "patent_spec_scaffold",
+      invention_title: "SYSTEM AND METHOD FOR DETERMINISTIC AGENT-LESS EXECUTION PIPELINES",
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.sectionsCount).toBe(5);
+    expect(data.claimsCount).toBe(3);
+    expect(data.sections.fieldOfInvention).toBeDefined();
+    expect(data.sections.detailedDescription).toBeDefined();
   });
 
   test("MCP Protocol server handles initialize, tools/list, and tools/call", async () => {

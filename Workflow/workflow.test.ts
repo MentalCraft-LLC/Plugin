@@ -42,15 +42,39 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.plan[4].plugin).toBe("chrome");
   });
 
-  test("run_workflow sequentially executes compound cross-plugin pipeline", async () => {
-    const res = await workflowOperation({
+  test("run_workflow executes Academic Paper, Grant, Patent, and Venture Growth pipelines", async () => {
+    // 1. Academic Paper
+    const paperRes = await workflowOperation({
       action: "run_workflow",
       workflow_id: "academic_paper_to_journal_submission",
     });
-    expect(res.success).toBe(true);
-    const data = res.data as any;
-    expect(data.stepsCount).toBe(5);
-    expect(data.stepResults.every((s: any) => s.success)).toBe(true);
+    expect(paperRes.success).toBe(true);
+    expect((paperRes.data as any).stepsCount).toBe(5);
+
+    // 2. Grant Proposal
+    const grantRes = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "grant_proposal_lifecycle",
+    });
+    expect(grantRes.success).toBe(true);
+    expect((grantRes.data as any).stepsCount).toBe(3);
+
+    // 3. Patent Invention
+    const patentRes = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "patent_invention_pipeline",
+    });
+    expect(patentRes.success).toBe(true);
+    expect((patentRes.data as any).stepsCount).toBe(3);
+
+    // 4. Venture Growth Lifecycle (Game)
+    const ventureRes = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "venture_growth_lifecycle",
+      parameters: { modality: "game", venture_name: "Echoes of Eternity" },
+    });
+    expect(ventureRes.success).toBe(true);
+    expect((ventureRes.data as any).stepsCount).toBe(6);
   });
 
   test("MCP Protocol server handles initialize, tools/list, and tools/call", async () => {

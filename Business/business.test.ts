@@ -4,12 +4,12 @@ import { handleBusinessRpc } from "./mcp-server.ts";
 import { BUSINESS_PROTOCOL, compactBusinessResult } from "./core.ts";
 
 describe("Plugin/Business Venture Lifecycle Engine", () => {
-  test("list_actions returns all 16 actions across the 5 venture lifecycle stages", async () => {
+  test("list_actions returns all 18 actions across the 5 venture lifecycle stages", async () => {
     const res = await businessOperation({ action: "list_actions" });
     expect(res.success).toBe(true);
     expect(res.protocol).toBe(BUSINESS_PROTOCOL);
     const data = res.data as any;
-    expect(data.totalActions).toBe(16);
+    expect(data.totalActions).toBe(18);
     expect(data.modalities).toEqual(["website", "app", "game"]);
     expect(data.lifecycleStages.validation.length).toBeGreaterThan(0);
     expect(data.lifecycleStages.acquisition.length).toBeGreaterThan(0);
@@ -85,6 +85,32 @@ describe("Plugin/Business Venture Lifecycle Engine", () => {
     expect(data.billingProvider).toBe("Stripe");
     expect(data.totalRevenueUsd).toBeGreaterThan(0);
     expect(data.tierDistribution.length).toBeGreaterThan(0);
+  });
+
+  test("Stage 5: Pricing Experiment calculates price elasticity and optimal RPV", async () => {
+    const res = await businessOperation({
+      action: "venture_pricing_experiment",
+      modality: "app",
+      price_points: [19.99, 29.99, 49.99],
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.optimalPriceUsd).toBeDefined();
+    expect(data.revenuePerVisitorMaxUsd).toBeGreaterThan(0);
+    expect(data.tiersEvaluated.length).toBe(3);
+  });
+
+  test("Stage 5: Growth Playbook delivers 90-day multi-channel sprint plan", async () => {
+    const res = await businessOperation({
+      action: "venture_growth_playbook",
+      modality: "game",
+      venture_name: "Echoes",
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.horizonDays).toBe(90);
+    expect(data.sprints.length).toBe(3);
+    expect(data.sprints[0].deliverables.length).toBeGreaterThan(0);
   });
 
   test("TrafficCV integration: domain overview, channels, and competitor benchmark", async () => {

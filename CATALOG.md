@@ -7,8 +7,8 @@
 | Subsystem | Actions | Protocol | Key Domain Scope |
 |---|---|---|---|
 | `Workflow` | 13 | `holar.workflow.v1` | Multi-plugin compound DAG execution, health diagnostics, telemetry & circuit breaker |
-| `Business` | 16 | `holar.business.v1` | Venture lifecycle (Websites, Apps, Games), SEO KD, ASO, Steam wishlists, CAC/LTV, Stripe billing |
-| `Science` | 11 | `holar.science.v1` | Academic production lifecycle: Paper authoring, Grant rubrics (NIH/NSF), Journal IF matching, Patent novelty |
+| `Business` | 18 | `holar.business.v1` | Venture lifecycle (Websites, Apps, Games), SEO KD, ASO, Steam wishlists, CAC/LTV, Pricing elasticity, Stripe |
+| `Science` | 14 | `holar.science.v1` | Academic production lifecycle: Paper authoring, Peer review sim, Grant rubrics (NIH/NSF), Journal IF, Patent spec |
 | `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |
 | `Chrome` | 38 | `holar.browser.v1` | Inactive tab driving, CDP inspection, HUD annotations, storage/cookie receipts |
 | `Message` | 4 | `holar.message.v1` | Multi-channel priority bus (Telegram > iMessage > Email) with mode-0600 isolation |
@@ -38,6 +38,33 @@
   4. **[science]** `journal_matcher`: Match target journal venues based on Impact Factor and acceptance rates.
   5. **[science]** `journal_submission_checklist`: Perform camera-ready submission compliance checklist.
 
+### `grant_proposal_lifecycle` — NIH/NSF Research Grant Proposal & Budgeting Pipeline
+- **Description**: Grant lifecycle: 5-dimension rubric criteria audit → Specific Aims independence matrix → Multi-year MTDC budget calculation.
+- **Required Plugins**: `science`
+- **Execution Steps**:
+  1. **[science]** `grant_criteria_audit`: Evaluate grant proposal against NIH/NSF review rubrics (1.0-9.0 score).
+  2. **[science]** `grant_aims_alignment`: Verify Specific Aims independence and funding priority alignment.
+  3. **[science]** `grant_budget_calculator`: Calculate multi-year direct costs, fringe benefits, and F&A indirect expenses.
+
+### `patent_invention_pipeline` — Patent Novelty & Claim Specification Pipeline
+- **Description**: Patent lifecycle: USPTO/WIPO prior art search & novelty scoring → Independent/dependent claim tree structure → Patent specification scaffolding.
+- **Required Plugins**: `science`
+- **Execution Steps**:
+  1. **[science]** `patent_novelty_check`: Search prior art databases and compute 35 U.S.C. statutory factor scores.
+  2. **[science]** `patent_claim_structure`: Validate independent and dependent claims tree and antecedent basis.
+  3. **[science]** `patent_spec_scaffold`: Scaffold formal patent specification document with preferred embodiments.
+
+### `venture_growth_lifecycle` — Full-Cycle Business Venture Growth & Unit Economics Engine
+- **Description**: Venture lifecycle: Market TAM/SAM/SOM validation → Multi-channel acquisition audit → CAC/LTV unit economics → D1/D7/D30 retention curves → Price elasticity → 90-day playbook.
+- **Required Plugins**: `business`
+- **Execution Steps**:
+  1. **[business]** `venture_market_validation`: Validate venture viability, TAM/SAM/SOM market size, and monetization model.
+  2. **[business]** `venture_acquisition_audit`: Audit primary acquisition channel across SEO (Web), ASO (App), or Steam (Game).
+  3. **[business]** `venture_unit_economics`: Model CAC, LTV, LTV/CAC ratio, payback months, and gross margins.
+  4. **[business]** `venture_retention_curves`: Model D1/D7/D30 cohort retention curves against industry benchmarks.
+  5. **[business]** `venture_pricing_experiment`: Simulate price elasticity curve to maximize expected revenue per visitor.
+  6. **[business]** `venture_growth_playbook`: Synthesize 90-day execution sprint roadmap.
+
 ### `automated_revenue_monitor` — Automated Competitor Revenue & Alert Monitor
 - **Description**: Track Stripe billing trajectory and dispatch milestone notifications to Telegram.
 - **Required Plugins**: `business` ➔ `message`
@@ -64,12 +91,5 @@ bun cli.ts health
 # Live Telemetry & Circuit Breaker Dashboard
 bun cli.ts metrics
 
-# Execute Compound Workflow
-bun cli.ts run-workflow clinical_study_to_screener
-
-# Microsecond Benchmark Suite
-bun cli.ts bench
-
-# Interactive Developer REPL
 bun cli.ts repl
 ```

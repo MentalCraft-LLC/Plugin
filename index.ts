@@ -19,6 +19,8 @@ export {
   type UnitEconomicsResult,
   type RetentionCurvesResult,
   type MonetizationTelemetryResult,
+  type PricingExperimentResult,
+  type GrowthPlaybookResult,
   type KeywordDifficultyResult,
   type StripeSiteInsight,
   type TrafficCvDomainOverview,

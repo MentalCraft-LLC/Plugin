@@ -12,6 +12,7 @@ export const SCIENCE_ACTIONS = [
   "paper_citation_verify",
   "paper_structure_audit",
   "paper_peer_review_simulate",
+  "paper_latex_scaffold",
   "grant_criteria_audit",
   "grant_budget_calculator",
   "grant_aims_alignment",
@@ -19,6 +20,7 @@ export const SCIENCE_ACTIONS = [
   "journal_submission_checklist",
   "patent_novelty_check",
   "patent_claim_structure",
+  "patent_spec_scaffold",
   "list_actions",
 ] as const;
 
@@ -30,7 +32,7 @@ export const SCIENCE_INPUT_SCHEMA = {
     action: {
       type: "string",
       enum: SCIENCE_ACTIONS,
-      description: "Science intelligence action across the 4 academic production pillars: Paper ('paper_literature_search', 'paper_citation_verify', 'paper_structure_audit', 'paper_peer_review_simulate'), Grant ('grant_criteria_audit', 'grant_budget_calculator', 'grant_aims_alignment'), Journal ('journal_matcher', 'journal_submission_checklist'), Patent ('patent_novelty_check', 'patent_claim_structure'), and 'list_actions'.",
+      description: "Science intelligence action across the 4 academic production pillars: Paper ('paper_literature_search', 'paper_citation_verify', 'paper_structure_audit', 'paper_peer_review_simulate', 'paper_latex_scaffold'), Grant ('grant_criteria_audit', 'grant_budget_calculator', 'grant_aims_alignment'), Journal ('journal_matcher', 'journal_submission_checklist'), Patent ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), and 'list_actions'.",
     },
     query: {
       type: "string",
@@ -51,7 +53,7 @@ export const SCIENCE_INPUT_SCHEMA = {
     },
     manuscript_title: {
       type: "string",
-      description: "Title of manuscript for audit or review simulation.",
+      description: "Title of manuscript for audit, review simulation, or LaTeX scaffolding.",
     },
     manuscript_text: {
       type: "string",
@@ -73,6 +75,10 @@ export const SCIENCE_INPUT_SCHEMA = {
     direct_costs: {
       type: "object",
       description: "Direct costs breakdown (personnel, equipment, supplies, travel, other).",
+    },
+    fringe_rate_percent: {
+      type: "number",
+      description: "Personnel fringe benefits rate percentage (default: 28%).",
     },
     indirect_rate_percent: {
       type: "number",
@@ -97,7 +103,7 @@ export const SCIENCE_INPUT_SCHEMA = {
     },
     invention_title: {
       type: "string",
-      description: "Title of invention for patent novelty audit.",
+      description: "Title of invention for patent novelty audit or spec scaffolding.",
     },
     invention_summary: {
       type: "string",

@@ -1068,12 +1068,73 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
         const s5 = performance.now();
         const r5 = await scienceOperation({ action: "journal_submission_checklist" });
         stepResults.push({ step: 5, plugin: "science", action: "journal_submission_checklist", success: r5.success, durationMs: Math.round(performance.now() - s5), data: r5.data });
-      } else if (targetId === "launch_product_campaign") {
-        stepResults.push({ step: 4, plugin: "design", action: "resolve_imports", success: r4.success, durationMs: Math.round(performance.now() - s4), data: r4.data });
+      } else if (targetId === "grant_proposal_lifecycle") {
+        // Step 1: Grant criteria audit
+        const s1 = performance.now();
+        const r1 = await scienceOperation({ action: "grant_criteria_audit", funding_agency: "NIH" });
+        stepResults.push({ step: 1, plugin: "science", action: "grant_criteria_audit", success: r1.success, durationMs: Math.round(performance.now() - s1), data: r1.data });
+
+        // Step 2: Specific Aims alignment
+        const s2 = performance.now();
+        const r2 = await scienceOperation({ action: "grant_aims_alignment" });
+        stepResults.push({ step: 2, plugin: "science", action: "grant_aims_alignment", success: r2.success, durationMs: Math.round(performance.now() - s2), data: r2.data });
+
+        // Step 3: Grant budget calculation
+        const s3 = performance.now();
+        const r3 = await scienceOperation({ action: "grant_budget_calculator", duration_years: 3, indirect_rate_percent: 52 });
+        stepResults.push({ step: 3, plugin: "science", action: "grant_budget_calculator", success: r3.success, durationMs: Math.round(performance.now() - s3), data: r3.data });
+      } else if (targetId === "patent_invention_pipeline") {
+        // Step 1: Patent novelty search
+        const s1 = performance.now();
+        const r1 = await scienceOperation({ action: "patent_novelty_check" });
+        stepResults.push({ step: 1, plugin: "science", action: "patent_novelty_check", success: r1.success, durationMs: Math.round(performance.now() - s1), data: r1.data });
+
+        // Step 2: Claim structure validation
+        const s2 = performance.now();
+        const r2 = await scienceOperation({ action: "patent_claim_structure" });
+        stepResults.push({ step: 2, plugin: "science", action: "patent_claim_structure", success: r2.success, durationMs: Math.round(performance.now() - s2), data: r2.data });
+
+        // Step 3: Patent specification scaffold
+        const s3 = performance.now();
+        const r3 = await scienceOperation({ action: "patent_spec_scaffold" });
+        stepResults.push({ step: 3, plugin: "science", action: "patent_spec_scaffold", success: r3.success, durationMs: Math.round(performance.now() - s3), data: r3.data });
+      } else if (targetId === "venture_growth_lifecycle") {
+        const modality = (input.parameters as any)?.modality ?? "game";
+        const vName = (input.parameters as any)?.venture_name ?? "Echoes of Eternity";
+
+        // Step 1: Market validation
+        const s1 = performance.now();
+        const r1 = await businessOperation({ action: "venture_market_validation", modality, venture_name: vName });
+        stepResults.push({ step: 1, plugin: "business", action: "venture_market_validation", success: r1.success, durationMs: Math.round(performance.now() - s1), data: r1.data });
+
+        // Step 2: Acquisition audit
+        const s2 = performance.now();
+        const r2 = await businessOperation({ action: "venture_acquisition_audit", modality, venture_name: vName });
+        stepResults.push({ step: 2, plugin: "business", action: "venture_acquisition_audit", success: r2.success, durationMs: Math.round(performance.now() - s2), data: r2.data });
+
+        // Step 3: Unit economics
+        const s3 = performance.now();
+        const r3 = await businessOperation({ action: "venture_unit_economics", modality, venture_name: vName });
+        stepResults.push({ step: 3, plugin: "business", action: "venture_unit_economics", success: r3.success, durationMs: Math.round(performance.now() - s3), data: r3.data });
+
+        // Step 4: Retention curves
+        const s4 = performance.now();
+        const r4 = await businessOperation({ action: "venture_retention_curves", modality, venture_name: vName });
+        stepResults.push({ step: 4, plugin: "business", action: "venture_retention_curves", success: r4.success, durationMs: Math.round(performance.now() - s4), data: r4.data });
+
+        // Step 5: Pricing experiment
+        const s5 = performance.now();
+        const r5 = await businessOperation({ action: "venture_pricing_experiment", modality, venture_name: vName });
+        stepResults.push({ step: 5, plugin: "business", action: "venture_pricing_experiment", success: r5.success, durationMs: Math.round(performance.now() - s5), data: r5.data });
+
+        // Step 6: Growth playbook
+        const s6 = performance.now();
+        const r6 = await businessOperation({ action: "venture_growth_playbook", modality, venture_name: vName });
+        stepResults.push({ step: 6, plugin: "business", action: "venture_growth_playbook", success: r6.success, durationMs: Math.round(performance.now() - s6), data: r6.data });
       } else if (targetId === "launch_product_campaign") {
         // Step 1: Business SEO
         const s1 = performance.now();
-        const r1 = await businessOperation({ action: "seo_keyword_difficulty", keyword: (input.parameters as any)?.keyword ?? "anxiety test online" });
+        const r1 = await businessOperation({ action: "seo_keyword_difficulty", keyword: (input.parameters as any)?.keyword ?? "ai coding agent" });
         stepResults.push({ step: 1, plugin: "business", action: "seo_keyword_difficulty", success: r1.success, durationMs: Math.round(performance.now() - s1), data: r1.data });
 
         // Step 2: Design UI synthesis

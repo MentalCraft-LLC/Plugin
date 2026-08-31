@@ -35,6 +35,9 @@ export type SystemHealthReport = {
 export type WorkflowId =
   | "launch_product_campaign"
   | "academic_paper_to_journal_submission"
+  | "grant_proposal_lifecycle"
+  | "patent_invention_pipeline"
+  | "venture_growth_lifecycle"
   | "automated_revenue_monitor"
   | "design_system_audit_pipeline"
   | (string & {});
@@ -122,6 +125,42 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
       { step: 3, plugin: "science", action: "paper_structure_audit", description: "Audit manuscript section completeness and word count." },
       { step: 4, plugin: "science", action: "journal_matcher", description: "Match target journal venues based on Impact Factor and acceptance rates." },
       { step: 5, plugin: "science", action: "journal_submission_checklist", description: "Perform camera-ready submission compliance checklist." },
+    ],
+  },
+  {
+    id: "grant_proposal_lifecycle",
+    name: "NIH/NSF Research Grant Proposal & Budgeting Pipeline",
+    description: "Grant lifecycle: 5-dimension rubric criteria audit → Specific Aims independence matrix → Multi-year MTDC budget calculation.",
+    requiredPlugins: ["science"],
+    steps: [
+      { step: 1, plugin: "science", action: "grant_criteria_audit", description: "Evaluate grant proposal against NIH/NSF review rubrics (1.0-9.0 score)." },
+      { step: 2, plugin: "science", action: "grant_aims_alignment", description: "Verify Specific Aims independence and funding priority alignment." },
+      { step: 3, plugin: "science", action: "grant_budget_calculator", description: "Calculate multi-year direct costs, fringe benefits, and F&A indirect expenses." },
+    ],
+  },
+  {
+    id: "patent_invention_pipeline",
+    name: "Patent Novelty & Claim Specification Pipeline",
+    description: "Patent lifecycle: USPTO/WIPO prior art search & novelty scoring → Independent/dependent claim tree structure → Patent specification scaffolding.",
+    requiredPlugins: ["science"],
+    steps: [
+      { step: 1, plugin: "science", action: "patent_novelty_check", description: "Search prior art databases and compute 35 U.S.C. statutory factor scores." },
+      { step: 2, plugin: "science", action: "patent_claim_structure", description: "Validate independent and dependent claims tree and antecedent basis." },
+      { step: 3, plugin: "science", action: "patent_spec_scaffold", description: "Scaffold formal patent specification document with preferred embodiments." },
+    ],
+  },
+  {
+    id: "venture_growth_lifecycle",
+    name: "Full-Cycle Business Venture Growth & Unit Economics Engine",
+    description: "Venture lifecycle: Market TAM/SAM/SOM validation → Multi-channel acquisition audit → CAC/LTV unit economics → D1/D7/D30 retention curves → Price elasticity → 90-day playbook.",
+    requiredPlugins: ["business"],
+    steps: [
+      { step: 1, plugin: "business", action: "venture_market_validation", description: "Validate venture viability, TAM/SAM/SOM market size, and monetization model." },
+      { step: 2, plugin: "business", action: "venture_acquisition_audit", description: "Audit primary acquisition channel across SEO (Web), ASO (App), or Steam (Game)." },
+      { step: 3, plugin: "business", action: "venture_unit_economics", description: "Model CAC, LTV, LTV/CAC ratio, payback months, and gross margins." },
+      { step: 4, plugin: "business", action: "venture_retention_curves", description: "Model D1/D7/D30 cohort retention curves against industry benchmarks." },
+      { step: 5, plugin: "business", action: "venture_pricing_experiment", description: "Simulate price elasticity curve to maximize expected revenue per visitor." },
+      { step: 6, plugin: "business", action: "venture_growth_playbook", description: "Synthesize 90-day execution sprint roadmap." },
     ],
   },
   {

@@ -104,7 +104,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
           timestamp,
           provider,
           data: {
-            totalActions: 16,
+            totalActions: 18,
             modalities: ["website", "app", "game"],
             lifecycleStages: {
               validation: ["venture_market_validation"],
@@ -122,6 +122,8 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
               retention: ["venture_retention_curves"],
               monetization: [
                 "venture_monetization_telemetry",
+                "venture_pricing_experiment",
+                "venture_growth_playbook",
                 "market_stripe_radar",
                 "market_site_trajectory",
                 "market_niche_discovery",
@@ -134,6 +136,8 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
               { name: "venture_unit_economics", scope: "CAC, LTV, payback period, gross margin, MRR/ARR and ARPDAU financial model" },
               { name: "venture_retention_curves", scope: "D1/D7/D14/D30 cohort retention curves, DAU/MAU ratio, and churn diagnosis" },
               { name: "venture_monetization_telemetry", scope: "Live billing stream telemetry across Stripe, App Store, Google Play, and Steam" },
+              { name: "venture_pricing_experiment", scope: "Simulated price elasticity curve and revenue per visitor optimization" },
+              { name: "venture_growth_playbook", scope: "90-day multi-channel sprint roadmap for Web, App, or Game" },
               { name: "seo_keyword_difficulty", scope: "Single keyword KD, volume, and link budget" },
               { name: "seo_batch_keywords", scope: "Multi-keyword matrix evaluation" },
               { name: "seo_link_budget", scope: "Top 10 SERP backlink & DR formula" },
@@ -398,6 +402,147 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
           timestamp,
           provider,
           data: res,
+        };
+      }
+
+      case "venture_pricing_experiment": {
+        const name = input.venture_name ?? "Target Venture";
+        const prices = input.price_points ?? (modality === "game" ? [9.99, 14.99, 19.99, 29.99] : modality === "app" ? [19.99, 29.99, 49.99, 79.99] : [29, 49, 99, 199]);
+
+        const evaluations = prices.map((price) => {
+          let conversion = 0;
+          if (modality === "game") {
+            conversion = Math.max(0.8, 14.0 - (price * 0.45));
+          } else if (modality === "app") {
+            conversion = Math.max(0.5, 9.0 - (price * 0.1));
+          } else {
+            conversion = Math.max(0.3, 7.5 - (price * 0.035));
+          }
+
+          const rpv = (price * conversion) / 100;
+          return {
+            priceUsd: price,
+            estimatedConversionPercent: Math.round(conversion * 10) / 10,
+            expectedRevenuePerVisitorUsd: Math.round(rpv * 100) / 100,
+            recommendation: "Underpriced" as const,
+          };
+        });
+
+        const sorted = [...evaluations].sort((a, b) => b.expectedRevenuePerVisitorUsd - a.expectedRevenuePerVisitorUsd);
+        const best = sorted[0]!;
+
+        const resultTiers = evaluations.map((t) => ({
+          ...t,
+          recommendation: t.priceUsd === best.priceUsd ? ("Optimal Revenue Max" as const) : t.priceUsd < best.priceUsd ? ("Underpriced" as const) : ("Overpriced / Friction" as const),
+        }));
+
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "venture_pricing_experiment",
+          success: true,
+          timestamp,
+          provider,
+          data: {
+            ventureName: name,
+            modality,
+            optimalPriceUsd: best.priceUsd,
+            revenuePerVisitorMaxUsd: best.expectedRevenuePerVisitorUsd,
+            tiersEvaluated: resultTiers,
+          },
+        };
+      }
+
+      case "venture_growth_playbook": {
+        const name = input.venture_name ?? "Target Venture";
+        let sprints = [];
+
+        if (modality === "game") {
+          sprints = [
+            {
+              phase: "Phase 1: Steam Store Presence & Demo",
+              dayRange: "Day 1 - 30",
+              focus: "Organic wishlist generation and Steam Next Fest qualification",
+              deliverables: ["Steam capsule key art localization", "Playable 20-minute demo build", "Press kit & Discord launch"],
+              targetKpi: "5,000 organic wishlists",
+            },
+            {
+              phase: "Phase 2: Creator Outreach & Community Playtests",
+              dayRange: "Day 31 - 60",
+              focus: "Micro-streamer outreach on Twitch/YouTube and feedback loops",
+              deliverables: ["Key distribution to 200 niche creators", "Weekly playtest builds", "Speedrun leaderboard tournament"],
+              targetKpi: "15,000 wishlists & 65% trailer completion",
+            },
+            {
+              phase: "Phase 3: Launch Sprint & Battle Pass Cadence",
+              dayRange: "Day 61 - 90",
+              focus: "Day-1 launch surge and seasonal content roadmap",
+              deliverables: ["1.0 Steam launch with 10% launch discount", "Season 1 Battle Pass scaffold", "Steam Community badges & trading cards"],
+              targetKpi: "Top 20 Steam New & Trending ($100k+ Week 1)",
+            },
+          ];
+        } else if (modality === "app") {
+          sprints = [
+            {
+              phase: "Phase 1: ASO & Onboarding Paywall Optimization",
+              dayRange: "Day 1 - 30",
+              focus: "App Store keywords coverage and day-0 paywall conversion",
+              deliverables: ["Metadata localization in 5 tier-1 languages", "Interactive onboarding quiz", "Annual vs weekly pricing A/B test"],
+              targetKpi: "25% impression-to-install CTR & 8% paywall conversion",
+            },
+            {
+              phase: "Phase 2: Paid Acquisition & Custom Product Pages",
+              dayRange: "Day 31 - 60",
+              focus: "Apple Search Ads scaling and TikTok/Meta performance creatives",
+              deliverables: ["Custom Product Pages (CPP) for 3 major user personas", "Automated Day-3 push notification engagement sequence"],
+              targetKpi: "CAC < $15 & D7 retention > 18%",
+            },
+            {
+              phase: "Phase 3: Referral Loops & Subscription Retention",
+              dayRange: "Day 61 - 90",
+              focus: "Viral sharing loops and churn reduction",
+              deliverables: ["In-app friend invite rewards", "Winback cancellation flow with discount offer", "Family sharing plan tier"],
+              targetKpi: "LTV/CAC > 3.5x & Monthly Churn < 5%",
+            },
+          ];
+        } else {
+          // Website / SaaS
+          sprints = [
+            {
+              phase: "Phase 1: Programmatic SEO & Technical Architecture",
+              dayRange: "Day 1 - 30",
+              focus: "High-intent long-tail keywords (KD < 25) and fast loading Svelte 5 frontend",
+              deliverables: ["Scaffold 50 programmatic glossary pages", "Configure schema.org structured data", "Self-serve Stripe checkout integration"],
+              targetKpi: "5,000 monthly organic impressions & 100 indexed URLs",
+            },
+            {
+              phase: "Phase 2: Product-Led Growth & Frictionless Activation",
+              dayRange: "Day 31 - 60",
+              focus: "Interactive web playground and automated email nurture",
+              deliverables: ["Zero-friction guest demo playground", "Automated milestone emails triggered by usage", "Competitor comparison landing pages"],
+              targetKpi: "15% trial-to-paid conversion & 40+ domain rating (DR)",
+            },
+            {
+              phase: "Phase 3: Revenue Expansion & Enterprise Tiers",
+              dayRange: "Day 61 - 90",
+              focus: "Multi-seat team subscriptions and Stripe billing automation",
+              deliverables: ["Team workspace switcher & RBAC permissions", "SOC 2 security compliance page", "Annual prepay 20% discount promotion"],
+              targetKpi: "$25,000 MRR & Net Revenue Retention (NRR) > 115%",
+            },
+          ];
+        }
+
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "venture_growth_playbook",
+          success: true,
+          timestamp,
+          provider,
+          data: {
+            ventureName: name,
+            modality,
+            horizonDays: 90,
+            sprints,
+          },
         };
       }
 

@@ -18,6 +18,8 @@ describe("Golden Protocol & Contract Verification Across All 6 Plugins", () => {
       "venture_unit_economics",
       "venture_retention_curves",
       "venture_monetization_telemetry",
+      "venture_pricing_experiment",
+      "venture_growth_playbook",
       "traffic_domain_overview",
       "traffic_channel_breakdown",
       "traffic_competitor_comparison",
@@ -40,6 +42,7 @@ describe("Golden Protocol & Contract Verification Across All 6 Plugins", () => {
       "paper_citation_verify",
       "paper_structure_audit",
       "paper_peer_review_simulate",
+      "paper_latex_scaffold",
       "grant_criteria_audit",
       "grant_budget_calculator",
       "grant_aims_alignment",
@@ -47,6 +50,7 @@ describe("Golden Protocol & Contract Verification Across All 6 Plugins", () => {
       "journal_submission_checklist",
       "patent_novelty_check",
       "patent_claim_structure",
+      "patent_spec_scaffold",
     ] as const;
 
     for (const action of actions) {

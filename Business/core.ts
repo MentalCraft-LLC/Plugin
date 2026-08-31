@@ -1,7 +1,7 @@
 /**
  * Plugin/Business Core - Business & Venture Lifecycle Intelligence Engine
  *
- * Symmetrical capability engine managing the full lifecycle of commercial ventures across:
+ * Dedicated commercial intelligence engine managing the full lifecycle of commercial ventures across:
  * 1. Websites (Web Apps, SaaS, Content, E-commerce)
  * 2. Mobile/Desktop Apps (iOS/Android App Store, ASO, IAP, Subscriptions)
  * 3. Games (Steam, Mobile, WebGL, Engagement, ARPDAU, Gacha/Battle Pass)
@@ -11,7 +11,7 @@
  * - Stage 2: Acquisition & Traffic Discovery (SEO KD, ASO, Steam Wishlists, TrafficCV)
  * - Stage 3: Unit Economics & Financial Modeling (CAC, LTV, Payback, MRR/ARR/ARPDAU)
  * - Stage 4: Retention & Cohort Engagement (D1/D7/D30 Curves, DAU/MAU Stickiness)
- * - Stage 5: Monetization & Payment Telemetry (Stripe, App Store, Steam Invoicing)
+ * - Stage 5: Monetization & Payment Telemetry (Stripe, App Store, Steam Invoicing, Pricing Elasticity, Growth Playbook)
  */
 
 export const BUSINESS_PROTOCOL = "holar.business.v1" as const;
@@ -26,6 +26,8 @@ export type BusinessAction =
   | "venture_unit_economics"
   | "venture_retention_curves"
   | "venture_monetization_telemetry"
+  | "venture_pricing_experiment"
+  | "venture_growth_playbook"
   | "seo_keyword_difficulty"
   | "seo_batch_keywords"
   | "seo_link_budget"
@@ -112,6 +114,32 @@ export type MonetizationTelemetryResult = {
   refundRatePercent: number;
   revenueTrajectory: "Exponential" | "Strong Growth" | "Plateau" | "Declining";
   tierDistribution: Array<{ tierName: string; revenueSharePercent: number; users: number }>;
+};
+
+export type PricingExperimentResult = {
+  ventureName: string;
+  modality: BusinessModality;
+  optimalPriceUsd: number;
+  revenuePerVisitorMaxUsd: number;
+  tiersEvaluated: Array<{
+    priceUsd: number;
+    estimatedConversionPercent: number;
+    expectedRevenuePerVisitorUsd: number;
+    recommendation: "Underpriced" | "Optimal Revenue Max" | "Overpriced / Friction";
+  }>;
+};
+
+export type GrowthPlaybookResult = {
+  ventureName: string;
+  modality: BusinessModality;
+  horizonDays: number;
+  sprints: Array<{
+    phase: string;
+    dayRange: string;
+    focus: string;
+    deliverables: string[];
+    targetKpi: string;
+  }>;
 };
 
 export type KeywordDifficultyResult = {
@@ -222,6 +250,7 @@ export type BusinessInput = {
   d1_retention?: number;
   d7_retention?: number;
   d30_retention?: number;
+  price_points?: number[];
   provider?: BusinessProvider;
   month?: string;
   query?: string;
@@ -270,6 +299,14 @@ export function formatBusinessSummary(result: BusinessResult): string {
     case "venture_monetization_telemetry": {
       const data = result.data as MonetizationTelemetryResult;
       return `Monetization [${data.billingProvider}]: $${data.totalRevenueUsd.toLocaleString()} (+${data.growthRateMoMPercent}% MoM, Trajectory: ${data.revenueTrajectory})`;
+    }
+    case "venture_pricing_experiment": {
+      const data = result.data as PricingExperimentResult;
+      return `Pricing Experiment [${data.modality.toUpperCase()}]: Optimal Price $${data.optimalPriceUsd} (Max Revenue: $${data.revenuePerVisitorMaxUsd.toFixed(2)}/visitor across ${data.tiersEvaluated.length} price points)`;
+    }
+    case "venture_growth_playbook": {
+      const data = result.data as GrowthPlaybookResult;
+      return `Growth Playbook [${data.modality.toUpperCase()}]: ${data.horizonDays}-Day Sprint Plan (${data.sprints.length} phases: ${data.sprints.map((s) => s.phase).join(" ➔ ")})`;
     }
     case "seo_keyword_difficulty": {
       const data = result.data as KeywordDifficultyResult;

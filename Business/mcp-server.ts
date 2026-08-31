@@ -13,6 +13,8 @@ export const BUSINESS_ACTIONS = [
   "venture_unit_economics",
   "venture_retention_curves",
   "venture_monetization_telemetry",
+  "venture_pricing_experiment",
+  "venture_growth_playbook",
   "seo_keyword_difficulty",
   "seo_batch_keywords",
   "seo_link_budget",
@@ -35,7 +37,7 @@ export const BUSINESS_INPUT_SCHEMA = {
     action: {
       type: "string",
       enum: BUSINESS_ACTIONS,
-      description: "Business action across the 5 venture lifecycle stages: 'venture_market_validation' (TAM/SAM/SOM & viability), 'venture_acquisition_audit' (SEO/ASO/Steam Wishlists), 'venture_unit_economics' (CAC, LTV, MRR/ARPDAU), 'venture_retention_curves' (D1/D7/D30 & DAU/MAU stickiness), 'venture_monetization_telemetry' (Stripe/AppStore/Steam billing), plus modular SEO/TrafficCV actions and 'list_actions'.",
+      description: "Business action across the 5 venture lifecycle stages: 'venture_market_validation' (TAM/SAM/SOM & viability), 'venture_acquisition_audit' (SEO/ASO/Steam Wishlists), 'venture_unit_economics' (CAC, LTV, MRR/ARPDAU), 'venture_retention_curves' (D1/D7/D30 & DAU/MAU stickiness), 'venture_monetization_telemetry' (Stripe/AppStore/Steam billing), 'venture_pricing_experiment' (Price elasticity curve), 'venture_growth_playbook' (90-day roadmap), plus modular SEO/TrafficCV actions and 'list_actions'.",
     },
     modality: {
       type: "string",
@@ -98,6 +100,11 @@ export const BUSINESS_INPUT_SCHEMA = {
     mau: {
       type: "integer",
       description: "Monthly Active Users count.",
+    },
+    price_points: {
+      type: "array",
+      items: { type: "number" },
+      description: "Array of price points to test in pricing elasticity experiment.",
     },
     month: {
       type: "string",

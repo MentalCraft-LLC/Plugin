@@ -1,11 +1,11 @@
 /**
  * Plugin/Science Core - Academic Production Lifecycle & Research Intelligence Engine
  *
- * Symmetrical capability engine managing the full lifecycle of academic and scientific production:
- * 1. Paper: Literature discovery, DOI/BibTeX citation verification, manuscript structure audit, peer-review simulation.
- * 2. Grant: NIH/NSF/ERC rubric evaluation, multi-year budget calculation, specific aims alignment.
- * 3. Journal: Journal matching (Impact Factor, acceptance rate), camera-ready submission checklist.
- * 4. Patent: Novelty audits, USPTO/WIPO prior art discovery, claim tree hierarchy structuring.
+ * Dedicated research intelligence engine managing the full lifecycle of academic production:
+ * 1. Paper Pillar (Science/Paper): Literature discovery, DOI/BibTeX verification, manuscript auditing, peer-review simulation, LaTeX scaffolding.
+ * 2. Grant Pillar (Science/Grant): NIH/NSF/ERC rubric evaluation, multi-year MTDC budgeting, specific aims dependency matrix.
+ * 3. Journal Pillar (Science/Journal): JCR/Scimago journal matcher, submission compliance & CRediT authorship checklist.
+ * 4. Patent Pillar (Science/Patent): USPTO/WIPO novelty & non-obviousness scoring, claim tree structure & specification scaffolding.
  */
 
 export const SCIENCE_PROTOCOL = "holar.science.v1" as const;
@@ -15,6 +15,7 @@ export type ScienceAction =
   | "paper_citation_verify"
   | "paper_structure_audit"
   | "paper_peer_review_simulate"
+  | "paper_latex_scaffold"
   | "grant_criteria_audit"
   | "grant_budget_calculator"
   | "grant_aims_alignment"
@@ -22,6 +23,7 @@ export type ScienceAction =
   | "journal_submission_checklist"
   | "patent_novelty_check"
   | "patent_claim_structure"
+  | "patent_spec_scaffold"
   | "list_actions";
 
 export type AcademicPaper = {
@@ -32,6 +34,7 @@ export type AcademicPaper = {
   venue: string;
   citations: number;
   abstract: string;
+  bibtexKey: string;
   openAccessUrl?: string;
 };
 
@@ -45,14 +48,31 @@ export type ManuscriptSectionAudit = {
   recommendation?: string;
 };
 
+export type ReviewerFeedback = {
+  reviewer: string;
+  expertise: string;
+  score: number; // 1-10
+  confidence: number; // 1-5
+  summary: string;
+  strengths: string[];
+  weaknesses: string[];
+  missingBaselines: string[];
+};
+
 export type PeerReviewFeedback = {
   overallRecommendation: "Strong Accept" | "Accept" | "Weak Accept" | "Borderline" | "Weak Reject" | "Reject";
   score: number; // 1-10
   confidence: number; // 1-5
+  consensus: string;
+  reviews: ReviewerFeedback[];
   strengths: string[];
   weaknesses: string[];
   missingBaselines: string[];
-  rebuttalGuidance: string[];
+  rebuttalMatrix: Array<{
+    critique: string;
+    suggestedResponse: string;
+    actionItem: string;
+  }>;
 };
 
 export type GrantRubricScore = {
@@ -99,6 +119,7 @@ export type ScienceInput = {
     travel?: number;
     other?: number;
   };
+  fringe_rate_percent?: number;
   indirect_rate_percent?: number;
   duration_years?: number;
   aims?: string[];
@@ -126,8 +147,8 @@ export function formatScienceSummary(result: ScienceResult): string {
 
   switch (result.action) {
     case "list_actions": {
-      const data = result.data as { actions: Array<{ name: string }> };
-      return `Academic Lifecycle Actions (${data.actions.length}): ${data.actions.map((a) => a.name).join(", ")}`;
+      const data = result.data as { totalActions: number; actions: Array<{ name: string }> };
+      return `Academic Lifecycle Actions (${data.totalActions}): ${data.actions.map((a) => a.name).join(", ")}`;
     }
     case "paper_literature_search": {
       const data = result.data as { total: number; papers: Array<{ title: string; year: number; citations: number }> };
@@ -143,7 +164,11 @@ export function formatScienceSummary(result: ScienceResult): string {
     }
     case "paper_peer_review_simulate": {
       const data = result.data as PeerReviewFeedback;
-      return `Peer Review Simulation: ${data.overallRecommendation} (${data.score}/10) | ${data.strengths.length} strengths, ${data.weaknesses.length} weaknesses`;
+      return `Peer Review Simulation: ${data.overallRecommendation} (${data.score}/10) | ${data.strengths.length} strengths, ${data.weaknesses.length} weaknesses, ${data.rebuttalMatrix.length} rebuttal items`;
+    }
+    case "paper_latex_scaffold": {
+      const data = result.data as { templateType: string; linesCount: number };
+      return `LaTeX Scaffold Generated: [${data.templateType}] (${data.linesCount} lines, compilation-ready)`;
     }
     case "grant_criteria_audit": {
       const data = result.data as { compositeNihScore: number; overallCategory: string };
@@ -155,7 +180,7 @@ export function formatScienceSummary(result: ScienceResult): string {
     }
     case "grant_aims_alignment": {
       const data = result.data as { aimsCount: number; alignmentScore: number };
-      return `Specific Aims Alignment: ${data.alignmentScore}/100 (${data.aimsCount} aims evaluated)`;
+      return `Specific Aims Alignment: ${data.alignmentScore}/100 (${data.aimsCount} aims evaluated, Independent)`;
     }
     case "journal_matcher": {
       const data = result.data as { matchedCount: number; recommendations: JournalRecommendation[] };
@@ -172,6 +197,10 @@ export function formatScienceSummary(result: ScienceResult): string {
     case "patent_claim_structure": {
       const data = result.data as { totalClaims: number; independentClaims: number; validAntecedent: boolean };
       return `Patent Claims: ${data.totalClaims} claims (${data.independentClaims} independent, Antecedent: ${data.validAntecedent ? "VALID" : "FLAW DETECTED"})`;
+    }
+    case "patent_spec_scaffold": {
+      const data = result.data as { title: string; claimsCount: number; sectionsCount: number };
+      return `Patent Spec Scaffolding: "${data.title}" (${data.sectionsCount} formal sections, ${data.claimsCount} claims)`;
     }
   }
 }
