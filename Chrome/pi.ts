@@ -40,6 +40,12 @@ export function compactBrowserResult(value: unknown): string {
   const controls = Array.isArray(result.controls) ? result.controls : undefined;
   const parts: string[] = [];
   if (typeof result.status === "string") parts.push(result.status);
+  else if (result.action === "inspect_element" && result.found) {
+    parts.push(String(result.tag || "element"));
+    if (result.name) parts.push(`"${result.name}"`);
+  } else if (result.action === "evaluate_script") {
+    parts.push(result.success ? "evaluated" : "error");
+  }
   const host = browserHost(result.origin);
   if (host) parts.push(host);
   if (controls) parts.push(`${controls.length} control${controls.length === 1 ? "" : "s"}`);
