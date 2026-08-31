@@ -4,7 +4,7 @@
  *
  * Fast developer command line utility for Holar plugin introspection,
  * direct action execution, health diagnostics, MCP stdio & HTTP launching,
- * and auto-registration into Antigravity/Claude/Cursor environments.
+ * interactive REPL console, and automatic documentation generation.
  */
 
 import { BUILTIN_WORKFLOWS, type PluginId } from "./Workflow/core.ts";
@@ -15,6 +15,9 @@ import { scienceOperation } from "./Science/operation.ts";
 import { createBrowserContextOperation } from "./Chrome/operation.ts";
 import { createMessageOperation } from "./Message/operation.ts";
 import { startGatewayMcpStdio, startGatewayMcpHttp } from "./gateway.ts";
+import { createInterface } from "node:readline/promises";
+import { writeFileSync } from "node:fs";
+import { join } from "node:path";
 
 const args = process.argv.slice(2);
 const command = args[0] || "help";
@@ -22,13 +25,159 @@ const command = args[0] || "help";
 const executeChrome = createBrowserContextOperation();
 const executeMessage = createMessageOperation();
 
-async function main() {
-  switch (command) {
+export async function executePluginAction(plugin: string, action: string, jsonArgs: Record<string, unknown> = {}): Promise<unknown> {
+  if (plugin === "design") {
+    return await designOperation({ action: action as any, ...jsonArgs });
+  } else if (plugin === "business") {
+    return await businessOperation({ action: action as any, ...jsonArgs });
+  } else if (plugin === "science") {
+    return await scienceOperation({ action: action as any, ...jsonArgs });
+  } else if (plugin === "workflow") {
+    return await workflowOperation({ action: action as any, ...jsonArgs });
+  } else if (plugin === "chrome") {
+    return await executeChrome({ action: action as any, ...jsonArgs });
+  } else if (plugin === "message") {
+    return await executeMessage({ action: action as any, ...jsonArgs });
+  } else {
+    throw new Error(`Unknown plugin '${plugin}'. Available: business, science, design, workflow, chrome, message`);
+  }
+}
+
+export function generateMarkdownCatalog(): string {
+  const lines: string[] = [
+    "# 📖 MentalCraft Capability & Plugin Catalog",
+    "",
+    "> Universal, Agent-Less & Host-Agnostic Intelligence Specifications (OpenRPC 1.3 Compatible)",
+    "",
+    "## 📦 Subsystems Overview",
+    "",
+    "| Subsystem | Actions | Protocol | Key Domain Scope |",
+    "|---|---|---|---|",
+    "| `Workflow` | 9 | `holar.workflow.v1` | Multi-plugin compound DAG execution, health diagnostics, telemetry & circuit breaker |",
+    "| `Business` | 11 | `holar.business.v1` | Google SEO KD (0-100), link budgets, TrafficCV traffic forensics, Stripe Radar leaderboards |",
+    "| `Science` | 7 | `holar.science.v1` | Clinical psychometrics (GAD-7/PHQ-9), 988 suicide safety, literature & patent novelty |",
+    "| `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |",
+    "| `Chrome` | 38 | `holar.browser.v1` | Inactive tab driving, CDP inspection, HUD annotations, storage/cookie receipts |",
+    "| `Message` | 4 | `holar.message.v1` | Multi-channel priority bus (Telegram > iMessage > Email) with mode-0600 isolation |",
+    "",
+    "---",
+    "",
+    "## 🚀 Compound Workflows",
+    "",
+  ];
+
+  for (const wf of BUILTIN_WORKFLOWS) {
+    lines.push(`### \`${wf.id}\` — ${wf.name}`);
+    lines.push(`- **Description**: ${wf.description}`);
+    lines.push(`- **Required Plugins**: \`${wf.requiredPlugins.join("` ➔ `")}\``);
+    lines.push("- **Execution Steps**:");
+    for (const s of wf.steps) {
+      lines.push(`  ${s.step}. **[${s.plugin}]** \`${s.action}\`: ${s.description}`);
+    }
+    lines.push("");
+  }
+
+  lines.push("---");
+  lines.push("");
+  lines.push("## 🛠️ CLI Quick Reference");
+  lines.push("");
+  lines.push("```bash");
+  lines.push("# System Health & Diagnostics");
+  lines.push("bun cli.ts health");
+  lines.push("");
+  lines.push("# Live Telemetry & Circuit Breaker Dashboard");
+  lines.push("bun cli.ts metrics");
+  lines.push("");
+  lines.push("# Execute Compound Workflow");
+  lines.push("bun cli.ts run-workflow clinical_study_to_screener");
+  lines.push("");
+  lines.push("# Microsecond Benchmark Suite");
+  lines.push("bun cli.ts bench");
+  lines.push("");
+  lines.push("# Interactive Developer REPL");
+  lines.push("bun cli.ts repl");
+  lines.push("```");
+  lines.push("");
+
+  return lines.join("\n");
+}
+
+async function startInteractiveRepl() {
+  const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: true,
+  });
+
+  console.log("\n⚡ MentalCraft Interactive Plugin REPL (Type 'help' for commands, 'exit' to quit)\n" + "=".repeat(75));
+
+  try {
+    while (true) {
+      const line = (await rl.question("mentalcraft> ")).trim();
+      if (!line) continue;
+      if (line === "exit" || line === "quit" || line === "q") break;
+
+      const parts = line.split(/\s+/);
+      const sub = parts[0];
+
+      try {
+        if (sub === "help") {
+          console.log(`
+Available REPL Commands:
+  list, ls                 List all plugins
+  health, doctor           Run diagnostics
+  metrics, telemetry       Show live latency & circuit breaker
+  workflows, wf            List compound DAG pipelines
+  run <workflow_id>        Execute workflow pipeline
+  bench                    Run microsecond benchmark suite
+  exec <p> <a> [json]      Execute single action (e.g. exec business traffic_domain_overview {"domain":"mentalcraft.org"})
+  docs                     Generate CATALOG.md documentation
+  exit, quit               Exit the REPL
+`);
+        } else if (sub === "list" || sub === "ls") {
+          await mainCommand("list");
+        } else if (sub === "health" || sub === "doctor") {
+          await mainCommand("health");
+        } else if (sub === "metrics" || sub === "telemetry") {
+          await mainCommand("metrics");
+        } else if (sub === "bench") {
+          await mainCommand("bench");
+        } else if (sub === "workflows" || sub === "wf") {
+          await mainCommand("workflows");
+        } else if (sub === "run") {
+          const wfId = parts[1] || "clinical_study_to_screener";
+          const res = await workflowOperation({ action: "run_workflow", workflow_id: wfId as any });
+          console.log(JSON.stringify(res, null, 2));
+        } else if (sub === "exec") {
+          const p = parts[1];
+          const a = parts[2];
+          const jsonStr = parts.slice(3).join(" ");
+          const parsed = jsonStr ? JSON.parse(jsonStr) : {};
+          const res = await executePluginAction(p, a, parsed);
+          console.log(JSON.stringify(res, null, 2));
+        } else if (sub === "docs") {
+          const doc = generateMarkdownCatalog();
+          writeFileSync(join(import.meta.dir, "CATALOG.md"), doc, "utf-8");
+          console.log("✓ Generated CATALOG.md");
+        } else {
+          console.log(`Unknown command '${sub}'. Type 'help' for available commands.`);
+        }
+      } catch (err: any) {
+        console.error(`✗ Error: ${err.message}`);
+      }
+    }
+  } finally {
+    rl.close();
+  }
+}
+
+async function mainCommand(cmd: string) {
+  switch (cmd) {
     case "list":
     case "ls": {
       console.log("\n📦 Holar Plugin Registry\n" + "=".repeat(60));
       const plugins = [
-        { id: "workflow", name: "Workflow Orchestrator & Health Engine", actions: 8, desc: "Multi-plugin compound DAG execution & pre-flight health diagnostics" },
+        { id: "workflow", name: "Workflow Orchestrator & Health Engine", actions: 9, desc: "Multi-plugin compound DAG execution & pre-flight health diagnostics" },
         { id: "business", name: "Business & Market Intelligence", actions: 11, desc: "Gefei SEO KD, TrafficCV domain traffic & channels, Stripe Radar leaderboards" },
         { id: "science", name: "Science & Research Intelligence", actions: 7, desc: "Clinical scoring (GAD-7/PHQ-9), 988 crisis safety, literature & patent novelty" },
         { id: "design", name: "Design System & UI Intelligence", actions: 10, desc: "5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths" },
@@ -91,7 +240,7 @@ async function main() {
 
     case "exec":
     case "run": {
-      const plugin = args[1] as PluginId;
+      const plugin = args[1];
       const action = args[2];
       const jsonArgs = args[3] ? JSON.parse(args[3]) : {};
 
@@ -101,23 +250,7 @@ async function main() {
       }
 
       console.log(`\n⚡ Executing ${plugin}.${action}...`);
-      let res: unknown;
-      if (plugin === "design") {
-        res = await designOperation({ action: action as any, ...jsonArgs });
-      } else if (plugin === "business") {
-        res = await businessOperation({ action: action as any, ...jsonArgs });
-      } else if (plugin === "science") {
-        res = await scienceOperation({ action: action as any, ...jsonArgs });
-      } else if (plugin === "workflow" as any) {
-        res = await workflowOperation({ action: action as any, ...jsonArgs });
-      } else if (plugin === "chrome" as any) {
-        res = await executeChrome({ action: action as any, ...jsonArgs });
-      } else if (plugin === "message" as any) {
-        res = await executeMessage({ action: action as any, ...jsonArgs });
-      } else {
-        console.error(`Execution for '${plugin}' not directly supported in CLI quick-exec.`);
-        process.exit(1);
-      }
+      const res = await executePluginAction(plugin, action, jsonArgs);
       console.log(JSON.stringify(res, null, 2));
       break;
     }
@@ -166,6 +299,15 @@ async function main() {
       break;
     }
 
+    case "docs":
+    case "catalog": {
+      const doc = generateMarkdownCatalog();
+      const targetFile = join(import.meta.dir, "CATALOG.md");
+      writeFileSync(targetFile, doc, "utf-8");
+      console.log(`\n✓ Generated documentation catalog: ${targetFile}\n`);
+      break;
+    }
+
     case "bench": {
       console.log("\n⚡ Benchmarking In-Process Plugin Execution Performance (1,000 iterations each)\n" + "=".repeat(70));
       const targets = [
@@ -181,7 +323,6 @@ async function main() {
 
       const iterations = 1000;
       for (const t of targets) {
-        // Warmup
         for (let i = 0; i < 50; i++) await t.fn();
 
         const start = performance.now();
@@ -218,6 +359,12 @@ async function main() {
       break;
     }
 
+    case "repl":
+    case "i": {
+      await startInteractiveRepl();
+      break;
+    }
+
     case "serve": {
       const httpFlag = args.includes("--http");
       const portArg = args.find((a) => a.startsWith("--port="));
@@ -245,6 +392,11 @@ Commands:
   history                  View past workflow execution receipts
   export-config [client]   Generate MCP config JSON for Claude Desktop / Cursor
   install-mcp              Auto-install tool schemas to Antigravity MCP directory
+  schema, openrpc          Export complete OpenRPC 1.3 JSON specification
+  docs, catalog            Generate Markdown CATALOG.md documentation
+  bench                    Run microsecond benchmark performance suite
+  metrics, telemetry       Show live telemetry & circuit breaker status
+  repl, i                  Launch interactive developer REPL shell
   exec <p> <a> [d]         Execute an action on a plugin directly
   serve [--http] [--port]  Launch master MCP server (Stdio or HTTP/SSE)
   help                     Show this help message
@@ -255,5 +407,5 @@ Commands:
 }
 
 if (import.meta.main) {
-  main().catch(console.error);
+  mainCommand(command).catch(console.error);
 }
