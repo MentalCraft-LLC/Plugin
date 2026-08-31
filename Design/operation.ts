@@ -11,8 +11,10 @@ import {
   type DesignResult,
   COMPONENT_CATALOG,
   DESIGN_TOKENS,
+  DOMAIN_PRESETS,
   type ComponentSpec,
   type TokenDefinition,
+  type DomainPreset,
 } from "./core.ts";
 
 export async function designOperation(input: DesignInput): Promise<DesignResult> {
@@ -389,6 +391,188 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
             textColor: "var(--color-foreground)",
             radius: "var(--radius-md)",
           },
+        },
+      };
+    }
+
+    case "resolve_imports": {
+      let targetNames = input.components ?? [];
+      if (targetNames.length === 0 && input.prompt) {
+        targetNames = input.prompt.split(/[\s,]+/).filter(Boolean);
+      }
+      if (targetNames.length === 0 && input.template_code) {
+        // Auto-extract used components from template
+        for (const c of COMPONENT_CATALOG) {
+          const pattern = new RegExp(`<${c.name}\\b`);
+          if (pattern.test(input.template_code)) {
+            targetNames.push(c.name);
+          }
+        }
+      }
+
+      if (targetNames.length === 0) {
+        return {
+          protocol: DESIGN_PROTOCOL,
+          action: "resolve_imports",
+          success: false,
+          timestamp,
+          data: null,
+          diagnostics: ["Please supply 'components' array, 'prompt' (e.g. 'Button, Card'), or 'template_code'."],
+        };
+      }
+
+      const matched: ComponentSpec[] = [];
+      const unmatched: string[] = [];
+
+      for (const name of targetNames) {
+        const item = COMPONENT_CATALOG.find(
+          (c) => c.name.toLowerCase() === name.toLowerCase() || c.id.toLowerCase() === name.toLowerCase()
+        );
+        if (item) {
+          if (!matched.some((m) => m.id === item.id)) matched.push(item);
+        } else {
+          unmatched.push(name);
+        }
+      }
+
+      const totalSizeKb = Math.round(matched.reduce((acc, c) => acc + c.estimatedSizeKb, 0) * 10) / 10;
+      const monolithicSizeKb = 95.0;
+      const savingsPct = Math.round(((monolithicSizeKb - totalSizeKb) / monolithicSizeKb) * 100);
+
+      const barrelStatement = `import { ${matched.map((m) => m.name).join(", ")} } from 'infra-ui-svelte';`;
+      const subpathStatements = matched
+        .map((m) => `import ${m.name} from '${m.subpath}';`)
+        .join("\n");
+
+      return {
+        protocol: DESIGN_PROTOCOL,
+        action: "resolve_imports",
+        success: true,
+        timestamp,
+        data: {
+          matchedComponents: matched.map((m) => ({
+            name: m.name,
+            subpath: m.subpath,
+            sizeKb: m.estimatedSizeKb,
+          })),
+          unmatched,
+          barrelStatement,
+          subpathStatements,
+          metrics: {
+            estimatedOnDemandKb: totalSizeKb,
+            monolithicBundleKb: monolithicSizeKb,
+            treeShakingSavings: `${savingsPct}%`,
+          },
+        },
+      };
+    }
+
+    case "domain_presets": {
+      if (input.preset_name) {
+        const preset = DOMAIN_PRESETS.find((p) => p.id === input.preset_name);
+        if (!preset) {
+          return {
+            protocol: DESIGN_PROTOCOL,
+            action: "domain_presets",
+            success: false,
+            timestamp,
+            data: null,
+            diagnostics: [`Preset '${input.preset_name}' not found. Available: ${DOMAIN_PRESETS.map((p) => p.id).join(", ")}`],
+          };
+        }
+        return {
+          protocol: DESIGN_PROTOCOL,
+          action: "domain_presets",
+          success: true,
+          timestamp,
+          data: {
+            preset,
+            subpathImports: preset.recommendedComponents.map((name) => {
+              const comp = COMPONENT_CATALOG.find((c) => c.name === name);
+              return comp ? `import ${name} from '${comp.subpath}';` : `// ${name}`;
+            }).join("\n"),
+          },
+        };
+      }
+
+      return {
+        protocol: DESIGN_PROTOCOL,
+        action: "domain_presets",
+        success: true,
+        timestamp,
+        data: {
+          total: DOMAIN_PRESETS.length,
+          presets: DOMAIN_PRESETS,
+        },
+      };
+    }
+
+    case "bundle_optimize": {
+      const code = input.template_code ?? "";
+      if (!code) {
+        return {
+          protocol: DESIGN_PROTOCOL,
+          action: "bundle_optimize",
+          success: false,
+          timestamp,
+          data: null,
+          diagnostics: ["A 'template_code' string is required for bundle optimization."],
+        };
+      }
+
+      // Check for monolithic import { ... } from "infra-ui-svelte"
+      const barrelRegex = /import\s*\{([^}]+)\}\s*from\s*["']infra-ui-svelte["'];?/;
+      const match = code.match(barrelRegex);
+
+      if (!match) {
+        return {
+          protocol: DESIGN_PROTOCOL,
+          action: "bundle_optimize",
+          success: true,
+          timestamp,
+          data: {
+            optimized: false,
+            message: "No monolithic 'infra-ui-svelte' barrel import found to refactor.",
+            code,
+          },
+        };
+      }
+
+      const importedNames = match[1].split(",").map((s) => s.trim()).filter(Boolean);
+      const usedComponents: ComponentSpec[] = [];
+      const unusedComponents: string[] = [];
+
+      for (const name of importedNames) {
+        const comp = COMPONENT_CATALOG.find((c) => c.name === name);
+        if (comp) {
+          // Check if component is actually rendered in template
+          const tagPattern = new RegExp(`<${name}\\b`);
+          if (tagPattern.test(code)) {
+            usedComponents.push(comp);
+          } else {
+            unusedComponents.push(name);
+          }
+        }
+      }
+
+      const optimizedImports = usedComponents
+        .map((c) => `import ${c.name} from '${c.subpath}';`)
+        .join("\n");
+
+      const optimizedCode = code.replace(barrelRegex, optimizedImports);
+
+      return {
+        protocol: DESIGN_PROTOCOL,
+        action: "bundle_optimize",
+        success: true,
+        timestamp,
+        data: {
+          optimized: true,
+          removedUnused: unusedComponents,
+          retainedComponents: usedComponents.map((c) => c.name),
+          previousImport: match[0],
+          optimizedImports,
+          optimizedCode,
         },
       };
     }

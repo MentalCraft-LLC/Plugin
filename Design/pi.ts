@@ -48,6 +48,22 @@ export function compactDesignResult(result: DesignResult): string {
         ? `Matched DOM element → <${data.matchedDesignComponent.name}> [${data.matchedDesignComponent.layer}]`
         : `No direct component match for DOM element`;
     }
+    case "resolve_imports": {
+      const data = result.data as { matchedComponents: Array<{ name: string; sizeKb: number }>; metrics: { treeShakingSavings: string; estimatedOnDemandKb: number } };
+      return `On-Demand Imports: ${data.matchedComponents.length} components (${data.metrics.estimatedOnDemandKb} KB, ${data.metrics.treeShakingSavings} savings)`;
+    }
+    case "domain_presets": {
+      const data = result.data as { total?: number; preset?: { name: string } };
+      return data.preset
+        ? `Preset: ${data.preset.name}`
+        : `Domain Presets (${data.total} packs available)`;
+    }
+    case "bundle_optimize": {
+      const data = result.data as { optimized: boolean; retainedComponents?: string[]; removedUnused?: string[] };
+      return data.optimized
+        ? `Bundle Optimized: Retained [${(data.retainedComponents ?? []).join(", ")}], Removed [${(data.removedUnused ?? []).join(", ")}]`
+        : `Bundle check: Already optimal`;
+    }
   }
 }
 
@@ -61,6 +77,8 @@ export const designTool = {
       layer: Type.Optional(StringEnum(["foundation", "component", "composite", "block", "template"] as const)),
       category: Type.Optional(Type.String()),
       component_id: Type.Optional(Type.String()),
+      components: Type.Optional(Type.Array(Type.String())),
+      preset_name: Type.Optional(StringEnum(["clinical", "chat_ai", "analytics", "commerce", "auth"] as const)),
       token_category: Type.Optional(StringEnum(["color", "typography", "spacing", "radius", "shadow", "elevation", "motion", "breakpoint"] as const)),
       intent: Type.Optional(StringEnum(["marketing_hero", "auth_form", "screener", "chat_stream", "settings_panel", "pricing_table", "custom"] as const)),
       prompt: Type.Optional(Type.String()),

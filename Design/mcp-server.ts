@@ -16,6 +16,9 @@ export const DESIGN_ACTIONS = [
   "audit_ui",
   "bridge_chrome",
   "list_layers",
+  "resolve_imports",
+  "domain_presets",
+  "bundle_optimize",
 ] as const;
 
 export const DESIGN_INPUT_SCHEMA = {
@@ -26,7 +29,7 @@ export const DESIGN_INPUT_SCHEMA = {
     action: {
       type: "string",
       enum: DESIGN_ACTIONS,
-      description: "Design action: 'catalog' (list components), 'inspect_component' (deep schema/props/example), 'theme_tokens' (colors, spacing, radius), 'generate_ui' (Svelte 5 runes recipe), 'audit_ui' (A11y/Token linter), 'bridge_chrome' (DOM to component mapper), 'list_layers' (5-layer architecture).",
+      description: "Design action: 'catalog' (list components), 'inspect_component' (deep schema/props/example), 'theme_tokens' (colors, spacing, radius), 'generate_ui' (Svelte 5 runes recipe), 'audit_ui' (A11y/Token linter), 'bridge_chrome' (DOM to component mapper), 'list_layers' (5-layer architecture), 'resolve_imports' (calculate on-demand subpaths & savings), 'domain_presets' (clinical, chat_ai, analytics packs), 'bundle_optimize' (refactor monolithic imports).",
     },
     layer: {
       type: "string",
@@ -41,6 +44,16 @@ export const DESIGN_INPUT_SCHEMA = {
     component_id: {
       type: "string",
       description: "Target component ID (e.g. 'button', 'card', 'dialog', 'screener', 'kanban', 'hero').",
+    },
+    components: {
+      type: "array",
+      items: { type: "string" },
+      description: "List of component names for on-demand subpath resolution.",
+    },
+    preset_name: {
+      type: "string",
+      enum: ["clinical", "chat_ai", "analytics", "commerce", "auth"],
+      description: "Target domain preset pack.",
     },
     token_category: {
       type: "string",
@@ -58,7 +71,7 @@ export const DESIGN_INPUT_SCHEMA = {
     },
     template_code: {
       type: "string",
-      description: "Svelte or HTML code snippet to audit against design system standards.",
+      description: "Svelte or HTML code snippet to audit against design system standards or optimize imports.",
     },
     chrome_element: {
       type: "object",

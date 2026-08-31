@@ -29,6 +29,9 @@ It bridges the headless Svelte 5 component architecture in `Design/Svelte` (`inf
 | `generate_ui` | Synthesize accessible Svelte 5 runes code based on verified recipes | `intent` (`marketing_hero`, `auth_form`, `screener`, `pricing_table`) |
 | `audit_ui` | Audit Svelte/HTML template code against tokens and A11y standards | `template_code` |
 | `bridge_chrome` | Map Chrome DOM elements from `chrome.inspect_element` to design components | `chrome_element` |
+| `resolve_imports` | Calculate optimal on-demand subpaths (`import Button from 'infra-ui-svelte/component/interaction/button'`) & tree-shaking bundle savings | `components`, `prompt`, `template_code` |
+| `domain_presets` | List and scaffold pre-bundled domain packs (`clinical`, `chat_ai`, `analytics`, `commerce`, `auth`) | `preset_name` |
+| `bundle_optimize` | Refactor monolithic barrel imports into cherry-picked subpaths and prune unused components | `template_code` |
 
 ---
 

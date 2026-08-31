@@ -39,6 +39,8 @@ export type ComponentSpec = {
   category: ComponentCategory;
   description: string;
   importPath: string;
+  subpath: string;
+  estimatedSizeKb: number;
   variants?: string[];
   props: Array<{
     name: string;
@@ -70,6 +72,15 @@ export type TokenDefinition = {
   description: string;
 };
 
+export type DomainPreset = {
+  id: "clinical" | "chat_ai" | "analytics" | "commerce" | "auth";
+  name: string;
+  description: string;
+  recommendedComponents: string[];
+  tokensFocus: string[];
+  snippet: string;
+};
+
 export type DesignAction =
   | "catalog"
   | "inspect_component"
@@ -77,13 +88,18 @@ export type DesignAction =
   | "generate_ui"
   | "audit_ui"
   | "bridge_chrome"
-  | "list_layers";
+  | "list_layers"
+  | "resolve_imports"
+  | "domain_presets"
+  | "bundle_optimize";
 
 export type DesignInput = {
   action: DesignAction;
   layer?: DesignLayer;
   category?: ComponentCategory;
   component_id?: string;
+  components?: string[];
+  preset_name?: "clinical" | "chat_ai" | "analytics" | "commerce" | "auth";
   token_category?: DesignTokenCategory;
   intent?: "marketing_hero" | "auth_form" | "screener" | "chat_stream" | "settings_panel" | "pricing_table" | "custom";
   prompt?: string;
@@ -110,7 +126,6 @@ export type DesignResult = {
 
 /** Verified Design System Catalog Index */
 export const COMPONENT_CATALOG: ComponentSpec[] = [
-  // Foundation / Layout / Scaffold
   {
     id: "button",
     name: "Button",
@@ -118,6 +133,8 @@ export const COMPONENT_CATALOG: ComponentSpec[] = [
     category: "interaction",
     description: "Accessible interactive trigger with primary, secondary, ghost, line, glass, and plain variants.",
     importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/component/interaction/button",
+    estimatedSizeKb: 1.8,
     variants: ["primary", "secondary", "ghost", "line", "glass", "plain"],
     props: [
       { name: "variant", type: "'primary' | 'secondary' | 'ghost' | 'line' | 'glass' | 'plain'", required: false, default: "'ghost'", description: "Visual variant of the button" },
@@ -137,6 +154,8 @@ export const COMPONENT_CATALOG: ComponentSpec[] = [
     category: "scaffold",
     description: "Elevated content container with standard border, radius, padding and hover elevation.",
     importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/component/scaffold/card",
+    estimatedSizeKb: 1.2,
     variants: ["flat", "outline", "elevated", "glass"],
     props: [
       { name: "variant", type: "'flat' | 'outline' | 'elevated' | 'glass'", required: false, default: "'outline'", description: "Card elevation style" },
@@ -153,6 +172,8 @@ export const COMPONENT_CATALOG: ComponentSpec[] = [
     category: "input",
     description: "Standard text entry with clear affordance, focus ring, leading/trailing icons, and validation state.",
     importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/component/input/text",
+    estimatedSizeKb: 1.5,
     props: [
       { name: "value", type: "string", required: false, description: "Bound text value" },
       { name: "placeholder", type: "string", required: false, description: "Hint placeholder" },
@@ -170,6 +191,8 @@ export const COMPONENT_CATALOG: ComponentSpec[] = [
     category: "overlay",
     description: "Modal dialog with focus lock, escape key dismissal, and backdrop blur.",
     importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/composite/overlay/dialog",
+    estimatedSizeKb: 3.4,
     props: [
       { name: "open", type: "boolean", required: true, description: "Controlled open state" },
       { name: "title", type: "string", required: true, description: "Accessible modal title" },
@@ -186,6 +209,8 @@ export const COMPONENT_CATALOG: ComponentSpec[] = [
     category: "tool",
     description: "Practitioner screening link generator, link table, and quota indicator.",
     importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/block/tool/screener",
+    estimatedSizeKb: 6.8,
     props: [
       { name: "scale", type: "'gad7' | 'phq9' | 'combined'", required: true, description: "Assessment scale" },
       { name: "quotaUsed", type: "number", required: true, description: "Number of links used this cycle" },
@@ -201,6 +226,8 @@ export const COMPONENT_CATALOG: ComponentSpec[] = [
     category: "tool",
     description: "Validated clinical assessment flow with single/multi-stage progression and crisis handling.",
     importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/block/tool/questionnaire",
+    estimatedSizeKb: 7.2,
     props: [
       { name: "title", type: "string", required: true, description: "Assessment title" },
       { name: "description", type: "string", required: true, description: "Prompt instructions" },
@@ -217,6 +244,8 @@ export const COMPONENT_CATALOG: ComponentSpec[] = [
     category: "marketing",
     description: "Marketing landing hero section with headline, badge, call-to-action buttons, and visual media.",
     importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/composite/marketing/hero",
+    estimatedSizeKb: 3.1,
     props: [
       { name: "title", type: "string", required: true, description: "Headline text" },
       { name: "subtitle", type: "string", required: false, description: "Supporting narrative" },
@@ -232,6 +261,8 @@ export const COMPONENT_CATALOG: ComponentSpec[] = [
     category: "commerce",
     description: "Transparent pricing tier grid with feature checklists, billing cycle toggles, and CTA triggers.",
     importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/composite/commerce/pricing",
+    estimatedSizeKb: 4.5,
     props: [
       { name: "plans", type: "Array<PricingPlan>", required: true, description: "List of pricing tiers" },
       { name: "onSelectPlan", type: "(planId: string) => void", required: true, description: "Plan checkout callback" },
@@ -245,6 +276,8 @@ export const COMPONENT_CATALOG: ComponentSpec[] = [
     category: "interaction",
     description: "Accessible drag-and-drop board with columns, cards, keyboard reordering, and drop indicators.",
     importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/composite/interaction/kanban",
+    estimatedSizeKb: 8.4,
     props: [
       { name: "columns", type: "Array<KanbanColumn>", required: true, description: "Kanban columns and items" },
       { name: "onCardMove", type: "(cardId: string, toColumnId: string, index: number) => void", required: true, description: "Card reposition handler" },
@@ -258,12 +291,58 @@ export const COMPONENT_CATALOG: ComponentSpec[] = [
     category: "display",
     description: "SVG-based accessible chart series for time-series, bar, sparkline, and donut visual metrics.",
     importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/composite/display/chart",
+    estimatedSizeKb: 5.6,
     props: [
       { name: "data", type: "Array<{ label: string; value: number }>", required: true, description: "Data series" },
       { name: "type", type: "'line' | 'bar' | 'donut' | 'sparkline'", required: false, default: "'line'", description: "Chart visual type" },
       { name: "height", type: "number", required: false, default: "200", description: "Chart height in px" },
     ],
     example: `<Chart data={completionSeries} type="line" height={180} />`,
+  },
+];
+
+/** Domain-Specific Plug-and-Play Design Slices */
+export const DOMAIN_PRESETS: DomainPreset[] = [
+  {
+    id: "clinical",
+    name: "Mental Health & Clinical Assessment Pack",
+    description: "Specialized for psychiatric screening (GAD-7, PHQ-9), crisis alert banners, and score severity breakdown.",
+    recommendedComponents: ["Screener", "Questionnaire", "Card", "Button"],
+    tokensFocus: ["--color-destructive", "--color-success", "--color-surface-raised"],
+    snippet: `import { Screener, Questionnaire } from "infra-ui-svelte";\n// Dedicated clinical screening workflow`,
+  },
+  {
+    id: "chat_ai",
+    name: "AI Conversation & Real-Time Stream Pack",
+    description: "Optimized for streaming LLM chat, message timeline, prompt inputs, and typing indicators.",
+    recommendedComponents: ["Card", "Input", "Button", "Dialog"],
+    tokensFocus: ["--color-primary", "--motion-base", "--radius-lg"],
+    snippet: `import { Card, Input, Button, Dialog } from "infra-ui-svelte";\n// Conversational streaming workspace`,
+  },
+  {
+    id: "analytics",
+    name: "BI Dashboard & Metrics Pack",
+    description: "Data visualization, metric summary cards, trend indicators, and data tables.",
+    recommendedComponents: ["Chart", "Card", "Button"],
+    tokensFocus: ["--font-title-1", "--color-primary", "--color-border"],
+    snippet: `import { Chart, Card } from "infra-ui-svelte";\n// High-density analytics telemetry`,
+  },
+  {
+    id: "commerce",
+    name: "Monetization & Subscription Checkout Pack",
+    description: "Pricing comparison grids, subscription status pills, and billing receipts.",
+    recommendedComponents: ["Pricing", "Card", "Button"],
+    tokensFocus: ["--color-primary", "--radius-md", "--font-title-2"],
+    snippet: `import { Pricing, Button, Card } from "infra-ui-svelte";\n// Zero-friction checkout funnel`,
+  },
+  {
+    id: "auth",
+    name: "Identity & Access Guard Pack",
+    description: "Magic-link login card, single-sign-on triggers, and user verification modals.",
+    recommendedComponents: ["Card", "Input", "Button", "Dialog"],
+    tokensFocus: ["--radius-md", "--color-primary", "--color-surface"],
+    snippet: `import { Card, Input, Button } from "infra-ui-svelte";\n// Passwordless secure signin`,
   },
 ];
 

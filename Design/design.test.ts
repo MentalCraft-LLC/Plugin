@@ -161,6 +161,67 @@ describe("Design System & UI Intelligence Engine", () => {
     expect(parsed.success).toBe(true);
   });
 
+  test("resolve_imports calculates on-demand subpaths and tree-shaking savings", async () => {
+    const res = await designOperation({
+      action: "resolve_imports",
+      components: ["Button", "Input", "Card"],
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as {
+      matchedComponents: Array<{ name: string; subpath: string; sizeKb: number }>;
+      barrelStatement: string;
+      subpathStatements: string;
+      metrics: { estimatedOnDemandKb: number; treeShakingSavings: string };
+    };
+    expect(data.matchedComponents.length).toBe(3);
+    expect(data.subpathStatements).toContain("infra-ui-svelte/component/interaction/button");
+    expect(data.subpathStatements).toContain("infra-ui-svelte/component/input/text");
+    expect(data.metrics.estimatedOnDemandKb).toBeLessThan(10);
+    expect(data.metrics.treeShakingSavings).toContain("%");
+  });
+
+  test("domain_presets returns pre-bundled domain packs like clinical and chat", async () => {
+    // List all
+    const allPresets = await designOperation({ action: "domain_presets" });
+    expect(allPresets.success).toBe(true);
+    const allData = allPresets.data as { total: number; presets: Array<{ id: string }> };
+    expect(allData.total).toBe(5);
+
+    // Get clinical preset
+    const clinical = await designOperation({ action: "domain_presets", preset_name: "clinical" });
+    expect(clinical.success).toBe(true);
+    const cData = clinical.data as { preset: { name: string; recommendedComponents: string[] }; subpathImports: string };
+    expect(cData.preset.name).toContain("Clinical");
+    expect(cData.preset.recommendedComponents).toContain("Screener");
+    expect(cData.subpathImports).toContain("infra-ui-svelte/block/tool/screener");
+  });
+
+  test("bundle_optimize prunes unused components and converts to subpaths", async () => {
+    const codeWithUnused = `
+      <script>
+        import { Button, Dialog, Card, Kanban } from "infra-ui-svelte";
+      </script>
+      <Card>
+        <Button>Click</Button>
+      </Card>
+    `;
+    const res = await designOperation({ action: "bundle_optimize", template_code: codeWithUnused });
+    expect(res.success).toBe(true);
+    const data = res.data as {
+      optimized: boolean;
+      removedUnused: string[];
+      retainedComponents: string[];
+      optimizedCode: string;
+    };
+    expect(data.optimized).toBe(true);
+    expect(data.removedUnused).toContain("Dialog");
+    expect(data.removedUnused).toContain("Kanban");
+    expect(data.retainedComponents).toContain("Button");
+    expect(data.retainedComponents).toContain("Card");
+    expect(data.optimizedCode).toContain("infra-ui-svelte/component/interaction/button");
+    expect(data.optimizedCode).toContain("infra-ui-svelte/component/scaffold/card");
+  });
+
   test("Pi compactDesignResult formats readable concise terminal logs", async () => {
     const res = await designOperation({ action: "catalog" });
     const log = compactDesignResult(res);
