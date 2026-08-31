@@ -794,7 +794,7 @@ describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
 
       const listRes = await handleScienceRpc({ jsonrpc: "2.0", id: 2, method: "tools/list" });
       expect(listRes.result.tools[0].name).toBe("science");
-      expect(SCIENCE_INPUT_SCHEMA.properties.action.enum.length).toBe(29);
+      expect(SCIENCE_INPUT_SCHEMA.properties.action.enum.length).toBe(43);
 
       const callRes = await handleScienceRpc({
         jsonrpc: "2.0",
@@ -879,10 +879,24 @@ describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
         "css_did_regression",
         "css_parallel_trends_test",
         "css_abm_step",
+        "paper_chinese_formatter",
+        "paper_social_science_audit",
+        "paper_css_digital_trace_audit",
+        "paper_css_nlp_sentiment_trajectory",
+        "paper_css_causal_inference_did",
+        "paper_css_abm_simulation",
+        "paper_css_telemetry_preprocess",
+        "paper_css_nlp_sentiment_score",
+        "paper_css_topic_bertopic_cluster",
+        "paper_css_did_regression",
+        "paper_css_parallel_trends_test",
+        "paper_css_abm_step",
+        "journal_ssci_matcher",
       ] as const;
 
       for (const act of actions) {
         const res = await scienceOperation({ action: act });
+        expect(res.success).toBe(true);
         const summary = compactScienceResult(res);
         expect(typeof summary).toBe("string");
         expect(summary.length).toBeGreaterThan(10);

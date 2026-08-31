@@ -3045,6 +3045,7 @@ This framework establishes a host-neutral standard for reproducible agent system
         };
       }
 
+      case "paper_social_science_audit":
       case "social_science_peer_review_audit": {
         const auditResult = performSocialScienceReviewAudit(input);
         return {
@@ -3056,6 +3057,7 @@ This framework establishes a host-neutral standard for reproducible agent system
         };
       }
 
+      case "paper_chinese_formatter":
       case "chinese_academic_formatter": {
         const formattedResult = formatChineseAcademicPaper(input);
         return {
@@ -3067,6 +3069,7 @@ This framework establishes a host-neutral standard for reproducible agent system
         };
       }
 
+      case "journal_ssci_matcher":
       case "ssci_top_journal_matcher": {
         const matcherResult = matchSsciTopJournals(input);
         return {
@@ -3078,6 +3081,7 @@ This framework establishes a host-neutral standard for reproducible agent system
         };
       }
 
+      case "paper_css_digital_trace_audit":
       case "css_digital_trace_audit": {
         const data = runDigitalTraceAudit(input);
         return {
@@ -3089,6 +3093,7 @@ This framework establishes a host-neutral standard for reproducible agent system
         };
       }
 
+      case "paper_css_nlp_sentiment_trajectory":
       case "css_nlp_sentiment_trajectory": {
         const data = runNlpSentimentTrajectory(input);
         return {
@@ -3100,6 +3105,7 @@ This framework establishes a host-neutral standard for reproducible agent system
         };
       }
 
+      case "paper_css_causal_inference_did":
       case "css_causal_inference_did": {
         const data = runCausalInferenceDid(input);
         return {
@@ -3111,6 +3117,7 @@ This framework establishes a host-neutral standard for reproducible agent system
         };
       }
 
+      case "paper_css_abm_simulation":
       case "css_abm_simulation": {
         const data = runAbmSimulation(input);
         return {
@@ -3122,6 +3129,7 @@ This framework establishes a host-neutral standard for reproducible agent system
         };
       }
 
+      case "paper_css_telemetry_preprocess":
       case "css_telemetry_preprocess": {
         const data = preprocessTelemetryEvents(input.css_telemetry_events);
         return {
@@ -3133,6 +3141,7 @@ This framework establishes a host-neutral standard for reproducible agent system
         };
       }
 
+      case "paper_css_nlp_sentiment_score":
       case "css_nlp_sentiment_score": {
         const data = scoreNlpSentiment(input.css_snippets);
         return {
@@ -3144,6 +3153,7 @@ This framework establishes a host-neutral standard for reproducible agent system
         };
       }
 
+      case "paper_css_topic_bertopic_cluster":
       case "css_topic_bertopic_cluster": {
         const data = clusterBertopicTopics(input.css_snippets);
         return {
@@ -3155,6 +3165,7 @@ This framework establishes a host-neutral standard for reproducible agent system
         };
       }
 
+      case "paper_css_did_regression":
       case "css_did_regression": {
         const data = computeDidRegression(input.css_did_data);
         return {
@@ -3166,6 +3177,7 @@ This framework establishes a host-neutral standard for reproducible agent system
         };
       }
 
+      case "paper_css_parallel_trends_test":
       case "css_parallel_trends_test": {
         const data = computeParallelTrendsTest(input.css_event_study_leads);
         return {
@@ -3177,6 +3189,7 @@ This framework establishes a host-neutral standard for reproducible agent system
         };
       }
 
+      case "paper_css_abm_step":
       case "css_abm_step": {
         const data = simulateAbmStep(input.css_abm_agents, input.css_abm_params, input.css_step_number);
         return {

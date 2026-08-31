@@ -126,6 +126,16 @@
   4. **[business]** `zero_cost_viral_loops`: Synthesize 5 zero-cost viral loops (GitHub bridge, Itch.io packs, Reddit/HN deep dives, tutorials).
   5. **[business]** `venture_monetization_telemetry`: Track real-time Stripe telemetry and churn decay.
 
+### `mentalcraft_practitioner_growth_workflow` — MentalCraft Academic-to-Commercial $10,000 MRR Engine
+- **Description**: Dual academic-commercial engine: Academic IRB survey integrity check → B2B practitioner scale workbench ($29/mo) + B2C in-depth parenting diagnostic reports ($9.90) → Real-time telemetry.
+- **Required Plugins**: `science` ➔ `business` ➔ `design`
+- **Execution Steps**:
+  1. **[science]** `social_science_peer_review_audit`: Audit academic scale validity, psychometrics, and IRB ethical boundary compliance.
+  2. **[business]** `venture_market_validation`: Model practitioner and parent TAM/SAM/SOM and willingness-to-pay elasticity.
+  3. **[design]** `generate_ui`: Generate Svelte 5 Runes practitioner screening workbench and assessment summary card.
+  4. **[business]** `venture_unit_economics`: Model $10,000 MRR: 250 Practitioner Pro ($29/mo) + 300 In-Depth Reports ($9.90/mo).
+  5. **[business]** `venture_monetization_telemetry`: Monitor active practitioner retention, screening link throughput, and Stripe ARR.
+
 ### `social_science_top_journal_pipeline` — Top Social Science Journal (CSSCI & SSCI Q1) Publication Pipeline
 - **Description**: Publication pipeline: CSSCI/SSCI peer review audit → GB/T 7714 & Chinese heading formatting → SSCI Q1 journal matching → 3-reviewer panel simulation & rebuttal matrix.
 - **Required Plugins**: `science`
