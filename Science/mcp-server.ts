@@ -1,19 +1,24 @@
 /**
  * Plugin/Science MCP Protocol Server
  *
- * Exposes the 'science' psychometric & academic intelligence tool over JSON-RPC 2.0 stdio stream.
+ * Exposes the 'science' academic production lifecycle tool over JSON-RPC 2.0 stdio stream.
  */
 
 import { scienceOperation } from "./operation.ts";
 import { type ScienceInput } from "./core.ts";
 
 export const SCIENCE_ACTIONS = [
-  "score_scale",
-  "crisis_boundary_check",
-  "search_literature",
-  "verify_citation",
-  "patent_novelty_check",
+  "paper_literature_search",
+  "paper_citation_verify",
+  "paper_structure_audit",
+  "paper_peer_review_simulate",
   "grant_criteria_audit",
+  "grant_budget_calculator",
+  "grant_aims_alignment",
+  "journal_matcher",
+  "journal_submission_checklist",
+  "patent_novelty_check",
+  "patent_claim_structure",
   "list_actions",
 ] as const;
 
@@ -25,16 +30,7 @@ export const SCIENCE_INPUT_SCHEMA = {
     action: {
       type: "string",
       enum: SCIENCE_ACTIONS,
-      description: "Science intelligence action: 'score_scale' (GAD-7/PHQ-9 clinical scoring), 'crisis_boundary_check' (self-harm/suicide risk assessment), 'search_literature' (academic meta-analyses), 'verify_citation' (DOI/BibTeX validation), 'patent_novelty_check' (prior art search), 'grant_criteria_audit' (NIH/NSF rubric scoring), 'list_actions'.",
-    },
-    scale: {
-      type: "string",
-      enum: ["gad7", "phq9", "epds", "isi", "asrs"],
-      description: "Clinical psychometric scale type.",
-    },
-    answers: {
-      type: "object",
-      description: "Key-value map of scale question responses (e.g. { q1: 2, q2: 3, q9: 1 }).",
+      description: "Science intelligence action across the 4 academic production pillars: Paper ('paper_literature_search', 'paper_citation_verify', 'paper_structure_audit', 'paper_peer_review_simulate'), Grant ('grant_criteria_audit', 'grant_budget_calculator', 'grant_aims_alignment'), Journal ('journal_matcher', 'journal_submission_checklist'), Patent ('patent_novelty_check', 'patent_claim_structure'), and 'list_actions'.",
     },
     query: {
       type: "string",
@@ -48,19 +44,74 @@ export const SCIENCE_INPUT_SCHEMA = {
       type: "string",
       description: "Raw BibTeX entry string to validate.",
     },
+    citation_style: {
+      type: "string",
+      enum: ["apa", "ieee", "nature", "acm", "chicago"],
+      description: "Citation formatting style.",
+    },
+    manuscript_title: {
+      type: "string",
+      description: "Title of manuscript for audit or review simulation.",
+    },
+    manuscript_text: {
+      type: "string",
+      description: "Full manuscript text or markdown.",
+    },
+    sections: {
+      type: "object",
+      description: "Key-value dictionary mapping section names to text.",
+    },
+    grant_abstract: {
+      type: "string",
+      description: "Grant proposal abstract.",
+    },
+    funding_agency: {
+      type: "string",
+      enum: ["NIH", "NSF", "ERC", "DARPA", "DOE"],
+      description: "Target funding agency.",
+    },
+    direct_costs: {
+      type: "object",
+      description: "Direct costs breakdown (personnel, equipment, supplies, travel, other).",
+    },
+    indirect_rate_percent: {
+      type: "number",
+      description: "F&A indirect cost rate percentage (default: 52%).",
+    },
+    duration_years: {
+      type: "integer",
+      description: "Project duration in years.",
+    },
+    aims: {
+      type: "array",
+      items: { type: "string" },
+      description: "Specific Aims statements.",
+    },
+    field_of_study: {
+      type: "string",
+      description: "Scientific field of study.",
+    },
+    desired_impact_factor_min: {
+      type: "number",
+      description: "Minimum target journal Impact Factor.",
+    },
+    invention_title: {
+      type: "string",
+      description: "Title of invention for patent novelty audit.",
+    },
     invention_summary: {
       type: "string",
       description: "Invention summary or patent claim narrative.",
     },
-    grant_proposal_abstract: {
+    claims_text: {
       type: "string",
-      description: "Research grant proposal abstract for rubric auditing.",
+      description: "Draft patent claims text.",
     },
     limit: {
       type: "integer",
       minimum: 1,
       maximum: 50,
-      description: "Max literature results to return.",
+      description: "Max results to return.",
     },
   },
 } as const;
@@ -113,7 +164,7 @@ export async function handleScienceRpc(request: JsonRpcRequest): Promise<JsonRpc
         tools: [
           {
             name: "science",
-            description: "MentalCraft Science & Research Intelligence Engine. Clinical scale scoring (GAD-7, PHQ-9), suicidal ideation safety protocol, academic literature discovery, patent novelty audits, and research grant rubric verification.",
+            description: "MentalCraft Academic Production Lifecycle & Research Intelligence Engine (Paper authoring & peer review simulation, Grant rubrics & budget models, Journal IF matching, Patent prior art novelty audits).",
             inputSchema: SCIENCE_INPUT_SCHEMA,
           },
         ],
@@ -123,20 +174,22 @@ export async function handleScienceRpc(request: JsonRpcRequest): Promise<JsonRpc
 
   if (request.method === "tools/call") {
     const params = request.params as { name?: string; arguments?: Record<string, unknown> } | undefined;
-    if (params?.name !== "science") {
+    const toolName = params?.name;
+    const args = params?.arguments ?? {};
+
+    if (toolName !== "science") {
       return {
         jsonrpc: "2.0",
         id,
         error: {
           code: -32601,
-          message: `Unknown tool: ${params?.name ?? "undefined"}`,
+          message: `Unknown tool: ${toolName ?? "undefined"}`,
         },
       };
     }
 
     try {
-      const input = (params.arguments ?? {}) as unknown as ScienceInput;
-      const result = await scienceOperation(input);
+      const output = await scienceOperation(args as unknown as ScienceInput);
       return {
         jsonrpc: "2.0",
         id,
@@ -144,7 +197,7 @@ export async function handleScienceRpc(request: JsonRpcRequest): Promise<JsonRpc
           content: [
             {
               type: "text",
-              text: JSON.stringify(result, null, 2),
+              text: JSON.stringify(output, null, 2),
             },
           ],
         },
@@ -171,7 +224,7 @@ export async function handleScienceRpc(request: JsonRpcRequest): Promise<JsonRpc
   };
 }
 
-export function startScienceMcpStdio() {
+export function startScienceMcpServer() {
   let buffer = "";
   process.stdin.setEncoding("utf-8");
 
@@ -201,5 +254,5 @@ export function startScienceMcpStdio() {
 }
 
 if (import.meta.main) {
-  startScienceMcpStdio();
+  startScienceMcpServer();
 }

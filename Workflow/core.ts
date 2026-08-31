@@ -34,7 +34,7 @@ export type SystemHealthReport = {
 
 export type WorkflowId =
   | "launch_product_campaign"
-  | "clinical_study_to_screener"
+  | "academic_paper_to_journal_submission"
   | "automated_revenue_monitor"
   | "design_system_audit_pipeline"
   | (string & {});
@@ -112,16 +112,16 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
     ],
   },
   {
-    id: "clinical_study_to_screener",
-    name: "Clinical Scale to Interactive Screener Pipeline",
-    description: "Scientific validation: Psychometric scoring & crisis boundary check → Scaffold Svelte 5 Screener block → Responsive audit.",
-    requiredPlugins: ["science", "design", "chrome"],
+    id: "academic_paper_to_journal_submission",
+    name: "Academic Paper to Journal Submission Pipeline",
+    description: "Academic lifecycle: Literature discovery & citation verification → Manuscript structure audit → Target journal matching → Camera-ready checklist.",
+    requiredPlugins: ["science"],
     steps: [
-      { step: 1, plugin: "science", action: "score_scale", description: "Verify scale severity algorithms and clinical cutoffs." },
-      { step: 2, plugin: "science", action: "crisis_boundary_check", description: "Ensure 988 emergency hotline safeguard protocol is active." },
-      { step: 3, plugin: "design", action: "domain_presets", description: "Scaffold the 'clinical' domain preset with Screener and Questionnaire." },
-      { step: 4, plugin: "design", action: "resolve_imports", description: "Optimize on-demand imports for sub-15KB client footprint." },
-      { step: 5, plugin: "chrome", action: "inspect_element", description: "Audit live DOM focus rings, touch targets, and mobile ergonomics." },
+      { step: 1, plugin: "science", action: "paper_literature_search", description: "Search prior literature and identify state-of-the-art benchmarks." },
+      { step: 2, plugin: "science", action: "paper_citation_verify", description: "Verify DOI citations and generate valid BibTeX records." },
+      { step: 3, plugin: "science", action: "paper_structure_audit", description: "Audit manuscript section completeness and word count." },
+      { step: 4, plugin: "science", action: "journal_matcher", description: "Match target journal venues based on Impact Factor and acceptance rates." },
+      { step: 5, plugin: "science", action: "journal_submission_checklist", description: "Perform camera-ready submission compliance checklist." },
     ],
   },
   {

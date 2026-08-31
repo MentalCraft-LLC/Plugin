@@ -28,24 +28,29 @@ describe("Golden Protocol & Contract Verification Across All 6 Plugins", () => {
     }
   });
 
-  test("Science plugin contract conforms to clinical psychometrics & safety schema", async () => {
-    const scales = ["gad7", "phq9", "epds", "isi", "asrs"] as const;
-    for (const scale of scales) {
-      const res = await scienceOperation({ action: "score_scale", scale, answers: { q1: 1, q2: 2 } });
+  test("Science plugin contract conforms to academic production lifecycle schema", async () => {
+    const actions = [
+      "list_actions",
+      "paper_literature_search",
+      "paper_citation_verify",
+      "paper_structure_audit",
+      "paper_peer_review_simulate",
+      "grant_criteria_audit",
+      "grant_budget_calculator",
+      "grant_aims_alignment",
+      "journal_matcher",
+      "journal_submission_checklist",
+      "patent_novelty_check",
+      "patent_claim_structure",
+    ] as const;
+
+    for (const action of actions) {
+      const res = await scienceOperation({ action } as any);
       expect(res.success).toBe(true);
       expect(res.protocol).toBe(SCIENCE_PROTOCOL);
-      const data = res.data as any;
-      expect(data.scale).toBe(scale);
-      expect(typeof data.totalScore).toBe("number");
-      expect(typeof data.severity).toBe("string");
+      expect(res.timestamp).toBeDefined();
+      expect(res.data).toBeDefined();
     }
-
-    const crisisRes = await scienceOperation({ action: "crisis_boundary_check", answers: { item9: 3 } });
-    expect(crisisRes.success).toBe(true);
-    const crisisData = crisisRes.data as any;
-    expect(crisisData.crisisDetected).toBe(true);
-    expect(crisisData.protocolAction).toBe("crisis_hotline_modal");
-    expect(crisisData.hotlines[0].name).toContain("988");
   });
 
   test("Design plugin contract conforms to 5-layer design hierarchy and tokens", async () => {

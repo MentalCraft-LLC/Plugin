@@ -53,9 +53,9 @@ export function generateMarkdownCatalog(): string {
     "",
     "| Subsystem | Actions | Protocol | Key Domain Scope |",
     "|---|---|---|---|",
-    "| `Workflow` | 9 | `holar.workflow.v1` | Multi-plugin compound DAG execution, health diagnostics, telemetry & circuit breaker |",
+    "| `Workflow` | 13 | `holar.workflow.v1` | Multi-plugin compound DAG execution, health diagnostics, telemetry & circuit breaker |",
     "| `Business` | 11 | `holar.business.v1` | Google SEO KD (0-100), link budgets, TrafficCV traffic forensics, Stripe Radar leaderboards |",
-    "| `Science` | 7 | `holar.science.v1` | Clinical psychometrics (GAD-7/PHQ-9), 988 suicide safety, literature & patent novelty |",
+    "| `Science` | 11 | `holar.science.v1` | Academic production lifecycle: Paper authoring, Grant rubrics (NIH/NSF), Journal IF matching, Patent novelty |",
     "| `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |",
     "| `Chrome` | 38 | `holar.browser.v1` | Inactive tab driving, CDP inspection, HUD annotations, storage/cookie receipts |",
     "| `Message` | 4 | `holar.message.v1` | Multi-channel priority bus (Telegram > iMessage > Email) with mode-0600 isolation |",
@@ -225,9 +225,9 @@ async function mainCommand(cmd: string) {
 ║ Overall Health: ${report.overallStatus === "healthy" ? "🟢 HEALTHY" : "🟡 DEGRADED"} (Score: ${report.healthScore}/100) | Healthy Plugins: ${report.healthyPlugins}/${report.totalPlugins}   ║
 ║ Protocols: MCP Stdio, HTTP/SSE (Port 3890), OpenRPC 1.3, OpenAPI 3.1           ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
-║ ACTIVE CAPABILITY SUBSYSTEMS (6 Modules / 83 Actions)                          ║
+║ ACTIVE CAPABILITY SUBSYSTEMS (6 Modules / 87 Actions)                          ║
 ║  • Business  [${report.plugins.business.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (11 actions) | TrafficCV, SEO KD, Radar, MRR Trajectory  ║
-║  • Science   [${report.plugins.science.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] ( 7 actions) | GAD-7, PHQ-9, 988 Safety, Patent Audits║
+║  • Science   [${report.plugins.science.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (11 actions) | Paper, Grant NIH/NSF, Journal IF, Patents║
 ║  • Design    [${report.plugins.design.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (10 actions) | 5-Layer UI, Runes, Tokens, Presets     ║
 ║  • Workflow  [${report.plugins.workflow.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (13 actions) | DAG Engine, OTel Spans, Batch Pool    ║
 ║  • Chrome    [${report.plugins.chrome.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (38 actions) | Tab HUD, Native Bridge, Session Vault  ║
@@ -380,8 +380,8 @@ async function mainCommand(cmd: string) {
     case "bench": {
       console.log("\n⚡ Benchmarking In-Process Plugin Execution Performance (1,000 iterations each)\n" + "=".repeat(70));
       const targets = [
-        { name: "Science: score_scale (GAD-7)", fn: () => scienceOperation({ action: "score_scale", scale: "gad7", answers: { q1: 3, q2: 2, q3: 3 } }) },
-        { name: "Science: crisis_boundary_check", fn: () => scienceOperation({ action: "crisis_boundary_check", answers: { item9: 2 } }) },
+        { name: "Science: paper_literature_search", fn: () => scienceOperation({ action: "paper_literature_search", query: "agent" }) },
+        { name: "Science: grant_criteria_audit", fn: () => scienceOperation({ action: "grant_criteria_audit", funding_agency: "NIH" }) },
         { name: "Business: traffic_domain_overview", fn: () => businessOperation({ action: "traffic_domain_overview", domain: "mentalcraft.org" }) },
         { name: "Business: product_traction_score", fn: () => businessOperation({ action: "product_traction_score", domain: "mentalcraft.org" }) },
         { name: "Design: catalog query", fn: () => designOperation({ action: "catalog", layer: "component" }) },

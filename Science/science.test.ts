@@ -3,118 +3,165 @@ import { scienceOperation } from "./operation.ts";
 import { handleScienceRpc } from "./mcp-server.ts";
 import { SCIENCE_PROTOCOL, compactScienceResult } from "./core.ts";
 
-describe("Plugin/Science Intelligence Engine", () => {
-  test("list_actions returns all psychometric & research actions", async () => {
+describe("Plugin/Science Academic Production Lifecycle Engine", () => {
+  test("list_actions returns all 11 academic actions across Paper, Grant, Journal, and Patent", async () => {
     const res = await scienceOperation({ action: "list_actions" });
     expect(res.success).toBe(true);
     expect(res.protocol).toBe(SCIENCE_PROTOCOL);
-    const data = res.data as { actions: Array<{ name: string }> };
-    expect(data.actions.length).toBe(6);
-    expect(data.actions.map((a) => a.name)).toContain("score_scale");
-    expect(data.actions.map((a) => a.name)).toContain("crisis_boundary_check");
+    const data = res.data as any;
+    expect(data.totalActions).toBe(11);
+    expect(data.pillars.paper.length).toBe(4);
+    expect(data.pillars.grant.length).toBe(3);
+    expect(data.pillars.journal.length).toBe(2);
+    expect(data.pillars.patent.length).toBe(2);
   });
 
-  test("score_scale calculates GAD-7 anxiety severity accurately", async () => {
-    // Severe anxiety score (18 / 21)
-    const severeRes = await scienceOperation({
-      action: "score_scale",
-      scale: "gad7",
-      answers: { q1: 3, q2: 3, q3: 3, q4: 2, q5: 3, q6: 2, q7: 2 },
-    });
-    expect(severeRes.success).toBe(true);
-    const severeData = severeRes.data as any;
-    expect(severeData.totalScore).toBe(18);
-    expect(severeData.severity).toBe("Severe");
-    expect(severeData.crisisFlag).toBe(false);
-
-    // Minimal anxiety score (2 / 21)
-    const minRes = await scienceOperation({
-      action: "score_scale",
-      scale: "gad7",
-      answers: { q1: 1, q2: 0, q3: 1, q4: 0, q5: 0, q6: 0, q7: 0 },
-    });
-    expect(minRes.success).toBe(true);
-    const minData = minRes.data as any;
-    expect(minData.totalScore).toBe(2);
-    expect(minData.severity).toBe("Minimal");
+  test("Paper pillar: literature search returns indexed peer-reviewed papers", async () => {
+    const res = await scienceOperation({ action: "paper_literature_search", query: "agent workflow" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.total).toBeGreaterThan(0);
+    expect(data.papers[0].doi).toBeDefined();
+    expect(data.papers[0].title).toBeDefined();
+    expect(data.papers[0].citations).toBeGreaterThan(0);
   });
 
-  test("score_scale PHQ-9 detects Item 9 self-harm crisis flag", async () => {
+  test("Paper pillar: citation verify validates DOI syntax and formats APA/IEEE/Nature styles", async () => {
+    const res = await scienceOperation({ action: "paper_citation_verify", doi: "10.1038/s41586-024-07521-3", citation_style: "apa" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.valid).toBe(true);
+    expect(data.formattedCitation).toContain("Nature Machine Intelligence");
+    expect(data.bibtex).toContain("@article");
+  });
+
+  test("Paper pillar: structure audit checks manuscript completeness and word count", async () => {
     const res = await scienceOperation({
-      action: "score_scale",
-      scale: "phq9",
-      answers: { q1: 2, q2: 2, q3: 2, q4: 1, q5: 1, q6: 1, q7: 1, q8: 1, q9: 2 },
+      action: "paper_structure_audit",
+      manuscript_title: "Deterministic Host-Agnostic AI Plugin Protocol",
+      sections: {
+        Abstract: "A comprehensive abstract...",
+        Introduction: "Detailed introduction...",
+        "Related Work": "Extensive literature...",
+        Methodology: "Formal mathematical formulation...",
+        Experiments: "Rigorous benchmarking...",
+        Discussion: "Limitations and future work...",
+        References: "Complete references list...",
+      },
     });
     expect(res.success).toBe(true);
     const data = res.data as any;
-    expect(data.totalScore).toBe(13);
-    expect(data.severity).toBe("Moderate");
-    expect(data.crisisFlag).toBe(true);
-    expect(data.recommendation).toContain("CRITICAL");
+    expect(data.readinessScore).toBe(100);
+    expect(data.sections.length).toBe(7);
   });
 
-  test("crisis_boundary_check dispatches 988 emergency hotline protocol", async () => {
-    const crisis = await scienceOperation({
-      action: "crisis_boundary_check",
-      answers: { q9: 2 },
+  test("Paper pillar: peer review simulate provides reviewer scoring and rebuttal guidance", async () => {
+    const res = await scienceOperation({ action: "paper_peer_review_simulate" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.score).toBeGreaterThanOrEqual(8.0);
+    expect(data.overallRecommendation).toBe("Strong Accept");
+    expect(data.reviews.length).toBe(3);
+    expect(data.rebuttalGuidance.length).toBeGreaterThan(0);
+  });
+
+  test("Grant pillar: criteria audit evaluates NIH/NSF review rubrics", async () => {
+    const res = await scienceOperation({ action: "grant_criteria_audit", funding_agency: "NIH" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.compositeNihScore).toBeLessThanOrEqual(2.0); // 1.0 = Exceptional
+    expect(data.criteria.length).toBe(5);
+  });
+
+  test("Grant pillar: budget calculator computes multi-year direct and F&A indirect costs", async () => {
+    const res = await scienceOperation({
+      action: "grant_budget_calculator",
+      duration_years: 3,
+      indirect_rate_percent: 52,
+      direct_costs: { personnel: 200000, equipment: 40000, supplies: 10000, travel: 10000 },
     });
-    expect(crisis.success).toBe(true);
-    const cData = crisis.data as any;
-    expect(cData.crisisDetected).toBe(true);
-    expect(cData.urgencyLevel).toBe("imminent");
-    expect(cData.protocolAction).toBe("crisis_hotline_modal");
-    expect(cData.hotlines.some((h: any) => h.contact.includes("988"))).toBe(true);
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.durationYears).toBe(3);
+    expect(data.totalBudgetUsd).toBeGreaterThan(0);
+    expect(data.yearlyBreakdown.length).toBe(3);
   });
 
-  test("patent_novelty_check validates claim differentiation", async () => {
+  test("Grant pillar: aims alignment validates specific aims independence", async () => {
+    const res = await scienceOperation({
+      action: "grant_aims_alignment",
+      aims: [
+        "Aim 1: Topological DAG formulation",
+        "Aim 2: Zero-eval runtime implementation",
+        "Aim 3: Multi-domain empirical validation",
+      ],
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.aimsCount).toBe(3);
+    expect(data.alignmentScore).toBe(95);
+  });
+
+  test("Journal pillar: journal matcher finds top venues by Impact Factor", async () => {
+    const res = await scienceOperation({ action: "journal_matcher", desired_impact_factor_min: 5.0 });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.matchedCount).toBeGreaterThan(0);
+    expect(data.recommendations[0].impactFactor).toBeGreaterThanOrEqual(5.0);
+  });
+
+  test("Journal pillar: submission checklist audits camera-ready requirements", async () => {
+    const res = await scienceOperation({ action: "journal_submission_checklist" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.totalChecks).toBe(8);
+    expect(data.readyForSubmission).toBe(true);
+  });
+
+  test("Patent pillar: novelty check identifies prior art and computes novelty score", async () => {
     const res = await scienceOperation({
       action: "patent_novelty_check",
-      invention_summary: "Ephemeral single-use cryptographic tokenized screening link generator",
+      invention_title: "DETERMINISTIC AGENT-LESS EXECUTION PIPELINES",
+      invention_summary: "A method for DAG dependency verification and zero-eval parameter interpolation.",
     });
     expect(res.success).toBe(true);
     const data = res.data as any;
     expect(data.noveltyScore).toBeGreaterThanOrEqual(80);
-    expect(data.claimRecommendations.length).toBeGreaterThan(0);
+    expect(data.priorArtCount).toBeGreaterThan(0);
+  });
+
+  test("Patent pillar: claim structure checks independent/dependent hierarchy and antecedent basis", async () => {
+    const res = await scienceOperation({ action: "patent_claim_structure" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.totalClaims).toBe(3);
+    expect(data.independentClaims).toBe(1);
+    expect(data.validAntecedent).toBe(true);
   });
 
   test("MCP Protocol server handles initialize, tools/list, and tools/call", async () => {
-    // 1. initialize
     const initRes = await handleScienceRpc({ jsonrpc: "2.0", id: 1, method: "initialize" });
-    expect(initRes.id).toBe(1);
-    expect((initRes.result as any).serverInfo.name).toBe("mentalcraft-science-mcp");
+    expect(initRes.result.serverInfo.name).toBe("mentalcraft-science-mcp");
 
-    // 2. tools/list
     const listRes = await handleScienceRpc({ jsonrpc: "2.0", id: 2, method: "tools/list" });
-    const tools = (listRes.result as any).tools;
-    expect(tools.length).toBe(1);
-    expect(tools[0].name).toBe("science");
+    expect(listRes.result.tools[0].name).toBe("science");
 
-    // 3. tools/call
     const callRes = await handleScienceRpc({
       jsonrpc: "2.0",
       id: 3,
       method: "tools/call",
       params: {
         name: "science",
-        arguments: { action: "score_scale", scale: "gad7", answers: { q1: 1, q2: 2 } },
+        arguments: { action: "paper_literature_search", query: "agent" },
       },
     });
-    expect(callRes.id).toBe(3);
-    const content = (callRes.result as any).content;
-    const parsed = JSON.parse(content[0].text);
-    expect(parsed.action).toBe("score_scale");
-    expect(parsed.success).toBe(true);
+    expect(callRes.result.content[0].text).toContain("Autonomous Agent Architectures");
   });
 
-  test("compactScienceResult formats readable terminal summary", async () => {
-    const res = await scienceOperation({
-      action: "score_scale",
-      scale: "gad7",
-      answers: { q1: 3, q2: 3, q3: 3, q4: 3, q5: 3, q6: 3, q7: 3 },
-    });
-    const log = compactScienceResult(res);
-    expect(log).toContain("GAD-7");
-    expect(log).toContain("21/21");
-    expect(log).toContain("Severe");
+  test("compactScienceResult formats clean terminal summary", async () => {
+    const res = await scienceOperation({ action: "paper_literature_search", query: "agent" });
+    const summary = compactScienceResult(res);
+    expect(summary).toContain("Literature Search");
+    expect(summary).toContain("papers indexed");
   });
 });

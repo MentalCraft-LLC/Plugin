@@ -6,9 +6,9 @@
 
 | Subsystem | Actions | Protocol | Key Domain Scope |
 |---|---|---|---|
-| `Workflow` | 9 | `holar.workflow.v1` | Multi-plugin compound DAG execution, health diagnostics, telemetry & circuit breaker |
+| `Workflow` | 13 | `holar.workflow.v1` | Multi-plugin compound DAG execution, health diagnostics, telemetry & circuit breaker |
 | `Business` | 11 | `holar.business.v1` | Google SEO KD (0-100), link budgets, TrafficCV traffic forensics, Stripe Radar leaderboards |
-| `Science` | 7 | `holar.science.v1` | Clinical psychometrics (GAD-7/PHQ-9), 988 suicide safety, literature & patent novelty |
+| `Science` | 11 | `holar.science.v1` | Academic production lifecycle: Paper authoring, Grant rubrics (NIH/NSF), Journal IF matching, Patent novelty |
 | `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |
 | `Chrome` | 38 | `holar.browser.v1` | Inactive tab driving, CDP inspection, HUD annotations, storage/cookie receipts |
 | `Message` | 4 | `holar.message.v1` | Multi-channel priority bus (Telegram > iMessage > Email) with mode-0600 isolation |
@@ -28,15 +28,15 @@
   5. **[chrome]** `navigate`: Load the deployed preview page in an isolated browser context.
   6. **[chrome]** `profile_vitals`: Verify LCP, CLS, and FID performance scores.
 
-### `clinical_study_to_screener` — Clinical Scale to Interactive Screener Pipeline
-- **Description**: Scientific validation: Psychometric scoring & crisis boundary check → Scaffold Svelte 5 Screener block → Responsive audit.
-- **Required Plugins**: `science` ➔ `design` ➔ `chrome`
+### `academic_paper_to_journal_submission` — Academic Paper to Journal Submission Pipeline
+- **Description**: Academic lifecycle: Literature discovery & citation verification → Manuscript structure audit → Target journal matching → Camera-ready checklist.
+- **Required Plugins**: `science`
 - **Execution Steps**:
-  1. **[science]** `score_scale`: Verify scale severity algorithms and clinical cutoffs.
-  2. **[science]** `crisis_boundary_check`: Ensure 988 emergency hotline safeguard protocol is active.
-  3. **[design]** `domain_presets`: Scaffold the 'clinical' domain preset with Screener and Questionnaire.
-  4. **[design]** `resolve_imports`: Optimize on-demand imports for sub-15KB client footprint.
-  5. **[chrome]** `inspect_element`: Audit live DOM focus rings, touch targets, and mobile ergonomics.
+  1. **[science]** `paper_literature_search`: Search prior literature and identify state-of-the-art benchmarks.
+  2. **[science]** `paper_citation_verify`: Verify DOI citations and generate valid BibTeX records.
+  3. **[science]** `paper_structure_audit`: Audit manuscript section completeness and word count.
+  4. **[science]** `journal_matcher`: Match target journal venues based on Impact Factor and acceptance rates.
+  5. **[science]** `journal_submission_checklist`: Perform camera-ready submission compliance checklist.
 
 ### `automated_revenue_monitor` — Automated Competitor Revenue & Alert Monitor
 - **Description**: Track Stripe billing trajectory and dispatch milestone notifications to Telegram.

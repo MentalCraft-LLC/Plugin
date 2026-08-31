@@ -424,13 +424,14 @@ export async function executeHealthCheck(target?: PluginId | "all"): Promise<Sys
   if (!target || target === "all" || target === "science") {
     reports.science = {
       pluginId: "science",
-      name: "Science & Research Intelligence",
+      name: "Academic Production Lifecycle & Research Intelligence",
       status: "healthy",
       latencyMs: 1,
       checks: [
-        { name: "psychometrics_scoring", passed: true, detail: "GAD-7 & PHQ-9 severity cutoffs validated" },
-        { name: "crisis_safeguard", passed: true, detail: "988 suicide & self-harm emergency hotline registry active" },
-        { name: "patent_prior_art", passed: true, detail: "Claim differentiation algorithm ready" },
+        { name: "paper_production", passed: true, detail: "Literature search, DOI citation & peer review simulation ready" },
+        { name: "grant_rubrics", passed: true, detail: "NIH/NSF criteria audit, F&A budgeting & Specific Aims ready" },
+        { name: "journal_submission", passed: true, detail: "Journal IF matching & camera-ready checklists active" },
+        { name: "patent_prior_art", passed: true, detail: "USPTO/WIPO novelty scoring & claim tree validator active" },
       ],
     };
   }
@@ -916,7 +917,7 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
     }
 
     case "export_mermaid_dag": {
-      const targetId = input.workflow_id ?? "clinical_study_to_screener";
+      const targetId = input.workflow_id ?? "academic_paper_to_journal_submission";
       const all = getAllWorkflows();
       const wf = all.find((w) => w.id === targetId);
       if (!wf) {
@@ -979,7 +980,7 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
     }
 
     case "dry_run": {
-      const targetId = input.workflow_id ?? "clinical_study_to_screener";
+      const targetId = input.workflow_id ?? "academic_paper_to_journal_submission";
       const all = getAllWorkflows();
       const wf = all.find((w) => w.id === targetId);
       if (!wf) {
@@ -1022,7 +1023,7 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
     case "run_workflow": {
       const startTime = new Date().toISOString();
       const t0 = performance.now();
-      const targetId = input.workflow_id ?? "clinical_study_to_screener";
+      const targetId = input.workflow_id ?? "academic_paper_to_journal_submission";
       const all = getAllWorkflows();
       const wf = all.find((w) => w.id === targetId);
       if (!wf) {
@@ -1038,25 +1039,32 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
 
       const stepResults: Array<{ step: number; plugin: PluginId; action: string; success: boolean; durationMs: number; data: unknown }> = [];
 
-      if (targetId === "clinical_study_to_screener") {
-        // Step 1: Science scoring
+      if (targetId === "academic_paper_to_journal_submission") {
+        // Step 1: Literature search
         const s1 = performance.now();
-        const r1 = await scienceOperation({ action: "score_scale", scale: "gad7", answers: { q1: 2, q2: 3, q3: 2 } });
-        stepResults.push({ step: 1, plugin: "science", action: "score_scale", success: r1.success, durationMs: Math.round(performance.now() - s1), data: r1.data });
+        const r1 = await scienceOperation({ action: "paper_literature_search", query: "autonomous agent workflows" });
+        stepResults.push({ step: 1, plugin: "science", action: "paper_literature_search", success: r1.success, durationMs: Math.round(performance.now() - s1), data: r1.data });
 
-        // Step 2: Science crisis check
+        // Step 2: Citation verify
         const s2 = performance.now();
-        const r2 = await scienceOperation({ action: "crisis_boundary_check", answers: { q9: 0 } });
-        stepResults.push({ step: 2, plugin: "science", action: "crisis_boundary_check", success: r2.success, durationMs: Math.round(performance.now() - s2), data: r2.data });
+        const r2 = await scienceOperation({ action: "paper_citation_verify", doi: "10.1038/s41586-024-07521-3", citation_style: "nature" });
+        stepResults.push({ step: 2, plugin: "science", action: "paper_citation_verify", success: r2.success, durationMs: Math.round(performance.now() - s2), data: r2.data });
 
-        // Step 3: Design domain preset
+        // Step 3: Structure audit
         const s3 = performance.now();
-        const r3 = await designOperation({ action: "domain_presets", preset_name: "clinical" });
-        stepResults.push({ step: 3, plugin: "design", action: "domain_presets", success: r3.success, durationMs: Math.round(performance.now() - s3), data: r3.data });
+        const r3 = await scienceOperation({ action: "paper_structure_audit", manuscript_title: "Deterministic Host-Agnostic Plugin Architecture" });
+        stepResults.push({ step: 3, plugin: "science", action: "paper_structure_audit", success: r3.success, durationMs: Math.round(performance.now() - s3), data: r3.data });
 
-        // Step 4: Design on-demand imports
+        // Step 4: Journal matcher
         const s4 = performance.now();
-        const r4 = await designOperation({ action: "resolve_imports", components: ["Screener", "Questionnaire", "Button", "Card"] });
+        const r4 = await scienceOperation({ action: "journal_matcher", desired_impact_factor_min: 5.0 });
+        stepResults.push({ step: 4, plugin: "science", action: "journal_matcher", success: r4.success, durationMs: Math.round(performance.now() - s4), data: r4.data });
+
+        // Step 5: Submission checklist
+        const s5 = performance.now();
+        const r5 = await scienceOperation({ action: "journal_submission_checklist" });
+        stepResults.push({ step: 5, plugin: "science", action: "journal_submission_checklist", success: r5.success, durationMs: Math.round(performance.now() - s5), data: r5.data });
+      } else if (targetId === "launch_product_campaign") {
         stepResults.push({ step: 4, plugin: "design", action: "resolve_imports", success: r4.success, durationMs: Math.round(performance.now() - s4), data: r4.data });
       } else if (targetId === "launch_product_campaign") {
         // Step 1: Business SEO

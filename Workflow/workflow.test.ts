@@ -11,7 +11,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     const data = res.data as { total: number; workflows: typeof BUILTIN_WORKFLOWS };
     expect(data.total).toBeGreaterThanOrEqual(4);
     expect(data.workflows.map((w) => w.id)).toContain("launch_product_campaign");
-    expect(data.workflows.map((w) => w.id)).toContain("clinical_study_to_screener");
+    expect(data.workflows.map((w) => w.id)).toContain("academic_paper_to_journal_submission");
   });
 
   test("health_check evaluates all 6 plugins with 100/100 score", async () => {
@@ -45,11 +45,11 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
   test("run_workflow sequentially executes compound cross-plugin pipeline", async () => {
     const res = await workflowOperation({
       action: "run_workflow",
-      workflow_id: "clinical_study_to_screener",
+      workflow_id: "academic_paper_to_journal_submission",
     });
     expect(res.success).toBe(true);
     const data = res.data as any;
-    expect(data.stepsCount).toBe(4);
+    expect(data.stepsCount).toBe(5);
     expect(data.stepResults.every((s: any) => s.success)).toBe(true);
   });
 
@@ -111,7 +111,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
   test("get_workflow_history records and retrieves execution receipts", async () => {
     await workflowOperation({
       action: "run_workflow",
-      workflow_id: "clinical_study_to_screener",
+      workflow_id: "academic_paper_to_journal_submission",
     });
     const res = await workflowOperation({ action: "get_workflow_history" });
     expect(res.success).toBe(true);
@@ -178,9 +178,9 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
       jsonrpc: "2.0",
       id: 3,
       method: "tools/call",
-      params: { name: "science", arguments: { action: "score_scale", scale: "gad7", answers: { q1: 3, q2: 3 } } },
+      params: { name: "science", arguments: { action: "paper_literature_search", query: "agent" } },
     });
-    expect(callRes.result.content[0].text).toContain("GAD-7");
+    expect(callRes.result.content[0].text).toContain("Autonomous Agent Architectures");
 
     // Test HTTP server
     const server = startGatewayMcpHttp(3999);
@@ -279,14 +279,14 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
   test("validateWorkflowDag detects circular dependencies and undefined parameters", () => {
     const { validateWorkflowDag } = require("./operation.ts");
     const valid = validateWorkflowDag([
-      { step: 1, plugin: "science", action: "score_scale" },
-      { step: 2, plugin: "design", action: "generate_ui", dependsOn: [1], parameters: { prompt: "${step1.data.scaleName}" } },
+      { step: 1, plugin: "science", action: "paper_literature_search" },
+      { step: 2, plugin: "design", action: "generate_ui", dependsOn: [1], parameters: { prompt: "${step1.data.query}" } },
     ]);
     expect(valid.valid).toBe(true);
     expect(valid.errors.length).toBe(0);
 
     const invalidForward = validateWorkflowDag([
-      { step: 1, plugin: "science", action: "score_scale", parameters: { prompt: "${step2.data.someVal}" } },
+      { step: 1, plugin: "science", action: "paper_literature_search", parameters: { prompt: "${step2.data.someVal}" } },
       { step: 2, plugin: "design", action: "generate_ui" },
     ]);
     expect(invalidForward.valid).toBe(false);
@@ -344,7 +344,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
       action: "batch_run",
       concurrency: 3,
       tasks: [
-        { id: "b1", plugin: "science", action: "score_scale", parameters: { scale: "gad7", answers: { q1: 2, q2: 2 } } },
+        { id: "b1", plugin: "science", action: "paper_literature_search", parameters: { query: "agent workflow" } },
         { id: "b2", plugin: "business", action: "traffic_domain_overview", parameters: { domain: "mentalcraft.org" } },
         { id: "b3", plugin: "design", action: "domain_presets", parameters: { preset_name: "clinical" } },
       ],
