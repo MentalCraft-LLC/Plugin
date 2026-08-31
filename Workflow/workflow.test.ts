@@ -166,7 +166,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
   });
 
   test("Master Gateway MCP handles initialize, tools/list, and multi-plugin tools/call", async () => {
-    const { handleGatewayRpc } = require("../gateway.ts");
+    const { handleGatewayRpc, startGatewayMcpHttp } = require("../gateway.ts");
     const initRes = await handleGatewayRpc({ jsonrpc: "2.0", id: 1, method: "initialize" });
     expect(initRes.result.serverInfo.name).toBe("mentalcraft-gateway-mcp");
 
@@ -180,6 +180,32 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
       params: { name: "science", arguments: { action: "score_scale", scale: "gad7", answers: { q1: 3, q2: 3 } } },
     });
     expect(callRes.result.content[0].text).toContain("GAD-7");
+
+    // Test HTTP server
+    const server = startGatewayMcpHttp(3999);
+    try {
+      const healthRes = await fetch("http://localhost:3999/health");
+      expect(healthRes.status).toBe(200);
+      const healthData = await healthRes.json() as any;
+      expect(healthData.overallStatus).toBe("healthy");
+
+      const metricsRes = await fetch("http://localhost:3999/metrics");
+      expect(metricsRes.status).toBe(200);
+
+      const schemaRes = await fetch("http://localhost:3999/schema");
+      expect(schemaRes.status).toBe(200);
+      const schemaData = await schemaRes.json() as any;
+      expect(schemaData.openrpc).toBe("1.3.0");
+
+      const mcpHttpRes = await fetch("http://localhost:3999/mcp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 10, method: "initialize" }),
+      });
+      expect(mcpHttpRes.status).toBe(200);
+    } finally {
+      server.stop();
+    }
   });
 
   test("Root index.ts cleanly re-exports all 6 capabilities and gateway", async () => {

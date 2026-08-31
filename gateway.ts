@@ -213,33 +213,63 @@ export function startGatewayMcpStdio() {
 }
 
 export function startGatewayMcpHttp(port = 3890) {
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Content-Type": "application/json",
+  };
+
   const server = Bun.serve({
     port,
     async fetch(req) {
       const url = new URL(req.url);
 
+      if (req.method === "OPTIONS") {
+        return new Response(null, { status: 204, headers: corsHeaders });
+      }
+
       if (url.pathname === "/health") {
-        return new Response(JSON.stringify({ status: "ok", service: "mentalcraft-gateway-mcp" }), {
-          headers: { "Content-Type": "application/json" },
-        });
+        const { executeHealthCheck } = require("./Workflow/operation.ts");
+        const report = await executeHealthCheck("all");
+        const status = report.overallStatus === "healthy" ? 200 : 503;
+        return new Response(JSON.stringify(report, null, 2), { status, headers: corsHeaders });
+      }
+
+      if (url.pathname === "/metrics") {
+        const { getSystemTelemetry } = require("./Workflow/operation.ts");
+        const telemetry = getSystemTelemetry();
+        return new Response(JSON.stringify(telemetry, null, 2), { status: 200, headers: corsHeaders });
+      }
+
+      if (url.pathname === "/schema" || url.pathname === "/openrpc.json") {
+        const res = await workflowOperation({ action: "export_schema_catalog" });
+        return new Response(JSON.stringify(res.data, null, 2), { status: 200, headers: corsHeaders });
       }
 
       if (req.method === "POST" && (url.pathname === "/mcp" || url.pathname === "/")) {
         try {
-          const body = await req.json() as JsonRpcRequest;
+          const body = (await req.json()) as JsonRpcRequest;
           const res = await handleGatewayRpc(body);
           return new Response(JSON.stringify(res), {
-            headers: { "Content-Type": "application/json" },
+            headers: corsHeaders,
           });
         } catch (err) {
           return new Response(
             JSON.stringify({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "Parse error" } }),
-            { status: 400, headers: { "Content-Type": "application/json" } }
+            { status: 400, headers: corsHeaders }
           );
         }
       }
 
-      return new Response("MentalCraft Gateway MCP Server (POST /mcp or /health)", { status: 200 });
+      return new Response(
+        JSON.stringify({
+          service: "MentalCraft Gateway MCP Server",
+          version: "1.0.0",
+          endpoints: ["POST /mcp", "GET /health", "GET /metrics", "GET /schema"],
+        }, null, 2),
+        { status: 200, headers: corsHeaders }
+      );
     },
   });
 
