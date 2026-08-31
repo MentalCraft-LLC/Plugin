@@ -1973,7 +1973,62 @@ export async function scienceOperation(input: ScienceInput): Promise<ScienceResu
           success: true,
           timestamp,
           data: {
-            totalActions: 29,
+            totalActions: 43,
+            modules: {
+              paper: {
+                name: "Paper (学术论文生产线)",
+                remoteRepo: "https://github.com/MentalCraft-LLC/Paper",
+                description: "论文全生命周期生产线：文献检索、引文验证、计算社会科学实证分析、中英文排版、同行盲审模拟与社科审计。",
+                stages: {
+                  stage1_discovery_and_bibtex: ["paper_literature_search", "paper_citation_verify"],
+                  stage2_css_and_methodology: [
+                    "paper_methodology_audit",
+                    "paper_css_telemetry_preprocess",
+                    "paper_css_nlp_sentiment_score",
+                    "paper_css_topic_bertopic_cluster",
+                    "paper_css_did_regression",
+                    "paper_css_parallel_trends_test",
+                    "paper_css_abm_step",
+                    "paper_css_digital_trace_audit",
+                    "paper_css_nlp_sentiment_trajectory",
+                    "paper_css_causal_inference_did",
+                    "paper_css_abm_simulation",
+                  ],
+                  stage3_authoring_and_typesetting: ["paper_structure_audit", "paper_latex_scaffold", "paper_chinese_formatter"],
+                  stage4_peer_review_and_audit: ["paper_peer_review_simulate", "paper_social_science_audit"],
+                },
+              },
+              grant: {
+                name: "Grant (课题基金生产线)",
+                remoteRepo: "https://github.com/MentalCraft-LLC/Grant",
+                description: "课题基金全生命周期生产线：NIH/NSF 评审要件审计、Specific Aims 机制对齐、MTDC 预算与间接费用测算。",
+                stages: {
+                  stage1_criteria_audit: ["grant_criteria_audit"],
+                  stage2_aims_alignment: ["grant_aims_alignment"],
+                  stage3_budget_calculator: ["grant_budget_calculator"],
+                },
+              },
+              journal: {
+                name: "Journal (期刊投稿生产线)",
+                remoteRepo: "https://github.com/MentalCraft-LLC/Journal",
+                description: "期刊匹配与投稿生产线：SSCI/CSSCI 顶刊多维匹配、8 项相机就绪预审合规核查。",
+                stages: {
+                  stage1_matching: ["journal_matcher", "journal_ssci_matcher"],
+                  stage2_pre_submission_checklist: ["journal_submission_checklist"],
+                },
+              },
+              patent: {
+                name: "Patent (专利转化生产线)",
+                remoteRepo: "https://github.com/MentalCraft-LLC/Patent",
+                description: "专利审查与成果转化生产线：35 U.S.C. 新颖性审查、权利要求前序依据 AST 校验、说明书脚手架与影响力预测。",
+                stages: {
+                  stage1_novelty_check: ["patent_novelty_check"],
+                  stage2_claim_structure: ["patent_claim_structure"],
+                  stage3_spec_scaffold: ["patent_spec_scaffold"],
+                  stage4_scholarly_impact: ["patent_scholarly_impact_forecast"],
+                },
+              },
+            },
             stages: {
               stage1_literature: ["paper_literature_search", "paper_citation_verify"],
               stage2_methodology_and_css: [

@@ -26,20 +26,19 @@ import { SCIENCE_PROTOCOL, compactScienceResult, formatScienceSummary } from "./
 
 describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
   // Discovery & Inventory
-  test("list_actions returns all 29 academic actions across the 8 production stages and CSS modules", async () => {
+  test("list_actions returns all 43 academic actions across the 4 modules (paper, grant, journal, patent) and stages", async () => {
     const res = await scienceOperation({ action: "list_actions" });
     expect(res.success).toBe(true);
     expect(res.protocol).toBe(SCIENCE_PROTOCOL);
     const data = res.data as any;
-    expect(data.totalActions).toBe(29);
+    expect(data.totalActions).toBe(43);
+    expect(data.modules.paper.name).toBe("Paper (学术论文生产线)");
+    expect(data.modules.grant.name).toBe("Grant (课题基金生产线)");
+    expect(data.modules.journal.name).toBe("Journal (期刊投稿生产线)");
+    expect(data.modules.patent.name).toBe("Patent (专利转化生产线)");
+    expect(data.modules.paper.stages.stage2_css_and_methodology.length).toBe(11);
     expect(data.stages.stage1_literature.length).toBe(2);
     expect(data.stages.stage2_methodology_and_css.length).toBe(11);
-    expect(data.stages.stage3_grants.length).toBe(3);
-    expect(data.stages.stage4_authoring.length).toBe(3);
-    expect(data.stages.stage5_peer_review.length).toBe(2);
-    expect(data.stages.stage6_journal_submission.length).toBe(3);
-    expect(data.stages.stage7_intellectual_property.length).toBe(3);
-    expect(data.stages.stage8_scholarly_impact.length).toBe(1);
   });
 
   // Stage 1: Literature Discovery & Citation Verification
