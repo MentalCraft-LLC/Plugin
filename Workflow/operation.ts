@@ -63,6 +63,52 @@ export function interpolateParams(params: Record<string, any>, context: Record<s
   return result;
 }
 
+export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: string[]; warnings: string[] } {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const knownSteps = new Set(steps.map((s) => s.step));
+
+  const validPlugins: Record<string, string[]> = {
+    business: ["seo_keyword_difficulty", "traffic_domain_overview", "traffic_channel_breakdown", "traffic_competitor_comparison", "market_stripe_radar", "market_site_trajectory", "product_traction_score", "list_actions"],
+    science: ["score_scale", "crisis_boundary_check", "patent_novelty_check", "list_actions", "search_literature", "assess_grant_fit", "generate_study_design"],
+    design: ["catalog", "inspect_component", "theme_tokens", "generate_ui", "audit_ui", "bridge_chrome", "list_layers", "resolve_imports", "domain_presets", "bundle_optimize"],
+    workflow: ["list_workflows", "run_workflow", "register_workflow", "get_workflow_history", "export_config", "install_mcp_schemas", "export_schema_catalog", "get_metrics", "export_trace", "health_check", "dry_run"],
+    chrome: ["navigate", "screenshot", "inspect_element", "profile_vitals"],
+    message: ["send", "poll", "status", "bootstrap"],
+  };
+
+  for (const s of steps) {
+    if (!validPlugins[s.plugin]) {
+      errors.push(`Step ${s.step}: Unknown plugin '${s.plugin}'.`);
+    }
+
+    if (s.dependsOn) {
+      for (const dep of s.dependsOn) {
+        if (!knownSteps.has(dep)) {
+          errors.push(`Step ${s.step}: dependsOn references non-existent step ${dep}.`);
+        } else if (dep >= s.step) {
+          errors.push(`Step ${s.step}: Invalid forward or circular dependency on step ${dep}.`);
+        }
+      }
+    }
+
+    if (s.parameters) {
+      const jsonStr = JSON.stringify(s.parameters);
+      const matches = Array.from(jsonStr.matchAll(/\$\{step(\d+)\.[^}]+\}/g));
+      for (const m of matches) {
+        const refStep = parseInt(m[1], 10);
+        if (!knownSteps.has(refStep)) {
+          errors.push(`Step ${s.step}: Parameter template references undefined step${refStep}.`);
+        } else if (refStep >= s.step) {
+          errors.push(`Step ${s.step}: Parameter template references forward/unexecuted step${refStep}.`);
+        }
+      }
+    }
+  }
+
+  return { valid: errors.length === 0, errors, warnings };
+}
+
 function loadPersistedState(): void {
   try {
     const { existsSync, readFileSync } = require("node:fs");
@@ -628,22 +674,28 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
       }
 
       const preflight = await executeHealthCheck("all");
+      const validation = validateWorkflowDag(wf.steps);
 
       return {
         protocol: WORKFLOW_PROTOCOL,
         action: "dry_run",
-        success: true,
+        success: validation.valid && preflight.overallStatus === "healthy",
         timestamp,
         data: {
           workflow: wf,
           preflightHealth: preflight.overallStatus,
+          dagValidation: validation,
+          estimatedDurationMs: wf.steps.length * 2,
           plan: wf.steps.map((s) => ({
             step: s.step,
             plugin: s.plugin,
             action: s.action,
             description: s.description,
+            dependsOn: s.dependsOn ?? [],
+            parameters: s.parameters ?? {},
           })),
         },
+        diagnostics: validation.errors.length > 0 ? validation.errors : undefined,
       };
     }
 
