@@ -138,6 +138,7 @@ export type WorkflowAction =
   | "register_workflow"
   | "get_workflow_history"
   | "export_config"
+  | "install_mcp_schemas"
   | "health_check"
   | "dry_run";
 
@@ -194,6 +195,10 @@ export function formatWorkflowSummary(result: WorkflowResult): string {
     case "export_config": {
       const data = result.data as any;
       return `Exported MCP Client Config for [${data.target}]: ${Object.keys(data.configs.mcpServers ?? {}).length} servers configured`;
+    }
+    case "install_mcp_schemas": {
+      const data = result.data as any;
+      return `✓ Installed ${data.installedCount} MCP schemas to Antigravity directory (${data.installedPaths.length} tools registered)`;
     }
     case "run_workflow": {
       const data = result.data as any;

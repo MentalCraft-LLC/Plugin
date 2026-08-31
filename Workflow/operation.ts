@@ -177,6 +177,82 @@ export function generateExportConfigs(target: string): ExportConfigResult {
   };
 }
 
+export function installMcpSchemasToAgy(customDir?: string): { installedCount: number; installedPaths: string[] } {
+  const { homedir } = require("node:os");
+  const { join } = require("node:path");
+  const { mkdirSync, writeFileSync } = require("node:fs");
+
+  const baseDir = customDir ?? join(homedir(), ".gemini/antigravity-cli/mcp");
+  const { BUSINESS_INPUT_SCHEMA } = require("../Business/mcp-server.ts");
+  const { SCIENCE_INPUT_SCHEMA } = require("../Science/mcp-server.ts");
+  const { DESIGN_INPUT_SCHEMA } = require("../Design/mcp-server.ts");
+  const { WORKFLOW_INPUT_SCHEMA } = require("./mcp-server.ts");
+  const { MESSAGE_INPUT_SCHEMA } = require("../Message/mcp-server.ts");
+
+  const toolsToInstall = [
+    {
+      server: "business",
+      tool: "business",
+      schema: {
+        name: "business",
+        description: "MentalCraft Business & Product Engineering Intelligence Engine (Google SEO KD, Link Budgets, Stripe Radar Leaderboards, TrafficCV domain traffic analytics, MRR Trajectories).",
+        parameters: BUSINESS_INPUT_SCHEMA,
+      },
+    },
+    {
+      server: "science",
+      tool: "science",
+      schema: {
+        name: "science",
+        description: "MentalCraft Science & Research Intelligence Engine (Clinical Scale Scoring GAD-7/PHQ-9, Suicidal Crisis Safety Protocol, Literature Discovery, Patent Novelty Audits).",
+        parameters: SCIENCE_INPUT_SCHEMA,
+      },
+    },
+    {
+      server: "design",
+      tool: "design",
+      schema: {
+        name: "design",
+        description: "MentalCraft Design System & UI Intelligence Engine (5-layer hierarchy, tokens, Svelte 5 runes generation, on-demand subpaths, domain presets).",
+        parameters: DESIGN_INPUT_SCHEMA,
+      },
+    },
+    {
+      server: "workflow",
+      tool: "workflow",
+      schema: {
+        name: "workflow",
+        description: "MentalCraft Cross-Plugin Orchestrator & Health Diagnostics Engine. Execute compound pipelines and inspect system health.",
+        parameters: WORKFLOW_INPUT_SCHEMA,
+      },
+    },
+    {
+      server: "message",
+      tool: "message",
+      schema: {
+        name: "message",
+        description: "MentalCraft Agent Message Bus. Unified messaging across Telegram, iMessage, and Email with local 0600 security.",
+        parameters: MESSAGE_INPUT_SCHEMA,
+      },
+    },
+  ];
+
+  const installedPaths: string[] = [];
+
+  for (const t of toolsToInstall) {
+    const sDir = join(baseDir, t.server);
+    mkdirSync(sDir, { recursive: true });
+    const targetFile = join(sDir, `${t.tool}.json`);
+    writeFileSync(targetFile, JSON.stringify(t.schema, null, 2), "utf-8");
+    installedPaths.push(targetFile);
+  }
+
+  return {
+    installedCount: installedPaths.length,
+    installedPaths,
+  };
+}
+
 export async function workflowOperation(input: WorkflowInput): Promise<WorkflowResult> {
   const timestamp = new Date().toISOString();
 
@@ -248,6 +324,17 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
         success: true,
         timestamp,
         data: configData,
+      };
+    }
+
+    case "install_mcp_schemas": {
+      const installRes = installMcpSchemasToAgy();
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "install_mcp_schemas",
+        success: true,
+        timestamp,
+        data: installRes,
       };
     }
 

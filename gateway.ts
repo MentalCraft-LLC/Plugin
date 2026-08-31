@@ -1,21 +1,27 @@
 /**
  * Plugin/Gateway - Master MCP Server & Unified Capability Hub
  *
- * Provides a single unified JSON-RPC 2.0 stdio entry point aggregating all MentalCraft capability plugins:
+ * Provides a single unified JSON-RPC 2.0 stdio & HTTP/SSE entry point aggregating all MentalCraft capability plugins:
  * - workflow (Cross-Plugin DAG Orchestrator & Health Diagnostics)
  * - business (SEO, TrafficCV & Revenue Intelligence)
  * - science (Psychometrics, Safety Protocols & Academic Intelligence)
  * - design (5-Layer Design System, Runes UI Generation & On-Demand Subpaths)
+ * - chrome (Native Browser Automation, Inactive Tab Driving & HUD)
+ * - message (Multi-Channel Priority Communication Bus)
  */
 
 import { workflowOperation } from "./Workflow/operation.ts";
 import { designOperation } from "./Design/operation.ts";
 import { businessOperation } from "./Business/operation.ts";
 import { scienceOperation } from "./Science/operation.ts";
+import { createBrowserContextOperation } from "./Chrome/operation.ts";
+import { createMessageOperation } from "./Message/operation.ts";
+
 import { WORKFLOW_INPUT_SCHEMA } from "./Workflow/mcp-server.ts";
 import { DESIGN_INPUT_SCHEMA } from "./Design/mcp-server.ts";
 import { BUSINESS_INPUT_SCHEMA } from "./Business/mcp-server.ts";
 import { SCIENCE_INPUT_SCHEMA } from "./Science/mcp-server.ts";
+import { MESSAGE_INPUT_SCHEMA } from "./Message/mcp-server.ts";
 
 export type JsonRpcId = string | number | null;
 
@@ -37,6 +43,9 @@ export type JsonRpcResponse = {
   };
 };
 
+const executeChrome = createBrowserContextOperation();
+const executeMessage = createMessageOperation();
+
 export const GATEWAY_TOOLS = [
   {
     name: "workflow",
@@ -57,6 +66,25 @@ export const GATEWAY_TOOLS = [
     name: "science",
     description: "MentalCraft Science & Research Intelligence Engine (Clinical Scale Scoring GAD-7/PHQ-9, Suicidal Crisis Safety Protocol, Literature Discovery, Patent Novelty Audits).",
     inputSchema: SCIENCE_INPUT_SCHEMA,
+  },
+  {
+    name: "chrome",
+    description: "MentalCraft Browser Automation & Native Bridge. Inactive tab driving, screencasts, visual HUD, storage mutation, and CDP inspection.",
+    inputSchema: {
+      type: "object",
+      required: ["action"],
+      properties: {
+        action: { type: "string", description: "Browser action to execute." },
+        url: { type: "string", description: "Target URL." },
+        selector: { type: "string", description: "DOM selector." },
+        text: { type: "string", description: "Text to fill or match." },
+      },
+    },
+  },
+  {
+    name: "message",
+    description: "MentalCraft Agent Message Bus. Unified messaging across Telegram, iMessage, and Email with local 0600 security.",
+    inputSchema: MESSAGE_INPUT_SCHEMA,
   },
 ];
 
@@ -106,6 +134,10 @@ export async function handleGatewayRpc(request: JsonRpcRequest): Promise<JsonRpc
         output = await businessOperation(args as any);
       } else if (toolName === "science") {
         output = await scienceOperation(args as any);
+      } else if (toolName === "chrome") {
+        output = await executeChrome(args as any);
+      } else if (toolName === "message") {
+        output = await executeMessage(args as any);
       } else {
         return {
           jsonrpc: "2.0",
@@ -124,7 +156,7 @@ export async function handleGatewayRpc(request: JsonRpcRequest): Promise<JsonRpc
           content: [
             {
               type: "text",
-              text: JSON.stringify(output, null, 2),
+              text: typeof output === "string" ? output : JSON.stringify(output, null, 2),
             },
           ],
         },
@@ -180,6 +212,49 @@ export function startGatewayMcpStdio() {
   });
 }
 
+export function startGatewayMcpHttp(port = 3890) {
+  const server = Bun.serve({
+    port,
+    async fetch(req) {
+      const url = new URL(req.url);
+
+      if (url.pathname === "/health") {
+        return new Response(JSON.stringify({ status: "ok", service: "mentalcraft-gateway-mcp" }), {
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      if (req.method === "POST" && (url.pathname === "/mcp" || url.pathname === "/")) {
+        try {
+          const body = await req.json() as JsonRpcRequest;
+          const res = await handleGatewayRpc(body);
+          return new Response(JSON.stringify(res), {
+            headers: { "Content-Type": "application/json" },
+          });
+        } catch (err) {
+          return new Response(
+            JSON.stringify({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "Parse error" } }),
+            { status: 400, headers: { "Content-Type": "application/json" } }
+          );
+        }
+      }
+
+      return new Response("MentalCraft Gateway MCP Server (POST /mcp or /health)", { status: 200 });
+    },
+  });
+
+  console.log(`📡 MentalCraft Gateway HTTP MCP listening on http://localhost:${server.port}`);
+  return server;
+}
+
 if (import.meta.main) {
-  startGatewayMcpStdio();
+  const portArg = process.argv.find((a) => a.startsWith("--port="));
+  if (portArg) {
+    const port = parseInt(portArg.split("=")[1], 10);
+    startGatewayMcpHttp(port);
+  } else if (process.argv.includes("--http")) {
+    startGatewayMcpHttp(3890);
+  } else {
+    startGatewayMcpStdio();
+  }
 }

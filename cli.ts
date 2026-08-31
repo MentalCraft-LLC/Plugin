@@ -3,7 +3,8 @@
  * Plugin CLI Hub
  *
  * Fast developer command line utility for Holar plugin introspection,
- * direct action execution, health diagnostics, and MCP stdio launching.
+ * direct action execution, health diagnostics, MCP stdio & HTTP launching,
+ * and auto-registration into Antigravity/Claude/Cursor environments.
  */
 
 import { BUILTIN_WORKFLOWS, type PluginId } from "./Workflow/core.ts";
@@ -11,10 +12,15 @@ import { executeHealthCheck, workflowOperation } from "./Workflow/operation.ts";
 import { designOperation } from "./Design/operation.ts";
 import { businessOperation } from "./Business/operation.ts";
 import { scienceOperation } from "./Science/operation.ts";
-import { startGatewayMcpStdio } from "./gateway.ts";
+import { createBrowserContextOperation } from "./Chrome/operation.ts";
+import { createMessageOperation } from "./Message/operation.ts";
+import { startGatewayMcpStdio, startGatewayMcpHttp } from "./gateway.ts";
 
 const args = process.argv.slice(2);
 const command = args[0] || "help";
+
+const executeChrome = createBrowserContextOperation();
+const executeMessage = createMessageOperation();
 
 async function main() {
   switch (command) {
@@ -22,12 +28,12 @@ async function main() {
     case "ls": {
       console.log("\n📦 Holar Plugin Registry\n" + "=".repeat(60));
       const plugins = [
-        { id: "chrome", name: "Chrome Automation & Native Bridge", actions: 38, desc: "Inactive-tab driving, CDP, HUD annotations, Storage" },
-        { id: "design", name: "Design System & UI Intelligence", actions: 10, desc: "5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths" },
+        { id: "workflow", name: "Workflow Orchestrator & Health Engine", actions: 8, desc: "Multi-plugin compound DAG execution & pre-flight health diagnostics" },
         { id: "business", name: "Business & Market Intelligence", actions: 11, desc: "Gefei SEO KD, TrafficCV domain traffic & channels, Stripe Radar leaderboards" },
         { id: "science", name: "Science & Research Intelligence", actions: 7, desc: "Clinical scoring (GAD-7/PHQ-9), 988 crisis safety, literature & patent novelty" },
-        { id: "workflow", name: "Workflow Orchestrator & Health Engine", actions: 4, desc: "Multi-plugin compound DAG execution & pre-flight health diagnostics" },
-        { id: "message", name: "Agent Message Bus", actions: 3, desc: "Multi-channel priority dispatching (Telegram > iMessage > Email)" },
+        { id: "design", name: "Design System & UI Intelligence", actions: 10, desc: "5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths" },
+        { id: "chrome", name: "Chrome Automation & Native Bridge", actions: 38, desc: "Inactive-tab driving, CDP, HUD annotations, Storage" },
+        { id: "message", name: "Agent Message Bus", actions: 4, desc: "Multi-channel priority dispatching (Telegram > iMessage > Email)" },
         { id: "secret", name: "Local Credential Vault", actions: 2, desc: "Mode-0600 secure token vault" },
       ];
       for (const p of plugins) {
@@ -104,6 +110,10 @@ async function main() {
         res = await scienceOperation({ action: action as any, ...jsonArgs });
       } else if (plugin === "workflow" as any) {
         res = await workflowOperation({ action: action as any, ...jsonArgs });
+      } else if (plugin === "chrome" as any) {
+        res = await executeChrome({ action: action as any, ...jsonArgs });
+      } else if (plugin === "message" as any) {
+        res = await executeMessage({ action: action as any, ...jsonArgs });
       } else {
         console.error(`Execution for '${plugin}' not directly supported in CLI quick-exec.`);
         process.exit(1);
@@ -135,9 +145,31 @@ async function main() {
       break;
     }
 
+    case "install-mcp":
+    case "install": {
+      const res = await workflowOperation({ action: "install_mcp_schemas" });
+      const data = res.data as any;
+      console.log("\n⚡ Auto-Installing MentalCraft MCP Schemas into Antigravity\n" + "=".repeat(60));
+      console.log(`✓ Installed ${data.installedCount} tool schemas:`);
+      for (const p of data.installedPaths) {
+        console.log(`  - ${p}`);
+      }
+      console.log("\nAll subagents and AGY prompts now have native access to all 5 plugin servers!");
+      console.log("=".repeat(60) + "\n");
+      break;
+    }
+
     case "serve": {
-      console.error("Starting MentalCraft Gateway MCP Stdio Server...");
-      startGatewayMcpStdio();
+      const httpFlag = args.includes("--http");
+      const portArg = args.find((a) => a.startsWith("--port="));
+      const port = portArg ? parseInt(portArg.split("=")[1], 10) : 3890;
+
+      if (httpFlag || portArg) {
+        startGatewayMcpHttp(port);
+      } else {
+        console.error("Starting MentalCraft Gateway MCP Stdio Server...");
+        startGatewayMcpStdio();
+      }
       break;
     }
 
@@ -153,8 +185,9 @@ Commands:
   run-workflow <id>        Execute a compound workflow pipeline
   history                  View past workflow execution receipts
   export-config [client]   Generate MCP config JSON for Claude Desktop / Cursor
+  install-mcp              Auto-install tool schemas to Antigravity MCP directory
   exec <p> <a> [d]         Execute an action on a plugin directly
-  serve                    Launch the unified master MCP stdio server
+  serve [--http] [--port]  Launch master MCP server (Stdio or HTTP/SSE)
   help                     Show this help message
 `);
       break;

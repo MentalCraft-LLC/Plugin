@@ -134,6 +134,21 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.commandInstructions.length).toBeGreaterThan(0);
   });
 
+  test("install_mcp_schemas writes JSON schemas to designated directory", async () => {
+    const { mkdtempSync, rmSync } = require("node:fs");
+    const { tmpdir } = require("node:os");
+    const { join } = require("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "mcp-test-"));
+    try {
+      const { installMcpSchemasToAgy } = require("./operation.ts");
+      const res = installMcpSchemasToAgy(tmp);
+      expect(res.installedCount).toBe(5);
+      expect(res.installedPaths.length).toBe(5);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
   test("compactWorkflowResult formats readable terminal summary", async () => {
     const res = await workflowOperation({ action: "health_check" });
     const log = compactWorkflowResult(res);
@@ -141,3 +156,4 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(log).toContain("HEALTHY");
   });
 });
+
