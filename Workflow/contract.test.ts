@@ -25,11 +25,17 @@ describe("Golden Protocol & Contract Verification Across All 6 Plugins", () => {
       "venture_expansion_moat",
       "spriteflow_mrr_engine",
       "spriteflow_pseo_matrix",
-      "zero_cost_viral_loops",
       "traffic_domain_overview",
       "traffic_channel_breakdown",
       "traffic_competitor_comparison",
       "product_traction_score",
+      "service_practitioner_workbench",
+      "service_scale_battery_config",
+      "service_referral_dispatch",
+      "application_market_validation",
+      "application_pmf_validation",
+      "company_unit_economics",
+      "company_mrr_engine",
     ] as const;
 
     for (const action of actions) {

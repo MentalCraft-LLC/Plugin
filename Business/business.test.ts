@@ -9,8 +9,11 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
     expect(res.success).toBe(true);
     expect(res.protocol).toBe(BUSINESS_PROTOCOL);
     const data = res.data as any;
-    expect(data.totalActions).toBe(24);
+    expect(data.totalActions).toBe(43);
     expect(data.modalities).toEqual(["website", "app", "game", "shop"]);
+    expect(data.modules.application.name).toBe("Application (产品与软件工程线)");
+    expect(data.modules.service.name).toBe("Service (专业服务与履约线)");
+    expect(data.modules.company.name).toBe("Company (公司财务与增长线)");
     expect(data.lifecycleStages.stage1_ideation.length).toBe(2);
     expect(data.lifecycleStages.stage2_pmf_validation.length).toBe(1);
     expect(data.lifecycleStages.stage3_acquisition.length).toBe(9);
@@ -649,5 +652,29 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
     });
     expect(viralRpc.result.content[0].text).toContain("GitHub OSS Bridge");
     expect(viralRpc.result.content[0].text).toContain("1.25");
+  });
+
+  test("Service and Module aliases execute successfully with pure contracts", async () => {
+    // 1. service_practitioner_workbench
+    const wbRes = await businessOperation({ action: "service_practitioner_workbench", owner_key: "test_key_123" } as any);
+    expect(wbRes.success).toBe(true);
+    expect((wbRes.data as any).tier).toBe("pro");
+
+    // 2. service_scale_battery_config
+    const scaleRes = await businessOperation({ action: "service_scale_battery_config" } as any);
+    expect(scaleRes.success).toBe(true);
+    expect((scaleRes.data as any).scales.length).toBeGreaterThanOrEqual(3);
+
+    // 3. service_referral_dispatch
+    const refRes = await businessOperation({ action: "service_referral_dispatch" } as any);
+    expect(refRes.success).toBe(true);
+    expect((refRes.data as any).referralPathways.length).toBe(3);
+
+    // 4. Module Aliases (application_* and company_*)
+    const appMarketRes = await businessOperation({ action: "application_market_validation", venture_name: "MentalCraft" } as any);
+    expect(appMarketRes.success).toBe(true);
+
+    const compMrrRes = await businessOperation({ action: "company_mrr_engine", target_mrr: 10000 } as any);
+    expect(compMrrRes.success).toBe(true);
   });
 });

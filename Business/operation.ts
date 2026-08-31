@@ -118,8 +118,43 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
           timestamp,
           provider,
           data: {
-            totalActions: 24,
+            totalActions: 43,
             modalities: ["website", "app", "game", "shop"],
+            modules: {
+              application: {
+                name: "Application (产品与软件工程线)",
+                remoteRepo: "https://github.com/MentalCraft-LLC/Application",
+                description: "面向 Website / App / Game / Shop 四大形态的产品全生命周期工程：痛点挖掘、PMF 验证、pSEO 矩阵、激活与留存。",
+                stages: {
+                  stage1_market_validation: ["application_market_validation", "application_niche_discovery"],
+                  stage2_pmf_validation: ["application_pmf_validation", "application_product_traction"],
+                  stage3_acquisition_pseo: ["application_acquisition_audit", "application_pseo_matrix", "application_seo_keywords", "application_zero_cost_viral_loops"],
+                  stage4_activation_funnel: ["application_activation_funnel"],
+                  stage5_retention_cohorts: ["application_retention_curves"],
+                },
+              },
+              service: {
+                name: "Service (专业服务与履约线)",
+                remoteRepo: "https://github.com/MentalCraft-LLC/Service",
+                description: "面向执业咨询师、学校教师与家长的专业服务履约线：专属工作台、多量表组合配置、自动化简报与分级医疗转介通道。",
+                stages: {
+                  stage1_workbench: ["service_practitioner_workbench"],
+                  stage2_scale_config: ["service_scale_battery_config"],
+                  stage3_referral_triage: ["service_referral_dispatch"],
+                },
+              },
+              company: {
+                name: "Company (公司财务与增长线)",
+                remoteRepo: "https://github.com/MentalCraft-LLC/Company",
+                description: "公司商业治理与收入增长线：单位经济学模型、$10,000 MRR 路径测算、价格弹性实验、Stripe 计费遥测与规模化护城河。",
+                stages: {
+                  stage1_unit_economics: ["company_unit_economics", "company_mrr_engine"],
+                  stage2_pricing_experiments: ["company_pricing_experiment"],
+                  stage3_monetization_telemetry: ["company_monetization_telemetry"],
+                  stage4_growth_and_moats: ["company_growth_playbook", "company_expansion_moat"],
+                },
+              },
+            },
             lifecycleStages: {
               stage1_ideation: ["venture_market_validation", "market_niche_discovery"],
               stage2_pmf_validation: ["venture_pmf_validation"],
@@ -181,6 +216,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
+      case "application_market_validation":
       case "venture_market_validation": {
         const name = input.venture_name ?? "Target Venture";
         let marketSize = { tamUsd: 85000000000, samUsd: 12000000000, somUsd: 150000000 };
@@ -255,6 +291,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
+      case "application_niche_discovery":
       case "market_niche_discovery": {
         const q = input.query ?? "developer tools";
         try {
@@ -307,6 +344,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
+      case "application_pmf_validation":
       case "venture_pmf_validation": {
         const name = input.venture_name ?? "Target Venture";
         const respondents = 250;
@@ -371,6 +409,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
+      case "application_acquisition_audit":
       case "venture_acquisition_audit": {
         const name = input.venture_name ?? "Target Venture";
         if (modality === "app") {
@@ -484,6 +523,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         }
       }
 
+      case "application_activation_funnel":
       case "venture_activation_funnel": {
         const name = input.venture_name ?? "Target Venture";
         let steps = [];
@@ -567,6 +607,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
+      case "application_retention_curves":
       case "venture_retention_curves": {
         const name = input.venture_name ?? "Target Venture";
         const d1 = input.d1_retention ?? (modality === "shop" ? 24 : modality === "game" ? 42 : modality === "app" ? 34 : 65);
@@ -616,6 +657,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
+      case "company_unit_economics":
       case "venture_unit_economics": {
         const name = input.venture_name ?? "Target Venture";
         const cac = input.cac ?? (modality === "shop" ? 28.0 : modality === "game" ? 4.5 : modality === "app" ? 18.0 : 85.0);
@@ -659,6 +701,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
+      case "company_monetization_telemetry":
       case "venture_monetization_telemetry": {
         const name = input.venture_name ?? "Target Venture";
         const billingProvider = modality === "shop" ? "ShopifyPay" : modality === "game" ? "Steam" : modality === "app" ? "AppStore" : "Stripe";
@@ -683,7 +726,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
           ] : modality === "app" ? [
             { tierName: "Monthly Pro ($9.99/mo)", revenueSharePercent: 28, users: 950 },
             { tierName: "Annual VIP ($49.99/yr)", revenueSharePercent: 64, users: 2190 },
-            { tierName: "Lifetime Unlock ($99.99)", revenueSharePercent: 8, users: 280 },
+        { tierName: "Lifetime Unlock ($99.99)", revenueSharePercent: 8, users: 280 },
           ] : [
             { tierName: "Pro Tier / Base License ($49/mo)", revenueSharePercent: 62, users: 2600 },
             { tierName: "Enterprise / Multi-seat ($199/mo)", revenueSharePercent: 38, users: 820 },
@@ -700,6 +743,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
+      case "company_pricing_experiment":
       case "venture_pricing_experiment": {
         const name = input.venture_name ?? "Target Venture";
         const prices = input.price_points ?? (
@@ -784,6 +828,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
+      case "company_growth_playbook":
       case "venture_growth_playbook": {
         const name = input.venture_name ?? "Target Venture";
         let sprints = [];
@@ -904,6 +949,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
+      case "company_expansion_moat":
       case "venture_expansion_moat": {
         const name = input.venture_name ?? "Target Venture";
         const kFactor = modality === "shop" ? 0.85 : modality === "game" ? 1.15 : modality === "app" ? 0.75 : 0.92;
@@ -1012,6 +1058,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
+      case "application_seo_keywords":
       case "seo_batch_keywords": {
         const kws = input.keywords || (input.keyword ? [input.keyword] : []);
         if (kws.length === 0) {
@@ -1194,6 +1241,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
+      case "application_product_traction":
       case "product_traction_score": {
         const name = input.product_name || input.domain || "mentalcraft.org";
         const overview = await trafficcv.getDomainOverview(name.includes(".") ? name : "mentalcraft.org");
@@ -1227,6 +1275,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
+      case "company_mrr_engine":
       case "spriteflow_mrr_engine": {
         const targetMrr = input.target_mrr ?? 10000;
         const targetArr = input.target_mrr ? input.target_mrr * 12 : 120000;
@@ -1333,6 +1382,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
+      case "application_pseo_matrix":
       case "spriteflow_pseo_matrix": {
         const rawKeywords: PseoKeywordEntry[] = [
           // 1. Godot 4 Ecosystem (20 entries)
@@ -1584,23 +1634,22 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
             conversionToProPercent: 6.4,
             stepByStepDeliverables: [
               { stepNumber: 1, title: "Show HN Technical Launch Post", action: "Post 'Show HN: We built a zero-dependency WebAssembly sprite atlas packer with 60fps real-time preview' with deep technical post-mortem", timeline: "Week 1", status: "Ready" },
-              { stepNumber: 2, title: "r/gamedev Algorithm Benchmark Teardown", action: "Share comprehensive benchmark: 'Why TexturePacker is bloated and how MaxRects algorithm runs at 120 FPS in browser with pure Wasm'", timeline: "Week 3", status: "Ready" },
-              { stepNumber: 3, title: "r/godot 2D Lighting Workflow Demo", action: "Post high-framerate video demonstration on r/godot showing 2D dynamic point lighting on pixel art with auto-generated normal maps", timeline: "Week 5", status: "In Progress" },
-              { stepNumber: 4, title: "r/PixelArt Weekly Lighting Challenge", action: "Host community challenge in r/PixelArt with free interactive sandbox links to inspect normal maps in browser", timeline: "Week 7", status: "Planned" },
+              { stepNumber: 2, title: "r/godot & r/gamedev Memory Benchmark Post", action: "Publish benchmark report comparing VRAM consumption: SpriteFlow vs TexturePacker vs Godot Native Atlas", timeline: "Week 4", status: "Ready" },
+              { stepNumber: 3, title: "Interactive Shader / Normal Map Web Demo", action: "Create interactive web playground where developers can drag dynamic point lights across 2D pixel art", timeline: "Week 2", status: "Ready" },
             ],
             kpis: [
-              { metric: "Hacker News Front Page Upvotes", target: "Top 5 Front Page (350+ points, 15,000+ visitors in 48h)", measurementWindow: "Post Launch" },
-              { metric: "Reddit Community Upvotes", target: "600+ upvotes across r/godot and r/gamedev", measurementWindow: "Per Post" },
-              { metric: "Viral Traffic Spike Signups", target: "3,200+ account creations in launch week", measurementWindow: "Weekly" },
+              { metric: "Hacker News Frontpage Upvotes", target: "250+ points and #1-#5 front page placement", measurementWindow: "Per Post" },
+              { metric: "Reddit Upvotes & Community Comments", target: "800+ total upvotes across subreddits", measurementWindow: "Monthly" },
+              { metric: "Viral Spike Instant Traffic", target: "15,000+ unique devs within 48 hours", measurementWindow: "Post Launch" },
             ],
           },
           {
             vectorId: "vector_video_tutorials",
-            vectorName: "YouTube & Bilibili Indie Dev Devlog & Workflow Tutorials",
-            channel: "YouTube (Global) & Bilibili (China indie dev community)",
+            vectorName: "60-Second Workflow Tutorials on YouTube & Bilibili",
+            channel: "Video Platforms (YouTube Tutorials & Bilibili Indie Dev Hub)",
             kFactorContribution: 0.18,
             projectedMonthlySignups: 1650,
-            conversionToProPercent: 5.8,
+            conversionToProPercent: 4.5,
             stepByStepDeliverables: [
               { stepNumber: 1, title: "5-Minute Pipeline Video Series", action: "Produce 5 punchy YouTube videos: 'Aseprite to Godot 4 in 60 Seconds', 'Pixel Art Normal Maps Explained', 'Free TexturePacker Alternative'", timeline: "Week 2-5", status: "Ready" },
               { stepNumber: 2, title: "Indie Creator Devlog Placements", action: "Seed SpriteFlow into 6 popular indie dev vloggers (10k-50k subscribers) for organic workflow demonstrations", timeline: "Week 6-8", status: "In Progress" },
@@ -1668,6 +1717,66 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
           timestamp,
           provider: "auto",
           data: res,
+        };
+      }
+
+      case "service_practitioner_workbench": {
+        const ownerKey = (input as any).owner_key ?? "default_practitioner_key";
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "service_practitioner_workbench",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data: {
+            ownerKey,
+            tier: "pro",
+            activeLinksCount: 14,
+            monthlyQuota: 999999,
+            activeScales: ["gad7", "phq9", "algorithmic_parenting_scale"],
+            sessionBriefGenerationReady: true,
+            features: [
+              "Multi-scale battery link generation",
+              "Automated clinical session brief PDF export",
+              "6-month longitudinal tracking curves",
+              "Critical triage alert webhooks",
+            ],
+          },
+        };
+      }
+
+      case "service_scale_battery_config": {
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "service_scale_battery_config",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data: {
+            scales: [
+              { id: "gad7", name: "Generalized Anxiety Disorder 7-item (GAD-7)", itemsCount: 7, clinicalCutoffs: { mild: 5, moderate: 10, severe: 15 } },
+              { id: "phq9", name: "Patient Health Questionnaire 9-item (PHQ-9)", itemsCount: 9, clinicalCutoffs: { mild: 5, moderate: 10, moderately_severe: 15, severe: 20 } },
+              { id: "algorithmic_parenting", name: "数智社会亲子关系与算法代哺量表 (AP-Scale)", itemsCount: 14, dimensions: ["场景渗透", "评价可视", "规训内化", "自主协商"] },
+            ],
+          },
+        };
+      }
+
+      case "service_referral_dispatch": {
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "service_referral_dispatch",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data: {
+            triageLevel: "Tier 2 - Psychological Counseling Referral",
+            referralPathways: [
+              { type: "School Psychological Center", turnaroundHours: 24, priority: "High" },
+              { type: "Tertiary Mental Health Hospital Outpatient", turnaroundHours: 48, priority: "Standard" },
+              { type: "24/7 Crisis Intervention Hotline (010-82951332)", responseTimeSeconds: 5, priority: "Immediate" },
+            ],
+          },
         };
       }
 

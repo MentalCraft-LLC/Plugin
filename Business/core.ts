@@ -22,6 +22,8 @@ export const BUSINESS_PROTOCOL = "holar.business.v1" as const;
 
 export type BusinessModality = "website" | "app" | "game" | "shop";
 
+export type BusinessModule = "application" | "service" | "company";
+
 export type BusinessProvider = "gefei" | "trafficcv" | "store_radar" | "auto";
 
 export type BusinessAction =
@@ -49,6 +51,25 @@ export type BusinessAction =
   | "spriteflow_mrr_engine"
   | "spriteflow_pseo_matrix"
   | "zero_cost_viral_loops"
+  | "application_market_validation"
+  | "application_niche_discovery"
+  | "application_pmf_validation"
+  | "application_product_traction"
+  | "application_acquisition_audit"
+  | "application_pseo_matrix"
+  | "application_seo_keywords"
+  | "application_zero_cost_viral_loops"
+  | "application_activation_funnel"
+  | "application_retention_curves"
+  | "service_practitioner_workbench"
+  | "service_scale_battery_config"
+  | "service_referral_dispatch"
+  | "company_unit_economics"
+  | "company_mrr_engine"
+  | "company_pricing_experiment"
+  | "company_monetization_telemetry"
+  | "company_growth_playbook"
+  | "company_expansion_moat"
   | "list_actions";
 
 export type MarketValidationResult = {
