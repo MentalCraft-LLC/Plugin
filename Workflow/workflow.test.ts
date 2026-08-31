@@ -326,6 +326,36 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.edgesCount).toBe(5);
   });
 
+  test("withRetry recovers from transient failures with exponential backoff", async () => {
+    const { withRetry } = require("./operation.ts");
+    let attempts = 0;
+    const res = await withRetry(async () => {
+      attempts++;
+      if (attempts < 3) throw new Error("Transient network partition");
+      return "SUCCESS_PAYLOAD";
+    }, { maxRetries: 3, initialDelayMs: 5 });
+    expect(res.result).toBe("SUCCESS_PAYLOAD");
+    expect(res.attempts).toBe(3);
+  });
+
+  test("batch_run executes multiple parallel tasks across plugins with pooled concurrency", async () => {
+    const res = await workflowOperation({
+      action: "batch_run",
+      concurrency: 3,
+      tasks: [
+        { id: "b1", plugin: "science", action: "score_scale", parameters: { scale: "gad7", answers: { q1: 2, q2: 2 } } },
+        { id: "b2", plugin: "business", action: "traffic_domain_overview", parameters: { domain: "mentalcraft.org" } },
+        { id: "b3", plugin: "design", action: "domain_presets", parameters: { preset_name: "clinical" } },
+      ],
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.total).toBe(3);
+    expect(data.successful).toBe(3);
+    expect(data.failed).toBe(0);
+    expect(data.results.length).toBe(3);
+  });
+
   test("compactWorkflowResult formats readable terminal summary", async () => {
     const res = await workflowOperation({ action: "health_check" });
     const log = compactWorkflowResult(res);

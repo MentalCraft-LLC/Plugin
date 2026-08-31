@@ -409,6 +409,20 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "batch": {
+      const jsonStr = args.slice(1).join(" ");
+      if (!jsonStr) {
+        console.error("Usage: bun Plugin/cli.ts batch '[{\"id\":\"t1\",\"plugin\":\"business\",\"action\":\"traffic_domain_overview\",\"parameters\":{\"domain\":\"example.com\"}}]'");
+        process.exit(1);
+      }
+      const tasks = JSON.parse(jsonStr);
+      console.log(`\n⚡ Running Batch Execution of ${tasks.length} concurrent tasks...\n` + "=".repeat(60));
+      const res = await workflowOperation({ action: "batch_run", tasks });
+      console.log(JSON.stringify(res.data, null, 2));
+      console.log("=".repeat(60) + "\n");
+      break;
+    }
+
     case "repl":
     case "i": {
       await startInteractiveRepl();

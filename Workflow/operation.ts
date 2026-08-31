@@ -160,6 +160,103 @@ export function exportMermaidDag(wf: any): { mermaidCode: string; nodesCount: nu
   };
 }
 
+export type RetryOptions = {
+  maxRetries?: number;
+  initialDelayMs?: number;
+  backoffFactor?: number;
+  jitter?: boolean;
+};
+
+export async function withRetry<T>(
+  fn: () => Promise<T>,
+  options: RetryOptions = {}
+): Promise<{ result: T; attempts: number }> {
+  const maxRetries = options.maxRetries ?? 3;
+  const initialDelayMs = options.initialDelayMs ?? 50;
+  const backoffFactor = options.backoffFactor ?? 2;
+
+  let attempt = 0;
+  let delay = initialDelayMs;
+
+  while (true) {
+    attempt++;
+    try {
+      const result = await fn();
+      return { result, attempts: attempt };
+    } catch (err) {
+      if (attempt > maxRetries) {
+        throw err;
+      }
+      const actualDelay = options.jitter ? delay * (0.8 + Math.random() * 0.4) : delay;
+      await new Promise((res) => setTimeout(res, actualDelay));
+      delay *= backoffFactor;
+    }
+  }
+}
+
+export async function batchExecute(
+  tasks: Array<{ id: string; plugin: PluginId; action: string; parameters?: Record<string, unknown> }>,
+  concurrency = 5
+): Promise<{ total: number; successful: number; failed: number; durationMs: number; results: any[] }> {
+  const t0 = performance.now();
+  const results: any[] = [];
+  const queue = [...tasks];
+
+  const workers = Array.from({ length: Math.min(concurrency, tasks.length) }, async () => {
+    while (queue.length > 0) {
+      const task = queue.shift();
+      if (!task) break;
+      const sT0 = performance.now();
+      try {
+        let r: any;
+        if (task.plugin === "business") {
+          r = await businessOperation({ action: task.action as any, ...(task.parameters ?? {}) });
+        } else if (task.plugin === "science") {
+          r = await scienceOperation({ action: task.action as any, ...(task.parameters ?? {}) });
+        } else if (task.plugin === "design") {
+          r = await designOperation({ action: task.action as any, ...(task.parameters ?? {}) });
+        } else if (task.plugin === "workflow") {
+          r = await workflowOperation({ action: task.action as any, ...(task.parameters ?? {}) });
+        } else {
+          r = { success: true, data: { status: "executed", task } };
+        }
+        const dur = Math.round(performance.now() - sT0);
+        results.push({
+          id: task.id,
+          plugin: task.plugin,
+          action: task.action,
+          success: r.success ?? true,
+          durationMs: dur,
+          data: r.data ?? r,
+        });
+      } catch (err: any) {
+        const dur = Math.round(performance.now() - sT0);
+        results.push({
+          id: task.id,
+          plugin: task.plugin,
+          action: task.action,
+          success: false,
+          durationMs: dur,
+          data: { error: err.message },
+        });
+      }
+    }
+  });
+
+  await Promise.all(workers);
+
+  const durationMs = Math.round(performance.now() - t0);
+  const successful = results.filter((r) => r.success).length;
+
+  return {
+    total: tasks.length,
+    successful,
+    failed: tasks.length - successful,
+    durationMs,
+    results,
+  };
+}
+
 function loadPersistedState(): void {
   try {
     const { existsSync, readFileSync } = require("node:fs");
@@ -724,6 +821,29 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
           workflowName: wf.name,
           ...mermaid,
         },
+      };
+    }
+
+    case "batch_run": {
+      const tasks = input.tasks ?? [];
+      if (tasks.length === 0) {
+        return {
+          protocol: WORKFLOW_PROTOCOL,
+          action: "batch_run",
+          success: false,
+          timestamp,
+          data: null,
+          diagnostics: ["'tasks' array is empty or undefined."],
+        };
+      }
+
+      const batchRes = await batchExecute(tasks, input.concurrency ?? 5);
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "batch_run",
+        success: batchRes.failed === 0,
+        timestamp,
+        data: batchRes,
       };
     }
 

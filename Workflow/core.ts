@@ -176,6 +176,7 @@ export type WorkflowAction =
   | "get_metrics"
   | "export_trace"
   | "export_mermaid_dag"
+  | "batch_run"
   | "health_check"
   | "dry_run";
 
@@ -190,6 +191,8 @@ export type WorkflowInput = {
     requiredPlugins: PluginId[];
     steps: WorkflowStep[];
   };
+  tasks?: Array<{ id: string; plugin: PluginId; action: string; parameters?: Record<string, unknown> }>;
+  concurrency?: number;
   client_target?: ClientTargetConfig;
   parameters?: Record<string, unknown>;
 };
@@ -252,6 +255,10 @@ export function formatWorkflowSummary(result: WorkflowResult): string {
     case "export_mermaid_dag": {
       const data = result.data as any;
       return `Mermaid Graph [${data.workflowId}]: ${data.nodesCount} nodes, ${data.edgesCount} edges generated`;
+    }
+    case "batch_run": {
+      const data = result.data as any;
+      return `✓ Batch Execution: ${data.successful}/${data.total} tasks succeeded (${data.durationMs}ms)`;
     }
     case "run_workflow": {
       const data = result.data as any;
