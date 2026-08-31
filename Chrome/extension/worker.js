@@ -1361,6 +1361,13 @@ function connect() {
   }
   port = connection;
   connection.onMessage.addListener(async (message) => {
+    if (message?.kind === "reload") {
+      try {
+        await injectContentScriptsIntoOpenTabs();
+        chrome.runtime.reload();
+      } catch {}
+      return;
+    }
     if (message?.kind === "owner_submit_result" && typeof message.id === "string") {
       const waiter = ownerSubmitWaiters.get(message.id);
       if (waiter) {
@@ -1389,6 +1396,22 @@ function connect() {
   connection.postMessage({ kind: "ready", protocol: PROTOCOL });
 }
 
+async function injectContentScriptsIntoOpenTabs() {
+  if (!chrome.scripting || !chrome.tabs) return;
+  try {
+    const tabs = await chrome.tabs.query({ url: ["http://*/*", "https://*/*"] });
+    for (const tab of tabs) {
+      if (!tab.id) continue;
+      try {
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id, allFrames: true },
+          files: ["text.js", "long-capture.js", "annotation.js", "content.js"],
+        });
+      } catch {}
+    }
+  } catch {}
+}
+
 chrome.action.onClicked.addListener(async (tab) => {
   if (!tab.id || !tab.url) return;
   let url;
@@ -1404,6 +1427,10 @@ chrome.action.onClicked.addListener(async (tab) => {
   });
 });
 
-chrome.runtime.onInstalled.addListener(connect);
+chrome.runtime.onInstalled.addListener(() => {
+  connect();
+  void injectContentScriptsIntoOpenTabs();
+});
 chrome.runtime.onStartup.addListener(connect);
 connect();
+void injectContentScriptsIntoOpenTabs();

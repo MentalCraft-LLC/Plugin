@@ -11,7 +11,8 @@
     "cookies",
     "tabs",
     "tabGroups",
-    "debugger"
+    "debugger",
+    "scripting"
   ],
   "host_permissions": [
     "http://*/*",

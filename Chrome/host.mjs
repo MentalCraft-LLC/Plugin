@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
 import { timingSafeEqual } from "node:crypto";
-import { appendFileSync, chmodSync, existsSync, lstatSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { appendFileSync, chmodSync, existsSync, lstatSync, readFileSync, renameSync, rmSync, watch, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { homedir } from "node:os";
 import { dirname, resolve } from "node:path";
@@ -426,6 +426,21 @@ const server = createServer((socket) => {
 });
 
 server.listen(SOCKET_PATH, () => chmodSync(SOCKET_PATH, 0o600));
+
+const EXTENSION_DIR = resolve(HOST_DIR, "extension");
+if (existsSync(EXTENSION_DIR)) {
+  let reloadTimer;
+  try {
+    watch(EXTENSION_DIR, { recursive: true }, () => {
+      clearTimeout(reloadTimer);
+      reloadTimer = setTimeout(() => {
+        if (extensionReady) {
+          try { nativeWrite({ kind: "reload" }); } catch {}
+        }
+      }, 150);
+    });
+  } catch {}
+}
 
 function cleanup() {
   for (const request of pending.values()) {
