@@ -174,17 +174,15 @@
     fields.forEach((field, index) => {
       const card = document.createElement("div");
       card.setAttribute(HOST_ATTR, `card-${field.key}`);
-      const isFirst = index === 0;
-      const isLast = index === fields.length - 1;
       card.style.cssText = [
         "min-width:0",
-        `padding:9px ${isLast ? 18 : 14}px 9px ${isFirst ? 18 : 14}px`,
-        !isLast ? "border-right:1px solid rgba(255,255,255,0.1)" : "",
+        "padding:8px 12px",
+        index < fields.length - 1 ? "border-right:1px solid rgba(255,255,255,0.08)" : "",
       ].filter(Boolean).join(";");
       const caption = document.createElement("div");
       caption.setAttribute(HOST_ATTR, "card-label");
       caption.textContent = field.label;
-      caption.style.cssText = "font:600 9px/1.2 ui-sans-serif,system-ui,sans-serif;letter-spacing:0.09em;text-transform:uppercase;color:rgba(255,255,255,0.48);margin-bottom:5px;";
+      caption.style.cssText = "font:600 9px/1.2 ui-sans-serif,system-ui,sans-serif;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:5px;";
       const value = document.createElement("div");
       value.setAttribute(HOST_ATTR, "card-value");
       const empty = !field.value || field.value === "—";
@@ -194,7 +192,7 @@
         "color:#fff",
         mono
           ? "font:500 11.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace"
-          : "font:600 12.5px/1.35 ui-sans-serif,system-ui,sans-serif",
+          : "font:600 12px/1.35 ui-sans-serif,system-ui,sans-serif",
         "word-break:break-word",
         "max-height:4.5em",
         "overflow:hidden",
@@ -205,7 +203,7 @@
           const pill = document.createElement("span");
           pill.setAttribute(HOST_ATTR, "class-token");
           pill.textContent = token;
-          pill.style.cssText = "display:inline-block;padding:2px 8px;border-radius:9999px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.12);box-shadow:0 1px 2px rgba(0,0,0,0.15);font:500 10.5px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;color:#f8fafc;";
+          pill.style.cssText = "display:inline-block;padding:1.5px 6px;border-radius:3px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.1);font:500 10.5px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;color:#f8fafc;";
           value.appendChild(pill);
         });
       } else {
@@ -222,7 +220,7 @@
     const viewportHeight = Number(window.innerHeight) || 600;
     const columns = classVisible ? 3 : 2;
     const width = Math.min(
-      Math.max(Number(rect.width) || 0, columns === 3 ? 430 : 300),
+      Math.max(Number(rect.width) || 0, columns === 3 ? 420 : 300),
       Math.max(280, viewportWidth - 24),
     );
     row.style.cssText = [
@@ -234,11 +232,11 @@
       "display:grid",
       `grid-template-columns:repeat(${columns}, minmax(0, 1fr))`,
       "align-items:stretch",
-      "background:rgba(15,23,42,0.76)",
+      "background:rgba(15,23,42,0.82)",
       "color:#fff",
-      "border:1px solid rgba(255,255,255,0.18)",
-      "border-radius:9999px",
-      "box-shadow:0 20px 48px -4px rgba(0,0,0,0.45), inset 0 1px 0 0 rgba(255,255,255,0.25), inset 0 -1px 0 0 rgba(0,0,0,0.2)",
+      "border:1px solid rgba(255,255,255,0.16)",
+      "border-radius:6px",
+      "box-shadow:0 16px 40px -4px rgba(0,0,0,0.45), inset 0 1px 0 0 rgba(255,255,255,0.22), inset 0 -1px 0 0 rgba(0,0,0,0.2)",
       "overflow:hidden",
       "pointer-events:none",
       "z-index:2147483647",
@@ -646,7 +644,7 @@
     host.style.cssText = "position:fixed;inset:0;z-index:2147483646;pointer-events:none;font:12px/1.4 ui-sans-serif,system-ui,sans-serif;";
     highlight = document.createElement("div");
     highlight.setAttribute(HOST_ATTR, "hover");
-    highlight.style.cssText = `position:fixed;border:1.5px solid ${HOVER};border-radius:6px;pointer-events:none;display:none;z-index:2147483647;box-sizing:border-box;`;
+    highlight.style.cssText = `position:fixed;border:1.5px solid ${HOVER};border-radius:4px;pointer-events:none;display:none;z-index:2147483647;box-sizing:border-box;`;
     highlightLabel = document.createElement("div");
     highlightLabel.setAttribute(HOST_ATTR, "hover-label");
     highlightLabel.style.cssText = "position:fixed;display:none;z-index:2147483647;pointer-events:none;";
@@ -671,7 +669,7 @@
         `width:${Math.max(0, item.rect.width)}px`,
         `height:${Math.max(0, item.rect.height)}px`,
         `border:1.5px solid ${item.color}`,
-        "border-radius:6px",
+        "border-radius:4px",
         `background:${item.color}14`,
         "pointer-events:none",
         "box-sizing:border-box",
@@ -714,13 +712,13 @@
       "transform:translateX(-50%)",
       "display:flex",
       "align-items:center",
-      "gap:12px",
-      "padding:8px 10px 8px 18px",
-      "background:rgba(15,23,42,0.82)",
+      "gap:10px",
+      "padding:8px 10px 8px 14px",
+      "background:rgba(15,23,42,0.86)",
       "color:#fff",
-      "border:1px solid rgba(255,255,255,0.18)",
-      "border-radius:9999px",
-      "box-shadow:0 20px 48px -4px rgba(0,0,0,0.45), inset 0 1px 0 0 rgba(255,255,255,0.25)",
+      "border:1px solid rgba(255,255,255,0.16)",
+      "border-radius:8px",
+      "box-shadow:0 16px 40px -4px rgba(0,0,0,0.45), inset 0 1px 0 0 rgba(255,255,255,0.2)",
       "pointer-events:auto",
       "z-index:2147483647",
       "width:min(580px, calc(100vw - 24px))",
@@ -730,7 +728,7 @@
     ].join(";");
     const chips = document.createElement("div");
     chips.setAttribute(HOST_ATTR, "chips");
-    chips.style.cssText = "display:flex;gap:6px;align-items:center;flex-wrap:wrap;max-width:42%;";
+    chips.style.cssText = "display:flex;gap:6px;align-items:center;flex-wrap:wrap;max-width:40%;";
     items.forEach((item) => {
       const chip = document.createElement("button");
       chip.type = "button";
@@ -739,10 +737,10 @@
         "display:flex",
         "align-items:center",
         "gap:6px",
-        "border:1px solid rgba(255,255,255,0.14)",
-        "border-radius:9999px",
-        "background:rgba(255,255,255,0.1)",
-        "padding:3px 10px 3px 6px",
+        "border:1px solid rgba(255,255,255,0.12)",
+        "border-radius:4px",
+        "background:rgba(255,255,255,0.08)",
+        "padding:3px 8px 3px 6px",
         "font:12px/1.2 system-ui,sans-serif",
         "color:#fff",
         "cursor:pointer",
@@ -750,7 +748,7 @@
       ].join(";");
       const mark = document.createElement("span");
       mark.setAttribute(HOST_ATTR, "chip-mark");
-      mark.style.cssText = `width:8px;height:8px;border-radius:9999px;background:${item.color};display:inline-block;box-shadow:0 0 4px ${item.color}80;`;
+      mark.style.cssText = `width:8px;height:8px;border-radius:2px;background:${item.color};display:inline-block;box-shadow:0 0 4px ${item.color}80;`;
       const label = document.createElement("span");
       label.textContent = identityCards(item).element;
       chip.appendChild(mark);
@@ -775,9 +773,21 @@
     send.type = "submit";
     send.setAttribute(HOST_ATTR, "send");
     send.textContent = "Send";
-    send.style.cssText = "border:0;background:#fff;color:#0f172a;border-radius:9999px;padding:7px 18px;font:600 12px/1 ui-sans-serif,system-ui,sans-serif;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2);";
+    send.style.cssText = "border:0;background:#fff;color:#0f172a;border-radius:4px;padding:6px 14px;font:600 12px/1 ui-sans-serif,system-ui,sans-serif;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.2);";
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.setAttribute(HOST_ATTR, "dismiss");
+    closeBtn.title = "Cancel (Esc)";
+    closeBtn.innerHTML = "&times;";
+    closeBtn.style.cssText = "border:1px solid rgba(255,255,255,0.12);background:transparent;color:rgba(255,255,255,0.6);border-radius:4px;padding:3px 8px;font:14px/1 system-ui,sans-serif;cursor:pointer;line-height:1;";
+    closeBtn.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      spiralAnnotationClear();
+    });
     form.appendChild(input);
     form.appendChild(send);
+    form.appendChild(closeBtn);
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -807,7 +817,7 @@
     const toast = document.createElement("div");
     toast.setAttribute(HOST_ATTR, "toast");
     toast.textContent = message;
-    toast.style.cssText = "position:fixed;bottom:20px;right:20px;background:rgba(15,23,42,0.88);color:#fff;border:1px solid rgba(255,255,255,0.18);padding:9px 20px;border-radius:9999px;pointer-events:none;z-index:2147483647;box-shadow:0 16px 36px rgba(0,0,0,0.45), inset 0 1px 0 0 rgba(255,255,255,0.2);backdrop-filter:blur(28px) saturate(200%);-webkit-backdrop-filter:blur(28px) saturate(200%);font:500 12.5px/1.3 ui-sans-serif,system-ui,sans-serif;";
+    toast.style.cssText = "position:fixed;bottom:20px;right:20px;background:rgba(15,23,42,0.88);color:#fff;border:1px solid rgba(255,255,255,0.18);padding:8px 16px;border-radius:6px;pointer-events:none;z-index:2147483647;box-shadow:0 16px 36px rgba(0,0,0,0.45), inset 0 1px 0 0 rgba(255,255,255,0.2);backdrop-filter:blur(28px) saturate(200%);-webkit-backdrop-filter:blur(28px) saturate(200%);font:500 12px/1.3 ui-sans-serif,system-ui,sans-serif;";
     host.appendChild(toast);
     setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2400);
   }
@@ -960,13 +970,17 @@
 
   function onKey(event) {
     if (event.key === "Escape") {
+      const activeInput = typeof document !== "undefined" ? document.activeElement : null;
+      const isOurInput = activeInput && activeInput.getAttribute?.(HOST_ATTR) === "prompt-input";
+      if (isOurInput && activeInput.value) {
+        activeInput.value = "";
+        prompt = "";
+        event.preventDefault();
+        return;
+      }
       const hadItems = items.length > 0;
       const hoverVisible = highlight && highlight.style.display !== "none";
-      if (hadItems) {
-        items = [];
-        prompt = "";
-        renderPins();
-      }
+      spiralAnnotationClear();
       hideHighlight();
       if (hadItems || hoverVisible) event.preventDefault();
       return;
