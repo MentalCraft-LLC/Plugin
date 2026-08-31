@@ -212,6 +212,14 @@ async function mainCommand(cmd: string) {
 
     case "health":
     case "doctor": {
+      const fixFlag = args.includes("--fix");
+      if (fixFlag) {
+        console.log("\n🔧 Running Automatic Diagnostics & Self-Repair...");
+        const { installMcpSchemasToAgy } = require("./Workflow/operation.ts");
+        const installRes = installMcpSchemasToAgy();
+        console.log(`✓ Re-installed ${installRes.installedCount} tool schemas into Antigravity`);
+      }
+
       const report = await executeHealthCheck();
       console.log("\n🩺 Plugin System Health & Diagnostics Dashboard\n" + "=".repeat(60));
       console.log(`Status: ${report.overallStatus === "healthy" ? "🟢 HEALTHY" : "🟡 DEGRADED"} (${report.healthScore}/100) | Healthy Plugins: ${report.healthyPlugins}/${report.totalPlugins}`);
@@ -222,6 +230,30 @@ async function mainCommand(cmd: string) {
         }
       }
       console.log("\n" + "=".repeat(60));
+      break;
+    }
+
+    case "pipe": {
+      const expr = args.slice(1).join(" ");
+      if (!expr) {
+        console.error("Usage: bun Plugin/cli.ts pipe \"plugin1.action1 -> plugin2.action2\"");
+        process.exit(1);
+      }
+
+      const steps = expr.split("->").map((s) => s.trim());
+      console.log(`\n🔗 Executing Piped Sequence: ${steps.join(" ➔ ")}\n` + "=".repeat(60));
+      let currentData: any = {};
+
+      for (let i = 0; i < steps.length; i++) {
+        const [p, a] = steps[i].split(".");
+        console.log(`▶ Stage ${i + 1}: ${p}.${a}`);
+        const res = await executePluginAction(p, a, currentData) as any;
+        currentData = res.data ?? res;
+      }
+
+      console.log("\n✓ Piped Pipeline Completed Successfully!");
+      console.log(JSON.stringify(currentData, null, 2));
+      console.log("=".repeat(60) + "\n");
       break;
     }
 

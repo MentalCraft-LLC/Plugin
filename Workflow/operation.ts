@@ -109,6 +109,23 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
   return { valid: errors.length === 0, errors, warnings };
 }
 
+export function redactSensitiveData<T>(input: T): T {
+  if (typeof input !== "object" || input === null) return input;
+  if (Array.isArray(input)) return input.map((item) => redactSensitiveData(item)) as unknown as T;
+
+  const result: Record<string, any> = {};
+  for (const [k, v] of Object.entries(input)) {
+    if (/token|secret|password|key|cookie|auth|credential/i.test(k) && typeof v === "string" && v.length > 4) {
+      result[k] = `[REDACTED_${v.slice(-4)}]`;
+    } else if (typeof v === "object" && v !== null) {
+      result[k] = redactSensitiveData(v);
+    } else {
+      result[k] = v;
+    }
+  }
+  return result as T;
+}
+
 function loadPersistedState(): void {
   try {
     const { existsSync, readFileSync } = require("node:fs");

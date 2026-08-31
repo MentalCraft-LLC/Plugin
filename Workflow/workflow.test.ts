@@ -292,6 +292,27 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(invalidForward.errors[0]).toContain("references forward/unexecuted step2");
   });
 
+  test("redactSensitiveData masks API keys, secrets, and auth tokens", () => {
+    const { redactSensitiveData } = require("./operation.ts");
+    const raw = {
+      user: "alice",
+      api_key: "sk-proj-1234567890abcdef",
+      telegram_token: "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+      cookie_secret: "session_id_987654321",
+      nested: {
+        stripe_key: "sk_live_998877665544",
+        safeValue: 42,
+      },
+    };
+    const redacted = redactSensitiveData(raw);
+    expect(redacted.api_key).toBe("[REDACTED_cdef]");
+    expect(redacted.telegram_token).toBe("[REDACTED_ew11]");
+    expect(redacted.cookie_secret).toBe("[REDACTED_4321]");
+    expect(redacted.nested.stripe_key).toBe("[REDACTED_5544]");
+    expect(redacted.nested.safeValue).toBe(42);
+    expect(redacted.user).toBe("alice");
+  });
+
   test("compactWorkflowResult formats readable terminal summary", async () => {
     const res = await workflowOperation({ action: "health_check" });
     const log = compactWorkflowResult(res);
