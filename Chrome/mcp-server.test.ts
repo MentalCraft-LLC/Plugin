@@ -38,6 +38,7 @@ describe("Chrome MCP adapter", () => {
       "read_console",
       "read_network",
       "read_storage",
+      "set_storage",
       "clear_storage",
       "read_cookies",
       "clear_cookies",

@@ -1000,6 +1000,7 @@ async function handle(command) {
     || command.action === "read_console"
     || command.action === "read_network"
     || command.action === "read_storage"
+    || command.action === "set_storage"
     || command.action === "clear_storage"
     || command.action === "wait_for"
     || command.action === "fill_form"

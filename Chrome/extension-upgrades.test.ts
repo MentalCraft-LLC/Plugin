@@ -154,4 +154,25 @@ describe("Extension Upgrades & DevTools Superpowers", () => {
     expect(uploadAction.file_name).toBe("test-data.json");
     expect(uploadAction.file_content).toBe('{"hello": "world"}');
   });
+
+  test("BrowserContextInput supports set_storage and storage_type", () => {
+    const setStorageAction: BrowserContextInput = {
+      action: "set_storage",
+      key: "theme_preference",
+      value: "dark",
+      storage_type: "local",
+    };
+    expect(setStorageAction.action).toBe("set_storage");
+    expect(setStorageAction.key).toBe("theme_preference");
+    expect(setStorageAction.value).toBe("dark");
+    expect(setStorageAction.storage_type).toBe("local");
+
+    const readStorageAction: BrowserContextInput = {
+      action: "read_storage",
+      key: "auth_token",
+      storage_type: "session",
+    };
+    expect(readStorageAction.key).toBe("auth_token");
+    expect(readStorageAction.storage_type).toBe("session");
+  });
 });

@@ -21,7 +21,7 @@ import {
 import { acquireChromeOsLease } from "./os-lease.ts";
 
 export type BrowserContextInput = {
-  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "drag_and_drop" | "upload_file" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate" | "emulate";
+  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "set_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "drag_and_drop" | "upload_file" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate" | "emulate";
   mode?: "start" | "stop" | "list" | "add" | "remove" | "clear";
   url?: string;
   max_sections?: number;
@@ -75,6 +75,7 @@ export type BrowserContextInput = {
   file_type?: string;
   base64?: string;
   files?: Array<{ name: string; type?: string; content?: string; base64?: string }>;
+  storage_type?: "local" | "session" | "all";
 };
 
 export type BrowserOperationContext = {
@@ -214,9 +215,11 @@ export function createBrowserContextOperation(options: {
     } else if (params.action === "read_network") {
       command = { protocol: PROTOCOL, action: "read_network", url, allow_active: allowActive };
     } else if (params.action === "read_storage") {
-      command = { protocol: PROTOCOL, action: "read_storage", url, allow_active: allowActive };
+      command = { protocol: PROTOCOL, action: "read_storage", url, key: params.key ?? params.name, storage_type: params.storage_type, allow_active: allowActive };
+    } else if (params.action === "set_storage") {
+      command = { protocol: PROTOCOL, action: "set_storage", url, key: params.key ?? params.name, value: params.value, storage_type: params.storage_type, allow_active: allowActive };
     } else if (params.action === "clear_storage") {
-      command = { protocol: PROTOCOL, action: "clear_storage", url, allow_active: allowActive };
+      command = { protocol: PROTOCOL, action: "clear_storage", url, key: params.key ?? params.name, storage_type: params.storage_type, allow_active: allowActive };
     } else if (params.action === "read_cookies") {
       command = { protocol: PROTOCOL, action: "read_cookies", url, allow_active: allowActive };
     } else if (params.action === "clear_cookies") {

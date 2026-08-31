@@ -2651,19 +2651,78 @@
       };
     }
     if (message.action === "read_storage") {
+      const key = message.key || message.name;
+      const storageType = message.storage_type || "all";
       const local = {};
       const session = {};
-      try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k) local[k] = localStorage.getItem(k); } } catch {}
-      try { for (let i = 0; i < sessionStorage.length; i++) { const k = sessionStorage.key(i); if (k) session[k] = sessionStorage.getItem(k); } } catch {}
+      if (storageType === "all" || storageType === "local") {
+        try {
+          if (key) {
+            const val = localStorage.getItem(key);
+            if (val !== null) local[key] = val;
+          } else {
+            for (let i = 0; i < localStorage.length; i++) {
+              const k = localStorage.key(i);
+              if (k) local[k] = localStorage.getItem(k);
+            }
+          }
+        } catch {}
+      }
+      if (storageType === "all" || storageType === "session") {
+        try {
+          if (key) {
+            const val = sessionStorage.getItem(key);
+            if (val !== null) session[key] = val;
+          } else {
+            for (let i = 0; i < sessionStorage.length; i++) {
+              const k = sessionStorage.key(i);
+              if (k) session[k] = sessionStorage.getItem(k);
+            }
+          }
+        } catch {}
+      }
       return {
         action: "read_storage",
         local_storage: local,
         session_storage: session,
+        ...(key ? { value: local[key] ?? session[key] ?? null } : {}),
+      };
+    }
+    if (message.action === "set_storage") {
+      const key = String(message.key || message.name || "");
+      if (!key) throw new Error("key_required_for_set_storage");
+      const val = typeof message.value === "string" ? message.value : JSON.stringify(message.value ?? "");
+      const storageType = message.storage_type === "session" ? "session" : "local";
+      if (storageType === "session") {
+        sessionStorage.setItem(key, val);
+      } else {
+        localStorage.setItem(key, val);
+      }
+      return {
+        action: "set_storage",
+        status: "stored",
+        key,
+        storage_type: storageType,
       };
     }
     if (message.action === "clear_storage") {
-      try { localStorage.clear(); } catch {}
-      try { sessionStorage.clear(); } catch {}
+      const storageType = message.storage_type || "all";
+      const key = message.key || message.name;
+      if (key) {
+        if (storageType === "all" || storageType === "local") {
+          try { localStorage.removeItem(key); } catch {}
+        }
+        if (storageType === "all" || storageType === "session") {
+          try { sessionStorage.removeItem(key); } catch {}
+        }
+        return { action: "clear_storage", status: "key_removed", key };
+      }
+      if (storageType === "all" || storageType === "local") {
+        try { localStorage.clear(); } catch {}
+      }
+      if (storageType === "all" || storageType === "session") {
+        try { sessionStorage.clear(); } catch {}
+      }
       return { action: "clear_storage", status: "storage_cleared" };
     }
     if (message.action === "wait_for") {
