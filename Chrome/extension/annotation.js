@@ -176,22 +176,22 @@
       card.setAttribute(HOST_ATTR, `card-${field.key}`);
       card.style.cssText = [
         "min-width:0",
-        "padding:8px 10px",
-        index < fields.length - 1 ? "border-right:1px solid rgba(255,255,255,0.1)" : "",
+        "padding:9px 12px",
+        index < fields.length - 1 ? "border-right:1px solid rgba(255,255,255,0.08)" : "",
       ].filter(Boolean).join(";");
       const caption = document.createElement("div");
       caption.setAttribute(HOST_ATTR, "card-label");
       caption.textContent = field.label;
-      caption.style.cssText = "font:600 9px/1.2 ui-sans-serif,system-ui,sans-serif;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.48);margin-bottom:5px;";
+      caption.style.cssText = "font:600 9px/1.2 ui-sans-serif,system-ui,sans-serif;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:5px;";
       const value = document.createElement("div");
       value.setAttribute(HOST_ATTR, "card-value");
       const empty = !field.value || field.value === "—";
       const mono = field.key === "element" || field.key === "class";
       value.style.cssText = [
-        empty ? "opacity:0.45" : "opacity:1",
+        empty ? "opacity:0.4" : "opacity:1",
         "color:#fff",
         mono
-          ? "font:500 11px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace"
+          ? "font:500 11.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace"
           : "font:600 12px/1.35 ui-sans-serif,system-ui,sans-serif",
         "word-break:break-word",
         "max-height:4.5em",
@@ -203,7 +203,7 @@
           const pill = document.createElement("span");
           pill.setAttribute(HOST_ATTR, "class-token");
           pill.textContent = token;
-          pill.style.cssText = "display:inline-block;padding:1px 5px;border-radius:0;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);font:500 10px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(255,255,255,0.9);";
+          pill.style.cssText = "display:inline-block;padding:1.5px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.08);font:500 10.5px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;color:#f1f5f9;";
           value.appendChild(pill);
         });
       } else {
@@ -213,7 +213,6 @@
       card.appendChild(value);
       row.appendChild(card);
     });
-    row.style.boxShadow = `0 12px 32px rgba(0,0,0,0.5), inset 0 2px 0 ${color}`;
   }
 
   function placeCardRow(row, rect, color, cards) {
@@ -233,16 +232,17 @@
       "display:grid",
       `grid-template-columns:repeat(${columns}, minmax(0, 1fr))`,
       "align-items:stretch",
-      "background:rgba(10,12,16,0.96)",
+      "background:rgba(15,20,28,0.92)",
       "color:#fff",
-      "border:1px solid rgba(255,255,255,0.14)",
-      "border-radius:0",
+      "border:1px solid rgba(255,255,255,0.12)",
+      "border-radius:10px",
+      "box-shadow:0 16px 36px -4px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.05)",
       "overflow:hidden",
       "pointer-events:none",
       "z-index:2147483647",
       "box-sizing:border-box",
-      "backdrop-filter:blur(20px)",
-      "-webkit-backdrop-filter:blur(20px)",
+      "backdrop-filter:blur(24px) saturate(180%)",
+      "-webkit-backdrop-filter:blur(24px) saturate(180%)",
     ].join(";");
     fillCardRow(row, cards, color);
     let height = columns === 3 ? 92 : 60;
@@ -644,7 +644,7 @@
     host.style.cssText = "position:fixed;inset:0;z-index:2147483646;pointer-events:none;font:12px/1.4 ui-sans-serif,system-ui,sans-serif;";
     highlight = document.createElement("div");
     highlight.setAttribute(HOST_ATTR, "hover");
-    highlight.style.cssText = `position:fixed;border:1.5px solid ${HOVER};border-radius:0;pointer-events:none;display:none;z-index:2147483647;box-sizing:border-box;`;
+    highlight.style.cssText = `position:fixed;border:1.5px solid ${HOVER};border-radius:4px;pointer-events:none;display:none;z-index:2147483647;box-sizing:border-box;`;
     highlightLabel = document.createElement("div");
     highlightLabel.setAttribute(HOST_ATTR, "hover-label");
     highlightLabel.style.cssText = "position:fixed;display:none;z-index:2147483647;pointer-events:none;";
@@ -669,7 +669,7 @@
         `width:${Math.max(0, item.rect.width)}px`,
         `height:${Math.max(0, item.rect.height)}px`,
         `border:1.5px solid ${item.color}`,
-        "border-radius:0",
+        "border-radius:4px",
         `background:${item.color}14`,
         "pointer-events:none",
         "box-sizing:border-box",
@@ -714,17 +714,17 @@
       "align-items:center",
       "gap:12px",
       "padding:8px 8px 8px 12px",
-      "background:rgba(10,12,16,0.96)",
+      "background:rgba(15,20,28,0.94)",
       "color:#fff",
-      "border:1px solid rgba(255,255,255,0.15)",
-      "border-radius:0",
-      "box-shadow:0 12px 32px rgba(0,0,0,0.5)",
+      "border:1px solid rgba(255,255,255,0.14)",
+      "border-radius:14px",
+      "box-shadow:0 16px 40px rgba(0,0,0,0.45)",
       "pointer-events:auto",
       "z-index:2147483647",
       "width:min(560px, calc(100vw - 24px))",
       "box-sizing:border-box",
-      "backdrop-filter:blur(20px)",
-      "-webkit-backdrop-filter:blur(20px)",
+      "backdrop-filter:blur(24px) saturate(180%)",
+      "-webkit-backdrop-filter:blur(24px) saturate(180%)",
     ].join(";");
     const chips = document.createElement("div");
     chips.setAttribute(HOST_ATTR, "chips");
@@ -738,7 +738,7 @@
         "align-items:center",
         "gap:6px",
         "border:0",
-        "border-radius:0",
+        "border-radius:6px",
         "background:transparent",
         "padding:0",
         "font:12px/1.2 system-ui,sans-serif",
@@ -747,7 +747,7 @@
       ].join(";");
       const mark = document.createElement("span");
       mark.setAttribute(HOST_ATTR, "chip-mark");
-      mark.style.cssText = `width:10px;height:10px;border-radius:0;background:${item.color};display:inline-block;`;
+      mark.style.cssText = `width:10px;height:10px;border-radius:3px;background:${item.color};display:inline-block;`;
       const label = document.createElement("span");
       label.textContent = identityCards(item).element;
       chip.appendChild(mark);
@@ -772,7 +772,7 @@
     send.type = "submit";
     send.setAttribute(HOST_ATTR, "send");
     send.textContent = "Send";
-    send.style.cssText = "border:0;background:#fff;color:#0f172a;border-radius:0;padding:7px 12px;font:600 12px/1 ui-sans-serif,system-ui,sans-serif;cursor:pointer;";
+    send.style.cssText = "border:0;background:#fff;color:#0f172a;border-radius:8px;padding:7px 12px;font:600 12px/1 ui-sans-serif,system-ui,sans-serif;cursor:pointer;";
     form.appendChild(input);
     form.appendChild(send);
     form.addEventListener("submit", (event) => {
@@ -804,7 +804,7 @@
     const toast = document.createElement("div");
     toast.setAttribute(HOST_ATTR, "toast");
     toast.textContent = message;
-    toast.style.cssText = "position:fixed;bottom:16px;right:16px;background:rgba(10,12,16,0.96);color:#fff;border:1px solid rgba(255,255,255,0.15);padding:8px 12px;border-radius:0;pointer-events:none;z-index:2147483647;box-shadow:0 8px 24px rgba(0,0,0,0.5);";
+    toast.style.cssText = "position:fixed;bottom:16px;right:16px;background:rgba(15,20,28,0.94);color:#fff;border:1px solid rgba(255,255,255,0.14);padding:8px 12px;border-radius:8px;pointer-events:none;z-index:2147483647;box-shadow:0 12px 32px rgba(0,0,0,0.5);";
     host.appendChild(toast);
     setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2400);
   }
