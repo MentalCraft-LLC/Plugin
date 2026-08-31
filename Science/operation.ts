@@ -1978,24 +1978,22 @@ export async function scienceOperation(input: ScienceInput): Promise<ScienceResu
               paper: {
                 name: "Paper (学术论文生产线)",
                 remoteRepo: "https://github.com/MentalCraft-LLC/Paper",
-                description: "论文全生命周期生产线：文献检索、引文验证、计算社会科学实证分析、中英文排版、同行盲审模拟与社科审计。",
+                description: "论文全生命周期生产线：8大阶段覆盖文献检索、理论建构、CSS实证计算、伦理合规、手稿撰写、盲审模拟、顶刊匹配与影响力预测。",
                 stages: {
-                  stage1_discovery_and_bibtex: ["paper_literature_search", "paper_citation_verify"],
-                  stage2_css_and_methodology: [
+                  stage1_literature_and_gaps: ["paper_literature_search", "paper_citation_verify"],
+                  stage2_theoretical_conceptualization: ["paper_social_science_audit"],
+                  stage3_css_empirical_computation: [
                     "paper_methodology_audit",
-                    "paper_css_telemetry_preprocess",
-                    "paper_css_nlp_sentiment_score",
-                    "paper_css_topic_bertopic_cluster",
-                    "paper_css_did_regression",
-                    "paper_css_parallel_trends_test",
-                    "paper_css_abm_step",
                     "paper_css_digital_trace_audit",
                     "paper_css_nlp_sentiment_trajectory",
                     "paper_css_causal_inference_did",
                     "paper_css_abm_simulation",
                   ],
-                  stage3_authoring_and_typesetting: ["paper_structure_audit", "paper_latex_scaffold", "paper_chinese_formatter"],
-                  stage4_peer_review_and_audit: ["paper_peer_review_simulate", "paper_social_science_audit"],
+                  stage4_data_ethics_and_consent: ["paper_methodology_audit"],
+                  stage5_manuscript_authoring: ["paper_structure_audit", "paper_latex_scaffold", "paper_chinese_formatter"],
+                  stage6_simulated_peer_review: ["paper_peer_review_simulate", "social_science_peer_review_audit"],
+                  stage7_journal_matching: ["journal_ssci_matcher", "journal_matcher", "journal_submission_checklist"],
+                  stage8_scholarly_impact: ["scholarly_impact_forecast"],
                 },
               },
               grant: {

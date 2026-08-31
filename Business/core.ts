@@ -61,12 +61,19 @@ export type BusinessAction =
   | "application_zero_cost_viral_loops"
   | "application_activation_funnel"
   | "application_retention_curves"
+  | "application_paywall_trigger"
+  | "application_i18n_matrix"
+  | "application_compliance_audit"
+  | "application_release_checklist"
+  | "service_contract_validate"
   | "service_auth_verify"
   | "service_monetization_checkout"
   | "service_event_dispatch"
   | "service_storage_presign"
   | "service_notification_deliver"
+  | "service_d1_migrate"
   | "service_health_telemetry"
+  | "service_resilience_circuit_breaker"
   | "service_practitioner_workbench"
   | "service_scale_battery_config"
   | "service_referral_dispatch"
@@ -76,6 +83,8 @@ export type BusinessAction =
   | "company_monetization_telemetry"
   | "company_growth_playbook"
   | "company_expansion_moat"
+  | "company_compliance_audit"
+  | "company_capital_efficiency"
   | "list_actions";
 
 export type MarketValidationResult = {

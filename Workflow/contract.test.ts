@@ -36,10 +36,19 @@ describe("Golden Protocol & Contract Verification Across All 6 Plugins", () => {
       "service_practitioner_workbench",
       "service_scale_battery_config",
       "service_referral_dispatch",
+      "service_contract_validate",
+      "service_d1_migrate",
+      "service_resilience_circuit_breaker",
       "application_market_validation",
       "application_pmf_validation",
+      "application_paywall_trigger",
+      "application_i18n_matrix",
+      "application_compliance_audit",
+      "application_release_checklist",
       "company_unit_economics",
       "company_mrr_engine",
+      "company_compliance_audit",
+      "company_capital_efficiency",
     ] as const;
 
     for (const action of actions) {

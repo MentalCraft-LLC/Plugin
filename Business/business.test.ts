@@ -9,11 +9,14 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
     expect(res.success).toBe(true);
     expect(res.protocol).toBe(BUSINESS_PROTOCOL);
     const data = res.data as any;
-    expect(data.totalActions).toBe(43);
+    expect(data.totalActions).toBe(52);
     expect(data.modalities).toEqual(["website", "app", "game", "shop"]);
     expect(data.modules.application.name).toBe("Application (产品与软件工程线)");
+    expect(Object.keys(data.modules.application.stages).length).toBe(10);
     expect(data.modules.service.name).toBe("Service (通用软件服务与基础设施)");
+    expect(Object.keys(data.modules.service.stages).length).toBe(8);
     expect(data.modules.company.name).toBe("Company (公司财务与增长线)");
+    expect(Object.keys(data.modules.company.stages).length).toBe(8);
     expect(data.lifecycleStages.stage1_ideation.length).toBe(2);
     expect(data.lifecycleStages.stage2_pmf_validation.length).toBe(1);
     expect(data.lifecycleStages.stage3_acquisition.length).toBe(9);
@@ -695,5 +698,44 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
 
     const compMrrRes = await businessOperation({ action: "company_mrr_engine", target_mrr: 10000 } as any);
     expect(compMrrRes.success).toBe(true);
+
+    // 8. Granular 10-stage Application Lifecycle Actions
+    const paywallRes = await businessOperation({ action: "application_paywall_trigger" } as any);
+    expect(paywallRes.success).toBe(true);
+    expect((paywallRes.data as any).triggers.length).toBe(3);
+
+    const i18nRes = await businessOperation({ action: "application_i18n_matrix" } as any);
+    expect(i18nRes.success).toBe(true);
+    expect((i18nRes.data as any).supportedLocales.length).toBe(2);
+
+    const compAppRes = await businessOperation({ action: "application_compliance_audit" } as any);
+    expect(compAppRes.success).toBe(true);
+    expect((compAppRes.data as any).gdprCompliant).toBe(true);
+
+    const releaseRes = await businessOperation({ action: "application_release_checklist" } as any);
+    expect(releaseRes.success).toBe(true);
+    expect((releaseRes.data as any).lighthouseScores.performance).toBe(98);
+
+    // 9. Granular 8-stage Service Lifecycle Actions
+    const schemaRes = await businessOperation({ action: "service_contract_validate" } as any);
+    expect(schemaRes.success).toBe(true);
+    expect((schemaRes.data as any).openRpcVersion).toBe("1.3.2");
+
+    const d1Res = await businessOperation({ action: "service_d1_migrate" } as any);
+    expect(d1Res.success).toBe(true);
+    expect((d1Res.data as any).database).toBe("auth-db");
+
+    const breakerRes = await businessOperation({ action: "service_resilience_circuit_breaker" } as any);
+    expect(breakerRes.success).toBe(true);
+    expect((breakerRes.data as any).state).toContain("Closed");
+
+    // 10. Granular 8-stage Company Lifecycle Actions
+    const corpCompRes = await businessOperation({ action: "company_compliance_audit" } as any);
+    expect(corpCompRes.success).toBe(true);
+    expect((corpCompRes.data as any).entityStructure).toBe("MentalCraft LLC");
+
+    const capRes = await businessOperation({ action: "company_capital_efficiency" } as any);
+    expect(capRes.success).toBe(true);
+    expect((capRes.data as any).fixedServerCostMonthlyUsd).toBe(5.0);
   });
 });

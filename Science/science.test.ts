@@ -36,7 +36,7 @@ describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
     expect(data.modules.grant.name).toBe("Grant (课题基金生产线)");
     expect(data.modules.journal.name).toBe("Journal (期刊投稿生产线)");
     expect(data.modules.patent.name).toBe("Patent (专利转化生产线)");
-    expect(data.modules.paper.stages.stage2_css_and_methodology.length).toBe(11);
+    expect(Object.keys(data.modules.paper.stages).length).toBe(8);
     expect(data.stages.stage1_literature.length).toBe(2);
     expect(data.stages.stage2_methodology_and_css.length).toBe(11);
   });
