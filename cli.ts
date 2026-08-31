@@ -198,6 +198,26 @@ async function main() {
       break;
     }
 
+    case "metrics":
+    case "telemetry": {
+      const res = await workflowOperation({ action: "get_metrics" });
+      const data = res.data as any;
+      console.log("\n📊 MentalCraft In-Process Telemetry & Circuit Breaker Dashboard\n" + "=".repeat(75));
+      console.log(`Uptime: ${data.uptimeSeconds}s | Total Calls: ${data.totalInvocations} | Success Rate: ${data.overallSuccessRate}%`);
+      console.log("-".repeat(75));
+      const actions = Object.entries(data.metricsByAction);
+      if (actions.length === 0) {
+        console.log("No actions recorded yet. Run workflows or benchmarks to populate telemetry.");
+      } else {
+        for (const [name, m] of actions as any[]) {
+          const stateIcon = m.circuitState === "CLOSED" ? "🟢" : m.circuitState === "HALF_OPEN" ? "🟡" : "🔴";
+          console.log(`${stateIcon} ${name.padEnd(36)} | Calls: ${String(m.calls).padStart(4)} | Avg: ${m.avgDurationMs}ms | p95: ${m.p95DurationMs}ms | State: ${m.circuitState}`);
+        }
+      }
+      console.log("=".repeat(75) + "\n");
+      break;
+    }
+
     case "serve": {
       const httpFlag = args.includes("--http");
       const portArg = args.find((a) => a.startsWith("--port="));

@@ -193,6 +193,14 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(root.handleGatewayRpc).toBeDefined();
   });
 
+  test("get_metrics returns live telemetry and circuit breaker states", async () => {
+    const res = await workflowOperation({ action: "get_metrics" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.totalInvocations).toBeGreaterThanOrEqual(0);
+    expect(data.overallSuccessRate).toBeGreaterThanOrEqual(0);
+  });
+
   test("compactWorkflowResult formats readable terminal summary", async () => {
     const res = await workflowOperation({ action: "health_check" });
     const log = compactWorkflowResult(res);
@@ -200,6 +208,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(log).toContain("HEALTHY");
   });
 });
+
 
 
 

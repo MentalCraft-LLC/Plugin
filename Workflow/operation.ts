@@ -17,6 +17,8 @@ import {
   type WorkflowDefinition,
   type WorkflowRunReceipt,
   type ExportConfigResult,
+  type ActionMetric,
+  type SystemTelemetryReport,
 } from "./core.ts";
 import { designOperation } from "../Design/operation.ts";
 import { businessOperation } from "../Business/operation.ts";
@@ -25,6 +27,123 @@ import { COMPONENT_CATALOG, DESIGN_TOKENS, DOMAIN_PRESETS } from "../Design/core
 
 const RUN_HISTORY: WorkflowRunReceipt[] = [];
 const CUSTOM_REGISTRY: Map<string, WorkflowDefinition> = new Map();
+const TELEMETRY_STORE: Map<string, { calls: number; successes: number; failures: number; totalMs: number; latencies: number[]; consecutiveFailures: number; lastFailureTime: number }> = new Map();
+const START_TIME = Date.now();
+
+function getStoragePaths() {
+  const { homedir } = require("node:os");
+  const { join } = require("node:path");
+  const dir = join(homedir(), ".config/mentalcraft");
+  return {
+    dir,
+    telemetryFile: join(dir, "telemetry.json"),
+    historyFile: join(dir, "history.json"),
+  };
+}
+
+function loadPersistedState(): void {
+  try {
+    const { existsSync, readFileSync } = require("node:fs");
+    const { telemetryFile, historyFile } = getStoragePaths();
+
+    if (existsSync(telemetryFile)) {
+      const data = JSON.parse(readFileSync(telemetryFile, "utf-8"));
+      for (const [k, v] of Object.entries(data)) {
+        TELEMETRY_STORE.set(k, v as any);
+      }
+    }
+    if (existsSync(historyFile)) {
+      const hist = JSON.parse(readFileSync(historyFile, "utf-8"));
+      if (Array.isArray(hist)) {
+        RUN_HISTORY.push(...hist.slice(-50));
+      }
+    }
+  } catch {
+    // Ignore storage init failures
+  }
+}
+
+function savePersistedState(): void {
+  try {
+    const { mkdirSync, writeFileSync } = require("node:fs");
+    const { dir, telemetryFile, historyFile } = getStoragePaths();
+    mkdirSync(dir, { recursive: true, mode: 0o700 });
+
+    const telemObj = Object.fromEntries(TELEMETRY_STORE.entries());
+    writeFileSync(telemetryFile, JSON.stringify(telemObj, null, 2), "utf-8");
+    writeFileSync(historyFile, JSON.stringify(RUN_HISTORY.slice(-50), null, 2), "utf-8");
+  } catch {
+    // Ignore persistence errors
+  }
+}
+
+// Initial state load
+loadPersistedState();
+
+export function recordTelemetry(actionKey: string, durationMs: number, success: boolean): void {
+  let entry = TELEMETRY_STORE.get(actionKey);
+  if (!entry) {
+    entry = { calls: 0, successes: 0, failures: 0, totalMs: 0, latencies: [], consecutiveFailures: 0, lastFailureTime: 0 };
+    TELEMETRY_STORE.set(actionKey, entry);
+  }
+  entry.calls += 1;
+  if (success) {
+    entry.successes += 1;
+    entry.consecutiveFailures = 0;
+  } else {
+    entry.failures += 1;
+    entry.consecutiveFailures += 1;
+    entry.lastFailureTime = Date.now();
+  }
+  entry.totalMs += durationMs;
+  if (entry.latencies.length < 500) {
+    entry.latencies.push(durationMs);
+  } else {
+    entry.latencies[Math.floor(Math.random() * 500)] = durationMs;
+  }
+  savePersistedState();
+}
+
+export function getSystemTelemetry(): SystemTelemetryReport {
+  loadPersistedState();
+  const metricsByAction: Record<string, ActionMetric> = {};
+  let totalInvocations = 0;
+  let totalSuccesses = 0;
+
+  for (const [actionKey, raw] of TELEMETRY_STORE.entries()) {
+    totalInvocations += raw.calls;
+    totalSuccesses += raw.successes;
+
+    const sorted = [...raw.latencies].sort((a, b) => a - b);
+    const p95 = sorted.length > 0 ? sorted[Math.floor(sorted.length * 0.95)] : 0;
+    const avg = raw.calls > 0 ? Math.round((raw.totalMs / raw.calls) * 100) / 100 : 0;
+
+    let circuitState: "CLOSED" | "OPEN" | "HALF_OPEN" = "CLOSED";
+    if (raw.consecutiveFailures >= 3) {
+      circuitState = Date.now() - raw.lastFailureTime > 15000 ? "HALF_OPEN" : "OPEN";
+    }
+
+    metricsByAction[actionKey] = {
+      calls: raw.calls,
+      successes: raw.successes,
+      failures: raw.failures,
+      totalDurationMs: Math.round(raw.totalMs * 100) / 100,
+      avgDurationMs: avg,
+      p95DurationMs: Math.round(p95 * 100) / 100,
+      circuitState,
+    };
+  }
+
+  const rate = totalInvocations > 0 ? Math.round((totalSuccesses / totalInvocations) * 1000) / 10 : 100;
+
+  return {
+    timestamp: new Date().toISOString(),
+    uptimeSeconds: Math.round((Date.now() - START_TIME) / 1000),
+    totalInvocations,
+    overallSuccessRate: rate,
+    metricsByAction,
+  };
+}
 
 export async function executeHealthCheck(target?: PluginId | "all"): Promise<SystemHealthReport> {
   const timestamp = new Date().toISOString();
@@ -404,6 +523,17 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
       };
     }
 
+    case "get_metrics": {
+      const telemetry = getSystemTelemetry();
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "get_metrics",
+        success: true,
+        timestamp,
+        data: telemetry,
+      };
+    }
+
     case "health_check": {
       const report = await executeHealthCheck(input.target_plugin ?? "all");
       return {
@@ -514,6 +644,11 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
       const isSuccess = stepResults.every((s) => s.success);
       const runId = `run_wf_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
       const endTime = new Date().toISOString();
+
+      for (const step of stepResults) {
+        recordTelemetry(`${step.plugin}.${step.action}`, step.durationMs, step.success);
+      }
+      recordTelemetry(`workflow.${targetId}`, totalDuration, isSuccess);
 
       const receipt: WorkflowRunReceipt = {
         runId,

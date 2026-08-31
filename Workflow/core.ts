@@ -132,6 +132,24 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
   },
 ];
 
+export type ActionMetric = {
+  calls: number;
+  successes: number;
+  failures: number;
+  totalDurationMs: number;
+  avgDurationMs: number;
+  p95DurationMs: number;
+  circuitState: "CLOSED" | "OPEN" | "HALF_OPEN";
+};
+
+export type SystemTelemetryReport = {
+  timestamp: string;
+  uptimeSeconds: number;
+  totalInvocations: number;
+  overallSuccessRate: number;
+  metricsByAction: Record<string, ActionMetric>;
+};
+
 export type WorkflowAction =
   | "list_workflows"
   | "run_workflow"
@@ -140,6 +158,7 @@ export type WorkflowAction =
   | "export_config"
   | "install_mcp_schemas"
   | "export_schema_catalog"
+  | "get_metrics"
   | "health_check"
   | "dry_run";
 
@@ -204,6 +223,10 @@ export function formatWorkflowSummary(result: WorkflowResult): string {
     case "export_schema_catalog": {
       const data = result.data as any;
       return `OpenRPC Catalog: ${data.totalTools} tools, ${data.totalMethods} methods across ${data.totalPlugins} plugins`;
+    }
+    case "get_metrics": {
+      const data = result.data as any;
+      return `Telemetry: ${data.totalInvocations} total calls (${data.overallSuccessRate}% success) | ${Object.keys(data.metricsByAction).length} actions tracked`;
     }
     case "run_workflow": {
       const data = result.data as any;
