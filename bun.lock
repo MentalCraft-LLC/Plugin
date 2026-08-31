@@ -1,0 +1,43 @@
+{
+  "lockfileVersion": 1,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "mentalcraft-plugins",
+      "devDependencies": {
+        "marked": "^18.0.11",
+        "typebox": "^1.3.23",
+      },
+    },
+    "Chrome": {
+      "name": "chrome",
+      "devDependencies": {
+        "marked": "^18.0.11",
+        "typebox": "^1.3.23",
+      },
+    },
+    "Gefei": {
+      "name": "gefei",
+      "version": "1.0.0",
+    },
+    "Message": {
+      "name": "message",
+    },
+    "Secret": {
+      "name": "secret",
+    },
+  },
+  "packages": {
+    "chrome": ["chrome@workspace:Chrome"],
+
+    "gefei": ["gefei@workspace:Gefei"],
+
+    "marked": ["marked@18.0.11", "", { "bin": { "marked": "bin/marked.js" } }, "sha512-HnslJfsZkRPBDJRHvVtAaWlZHEpSu7u8LgQuJCELjRKuWR+hpq4A7sLq3p8HaI9ypVoXDXxV34CsQJEe1+J5Aw=="],
+
+    "message": ["message@workspace:Message"],
+
+    "secret": ["secret@workspace:Secret"],
+
+    "typebox": ["typebox@1.3.23", "", {}, "sha512-eMDZIb3EhHxm/tQ+xfbb++B+1KMpquxYoRQ0nHWukMmNxrYHsbRQwW15chb2doi0FdJ/MxDXpgZRFJUyizMkkw=="],
+  }
+}
