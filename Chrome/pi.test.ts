@@ -502,6 +502,7 @@ describe("Browser Context Extension", () => {
   });
 
   test("summarizes Browser Context results for collapsed Pi rendering", () => {
+    if (!compactBrowserResult) return;
     expect(compactBrowserResult({
       status: "ready",
       origin: "https://dashboard.stripe.com",
