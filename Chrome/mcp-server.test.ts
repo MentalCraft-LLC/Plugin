@@ -68,6 +68,8 @@ describe("Chrome MCP adapter", () => {
       "semantic_snapshot",
       "annotate",
       "emulate",
+      "drag_and_drop",
+      "upload_file",
       "close_group",
     ]);
     expect(CHROME_INPUT_SCHEMA.required).toEqual(["action"]);

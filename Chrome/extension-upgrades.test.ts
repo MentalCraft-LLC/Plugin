@@ -133,4 +133,25 @@ describe("Extension Upgrades & DevTools Superpowers", () => {
     expect(keyCombo.modifiers).toEqual(["Control", "Shift"]);
     expect(keyCombo.selector).toBe("input.search");
   });
+
+  test("BrowserContextInput supports drag_and_drop and upload_file", () => {
+    const dragAction: BrowserContextInput = {
+      action: "drag_and_drop",
+      source_selector: ".kanban-card[data-id='c-1']",
+      target_selector: ".kanban-column[data-status='done']",
+    };
+    expect(dragAction.source_selector).toBe(".kanban-card[data-id='c-1']");
+    expect(dragAction.target_selector).toBe(".kanban-column[data-status='done']");
+
+    const uploadAction: BrowserContextInput = {
+      action: "upload_file",
+      selector: "input[type='file']",
+      file_name: "test-data.json",
+      file_content: '{"hello": "world"}',
+      file_type: "application/json",
+    };
+    expect(uploadAction.selector).toBe("input[type='file']");
+    expect(uploadAction.file_name).toBe("test-data.json");
+    expect(uploadAction.file_content).toBe('{"hello": "world"}');
+  });
 });

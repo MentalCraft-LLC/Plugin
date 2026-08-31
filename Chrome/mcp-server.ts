@@ -65,6 +65,8 @@ export const CHROME_ACTIONS = [
   "semantic_snapshot",
   "annotate",
   "emulate",
+  "drag_and_drop",
+  "upload_file",
   "close_group",
 ] as const;
 
@@ -87,6 +89,16 @@ export const CHROME_INPUT_SCHEMA = {
     client_y: { type: "integer", minimum: 1, maximum: 100000 },
     delta_x: { type: "integer", minimum: -100000, maximum: 100000 },
     delta_y: { type: "integer", minimum: -100000, maximum: 100000 },
+    from_x: { type: "integer", minimum: 1, maximum: 100000 },
+    from_y: { type: "integer", minimum: 1, maximum: 100000 },
+    to_x: { type: "integer", minimum: 1, maximum: 100000 },
+    to_y: { type: "integer", minimum: 1, maximum: 100000 },
+    source_selector: { type: "string", minLength: 1, maxLength: 500 },
+    target_selector: { type: "string", minLength: 1, maxLength: 500 },
+    file_name: { type: "string", minLength: 1, maxLength: 255 },
+    file_content: { type: "string", maxLength: 500000 },
+    file_type: { type: "string", maxLength: 100 },
+    base64: { type: "string", maxLength: 5000000 },
     key: {
       type: "string",
       enum: ["Tab", "Enter", "Escape", "ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight", "Home", "End"],

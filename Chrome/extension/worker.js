@@ -1010,6 +1010,8 @@ async function handle(command) {
     || command.action === "hover"
     || command.action === "scroll"
     || command.action === "press_key"
+    || command.action === "drag_and_drop"
+    || command.action === "upload_file"
   ) {
     const state = await ensureTab(command.url, false, session);
     if (state.status !== "ready") {

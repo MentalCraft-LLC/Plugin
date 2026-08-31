@@ -2382,6 +2382,111 @@
       target.dispatchEvent(new KeyboardEvent("keyup", eventInit));
       return { action: "press_key", status: "key_pressed", key: rawKey, modifiers: { shift, alt, ctrl, meta } };
     }
+    if (message.action === "drag_and_drop") {
+      let srcEl = null;
+      let targetEl = null;
+      if (message.source_selector || message.selector) {
+        srcEl = queryWithShadow(document, message.source_selector || message.selector);
+      }
+      if (message.target_selector) {
+        targetEl = queryWithShadow(document, message.target_selector);
+      }
+      if (!srcEl && (message.from_x === undefined || message.from_y === undefined)) {
+        throw new Error("source element or coordinates required for drag");
+      }
+      const srcRect = srcEl ? srcEl.getBoundingClientRect() : null;
+      const startX = srcRect ? Math.round(srcRect.left + srcRect.width / 2) : (message.from_x ?? 0);
+      const startY = srcRect ? Math.round(srcRect.top + srcRect.height / 2) : (message.from_y ?? 0);
+
+      const targetRect = targetEl ? targetEl.getBoundingClientRect() : null;
+      const endX = targetRect ? Math.round(targetRect.left + targetRect.width / 2) : (message.to_x ?? startX);
+      const endY = targetRect ? Math.round(targetRect.top + targetRect.height / 2) : (message.to_y ?? startY);
+
+      if (srcEl) flashActionIndicator(srcEl, "click");
+
+      const dt = typeof DataTransfer !== "undefined" ? new DataTransfer() : null;
+      const dragTarget = srcEl || document.elementFromPoint(startX, startY) || document.body;
+      const dropTarget = targetEl || document.elementFromPoint(endX, endY) || document.body;
+
+      dragTarget.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, clientX: startX, clientY: startY, button: 0, buttons: 1, isPrimary: true, pointerId: 1, pointerType: "mouse" }));
+      dragTarget.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true, clientX: startX, clientY: startY, button: 0, buttons: 1 }));
+      if (dt) {
+        dragTarget.dispatchEvent(new DragEvent("dragstart", { bubbles: true, cancelable: true, clientX: startX, clientY: startY, dataTransfer: dt }));
+      }
+
+      const steps = 5;
+      for (let i = 1; i <= steps; i++) {
+        const cx = Math.round(startX + (endX - startX) * (i / steps));
+        const cy = Math.round(startY + (endY - startY) * (i / steps));
+        const currEl = document.elementFromPoint(cx, cy) || document.body;
+        currEl.dispatchEvent(new PointerEvent("pointermove", { bubbles: true, cancelable: true, clientX: cx, clientY: cy, buttons: 1, isPrimary: true, pointerId: 1, pointerType: "mouse" }));
+        currEl.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, cancelable: true, clientX: cx, clientY: cy, buttons: 1 }));
+        if (dt) {
+          currEl.dispatchEvent(new DragEvent("drag", { bubbles: true, cancelable: true, clientX: cx, clientY: cy, dataTransfer: dt }));
+          currEl.dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true, clientX: cx, clientY: cy, dataTransfer: dt }));
+        }
+      }
+
+      if (dt) {
+        dropTarget.dispatchEvent(new DragEvent("dragenter", { bubbles: true, cancelable: true, clientX: endX, clientY: endY, dataTransfer: dt }));
+        dropTarget.dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true, clientX: endX, clientY: endY, dataTransfer: dt }));
+        dropTarget.dispatchEvent(new DragEvent("drop", { bubbles: true, cancelable: true, clientX: endX, clientY: endY, dataTransfer: dt }));
+        dragTarget.dispatchEvent(new DragEvent("dragend", { bubbles: true, cancelable: true, clientX: endX, clientY: endY, dataTransfer: dt }));
+      }
+      dropTarget.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, cancelable: true, clientX: endX, clientY: endY, button: 0, buttons: 0, isPrimary: true, pointerId: 1, pointerType: "mouse" }));
+      dropTarget.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true, clientX: endX, clientY: endY, button: 0, buttons: 0 }));
+
+      if (targetEl) flashActionIndicator(targetEl, "fill");
+
+      return {
+        action: "drag_and_drop",
+        status: "dragged",
+        from: { x: startX, y: startY },
+        to: { x: endX, y: endY },
+      };
+    }
+    if (message.action === "upload_file") {
+      let inputEl = null;
+      if (message.selector) {
+        inputEl = queryWithShadow(document, message.selector);
+      } else {
+        inputEl = document.querySelector("input[type='file']");
+      }
+      if (!inputEl) throw new Error("file_input_missing");
+      const files = Array.isArray(message.files) ? message.files : [];
+      if (files.length === 0 && message.file_name) {
+        files.push({
+          name: message.file_name,
+          type: message.file_type || "text/plain",
+          content: message.file_content || "",
+        });
+      }
+      if (files.length === 0) throw new Error("no_files_provided");
+      const dt = new DataTransfer();
+      for (const f of files) {
+        let blob;
+        if (f.base64) {
+          const byteChars = atob(f.base64);
+          const byteNums = new Array(byteChars.length);
+          for (let i = 0; i < byteChars.length; i++) byteNums[i] = byteChars.charCodeAt(i);
+          blob = new Blob([new Uint8Array(byteNums)], { type: f.type || "application/octet-stream" });
+        } else {
+          blob = new Blob([f.content ?? ""], { type: f.type || "text/plain" });
+        }
+        const file = new File([blob], f.name || "upload.txt", { type: f.type || blob.type });
+        dt.items.add(file);
+      }
+      inputEl.files = dt.files;
+      inputEl.dispatchEvent(new Event("change", { bubbles: true }));
+      inputEl.dispatchEvent(new Event("input", { bubbles: true }));
+      flashActionIndicator(inputEl, "fill");
+      return {
+        action: "upload_file",
+        status: "uploaded",
+        file_count: dt.files.length,
+        files: Array.from(dt.files).map((f) => ({ name: f.name, size: f.size, type: f.type })),
+      };
+    }
     if (message.action === "read_console") {
       const level = typeof message.level === "string" ? message.level : undefined;
       const filtered = level ? consoleRecords.filter((r) => r.level === level) : consoleRecords;

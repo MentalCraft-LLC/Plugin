@@ -66,7 +66,7 @@ export type BrowserInstall = {
 
 export type BrowserCommand = {
   protocol: typeof PROTOCOL;
-  action: "status" | "repair" | "close_group" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "reload_page" | "hot_reload" | "click" | "hover" | "scroll" | "press_key" | "fill" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "activate" | "restore_background" | "terms_diagnostics" | "accept_standard_terms" | "accept_owner_authorized_terms" | "select_ga4_target" | "select_ga4_objective" | "open_clarity_project" | "open_clarity_settings" | "clarity_project_identity" | "capture_clarity_project_id" | "capture_clarity_token" | "capture_ga4_measurement_id" | "capture_screenshot" | "capture_pdf" | "capture_session" | "semantic_snapshot" | "annotate" | "emulate";
+  action: "status" | "repair" | "close_group" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "reload_page" | "hot_reload" | "click" | "hover" | "scroll" | "press_key" | "drag_and_drop" | "upload_file" | "fill" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "activate" | "restore_background" | "terms_diagnostics" | "accept_standard_terms" | "accept_owner_authorized_terms" | "select_ga4_target" | "select_ga4_objective" | "open_clarity_project" | "open_clarity_settings" | "clarity_project_identity" | "capture_clarity_project_id" | "capture_clarity_token" | "capture_ga4_measurement_id" | "capture_screenshot" | "capture_pdf" | "capture_session" | "semantic_snapshot" | "annotate" | "emulate";
   long?: boolean;
   max_sections?: number;
   mode?: "start" | "stop" | "list" | "add" | "remove" | "clear";
@@ -116,6 +116,17 @@ export type BrowserCommand = {
   condition?: string;
   position?: "top" | "bottom" | "page_down" | "page_up" | "start" | "end";
   modifiers?: ("Shift" | "Alt" | "Control" | "Meta")[];
+  source_selector?: string;
+  target_selector?: string;
+  from_x?: number;
+  from_y?: number;
+  to_x?: number;
+  to_y?: number;
+  file_name?: string;
+  file_content?: string;
+  file_type?: string;
+  base64?: string;
+  files?: Array<{ name: string; type?: string; content?: string; base64?: string }>;
 };
 
 export function loadAuthority(path = AUTHORITY_PATH): BrowserAuthority {

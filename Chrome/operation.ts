@@ -21,7 +21,7 @@ import {
 import { acquireChromeOsLease } from "./os-lease.ts";
 
 export type BrowserContextInput = {
-  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate" | "emulate";
+  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "drag_and_drop" | "upload_file" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate" | "emulate";
   mode?: "start" | "stop" | "list" | "add" | "remove" | "clear";
   url?: string;
   max_sections?: number;
@@ -64,6 +64,17 @@ export type BrowserContextInput = {
   condition?: string;
   position?: "top" | "bottom" | "page_down" | "page_up" | "start" | "end";
   modifiers?: ("Shift" | "Alt" | "Control" | "Meta")[];
+  source_selector?: string;
+  target_selector?: string;
+  from_x?: number;
+  from_y?: number;
+  to_x?: number;
+  to_y?: number;
+  file_name?: string;
+  file_content?: string;
+  file_type?: string;
+  base64?: string;
+  files?: Array<{ name: string; type?: string; content?: string; base64?: string }>;
 };
 
 export type BrowserOperationContext = {
@@ -268,6 +279,32 @@ export function createBrowserContextOperation(options: {
         color_scheme: params.color_scheme,
         mobile: params.mobile,
         device_scale_factor: params.device_scale_factor,
+        allow_active: allowActive,
+      };
+    } else if (params.action === "drag_and_drop") {
+      command = {
+        protocol: PROTOCOL,
+        action: "drag_and_drop",
+        url,
+        source_selector: params.source_selector ?? params.selector,
+        target_selector: params.target_selector,
+        from_x: params.from_x,
+        from_y: params.from_y,
+        to_x: params.to_x,
+        to_y: params.to_y,
+        allow_active: allowActive,
+      };
+    } else if (params.action === "upload_file") {
+      command = {
+        protocol: PROTOCOL,
+        action: "upload_file",
+        url,
+        selector: params.selector,
+        file_name: params.file_name,
+        file_content: params.file_content,
+        file_type: params.file_type,
+        base64: params.base64,
+        files: params.files,
         allow_active: allowActive,
       };
     } else if (params.action === "annotate") {
