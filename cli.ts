@@ -159,6 +159,13 @@ async function main() {
       break;
     }
 
+    case "schema":
+    case "openrpc": {
+      const res = await workflowOperation({ action: "export_schema_catalog" });
+      console.log(JSON.stringify(res.data, null, 2));
+      break;
+    }
+
     case "serve": {
       const httpFlag = args.includes("--http");
       const portArg = args.find((a) => a.startsWith("--port="));

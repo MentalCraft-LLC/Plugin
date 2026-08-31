@@ -338,6 +338,72 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
       };
     }
 
+    case "export_schema_catalog": {
+      const { BUSINESS_INPUT_SCHEMA } = require("../Business/mcp-server.ts");
+      const { SCIENCE_INPUT_SCHEMA } = require("../Science/mcp-server.ts");
+      const { DESIGN_INPUT_SCHEMA } = require("../Design/mcp-server.ts");
+      const { WORKFLOW_INPUT_SCHEMA } = require("./mcp-server.ts");
+      const { MESSAGE_INPUT_SCHEMA } = require("../Message/mcp-server.ts");
+
+      const catalog = {
+        openrpc: "1.3.0",
+        info: {
+          title: "MentalCraft Unified Plugin & MCP Engine",
+          version: "1.0.0",
+          description: "Universal Agent-Less Capability & Domain Intelligence Architecture",
+        },
+        servers: [
+          {
+            name: "mentalcraft-gateway",
+            url: "http://localhost:3890/mcp",
+            summary: "Master MCP Gateway aggregation endpoint",
+          },
+        ],
+        plugins: {
+          business: {
+            title: "Commercial & Market Intelligence",
+            actions: 11,
+            schema: BUSINESS_INPUT_SCHEMA,
+          },
+          science: {
+            title: "Science & Research Intelligence",
+            actions: 7,
+            schema: SCIENCE_INPUT_SCHEMA,
+          },
+          design: {
+            title: "Design System & UI Intelligence",
+            actions: 10,
+            schema: DESIGN_INPUT_SCHEMA,
+          },
+          workflow: {
+            title: "Cross-Plugin Orchestrator & Health Diagnostics",
+            actions: 9,
+            schema: WORKFLOW_INPUT_SCHEMA,
+          },
+          chrome: {
+            title: "Browser Automation & Native Bridge",
+            actions: 38,
+          },
+          message: {
+            title: "Agent Message Bus",
+            actions: 4,
+            schema: MESSAGE_INPUT_SCHEMA,
+          },
+        },
+        totalPlugins: 6,
+        totalTools: 6,
+        totalMethods: 79,
+      };
+
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "export_schema_catalog",
+        success: true,
+        timestamp,
+        data: catalog,
+      };
+    }
+
     case "health_check": {
       const report = await executeHealthCheck(input.target_plugin ?? "all");
       return {

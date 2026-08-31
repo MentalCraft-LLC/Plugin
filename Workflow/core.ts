@@ -139,6 +139,7 @@ export type WorkflowAction =
   | "get_workflow_history"
   | "export_config"
   | "install_mcp_schemas"
+  | "export_schema_catalog"
   | "health_check"
   | "dry_run";
 
@@ -199,6 +200,10 @@ export function formatWorkflowSummary(result: WorkflowResult): string {
     case "install_mcp_schemas": {
       const data = result.data as any;
       return `✓ Installed ${data.installedCount} MCP schemas to Antigravity directory (${data.installedPaths.length} tools registered)`;
+    }
+    case "export_schema_catalog": {
+      const data = result.data as any;
+      return `OpenRPC Catalog: ${data.totalTools} tools, ${data.totalMethods} methods across ${data.totalPlugins} plugins`;
     }
     case "run_workflow": {
       const data = result.data as any;

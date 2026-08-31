@@ -149,6 +149,39 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     }
   });
 
+  test("export_schema_catalog returns OpenRPC 1.3 specification for all plugins", async () => {
+    const res = await workflowOperation({ action: "export_schema_catalog" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.openrpc).toBe("1.3.0");
+    expect(data.totalPlugins).toBe(6);
+    expect(data.totalTools).toBe(6);
+    expect(data.totalMethods).toBe(79);
+    expect(data.plugins.business).toBeDefined();
+    expect(data.plugins.science).toBeDefined();
+    expect(data.plugins.design).toBeDefined();
+    expect(data.plugins.workflow).toBeDefined();
+    expect(data.plugins.chrome).toBeDefined();
+    expect(data.plugins.message).toBeDefined();
+  });
+
+  test("Master Gateway MCP handles initialize, tools/list, and multi-plugin tools/call", async () => {
+    const { handleGatewayRpc } = require("../gateway.ts");
+    const initRes = await handleGatewayRpc({ jsonrpc: "2.0", id: 1, method: "initialize" });
+    expect(initRes.result.serverInfo.name).toBe("mentalcraft-gateway-mcp");
+
+    const listRes = await handleGatewayRpc({ jsonrpc: "2.0", id: 2, method: "tools/list" });
+    expect(listRes.result.tools.length).toBe(6);
+
+    const callRes = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 3,
+      method: "tools/call",
+      params: { name: "science", arguments: { action: "score_scale", scale: "gad7", answers: { q1: 3, q2: 3 } } },
+    });
+    expect(callRes.result.content[0].text).toContain("GAD-7");
+  });
+
   test("compactWorkflowResult formats readable terminal summary", async () => {
     const res = await workflowOperation({ action: "health_check" });
     const log = compactWorkflowResult(res);
@@ -156,4 +189,5 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(log).toContain("HEALTHY");
   });
 });
+
 
