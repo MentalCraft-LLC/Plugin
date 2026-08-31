@@ -10,7 +10,8 @@
     "Gefei",
     "Message",
     "Science",
-    "Secret"
+    "Secret",
+    "Workflow"
   ],
   "scripts": {
     "test": "bun test",

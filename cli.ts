@@ -3,10 +3,11 @@
  * Plugin CLI Hub
  *
  * Fast developer command line utility for Holar plugin introspection,
- * direct action execution, health verification, and MCP stdio launching.
+ * direct action execution, health diagnostics, and MCP stdio launching.
  */
 
-import { PLUGIN_REGISTRY, COMPOUND_WORKFLOWS, type PluginId } from "./registry.ts";
+import { BUILTIN_WORKFLOWS, type PluginId } from "./Workflow/core.ts";
+import { executeHealthCheck, workflowOperation } from "./Workflow/operation.ts";
 import { designOperation } from "./Design/operation.ts";
 import { businessOperation } from "./Business/operation.ts";
 import { scienceOperation } from "./Science/operation.ts";
@@ -20,11 +21,19 @@ async function main() {
     case "list":
     case "ls": {
       console.log("\n📦 Holar Plugin Registry\n" + "=".repeat(60));
-      for (const [id, p] of Object.entries(PLUGIN_REGISTRY)) {
-        console.log(`\n🔹 [${id.toUpperCase()}] ${p.name} (v${p.version})`);
-        console.log(`   Pillar: ${p.pillar}`);
-        console.log(`   Description: ${p.description}`);
-        console.log(`   Actions (${p.actionsCount}): ${p.actions.slice(0, 5).join(", ")}${p.actions.length > 5 ? "..." : ""}`);
+      const plugins = [
+        { id: "chrome", name: "Chrome Automation & Native Bridge", actions: 38, desc: "Inactive-tab driving, CDP, HUD annotations, Storage" },
+        { id: "design", name: "Design System & UI Intelligence", actions: 10, desc: "5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths" },
+        { id: "business", name: "Business & Market Intelligence", actions: 11, desc: "Gefei SEO KD, TrafficCV domain traffic & channels, Stripe Radar leaderboards" },
+        { id: "science", name: "Science & Research Intelligence", actions: 7, desc: "Clinical scoring (GAD-7/PHQ-9), 988 crisis safety, literature & patent novelty" },
+        { id: "workflow", name: "Workflow Orchestrator & Health Engine", actions: 4, desc: "Multi-plugin compound DAG execution & pre-flight health diagnostics" },
+        { id: "message", name: "Agent Message Bus", actions: 3, desc: "Multi-channel priority dispatching (Telegram > iMessage > Email)" },
+        { id: "secret", name: "Local Credential Vault", actions: 2, desc: "Mode-0600 secure token vault" },
+      ];
+      for (const p of plugins) {
+        console.log(`\n🔹 [${p.id.toUpperCase()}] ${p.name}`);
+        console.log(`   Description: ${p.desc}`);
+        console.log(`   Actions: ${p.actions} supported actions`);
       }
       console.log("\n" + "=".repeat(60));
       break;
@@ -33,16 +42,44 @@ async function main() {
     case "workflows":
     case "wf": {
       console.log("\n🔄 Compound Cross-Plugin Workflows\n" + "=".repeat(60));
-      for (const wf of COMPOUND_WORKFLOWS) {
+      for (const wf of BUILTIN_WORKFLOWS) {
         console.log(`\n🚀 ${wf.name} (${wf.id})`);
-        console.log(`   Plugins: ${wf.participatingPlugins.join(" ➔ ")}`);
+        console.log(`   Required Plugins: ${wf.requiredPlugins.join(" ➔ ")}`);
         console.log(`   Description: ${wf.description}`);
         console.log("   Steps:");
-        for (const s of wf.pipelineSteps) {
+        for (const s of wf.steps) {
           console.log(`     ${s.step}. [${s.plugin}] ${s.action} - ${s.description}`);
         }
       }
       console.log("\n" + "=".repeat(60));
+      break;
+    }
+
+    case "health":
+    case "doctor": {
+      const report = await executeHealthCheck();
+      console.log("\n🩺 Plugin System Health & Diagnostics Dashboard\n" + "=".repeat(60));
+      console.log(`Status: ${report.overallStatus === "healthy" ? "🟢 HEALTHY" : "🟡 DEGRADED"} (${report.healthScore}/100) | Healthy Plugins: ${report.healthyPlugins}/${report.totalPlugins}`);
+      for (const [id, p] of Object.entries(report.plugins)) {
+        console.log(`\n🔹 [${id.toUpperCase()}] ${p.name} [${p.status.toUpperCase()}] (${p.latencyMs}ms)`);
+        for (const c of p.checks) {
+          console.log(`   ${c.passed ? "✓" : "✗"} ${c.name}: ${c.detail}`);
+        }
+      }
+      console.log("\n" + "=".repeat(60));
+      break;
+    }
+
+    case "run-workflow":
+    case "rw": {
+      const wfId = args[1] as any;
+      if (!wfId) {
+        console.error("Usage: bun Plugin/cli.ts run-workflow <workflow_id>");
+        process.exit(1);
+      }
+      console.log(`\n🚀 Executing workflow '${wfId}'...`);
+      const res = await workflowOperation({ action: "run_workflow", workflow_id: wfId });
+      console.log(JSON.stringify(res, null, 2));
       break;
     }
 
@@ -60,32 +97,18 @@ async function main() {
       console.log(`\n⚡ Executing ${plugin}.${action}...`);
       let res: unknown;
       if (plugin === "design") {
-        res = await designOperation({ action, ...jsonArgs });
+        res = await designOperation({ action: action as any, ...jsonArgs });
       } else if (plugin === "business") {
-        res = await businessOperation({ action, ...jsonArgs });
+        res = await businessOperation({ action: action as any, ...jsonArgs });
       } else if (plugin === "science") {
-        res = await scienceOperation({ action, ...jsonArgs });
+        res = await scienceOperation({ action: action as any, ...jsonArgs });
+      } else if (plugin === "workflow" as any) {
+        res = await workflowOperation({ action: action as any, ...jsonArgs });
       } else {
         console.error(`Execution for '${plugin}' not directly supported in CLI quick-exec.`);
         process.exit(1);
       }
       console.log(JSON.stringify(res, null, 2));
-      break;
-    }
-
-    case "health":
-    case "doctor": {
-      const { runPluginHealthCheck } = await import("./health.ts");
-      const report = await runPluginHealthCheck();
-      console.log("\n🩺 Plugin System Health & Diagnostics Dashboard\n" + "=".repeat(60));
-      console.log(`Status: ${report.overallStatus === "healthy" ? "🟢 HEALTHY" : "🟡 DEGRADED"} (${report.healthScore}/100) | Healthy Plugins: ${report.healthyPlugins}/${report.totalPlugins}`);
-      for (const [id, p] of Object.entries(report.plugins)) {
-        console.log(`\n🔹 [${id.toUpperCase()}] ${p.name} [${p.status.toUpperCase()}] (${p.latencyMs}ms)`);
-        for (const c of p.checks) {
-          console.log(`   ${c.passed ? "✓" : "✗"} ${c.name}: ${c.detail}`);
-        }
-      }
-      console.log("\n" + "=".repeat(60));
       break;
     }
 
@@ -101,12 +124,13 @@ async function main() {
 MentalCraft Plugin CLI Hub
 
 Commands:
-  list, ls          List all registered capability plugins
-  health, doctor    Run comprehensive diagnostics across all 6 plugins
-  workflows, wf     List compound cross-plugin automation workflows
-  exec <p> <a> [d]  Execute an action on a plugin directly
-  serve             Launch the unified master MCP stdio server
-  help              Show this help message
+  list, ls                 List all registered capability plugins
+  health, doctor           Run comprehensive diagnostics across all plugins
+  workflows, wf            List compound cross-plugin automation workflows
+  run-workflow <id>        Execute a compound workflow pipeline
+  exec <p> <a> [d]         Execute an action on a plugin directly
+  serve                    Launch the unified master MCP stdio server
+  help                     Show this help message
 `);
       break;
     }

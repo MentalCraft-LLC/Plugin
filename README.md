@@ -15,6 +15,7 @@ First-class plugins, browser automation tools, market intelligence engines, and 
 | [`Message/`](./Message) | Agent Message Bus | High-performance inter-agent message dispatching and mailbox synchronization |
 | [`Science/`](./Science) | Science & Research Intelligence Engine | Clinical psychometric scoring (GAD-7, PHQ-9), suicidal ideation safety protocol, academic literature discovery, patent novelty audits, grant rubrics |
 | [`Secret/`](./Secret) | Local Credential Vault | Zero-leakage token redacting and local filesystem authority verification |
+| [`Workflow/`](./Workflow) | Workflow Orchestrator & Health Engine | Cross-plugin compound DAG pipeline runner, pre-flight diagnostics, and system-wide health auditing |
 
 ---
 
