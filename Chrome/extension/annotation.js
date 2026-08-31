@@ -94,6 +94,16 @@
     return fallback;
   }
 
+  function getRadiusForElement(element) {
+    if (!element || typeof window === "undefined" || typeof window.getComputedStyle !== "function") return "0px";
+    try {
+      const style = window.getComputedStyle(element);
+      return style.borderRadius || `${style.borderTopLeftRadius} ${style.borderTopRightRadius} ${style.borderBottomRightRadius} ${style.borderBottomLeftRadius}` || "0px";
+    } catch {
+      return "0px";
+    }
+  }
+
   function paletteColor(index) {
     return PALETTE[((index % PALETTE.length) + PALETTE.length) % PALETTE.length];
   }
@@ -507,6 +517,7 @@
       componentPropsJson: react?.props ? JSON.stringify(react.props).slice(0, MAX_EXTRA) : "",
       color: paletteColor(hueIndex),
       hueIndex,
+      borderRadius: getRadiusForElement(element),
       rect: {
         x: Math.round(rect.x ?? rect.left ?? 0),
         y: Math.round(rect.y ?? rect.top ?? 0),
@@ -542,6 +553,7 @@
       componentPropsJson: item.componentPropsJson,
       color: item.color,
       hueIndex: item.hueIndex,
+      borderRadius: item.borderRadius || "0px",
       rect: item.rect,
       visible: item.visible !== false,
       note: item.note,
@@ -658,7 +670,7 @@
     host.style.cssText = "position:fixed;inset:0;z-index:2147483646;pointer-events:none;font:12px/1.4 ui-sans-serif,system-ui,sans-serif;";
     highlight = document.createElement("div");
     highlight.setAttribute(HOST_ATTR, "hover");
-    highlight.style.cssText = `position:fixed;border:1.5px solid ${HOVER};border-radius:4px;pointer-events:none;display:none;z-index:2147483647;box-sizing:border-box;box-shadow:0 0 0 1px rgba(255,255,255,0.25),0 4px 18px -2px ${HOVER}40;`;
+    highlight.style.cssText = `position:fixed;border:1.5px solid ${HOVER};pointer-events:none;display:none;z-index:2147483647;box-sizing:border-box;`;
     highlightLabel = document.createElement("div");
     highlightLabel.setAttribute(HOST_ATTR, "hover-label");
     highlightLabel.style.cssText = "position:fixed;display:none;z-index:2147483647;pointer-events:none;";
@@ -683,8 +695,8 @@
         `width:${Math.max(0, item.rect.width)}px`,
         `height:${Math.max(0, item.rect.height)}px`,
         `border:1.5px solid ${item.color}`,
-        "border-radius:4px",
-        `background:${item.color}1c`,
+        `border-radius:${item.borderRadius || "0px"}`,
+        `background:${item.color}14`,
         "pointer-events:none",
         "box-sizing:border-box",
         "z-index:2147483646",
@@ -693,7 +705,7 @@
       const badge = document.createElement("span");
       badge.setAttribute(HOST_ATTR, "pin-badge");
       badge.textContent = `${index + 1}`;
-      badge.style.cssText = `position:absolute;top:-8px;left:-1px;min-width:15px;height:15px;padding:0 3px;border-radius:3px;background:${item.color};color:#fff;font:600 10px/15px ui-sans-serif,sans-serif;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.35);`;
+      badge.style.cssText = `position:absolute;top:-8px;left:-1px;min-width:15px;height:15px;padding:0 3px;border-radius:3px;background:${item.color};color:#fff;font:600 10px/15px ui-sans-serif,sans-serif;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.3);`;
       pin.appendChild(badge);
 
       host.appendChild(pin);
