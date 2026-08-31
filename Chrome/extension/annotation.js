@@ -176,34 +176,38 @@
       card.setAttribute(HOST_ATTR, `card-${field.key}`);
       card.style.cssText = [
         "min-width:0",
-        "padding:8px 12px",
-        index < fields.length - 1 ? "border-right:1px solid rgba(255,255,255,0.08)" : "",
+        "padding:9px 13px",
+        index < fields.length - 1 ? "border-right:1px solid rgba(255,255,255,0.12)" : "",
       ].filter(Boolean).join(";");
       const caption = document.createElement("div");
       caption.setAttribute(HOST_ATTR, "card-label");
       caption.textContent = field.label;
-      caption.style.cssText = "font:600 9px/1.2 ui-sans-serif,system-ui,sans-serif;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:5px;";
+      caption.style.cssText = "font:600 9px/1.2 ui-sans-serif,system-ui,sans-serif;letter-spacing:0.09em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:5px;text-shadow:0 1px 2px rgba(0,0,0,0.5);";
       const value = document.createElement("div");
       value.setAttribute(HOST_ATTR, "card-value");
       const empty = !field.value || field.value === "—";
       const mono = field.key === "element" || field.key === "class";
       value.style.cssText = [
-        empty ? "opacity:0.4" : "opacity:1",
+        empty ? "opacity:0.45" : "opacity:1",
         "color:#fff",
         mono
           ? "font:500 11.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace"
-          : "font:600 12px/1.35 ui-sans-serif,system-ui,sans-serif",
+          : "font:600 12.5px/1.35 ui-sans-serif,system-ui,sans-serif",
         "word-break:break-word",
         "max-height:4.5em",
         "overflow:hidden",
+        "text-shadow:0 1px 3px rgba(0,0,0,0.6)",
       ].join(";");
+      if (field.key === "element" && !empty) {
+        value.style.color = "#38bdf8";
+      }
       if (field.key === "class" && !empty) {
         value.style.cssText += ";display:flex;flex-wrap:wrap;gap:4px;max-height:5.2em;";
         String(field.value).split(/\s+/).filter(Boolean).forEach((token) => {
           const pill = document.createElement("span");
           pill.setAttribute(HOST_ATTR, "class-token");
           pill.textContent = token;
-          pill.style.cssText = "display:inline-block;padding:1.5px 6px;border-radius:3px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.1);font:500 10.5px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;color:#f8fafc;";
+          pill.style.cssText = "display:inline-block;padding:1.5px 6px;border-radius:3px;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.12);box-shadow:0 1px 2px rgba(0,0,0,0.25);font:500 10.5px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;color:#ffffff;text-shadow:0 1px 2px rgba(0,0,0,0.5);";
           value.appendChild(pill);
         });
       } else {
@@ -232,17 +236,17 @@
       "display:grid",
       `grid-template-columns:repeat(${columns}, minmax(0, 1fr))`,
       "align-items:stretch",
-      "background:rgba(15,23,42,0.82)",
+      "background:rgba(15,23,42,0.45)",
       "color:#fff",
-      "border:1px solid rgba(255,255,255,0.16)",
+      "border:1px solid rgba(255,255,255,0.22)",
       "border-radius:6px",
-      "box-shadow:0 16px 40px -4px rgba(0,0,0,0.45), inset 0 1px 0 0 rgba(255,255,255,0.22), inset 0 -1px 0 0 rgba(0,0,0,0.2)",
+      "box-shadow:0 20px 48px -4px rgba(0,0,0,0.38), inset 0 1px 0 0 rgba(255,255,255,0.35), inset 0 -1px 0 0 rgba(0,0,0,0.15), inset 0 0 16px rgba(255,255,255,0.04)",
       "overflow:hidden",
       "pointer-events:none",
       "z-index:2147483647",
       "box-sizing:border-box",
-      "backdrop-filter:blur(28px) saturate(200%) brightness(1.05)",
-      "-webkit-backdrop-filter:blur(28px) saturate(200%) brightness(1.05)",
+      "backdrop-filter:blur(28px) saturate(220%) brightness(1.1)",
+      "-webkit-backdrop-filter:blur(28px) saturate(220%) brightness(1.1)",
     ].join(";");
     fillCardRow(row, cards, color);
     let height = columns === 3 ? 92 : 60;
@@ -670,7 +674,7 @@
         `height:${Math.max(0, item.rect.height)}px`,
         `border:1.5px solid ${item.color}`,
         "border-radius:4px",
-        `background:${item.color}14`,
+        `background:${item.color}1c`,
         "pointer-events:none",
         "box-sizing:border-box",
         "z-index:2147483646",
@@ -714,17 +718,17 @@
       "align-items:center",
       "gap:10px",
       "padding:8px 10px 8px 14px",
-      "background:rgba(15,23,42,0.86)",
+      "background:rgba(15,23,42,0.48)",
       "color:#fff",
-      "border:1px solid rgba(255,255,255,0.16)",
+      "border:1px solid rgba(255,255,255,0.22)",
       "border-radius:8px",
-      "box-shadow:0 16px 40px -4px rgba(0,0,0,0.45), inset 0 1px 0 0 rgba(255,255,255,0.2)",
+      "box-shadow:0 20px 48px -4px rgba(0,0,0,0.38), inset 0 1px 0 0 rgba(255,255,255,0.35)",
       "pointer-events:auto",
       "z-index:2147483647",
       "width:min(580px, calc(100vw - 24px))",
       "box-sizing:border-box",
-      "backdrop-filter:blur(28px) saturate(200%) brightness(1.05)",
-      "-webkit-backdrop-filter:blur(28px) saturate(200%) brightness(1.05)",
+      "backdrop-filter:blur(32px) saturate(220%) brightness(1.1)",
+      "-webkit-backdrop-filter:blur(32px) saturate(220%) brightness(1.1)",
     ].join(";");
     const chips = document.createElement("div");
     chips.setAttribute(HOST_ATTR, "chips");
@@ -737,14 +741,15 @@
         "display:flex",
         "align-items:center",
         "gap:6px",
-        "border:1px solid rgba(255,255,255,0.12)",
+        "border:1px solid rgba(255,255,255,0.16)",
         "border-radius:4px",
-        "background:rgba(255,255,255,0.08)",
+        "background:rgba(255,255,255,0.12)",
         "padding:3px 8px 3px 6px",
         "font:12px/1.2 system-ui,sans-serif",
         "color:#fff",
         "cursor:pointer",
-        "box-shadow:0 1px 2px rgba(0,0,0,0.15)",
+        "box-shadow:0 1px 2px rgba(0,0,0,0.2)",
+        "text-shadow:0 1px 2px rgba(0,0,0,0.5)",
       ].join(";");
       const mark = document.createElement("span");
       mark.setAttribute(HOST_ATTR, "chip-mark");
@@ -768,18 +773,18 @@
     input.type = "text";
     input.placeholder = "Describe what should change";
     input.value = prompt;
-    input.style.cssText = "border:0;outline:0;min-width:140px;flex:1;font:12.5px/1.3 system-ui,sans-serif;background:transparent;color:#fff;";
+    input.style.cssText = "border:0;outline:0;min-width:140px;flex:1;font:12.5px/1.3 system-ui,sans-serif;background:transparent;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.5);";
     const send = document.createElement("button");
     send.type = "submit";
     send.setAttribute(HOST_ATTR, "send");
     send.textContent = "Send";
-    send.style.cssText = "border:0;background:#fff;color:#0f172a;border-radius:4px;padding:6px 14px;font:600 12px/1 ui-sans-serif,system-ui,sans-serif;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.2);";
+    send.style.cssText = "border:0;background:#fff;color:#0f172a;border-radius:4px;padding:6px 14px;font:600 12px/1 ui-sans-serif,system-ui,sans-serif;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.25);";
     const closeBtn = document.createElement("button");
     closeBtn.type = "button";
     closeBtn.setAttribute(HOST_ATTR, "dismiss");
     closeBtn.title = "Cancel (Esc)";
     closeBtn.innerHTML = "&times;";
-    closeBtn.style.cssText = "border:1px solid rgba(255,255,255,0.12);background:transparent;color:rgba(255,255,255,0.6);border-radius:4px;padding:3px 8px;font:14px/1 system-ui,sans-serif;cursor:pointer;line-height:1;";
+    closeBtn.style.cssText = "border:1px solid rgba(255,255,255,0.16);background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border-radius:4px;padding:3px 8px;font:14px/1 system-ui,sans-serif;cursor:pointer;line-height:1;";
     closeBtn.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -817,7 +822,7 @@
     const toast = document.createElement("div");
     toast.setAttribute(HOST_ATTR, "toast");
     toast.textContent = message;
-    toast.style.cssText = "position:fixed;bottom:20px;right:20px;background:rgba(15,23,42,0.88);color:#fff;border:1px solid rgba(255,255,255,0.18);padding:8px 16px;border-radius:6px;pointer-events:none;z-index:2147483647;box-shadow:0 16px 36px rgba(0,0,0,0.45), inset 0 1px 0 0 rgba(255,255,255,0.2);backdrop-filter:blur(28px) saturate(200%);-webkit-backdrop-filter:blur(28px) saturate(200%);font:500 12px/1.3 ui-sans-serif,system-ui,sans-serif;";
+    toast.style.cssText = "position:fixed;bottom:20px;right:20px;background:rgba(15,23,42,0.52);color:#fff;border:1px solid rgba(255,255,255,0.22);padding:8px 16px;border-radius:6px;pointer-events:none;z-index:2147483647;box-shadow:0 16px 36px rgba(0,0,0,0.35), inset 0 1px 0 0 rgba(255,255,255,0.3);backdrop-filter:blur(28px) saturate(200%);-webkit-backdrop-filter:blur(28px) saturate(200%);font:500 12px/1.3 ui-sans-serif,system-ui,sans-serif;text-shadow:0 1px 2px rgba(0,0,0,0.5);";
     host.appendChild(toast);
     setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2400);
   }
@@ -947,7 +952,7 @@
     const rect = element.getBoundingClientRect();
     highlight.style.display = "block";
     highlight.style.borderColor = color;
-    highlight.style.background = `${color}14`;
+    highlight.style.background = `${color}1a`;
     highlight.style.left = `${rect.x}px`;
     highlight.style.top = `${rect.y}px`;
     highlight.style.width = `${rect.width}px`;
