@@ -6,20 +6,12 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
-let browserExtension: any;
-let compactBrowserResult: any;
-try {
-  const mod = await import("./pi.ts");
-  browserExtension = mod.default;
-  compactBrowserResult = mod.compactBrowserResult;
-} catch {
-  // Optional pi extension dependencies not installed in standard workspace
-}
 import { createBrowserContextOperation } from "./operation.ts";
 import {
   BrowserClient,
   MAX_BROWSER_RESPONSE_CHARS,
   PROTOCOL,
+  compactBrowserResult,
   environmentSessionId,
   environmentSessionName,
   extensionIdentity,
@@ -642,7 +634,8 @@ describe("Browser Context Extension", () => {
   });
 
   test("browser runtime statically preserves focus, popup, secret-redaction, input-only debugger, and evaluation boundaries", () => {
-    const index = readFileSync(resolve(here, "pi.ts"), "utf8");
+    const core = readFileSync(resolve(here, "core.ts"), "utf8");
+    const mcpServer = readFileSync(resolve(here, "mcp-server.ts"), "utf8");
     const worker = readFileSync(resolve(here, "extension/worker.js"), "utf8");
     const content = readFileSync(resolve(here, "extension/content.js"), "utf8");
     const challenge = readFileSync(resolve(here, "extension/challenge.js"), "utf8");
@@ -722,10 +715,6 @@ describe("Browser Context Extension", () => {
     expect(activateTab).not.toContain("tabs.update");
     expect(operation).toContain("params.foregroundConfirmed === true");
     expect(operation).toContain('action: "restore_background"');
-    // Trusted OS click raises Chrome to frontmost ONLY inside the
-    // owner-confirmed foreground path; no arbitrary focus operation exists.
-    // The OS machinery lives in the plugin's own os-lease module (the
-    // computer extension was retired with the 2026-08 surface demolition).
     expect(operation).toContain('import { acquireChromeOsLease } from "./os-lease.ts";');
     expect(operation).toContain('return lease.foreground("Google Chrome");');
     expect(operation).toContain('return lease.measureWindow("Google Chrome");');
@@ -783,7 +772,7 @@ describe("Browser Context Extension", () => {
     expect(worker).toContain("screen_x: command.screen_x");
     expect(worker).toContain('command.action === "select_combobox"');
     expect(operation).toContain('params.action === "select_combobox"');
-    expect(index).toContain('"select_combobox"');
+    expect(mcpServer).toContain('"select_combobox"');
     expect(worker).not.toContain("foreground_human_required");
     expect(worker).toContain("human_boundary");
     expect(worker).toContain('owner_authorized_terms: true');
@@ -805,12 +794,9 @@ describe("Browser Context Extension", () => {
     expect(worker).not.toContain("The tab-group strictly mirrors the Session name");
     expect(worker).not.toContain("session.workspace} · ${session.name}");
     expect(worker).not.toContain('GROUP_TITLE = "Spiral Analytics"');
-    expect(index).toContain('const BROWSER_TOOL = "chrome";');
-    expect(index).toContain('registerBrowserTool(pi, BROWSER_TOOL, "chrome"');
-    expect(index).not.toContain("chrome_context");
-    expect(index).toContain("永不兼容");
-    expect(index).not.toContain("browser_background");
-    expect(index).toContain("pi.getSessionName()");
+    expect(mcpServer).toContain('export const SERVER_NAME = "chrome";');
+    expect(mcpServer).toContain('export const CHROME_ACTIONS = [');
+    expect(mcpServer).not.toContain("chrome_context");
     expect(worker).toContain("chrome.tabs.group");
     expect(worker).toContain("chrome.tabs.move");
     expect(worker).toContain("const ids = await managedTabIds(session)");
@@ -922,81 +908,12 @@ describe("Browser Context Extension", () => {
     expect(content).toContain('message.action === "screenshot_scroll"');
     expect(content).toContain('message.action === "screenshot_restore"');
     expect(content).toContain("element.shadowRoot");
-    expect(index).toContain("capture_ga4_measurement_id");
-    expect(index).toContain("capture_session");
-    expect(index).toContain("capture_screenshot");
-    expect(index).toContain("foregroundConfirmed");
+    expect(mcpServer).toContain('"capture_ga4_measurement_id"');
+    expect(mcpServer).toContain('"capture_session"');
+    expect(mcpServer).toContain('"capture_screenshot"');
     expect(worker).toContain("chrome.cookies.getAll");
     expect(content).not.toContain("document.cookie");
     expect(content).not.toContain("new Function");
     expect(content).not.toContain("outerHTML");
-  });
-
-  test("pins the public Browser Context Tool ABI with screenshot guidance", () => {
-    if (!browserExtension) return;
-    let tool: Record<string, unknown> | undefined;
-    browserExtension({
-      registerTool: (value: Record<string, unknown>) => { tool = value; },
-      registerCommand: () => {},
-      on: () => {},
-    } as never);
-    expect(tool).toBeDefined();
-    const surface = {
-      name: tool?.name,
-      label: tool?.label,
-      description: tool?.description,
-      promptSnippet: tool?.promptSnippet,
-      promptGuidelines: tool?.promptGuidelines,
-      parameters: tool?.parameters,
-    };
-    expect(createHash("sha256").update(JSON.stringify(surface)).digest("hex"))
-      .toBe("46c95f4bf50fe55921d3bad21056523d97c7773b3baeb86cd16b39b17d7e93f4");
-  });
-
-  test("registers one canonical Browser Context Tool with compact rendering and one setup command", () => {
-    if (!browserExtension) return;
-    const tools: Array<{
-      name: string;
-      label: string;
-      promptSnippet?: string;
-      promptGuidelines?: string[];
-      renderCall?: unknown;
-      renderResult?: unknown;
-    }> = [];
-    const commands: string[] = [];
-    browserExtension({
-      registerTool: (tool: { name: string; label: string; promptSnippet?: string; promptGuidelines?: string[] }) => tools.push(tool),
-      registerCommand: (name: string) => commands.push(name),
-      on: () => {},
-    } as never);
-    expect(tools).toHaveLength(1);
-    expect(tools[0]).toMatchObject({
-      name: "chrome",
-      label: "Browser Context",
-      promptSnippet: "Universal web information gathering through the Owner Chrome profile",
-    });
-    expect(tools[0].promptGuidelines?.every(
-      (guideline) =>
-        guideline.includes("chrome") ||
-        guideline.startsWith("capture_") ||
-        guideline.startsWith("Any control") ||
-        guideline.includes("spends no money") ||
-        guideline.includes("standing authority") ||
-        guideline.includes("no per-step Owner instruction") ||
-        guideline.includes("read_text") ||
-        guideline.includes("virtualized") ||
-        guideline.includes("long=true") ||
-        guideline.includes("Session's tab-group") ||
-        guideline.includes("annotate") ||
-        guideline.includes("design-mode") ||
-        guideline.includes("foregroundConfirmed") ||
-        guideline.includes("trusted-input") ||
-        guideline.includes("bridge source") ||
-        guideline.includes("financial actions") ||
-        guideline.includes("Owner directive"),
-    )).toBe(true);
-    expect(typeof tools[0].renderCall).toBe("function");
-    expect(typeof tools[0].renderResult).toBe("function");
-    expect(commands).toEqual(["browser-setup"]);
   });
 });

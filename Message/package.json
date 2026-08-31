@@ -7,11 +7,6 @@
   },
   "mcp": {
     "command": "bun",
-    "args": ["./serve.mjs"]
-  },
-  "pi": {
-    "extensions": [
-      "./pi.ts"
-    ]
+    "args": ["./mcp-server.ts"]
   }
 }

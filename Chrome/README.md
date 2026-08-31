@@ -18,8 +18,7 @@ obstruction.
 `chrome` is the capability name: it describes a bounded,
 privacy-preserving chrome context rather than an implementation detail.
 Background tabs remain an implementation boundary, not a separate capability.
-Every harness consumes `operation.ts` through the MCP server (`serve.mjs`).
-A `pi.ts` file is an optional host adapter.
+Every harness consumes `operation.ts` through the standard MCP server (`mcp-server.ts`), the Master Gateway (`gateway.ts`), or direct TypeScript SDK import.
 
 ## Operation
 

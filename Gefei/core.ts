@@ -246,3 +246,39 @@ export class GefeiClient {
     };
   }
 }
+
+export function formatGefeiSummary(action: string, result: any): string {
+  if (!result) return `Gefei ${action} completed`;
+
+  switch (action) {
+    case "estimate_keyword_difficulty": {
+      const kd = result.difficulty ?? result.kd ?? "?";
+      const vol = result.search_volume ?? result.volume ?? "?";
+      const opp = result.opportunity ?? (typeof kd === "number" && kd < 35 ? "High Opportunity" : "Competitive");
+      return `Keyword: "${result.keyword ?? ""}" → KD ${kd}/100 [${opp}] | Vol: ${vol}`;
+    }
+    case "batch_keyword_difficulty": {
+      const items = Array.isArray(result) ? result : result.keywords ?? [];
+      return `Batch Evaluated (${items.length} keywords): Avg KD ${result.avg_kd ?? "?"}`;
+    }
+    case "get_stripe_insights": {
+      const count = Array.isArray(result) ? result.length : (result.sites?.length ?? 0);
+      return `Stripe Radar Insights: ${count} verified revenue-generating products tracked`;
+    }
+    case "calculate_link_budget": {
+      return `Link Budget for "${result.keyword ?? ""}": Target ${result.target_backlinks ?? result.linkBudget?.requiredBacklinks ?? "?"} backlinks (Min DR ${result.min_dr ?? result.linkBudget?.targetDr ?? "40+"})`;
+    }
+    case "get_site_stripe_trajectory": {
+      return `Domain "${result.domain ?? ""}": Estimated MRR ${result.estimated_mrr ?? "N/A"}`;
+    }
+    case "search_niche_ideas": {
+      return `Niche Discovery for "${result.query ?? ""}": ${result.results?.length ?? 0} white-space ideas found`;
+    }
+    default: {
+      return `Gefei ${action} success`;
+    }
+  }
+}
+
+export const compactGefeiResult = formatGefeiSummary;
+

@@ -8,15 +8,9 @@
   },
   "mcp": {
     "command": "bun",
-    "args": ["./serve.mjs"]
-  },
-  "pi": {
-    "extensions": [
-      "./pi.ts"
-    ]
+    "args": ["./mcp-server.ts"]
   },
   "devDependencies": {
-    "marked": "^18.0.11",
-    "typebox": "^1.3.23"
+    "marked": "^18.0.11"
   }
 }

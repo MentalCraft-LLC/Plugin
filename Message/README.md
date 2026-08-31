@@ -6,8 +6,7 @@ may also emit events.
 
 ## Surface
 
-Every harness consumes `operation.ts` through the MCP server (`serve.mjs`).
-A `pi.ts` file is an optional host adapter.
+Every harness consumes `operation.ts` through the standard MCP server (`mcp-server.ts`), the Master Gateway (`gateway.ts`), or direct TypeScript SDK import.
 
 - `message` — send a bounded message through the first configured channel
   (priority telegram → imessage → email); never includes Secrets.

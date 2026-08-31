@@ -1,8 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { businessOperation } from "./operation.ts";
 import { handleBusinessRpc } from "./mcp-server.ts";
-import { compactBusinessResult } from "./pi.ts";
-import { BUSINESS_PROTOCOL } from "./core.ts";
+import { BUSINESS_PROTOCOL, compactBusinessResult } from "./core.ts";
 
 describe("Plugin/Business Intelligence Engine", () => {
   test("list_actions returns all commercial & SEO actions", async () => {

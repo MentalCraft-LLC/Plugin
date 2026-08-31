@@ -486,3 +486,43 @@ export class BrowserClient {
     });
   }
 }
+
+function browserHost(raw: unknown): string | undefined {
+  if (typeof raw !== "string") return undefined;
+  try { return new URL(raw).hostname; } catch { return undefined; }
+}
+
+function browserResultObject(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : undefined;
+}
+
+export function compactBrowserResult(value: unknown): string {
+  const result = browserResultObject(value);
+  if (!result) return "Browser operation completed";
+  const diagnostics = browserResultObject(result.diagnostics);
+  const controls = Array.isArray(result.controls) ? result.controls : undefined;
+  const parts: string[] = [];
+  if (typeof result.status === "string") parts.push(result.status);
+  else if (result.action === "inspect_element" && result.found) {
+    parts.push(String(result.tag || "element"));
+    if (result.name) parts.push(`"${result.name}"`);
+  } else if (result.action === "evaluate_script") {
+    parts.push(result.success ? "evaluated" : "error");
+  }
+  const host = browserHost(result.origin);
+  if (host) parts.push(host);
+  if (controls) parts.push(`${controls.length} control${controls.length === 1 ? "" : "s"}`);
+  const iframeCount = diagnostics?.iframe_count;
+  if (typeof iframeCount === "number" && iframeCount > 0) {
+    parts.push(`${iframeCount} iframe${iframeCount === 1 ? "" : "s"}`);
+  }
+  if (typeof result.managed_tab_count === "number") parts.push(`${result.managed_tab_count} managed tabs`);
+  if (result.tab_active === false) parts.push("inactive tab");
+  if (result.focus_changed === false) parts.push("focus unchanged");
+  return parts.length > 0 ? parts.join(" · ") : "Browser operation completed";
+}
+
+export const formatBrowserSummary = compactBrowserResult;
+

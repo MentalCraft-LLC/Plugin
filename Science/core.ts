@@ -83,3 +83,44 @@ export type ScienceResult = {
   data: unknown;
   diagnostics?: string[];
 };
+
+export function formatScienceSummary(result: ScienceResult): string {
+  if (!result.success) {
+    return `✗ Science ${result.action} failed: ${(result.diagnostics ?? []).join("; ")}`;
+  }
+
+  switch (result.action) {
+    case "list_actions": {
+      const data = result.data as { actions: Array<{ name: string }> };
+      return `Science Actions (${data.actions.length}): ${data.actions.map((a) => a.name).join(", ")}`;
+    }
+    case "score_scale": {
+      const data = result.data as ClinicalScaleResult;
+      return `${data.scaleName}: ${data.totalScore}/${data.maxScore} points [${data.severity}] ${data.crisisFlag ? "⚠️ CRISIS" : "✓"}`;
+    }
+    case "crisis_boundary_check": {
+      const data = result.data as CrisisEvaluationResult;
+      return data.crisisDetected
+        ? `⚠️ CRISIS DETECTED [Urgency: ${data.urgencyLevel}] → Dispatched ${data.hotlines[0].name}`
+        : `✓ Crisis check passed: No self-harm ideation detected`;
+    }
+    case "search_literature": {
+      const data = result.data as { total: number; papers: Array<{ title: string; year: number }> };
+      return `Literature: ${data.total} peer-reviewed papers (e.g. "${data.papers[0]?.title ?? ""}", ${data.papers[0]?.year ?? ""})`;
+    }
+    case "verify_citation": {
+      const data = result.data as { valid: boolean; doi: string };
+      return data.valid ? `Citation Validated (DOI: ${data.doi})` : `Invalid Citation Syntax`;
+    }
+    case "patent_novelty_check": {
+      const data = result.data as { noveltyScore: number; potentialPriorArt: unknown[] };
+      return `Patent Novelty Score: ${data.noveltyScore}/100 (${data.potentialPriorArt.length} prior art references analyzed)`;
+    }
+    case "grant_criteria_audit": {
+      const data = result.data as { overallScore: number; passesScreening: boolean };
+      return `Grant Proposal Score: ${data.overallScore}/100 [${data.passesScreening ? "PASSED SCREENING" : "NEEDS REVISION"}]`;
+    }
+  }
+}
+
+export const compactScienceResult = formatScienceSummary;

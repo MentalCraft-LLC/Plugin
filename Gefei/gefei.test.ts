@@ -101,8 +101,8 @@ describe("Gefei Atomic MCP Server", () => {
     expect(res?.error?.code).toBe(-32601);
   });
 
-  it("formats compact terminal summaries for Pi adapter", () => {
-    const { compactGefeiResult } = require("./pi.ts");
+  it("formats compact terminal summaries for human/CLI view", () => {
+    const { compactGefeiResult } = require("./core.ts");
     const kdLog = compactGefeiResult("estimate_keyword_difficulty", {
       keyword: "online anxiety test",
       kd: 24,

@@ -141,6 +141,67 @@ export type BusinessResult = {
   diagnostics?: string[];
 };
 
+export function formatBusinessSummary(result: BusinessResult): string {
+  if (!result.success) {
+    return `✗ Business ${result.action} failed: ${(result.diagnostics ?? []).join("; ")}`;
+  }
+
+  switch (result.action) {
+    case "list_actions": {
+      const data = result.data as { actions: Array<{ name: string }> };
+      return `Business Actions (${data.actions.length}): ${data.actions.map((a) => a.name).join(", ")}`;
+    }
+    case "seo_keyword_difficulty": {
+      const res = result.data as any;
+      const kd = res.difficulty ?? res.kd ?? "?";
+      const vol = res.search_volume ?? res.volume ?? "?";
+      return `Keyword: "${res.keyword ?? ""}" → KD ${kd}/100 | Vol: ${vol}`;
+    }
+    case "seo_batch_keywords": {
+      const items = Array.isArray(result.data) ? result.data : (result.data as any)?.keywords ?? [];
+      return `Batch Evaluated (${items.length} keywords)`;
+    }
+    case "seo_link_budget": {
+      const res = result.data as any;
+      return `Link Budget for "${res.keyword ?? ""}": Target ${res.target_backlinks ?? res.linkBudget?.requiredBacklinks ?? "?"} backlinks (DR ${res.min_dr ?? res.linkBudget?.targetDr ?? "40+"})`;
+    }
+    case "market_stripe_radar": {
+      const count = Array.isArray(result.data) ? result.data.length : ((result.data as any)?.darkhorses?.length ?? 0);
+      return `Stripe Radar Insights: ${count} verified revenue-generating products tracked`;
+    }
+    case "market_site_trajectory": {
+      const res = result.data as any;
+      return `Domain "${res.domain ?? ""}": Est. MRR ${res.estimated_mrr ?? res.estimatedMrr ?? "N/A"}`;
+    }
+    case "market_niche_discovery": {
+      const niches = Array.isArray(result.data) ? result.data : ((result.data as any)?.results ?? []);
+      return `Niche Discovery: ${niches.length} high-opportunity spaces found`;
+    }
+    case "traffic_domain_overview": {
+      const data = result.data as any;
+      return `TrafficCV "${data.domain}": ${(data.monthlyVisits / 1000).toFixed(1)}k visits/mo (Rank #${data.globalRank}, Bounce: ${data.bounceRatePercent}%)`;
+    }
+    case "traffic_channel_breakdown": {
+      const data = result.data as any;
+      return `Traffic Channels "${data.domain}": Organic ${data.channels.organicSearch}%, Direct ${data.channels.direct}%, Referral ${data.channels.referral}%`;
+    }
+    case "traffic_geo_distribution": {
+      const data = result.data as any;
+      return `Geo Traffic "${data.domain}": Top: ${data.topCountries?.slice(0, 3).map((c: any) => `${c.countryCode} (${c.trafficSharePercent}%)`).join(", ")}`;
+    }
+    case "traffic_competitor_comparison": {
+      const data = result.data as any;
+      return `Competitor Traffic: Leader "${data.leaderDomain}" across ${data.domains?.length} domains`;
+    }
+    case "product_traction_score": {
+      const data = result.data as TractionScoreResult;
+      return `Product "${data.product}" Traction Score: ${data.score}/100 [Grade ${data.grade}]`;
+    }
+  }
+}
+
+export const compactBusinessResult = formatBusinessSummary;
+
 /**
  * TrafficCV Engine Client
  */

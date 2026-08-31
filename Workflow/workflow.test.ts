@@ -1,8 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { workflowOperation, executeHealthCheck } from "./operation.ts";
 import { handleWorkflowRpc } from "./mcp-server.ts";
-import { compactWorkflowResult } from "./pi.ts";
-import { WORKFLOW_PROTOCOL, BUILTIN_WORKFLOWS } from "./core.ts";
+import { WORKFLOW_PROTOCOL, BUILTIN_WORKFLOWS, compactWorkflowResult } from "./core.ts";
 
 describe("Plugin/Workflow Orchestrator & Health Engine", () => {
   test("list_workflows returns all multi-plugin compound pipelines", async () => {

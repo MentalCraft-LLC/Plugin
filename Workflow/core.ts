@@ -164,3 +164,43 @@ export type WorkflowResult = {
   data: unknown;
   diagnostics?: string[];
 };
+
+export function formatWorkflowSummary(result: WorkflowResult): string {
+  if (!result.success) {
+    return `✗ Workflow ${result.action} failed: ${(result.diagnostics ?? []).join("; ")}`;
+  }
+
+  switch (result.action) {
+    case "list_workflows": {
+      const data = result.data as { total: number; workflows: Array<{ name: string; id: string }> };
+      return `Workflows (${data.total}): ${data.workflows.map((w) => w.id).join(", ")}`;
+    }
+    case "health_check": {
+      const data = result.data as SystemHealthReport;
+      return `System Health: ${data.healthScore}/100 [${data.overallStatus.toUpperCase()}] (${data.healthyPlugins}/${data.totalPlugins} plugins healthy)`;
+    }
+    case "dry_run": {
+      const data = result.data as { workflow: { name: string }; plan: Array<{ plugin: string; action: string }> };
+      return `Dry Run [${data.workflow.name}]: Plan ${data.plan.map((p) => `${p.plugin}.${p.action}`).join(" ➔ ")}`;
+    }
+    case "register_workflow": {
+      const data = result.data as any;
+      return `✓ Registered Workflow "${data.name}" (${data.registeredId}) with ${data.stepsCount} steps`;
+    }
+    case "get_workflow_history": {
+      const data = result.data as any;
+      return `Workflow History: ${data.totalRuns} total runs recorded`;
+    }
+    case "export_config": {
+      const data = result.data as any;
+      return `Exported MCP Client Config for [${data.target}]: ${Object.keys(data.configs.mcpServers ?? {}).length} servers configured`;
+    }
+    case "run_workflow": {
+      const data = result.data as any;
+      return `✓ Workflow [${data.workflowName ?? data.name}]: All ${data.stepsCount ?? data.executedStepsCount} steps completed (${data.durationMs ?? 0}ms)`;
+    }
+  }
+}
+
+export const compactWorkflowResult = formatWorkflowSummary;
+

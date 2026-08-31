@@ -1,8 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { designOperation } from "./operation.ts";
 import { handleDesignRpc } from "./mcp-server.ts";
-import { compactDesignResult } from "./pi.ts";
-import { DESIGN_PROTOCOL, COMPONENT_CATALOG, DESIGN_TOKENS } from "./core.ts";
+import { DESIGN_PROTOCOL, COMPONENT_CATALOG, DESIGN_TOKENS, compactDesignResult } from "./core.ts";
 
 describe("Design System & UI Intelligence Engine", () => {
   test("list_layers returns 5-layer hierarchy and governance rules", async () => {

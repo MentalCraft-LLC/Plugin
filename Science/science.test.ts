@@ -1,8 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { scienceOperation } from "./operation.ts";
 import { handleScienceRpc } from "./mcp-server.ts";
-import { compactScienceResult } from "./pi.ts";
-import { SCIENCE_PROTOCOL } from "./core.ts";
+import { SCIENCE_PROTOCOL, compactScienceResult } from "./core.ts";
 
 describe("Plugin/Science Intelligence Engine", () => {
   test("list_actions returns all psychometric & research actions", async () => {
