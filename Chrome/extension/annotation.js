@@ -155,7 +155,7 @@
   function chipLabel(item) {
     const cards = identityCards(item);
     const parts = [cards.element, cards.component];
-    if (cards.className && cards.className !== "—") parts.push(cards.className);
+    if (classVisible && cards.className && cards.className !== "—") parts.push(cards.className);
     return parts.filter((part) => part && part !== "—").join(" · ");
   }
 
@@ -912,7 +912,7 @@
   function hoverLabelFor(element) {
     const cards = identityFromElement(element);
     const parts = [cards.element, cards.component];
-    if (cards.className && cards.className !== "—") parts.push(cards.className);
+    if (classVisible && cards.className && cards.className !== "—") parts.push(cards.className);
     return parts.filter((part) => part && part !== "—").join(" · ");
   }
 
