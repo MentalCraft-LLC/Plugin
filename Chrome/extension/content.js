@@ -81,6 +81,18 @@
         const method = (args[1] && args[1].method) || (args[0] && args[0].method) || "GET";
         try {
           const res = await origFetch.apply(this, args);
+          let bodyPreview = "";
+          try {
+            const clone = res.clone();
+            const text = await clone.text();
+            bodyPreview = redact(text).slice(0, 1500);
+          } catch {}
+          let reqBody = "";
+          try {
+            if (args[1]?.body) {
+              reqBody = redact(typeof args[1].body === "string" ? args[1].body : JSON.stringify(args[1].body)).slice(0, 500);
+            }
+          } catch {}
           networkRecords.push({
             url: redact(rawUrl).slice(0, 300),
             method: String(method).toUpperCase(),
@@ -88,6 +100,8 @@
             duration_ms: Date.now() - start,
             timestamp: Date.now(),
             type: "fetch",
+            ...(bodyPreview ? { response_body: bodyPreview } : {}),
+            ...(reqBody ? { request_body: reqBody } : {}),
           });
           if (networkRecords.length > MAX_NETWORK_RECORDS) networkRecords.shift();
           return res;
@@ -123,6 +137,12 @@
         inFlightRequests++;
         this.addEventListener("loadend", () => {
           inFlightRequests = Math.max(0, inFlightRequests - 1);
+          let bodyPreview = "";
+          try {
+            if (typeof this.responseText === "string") {
+              bodyPreview = redact(this.responseText).slice(0, 1500);
+            }
+          } catch {}
           networkRecords.push({
             url: redact(this.__spiralUrl || "").slice(0, 300),
             method: String(this.__spiralMethod || "GET").toUpperCase(),
@@ -130,6 +150,7 @@
             duration_ms: Date.now() - start,
             timestamp: Date.now(),
             type: "xhr",
+            ...(bodyPreview ? { response_body: bodyPreview } : {}),
           });
           if (networkRecords.length > MAX_NETWORK_RECORDS) networkRecords.shift();
         });
@@ -2497,20 +2518,28 @@
       };
     }
     if (message.action === "read_network") {
+      const urlPattern = message.url_pattern || message.text;
+      let intercepted = networkRecords;
+      if (urlPattern) {
+        intercepted = intercepted.filter((r) => r.url.toLowerCase().includes(urlPattern.toLowerCase()));
+      }
       const entries = performance.getEntriesByType ? performance.getEntriesByType("resource") : [];
-      const resourceRecords = entries.slice(-40).map((e) => ({
+      let resourceRecords = entries.map((e) => ({
         name: redact(e.name).slice(0, 300),
         initiatorType: e.initiatorType,
         duration_ms: Math.round(e.duration),
         transfer_bytes: e.transferSize,
         status: e.responseStatus || undefined,
       }));
+      if (urlPattern) {
+        resourceRecords = resourceRecords.filter((r) => r.name.toLowerCase().includes(urlPattern.toLowerCase()));
+      }
       return {
         action: "read_network",
         in_flight_count: inFlightRequests,
-        intercepted_requests: networkRecords.slice(-40),
-        resource_timing_requests: resourceRecords,
-        requests: networkRecords.length > 0 ? networkRecords.slice(-40) : resourceRecords,
+        intercepted_requests: intercepted.slice(-40),
+        resource_timing_requests: resourceRecords.slice(-40),
+        requests: intercepted.length > 0 ? intercepted.slice(-40) : resourceRecords.slice(-40),
         total_count: networkRecords.length + entries.length,
       };
     }
