@@ -797,6 +797,65 @@
     return null;
   }
 
+  function flashActionIndicator(element, kind) {
+    if (!element || !(element instanceof Element) || typeof document === "undefined" || !document.body) return;
+    try {
+      const box = element.getBoundingClientRect();
+      if (box.width <= 0 || box.height <= 0) return;
+      const overlay = document.createElement("div");
+      overlay.setAttribute("data-holar-indicator", "true");
+      let radius = "4px";
+      try { radius = window.getComputedStyle(element).borderRadius || "4px"; } catch {}
+      const color = kind === "click" ? "rgba(58, 150, 221, 0.3)" : kind === "fill" ? "rgba(34, 197, 94, 0.3)" : "rgba(124, 92, 255, 0.3)";
+      const borderColor = kind === "click" ? "#3a96dd" : kind === "fill" ? "#22c55e" : "#7c5cff";
+      Object.assign(overlay.style, {
+        position: "fixed",
+        top: `${Math.round(box.top)}px`,
+        left: `${Math.round(box.left)}px`,
+        width: `${Math.round(box.width)}px`,
+        height: `${Math.round(box.height)}px`,
+        borderRadius: radius,
+        border: `2px solid ${borderColor}`,
+        backgroundColor: color,
+        boxShadow: `0 0 10px ${borderColor}`,
+        pointerEvents: "none",
+        zIndex: "2147483646",
+        transition: "opacity 300ms cubic-bezier(0.16, 1, 0.3, 1), transform 300ms cubic-bezier(0.16, 1, 0.3, 1)",
+        transform: "scale(1)",
+        opacity: "0.85",
+      });
+      document.body.appendChild(overlay);
+      requestAnimationFrame(() => {
+        overlay.style.opacity = "0";
+        overlay.style.transform = "scale(1.05)";
+      });
+      setTimeout(() => {
+        try { overlay.remove(); } catch {}
+      }, 350);
+    } catch {}
+  }
+
+  function elementHierarchyPath(element) {
+    if (!element || !(element instanceof Element)) return "";
+    const path = [];
+    let current = element;
+    while (current && current.nodeType === Node.ELEMENT_NODE && path.length < 5) {
+      let selector = current.tagName.toLowerCase();
+      if (current.id) {
+        selector += `#${current.id}`;
+        path.unshift(selector);
+        break;
+      } else if (current.getAttribute("data-slot")) {
+        selector += `[data-slot="${current.getAttribute("data-slot")}"]`;
+      } else if (current.classList && current.classList.length > 0) {
+        selector += `.${Array.from(current.classList).slice(0, 2).join(".")}`;
+      }
+      path.unshift(selector);
+      current = current.parentElement;
+    }
+    return path.join(" > ");
+  }
+
   function findControl(name, role, context, selector) {
     if (selector && typeof selector === "string") {
       const match = queryWithShadow(document, selector);
@@ -1659,9 +1718,10 @@
         try { element = document.elementFromPoint(cx, cy); } catch { element = null; }
         if (!element) throw new Error("control_missing");
       } else {
-        element = findControl(message.name, message.role, message.context);
+        element = findControl(message.name, message.role, message.context, message.selector);
       }
       if (element.disabled || element.getAttribute("aria-disabled") === "true") throw new Error("control_disabled");
+      flashActionIndicator(element, "click");
       // Hover pre-sequence: a real pointer stream always begins with
       // movement, and flyout/accordion apps open on mouseenter. Dispatch it
       // before any click so hover-revealed menus exist by the time the
@@ -1920,6 +1980,7 @@
     if (message.action === "fill") {
       const element = findControl(message.field, "textbox", message.context, message.selector);
       if (!fillableText(element)) throw new Error("control_not_fillable");
+      flashActionIndicator(element, "fill");
       const value = String(message.value ?? "");
       const multilinePublic = message.multiline_public === true;
       const invalidControl = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(value);
@@ -2028,11 +2089,15 @@
       const isEditable = element.isContentEditable || element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement;
       let computedSelector = element.id ? `#${element.id}` : element.tagName.toLowerCase();
       if (!element.id && element.getAttribute("data-slot")) computedSelector += `[data-slot="${element.getAttribute("data-slot")}"]`;
+      const isChecked = element instanceof HTMLInputElement ? element.checked : element.getAttribute("aria-checked") === "true";
+      const isSelected = element.getAttribute("aria-selected") === "true";
+      const isExpanded = element.getAttribute("aria-expanded") === "true";
       return {
         action: "inspect_element",
         found: true,
         tag: element.tagName.toLowerCase(),
         selector: computedSelector,
+        path: elementHierarchyPath(element),
         role: element.getAttribute("role") || elementRole(element) || null,
         name: (element.getAttribute("aria-label") || element.innerText || "").trim().slice(0, 100) || null,
         rect: { x: Math.round(rect.x), y: Math.round(rect.y), width: Math.round(rect.width), height: Math.round(rect.height) },
@@ -2051,6 +2116,21 @@
           margin: style.margin,
           opacity: style.opacity,
           z_index: style.zIndex,
+        },
+        aria: {
+          role: element.getAttribute("role") || elementRole(element) || null,
+          label: element.getAttribute("aria-label") || null,
+          expanded: element.hasAttribute("aria-expanded") ? isExpanded : undefined,
+          checked: element.hasAttribute("aria-checked") || element instanceof HTMLInputElement ? isChecked : undefined,
+          selected: element.hasAttribute("aria-selected") ? isSelected : undefined,
+        },
+        attributes: {
+          id: element.id || undefined,
+          data_slot: element.getAttribute("data-slot") || undefined,
+          data_testid: element.getAttribute("data-testid") || undefined,
+          type: element.getAttribute("type") || undefined,
+          placeholder: element.getAttribute("placeholder") || undefined,
+          href: element instanceof HTMLAnchorElement ? element.href : undefined,
         },
         state: {
           visible: isVisible,

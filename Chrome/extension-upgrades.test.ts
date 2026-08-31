@@ -93,4 +93,20 @@ describe("Extension Upgrades & DevTools Superpowers", () => {
     };
     expect(waitForTextContains.text).toBe("Operation Completed");
   });
+
+  test("BrowserContextInput supports inspect_element with selector or field", () => {
+    const inspectBySelector: BrowserContextInput = {
+      action: "inspect_element",
+      selector: "#main-cta",
+    };
+    expect(inspectBySelector.selector).toBe("#main-cta");
+
+    const inspectByField: BrowserContextInput = {
+      action: "inspect_element",
+      field: "Submit",
+      role: "button",
+    };
+    expect(inspectByField.field).toBe("Submit");
+    expect(inspectByField.role).toBe("button");
+  });
 });
