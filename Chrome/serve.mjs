@@ -20,7 +20,7 @@ function locateServer() {
 }
 
 const server = locateServer();
-const workspace = resolve(dirname(server), "../../..");
+const workspace = resolve(dirname(server), "../..");
 const child = spawn(process.execPath, [server], {
   stdio: "inherit",
   cwd: workspace,
