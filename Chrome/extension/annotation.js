@@ -168,7 +168,7 @@
     while (node.firstChild) node.removeChild(node.firstChild);
   }
 
-  function fillCardRow(row, cards, color) {
+  function fillCardRow(row, cards, color, rect) {
     clearNode(row);
     const fields = overlayFields(cards, classVisible);
     fields.forEach((field, index) => {
@@ -181,8 +181,19 @@
       ].filter(Boolean).join(";");
       const caption = document.createElement("div");
       caption.setAttribute(HOST_ATTR, "card-label");
-      caption.textContent = field.label;
-      caption.style.cssText = "font:600 9px/1.2 ui-sans-serif,system-ui,sans-serif;letter-spacing:0.09em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:5px;text-shadow:0 1px 2px rgba(0,0,0,0.5);";
+      caption.style.cssText = "display:flex;align-items:center;justify-content:space-between;font:600 9px/1.2 ui-sans-serif,system-ui,sans-serif;letter-spacing:0.09em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:5px;text-shadow:0 1px 2px rgba(0,0,0,0.5);";
+      
+      const labelText = document.createElement("span");
+      labelText.textContent = field.label;
+      caption.appendChild(labelText);
+
+      if (field.key === "element" && rect && rect.width > 0) {
+        const sizeBadge = document.createElement("span");
+        sizeBadge.textContent = `${Math.round(rect.width)} × ${Math.round(rect.height)}`;
+        sizeBadge.style.cssText = "padding:1px 4px;border-radius:3px;background:rgba(255,255,255,0.14);font:500 9px/1 ui-monospace,monospace;color:rgba(255,255,255,0.85);text-transform:none;letter-spacing:normal;box-shadow:0 1px 2px rgba(0,0,0,0.2);";
+        caption.appendChild(sizeBadge);
+      }
+
       const value = document.createElement("div");
       value.setAttribute(HOST_ATTR, "card-value");
       const empty = !field.value || field.value === "—";
@@ -224,7 +235,7 @@
     const viewportHeight = Number(window.innerHeight) || 600;
     const columns = classVisible ? 3 : 2;
     const width = Math.min(
-      Math.max(Number(rect.width) || 0, columns === 3 ? 420 : 300),
+      Math.max(Number(rect.width) || 0, columns === 3 ? 430 : 310),
       Math.max(280, viewportWidth - 24),
     );
     row.style.cssText = [
@@ -247,8 +258,9 @@
       "box-sizing:border-box",
       "backdrop-filter:blur(28px) saturate(220%) brightness(1.1)",
       "-webkit-backdrop-filter:blur(28px) saturate(220%) brightness(1.1)",
+      "transition:transform 80ms ease, opacity 80ms ease",
     ].join(";");
-    fillCardRow(row, cards, color);
+    fillCardRow(row, cards, color, rect);
     let height = columns === 3 ? 92 : 60;
     try {
       const box = typeof row.getBoundingClientRect === "function" ? row.getBoundingClientRect() : null;
@@ -648,7 +660,7 @@
     host.style.cssText = "position:fixed;inset:0;z-index:2147483646;pointer-events:none;font:12px/1.4 ui-sans-serif,system-ui,sans-serif;";
     highlight = document.createElement("div");
     highlight.setAttribute(HOST_ATTR, "hover");
-    highlight.style.cssText = `position:fixed;border:1.5px solid ${HOVER};border-radius:4px;pointer-events:none;display:none;z-index:2147483647;box-sizing:border-box;`;
+    highlight.style.cssText = `position:fixed;border:1.5px solid ${HOVER};border-radius:4px;pointer-events:none;display:none;z-index:2147483647;box-sizing:border-box;box-shadow:0 0 0 1px rgba(255,255,255,0.25),0 4px 18px -2px ${HOVER}40;`;
     highlightLabel = document.createElement("div");
     highlightLabel.setAttribute(HOST_ATTR, "hover-label");
     highlightLabel.style.cssText = "position:fixed;display:none;z-index:2147483647;pointer-events:none;";
@@ -662,7 +674,7 @@
   function renderPins() {
     if (!host) return;
     for (const node of [...(host.querySelectorAll?.(`[${HOST_ATTR}="pin"]`) || [])]) node.remove();
-    items.forEach((item) => {
+    items.forEach((item, index) => {
       if (item.visible === false) return;
       const pin = document.createElement("div");
       pin.setAttribute(HOST_ATTR, "pin");
@@ -679,6 +691,13 @@
         "box-sizing:border-box",
         "z-index:2147483646",
       ].join(";");
+      
+      const badge = document.createElement("span");
+      badge.setAttribute(HOST_ATTR, "pin-badge");
+      badge.textContent = `${index + 1}`;
+      badge.style.cssText = `position:absolute;top:-8px;left:-1px;min-width:15px;height:15px;padding:0 3px;border-radius:3px;background:${item.color};color:#fff;font:600 10px/15px ui-sans-serif,sans-serif;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.35);`;
+      pin.appendChild(badge);
+
       host.appendChild(pin);
     });
     renderDetail();
@@ -733,10 +752,11 @@
     const chips = document.createElement("div");
     chips.setAttribute(HOST_ATTR, "chips");
     chips.style.cssText = "display:flex;gap:6px;align-items:center;flex-wrap:wrap;max-width:40%;";
-    items.forEach((item) => {
+    items.forEach((item, index) => {
       const chip = document.createElement("button");
       chip.type = "button";
       chip.setAttribute(HOST_ATTR, "chip");
+      chip.title = "Click to remove this element";
       chip.style.cssText = [
         "display:flex",
         "align-items:center",
@@ -753,7 +773,8 @@
       ].join(";");
       const mark = document.createElement("span");
       mark.setAttribute(HOST_ATTR, "chip-mark");
-      mark.style.cssText = `width:8px;height:8px;border-radius:2px;background:${item.color};display:inline-block;box-shadow:0 0 4px ${item.color}80;`;
+      mark.textContent = `${index + 1}`;
+      mark.style.cssText = `min-width:14px;height:14px;padding:0 2px;border-radius:2px;background:${item.color};display:inline-flex;align-items:center;justify-content:center;color:#fff;font:600 9px/1 ui-sans-serif,sans-serif;box-shadow:0 0 4px ${item.color}80;`;
       const label = document.createElement("span");
       label.textContent = identityCards(item).element;
       chip.appendChild(mark);
@@ -953,6 +974,7 @@
     highlight.style.display = "block";
     highlight.style.borderColor = color;
     highlight.style.background = `${color}1a`;
+    highlight.style.boxShadow = `0 0 0 1px rgba(255, 255, 255, 0.25), 0 4px 18px -2px ${color}40`;
     highlight.style.left = `${rect.x}px`;
     highlight.style.top = `${rect.y}px`;
     highlight.style.width = `${rect.width}px`;
