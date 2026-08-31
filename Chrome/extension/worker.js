@@ -995,38 +995,9 @@ async function handle(command) {
     await new Promise((resolve) => setTimeout(resolve, 300));
     return await finishManaged(state.tab.id, session, { action: "reload_page", status: "reloaded" });
   }
-  if (command.action === "evaluate_script") {
-    const state = await ensureTab(command.url, false, session);
-    if (state.status !== "ready") {
-      return { status: state.status, human_boundary: state.human_boundary ?? null, resumable: state.resumable === true, tab_active: false, focus_changed: false, popup_opened: false };
-    }
-    const script = String(command.script || "");
-    if (!script || script.length > 10000) throw new Error("script_invalid");
-    try {
-      await chrome.debugger.attach({ tabId: state.tab.id }, "1.3");
-      try {
-        const evalRes = await chrome.debugger.sendCommand({ tabId: state.tab.id }, "Runtime.evaluate", {
-          expression: script,
-          returnByValue: true,
-          awaitPromise: true,
-        });
-        const val = evalRes?.result?.value !== undefined ? evalRes.result.value : evalRes?.result?.description;
-        return await finishManaged(state.tab.id, session, {
-          action: "evaluate_script",
-          success: !evalRes?.exceptionDetails,
-          result: val,
-          ...(evalRes?.exceptionDetails ? { error: evalRes.exceptionDetails.text || evalRes.exceptionDetails.exception?.description } : {}),
-        });
-      } finally {
-        try { await chrome.debugger.detach({ tabId: state.tab.id }); } catch {}
-      }
-    } catch {
-      const result = await sendToContent(state.tab.id, command);
-      return await finishManaged(state.tab.id, session, result);
-    }
-  }
   if (
-    command.action === "read_console"
+    command.action === "evaluate_script"
+    || command.action === "read_console"
     || command.action === "read_network"
     || command.action === "read_storage"
     || command.action === "clear_storage"
@@ -1207,7 +1178,72 @@ async function handle(command) {
     if (command.long === true) {
       return await globalThis.spiralCaptureManagedLongScreenshot(state.tab.id, command.url);
     }
-    return await globalThis.spiralCaptureManagedScreenshot(state.tab.id, command.url);
+    let clip = undefined;
+    if (command.selector) {
+      try {
+        const inspected = await sendToContent(state.tab.id, { action: "inspect_element", selector: command.selector });
+        if (inspected?.found && inspected.rect) {
+          clip = {
+            x: Math.max(0, inspected.rect.x),
+            y: Math.max(0, inspected.rect.y),
+            width: Math.max(1, inspected.rect.width),
+            height: Math.max(1, inspected.rect.height),
+          };
+        }
+      } catch {}
+    }
+    return await globalThis.spiralCaptureManagedScreenshot(state.tab.id, command.url, clip);
+  }
+  if (command.action === "emulate") {
+    const state = await ensureTab(command.url, false, session, true);
+    if (state.status !== "ready") {
+      return { status: state.status, human_boundary: state.human_boundary ?? null, resumable: state.resumable === true, focus_changed: false, popup_opened: false };
+    }
+    await assertInsideManagedGroup(state.tab, session);
+    const tabId = state.tab.id;
+    const width = Number.isInteger(command.width) && command.width > 0 ? command.width : undefined;
+    const height = Number.isInteger(command.height) && command.height > 0 ? command.height : undefined;
+    const colorScheme = command.color_scheme === "dark" || command.color_scheme === "light" ? command.color_scheme : undefined;
+    const mobile = command.mobile === true;
+
+    try {
+      let attached = false;
+      try {
+        await chrome.debugger.attach({ tabId }, "1.3");
+        attached = true;
+      } catch (err) {
+        if (!/already attached/i.test(String(err))) throw err;
+      }
+      if (width && height) {
+        await chrome.debugger.sendCommand({ tabId }, "Emulation.setDeviceMetricsOverride", {
+          width,
+          height,
+          deviceScaleFactor: command.device_scale_factor || 1,
+          mobile,
+        });
+      }
+      if (colorScheme) {
+        await chrome.debugger.sendCommand({ tabId }, "Emulation.setEmulatedMedia", {
+          media: "screen",
+          features: [{ name: "prefers-color-scheme", value: colorScheme }],
+        });
+      }
+      if (attached) {
+        await chrome.debugger.detach({ tabId }).catch(() => {});
+      }
+    } catch {}
+
+    return {
+      action: "emulate",
+      status: "emulated",
+      width,
+      height,
+      color_scheme: colorScheme,
+      mobile,
+      tab_active: state.tab.active === true,
+      focus_changed: false,
+      popup_opened: false,
+    };
   }
   if (command.action === "activate") {
     const tab = await existingManagedTab(new URL(command.url).origin, session);
@@ -1272,6 +1308,10 @@ async function handle(command) {
       popup_opened: false,
     };
   }
+  await assertInsideManagedGroup(state.tab, session);
+  if (!readOnly && FINANCIAL_ACTION.test(command.name ?? command.field ?? "")) {
+    if (command.owner_confirmed !== true) throw new Error("financial_action_unconfirmed");
+  }
   let result;
   if (command.action === "controls") {
     const page = await pageFromFrames(state.tab.id, state.origin);
@@ -1318,6 +1358,7 @@ async function handle(command) {
       action: "click",
       role: command.role,
       name: command.name,
+      selector: command.selector,
       context: command.context,
       screen_x: command.screen_x,
       screen_y: command.screen_y,
@@ -1327,6 +1368,7 @@ async function handle(command) {
     result = await sendToContent(state.tab.id, {
       action: "fill",
       field: command.field,
+      selector: command.selector,
       value: command.value,
       multiline_public: command.multiline_public === true,
       context: command.context,
@@ -1335,12 +1377,14 @@ async function handle(command) {
     result = await sendToContent(state.tab.id, {
       action: "press_enter",
       field: command.field,
+      selector: command.selector,
       context: command.context,
     });
   } else if (command.action === "select_combobox") {
     result = await sendToContent(state.tab.id, {
       action: "select_combobox",
       field: command.field,
+      selector: command.selector,
       value: command.value,
       context: command.context,
     });

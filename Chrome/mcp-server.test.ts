@@ -67,6 +67,7 @@ describe("Chrome MCP adapter", () => {
       "capture_pdf",
       "semantic_snapshot",
       "annotate",
+      "emulate",
       "close_group",
     ]);
     expect(CHROME_INPUT_SCHEMA.required).toEqual(["action"]);

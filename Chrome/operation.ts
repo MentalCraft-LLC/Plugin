@@ -21,7 +21,7 @@ import {
 import { acquireChromeOsLease } from "./os-lease.ts";
 
 export type BrowserContextInput = {
-  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate";
+  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate" | "emulate";
   mode?: "start" | "stop" | "list" | "add" | "remove" | "clear";
   url?: string;
   max_sections?: number;
@@ -55,6 +55,13 @@ export type BrowserContextInput = {
   foregroundConfirmed?: boolean;
   ownerConfirmed?: boolean;
   long?: boolean;
+  width?: number;
+  height?: number;
+  color_scheme?: "dark" | "light";
+  mobile?: boolean;
+  device_scale_factor?: number;
+  text?: string;
+  condition?: string;
 };
 
 export type BrowserOperationContext = {
@@ -240,7 +247,21 @@ export function createBrowserContextOperation(options: {
         url,
         selector: params.selector,
         script: params.script,
+        text: params.text,
+        condition: params.condition,
         timeout_ms: params.timeout_ms,
+        allow_active: allowActive,
+      };
+    } else if (params.action === "emulate") {
+      command = {
+        protocol: PROTOCOL,
+        action: "emulate",
+        url,
+        width: params.width,
+        height: params.height,
+        color_scheme: params.color_scheme,
+        mobile: params.mobile,
+        device_scale_factor: params.device_scale_factor,
         allow_active: allowActive,
       };
     } else if (params.action === "annotate") {
@@ -287,7 +308,7 @@ export function createBrowserContextOperation(options: {
         ...(params.action === "controls" ? { owner_confirmed: ownerConfirmed } : {}),
       };
     } else if (params.action === "click") {
-      if (!params.name && (params.screen_x === undefined || params.screen_y === undefined)) {
+      if (!params.name && !params.selector && (params.screen_x === undefined || params.screen_y === undefined)) {
         throw new Error("name or screen coordinates are required for a browser click");
       }
       command = {
@@ -296,6 +317,7 @@ export function createBrowserContextOperation(options: {
         url,
         role: params.role,
         name: params.name ? safeControlName(params.name) : undefined,
+        selector: params.selector,
         context: params.context,
         screen_x: params.screen_x,
         screen_y: params.screen_y,
@@ -435,23 +457,25 @@ export function createBrowserContextOperation(options: {
       }
       return clickResult;
     } else if (params.action === "press_enter") {
-      if (!params.field) throw new Error("field is required for a bounded Enter action");
+      if (!params.field && !params.selector) throw new Error("field or selector is required for a bounded Enter action");
       command = {
         protocol: PROTOCOL,
         action: "press_enter",
         url,
-        field: safeControlName(params.field),
+        field: params.field ? safeControlName(params.field) : undefined,
+        selector: params.selector,
         context: params.context,
         owner_confirmed: ownerConfirmed,
         allow_active: allowActive,
       };
     } else if (params.action === "select_combobox") {
-      if (!params.field || !params.value) throw new Error("field and value are required for a searchable combobox selection");
+      if ((!params.field && !params.selector) || !params.value) throw new Error("field (or selector) and value are required for a searchable combobox selection");
       command = {
         protocol: PROTOCOL,
         action: "select_combobox",
         url,
-        field: safeControlName(params.field),
+        field: params.field ? safeControlName(params.field) : undefined,
+        selector: params.selector,
         value: safePublicValue(params.value),
         context: params.context,
         owner_confirmed: ownerConfirmed,
@@ -518,7 +542,7 @@ export function createBrowserContextOperation(options: {
       command = { protocol: PROTOCOL, action: "capture_session", url };
     } else if (params.action === "capture_screenshot") {
       if (!capabilityAllowed(DEFAULT_TARGET_POLICY, "screenshot")) throw new Error("screenshot_capability_not_authorized");
-      command = { protocol: PROTOCOL, action: "capture_screenshot", url, foreground_confirmed: true, long: params.long === true };
+      command = { protocol: PROTOCOL, action: "capture_screenshot", url, selector: params.selector, foreground_confirmed: true, long: params.long === true };
     } else if (params.action === "capture_pdf") {
       command = { protocol: PROTOCOL, action: "capture_pdf", url };
     } else if (params.action === "capture_ga4_measurement_id") {
@@ -554,13 +578,14 @@ export function createBrowserContextOperation(options: {
         allow_active: allowActive,
       };
     } else if (params.action === "fill_public") {
-      if (!params.field || !params.value) throw new Error("field and value are required for a public browser fill");
+      if ((!params.field && !params.selector) || !params.value) throw new Error("field (or selector) and value are required for a public browser fill");
       const multiline = params.publicTextMode === "advisor_prompt";
       command = {
         protocol: PROTOCOL,
         action: "fill",
         url,
-        field: safeControlName(params.field),
+        field: params.field ? safeControlName(params.field) : undefined,
+        selector: params.selector,
         value: multiline ? safePublicMultiline(params.value) : safePublicValue(params.value),
         multiline_public: multiline,
         context: params.context,

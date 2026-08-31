@@ -64,20 +64,30 @@
     }
   }
 
-  async function captureJpeg(tabId, quality) {
-    const result = await chrome.debugger.sendCommand({ tabId }, "Page.captureScreenshot", {
+  async function captureJpeg(tabId, quality, clip) {
+    const params = {
       format: "jpeg",
       quality,
       fromSurface: true,
       captureBeyondViewport: false,
-    });
+    };
+    if (clip && typeof clip === "object" && clip.width > 0 && clip.height > 0) {
+      params.clip = {
+        x: Math.max(0, clip.x || 0),
+        y: Math.max(0, clip.y || 0),
+        width: Math.min(10000, clip.width),
+        height: Math.min(10000, clip.height),
+        scale: 1,
+      };
+    }
+    const result = await chrome.debugger.sendCommand({ tabId }, "Page.captureScreenshot", params);
     if (!result || typeof result.data !== "string" || result.data.length < 8) {
       throw new Error("screenshot_capture_empty");
     }
     return result.data;
   }
 
-  async function spiralCaptureManagedScreenshot(tabId, rawUrl) {
+  async function spiralCaptureManagedScreenshot(tabId, rawUrl, clip) {
     if (!Number.isInteger(tabId)) throw new Error("screenshot_tab_invalid");
     const target = safeUrl(rawUrl);
     const tab = await chrome.tabs.get(tabId);
@@ -88,16 +98,18 @@
       throw new Error("screenshot_target_mismatch");
     }
 
-    const visible = await captureWithoutDebugger(tab);
-    if (visible) {
-      return {
-        status: "captured",
-        capture_mode: "viewport",
-        data_url: `data:image/jpeg;base64,${visible}`,
-        tab_active: tab.active === true,
-        focus_changed: false,
-        popup_opened: false,
-      };
+    if (!clip) {
+      const visible = await captureWithoutDebugger(tab);
+      if (visible) {
+        return {
+          status: "captured",
+          capture_mode: "viewport",
+          data_url: `data:image/jpeg;base64,${visible}`,
+          tab_active: tab.active === true,
+          focus_changed: false,
+          popup_opened: false,
+        };
+      }
     }
 
     const jpeg = await withDebugger(tabId, async () => {
@@ -106,7 +118,7 @@
       for (let attempt = 0; attempt < 3; attempt += 1) {
         try {
           for (const quality of [58, 45, 32]) {
-            const data = await captureJpeg(tabId, quality);
+            const data = await captureJpeg(tabId, quality, clip);
             const bytes = Math.ceil(data.length * 0.75);
             if (bytes > 0 && bytes <= MAX_JPEG_BYTES) return data;
           }
@@ -121,11 +133,12 @@
 
     return {
       status: "captured",
-      capture_mode: "viewport",
+      capture_mode: clip ? "clip" : "viewport",
       data_url: `data:image/jpeg;base64,${jpeg}`,
       tab_active: tab.active === true,
       focus_changed: false,
       popup_opened: false,
+      clip: clip || undefined,
     };
   }
 

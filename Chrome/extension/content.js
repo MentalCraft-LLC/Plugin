@@ -58,6 +58,78 @@
     });
   }
 
+  const MAX_NETWORK_RECORDS = 100;
+  const networkRecords = (window.__spiralNetworkRecords = window.__spiralNetworkRecords || []);
+  let inFlightRequests = (window.__spiralInFlightRequests = window.__spiralInFlightRequests || 0);
+
+  if (!window.__spiralNetworkHooked) {
+    window.__spiralNetworkHooked = true;
+    const origFetch = window.fetch;
+    if (typeof origFetch === "function") {
+      window.fetch = async function(...args) {
+        const start = Date.now();
+        inFlightRequests++;
+        const rawUrl = typeof args[0] === "string" ? args[0] : (args[0] && args[0].url) || "unknown";
+        const method = (args[1] && args[1].method) || (args[0] && args[0].method) || "GET";
+        try {
+          const res = await origFetch.apply(this, args);
+          networkRecords.push({
+            url: redact(rawUrl).slice(0, 300),
+            method: String(method).toUpperCase(),
+            status: res.status,
+            duration_ms: Date.now() - start,
+            timestamp: Date.now(),
+            type: "fetch",
+          });
+          if (networkRecords.length > MAX_NETWORK_RECORDS) networkRecords.shift();
+          return res;
+        } catch (err) {
+          networkRecords.push({
+            url: redact(rawUrl).slice(0, 300),
+            method: String(method).toUpperCase(),
+            status: 0,
+            error: redact(err instanceof Error ? err.message : String(err)),
+            duration_ms: Date.now() - start,
+            timestamp: Date.now(),
+            type: "fetch",
+          });
+          if (networkRecords.length > MAX_NETWORK_RECORDS) networkRecords.shift();
+          throw err;
+        } finally {
+          inFlightRequests = Math.max(0, inFlightRequests - 1);
+        }
+      };
+    }
+
+    const OrigXHR = window.XMLHttpRequest;
+    if (typeof OrigXHR === "function") {
+      const origOpen = OrigXHR.prototype.open;
+      const origSend = OrigXHR.prototype.send;
+      OrigXHR.prototype.open = function(method, url, ...rest) {
+        this.__spiralMethod = method;
+        this.__spiralUrl = url;
+        return origOpen.apply(this, [method, url, ...rest]);
+      };
+      OrigXHR.prototype.send = function(...args) {
+        const start = Date.now();
+        inFlightRequests++;
+        this.addEventListener("loadend", () => {
+          inFlightRequests = Math.max(0, inFlightRequests - 1);
+          networkRecords.push({
+            url: redact(this.__spiralUrl || "").slice(0, 300),
+            method: String(this.__spiralMethod || "GET").toUpperCase(),
+            status: this.status,
+            duration_ms: Date.now() - start,
+            timestamp: Date.now(),
+            type: "xhr",
+          });
+          if (networkRecords.length > MAX_NETWORK_RECORDS) networkRecords.shift();
+        });
+        return origSend.apply(this, args);
+      };
+    }
+  }
+
   async function pageText(maxChars, mode, longFlag, backgroundFlag, awakenedFlag) {
     const limit = Number.isInteger(maxChars) && maxChars > 0 && maxChars <= 100000 ? maxChars : 20000;
     const boundPublicText = globalThis.spiralBoundPublicText;
@@ -701,7 +773,38 @@
     return name;
   }
 
-  function findControl(name, role, context) {
+  function queryWithShadow(root, sel) {
+    if (!sel || typeof sel !== "string") return null;
+    try {
+      if (sel.startsWith("//") || sel.startsWith("xpath:")) {
+        const xpathExpr = sel.startsWith("xpath:") ? sel.slice(6) : sel;
+        const result = document.evaluate(xpathExpr, root, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+        if (result.singleNodeValue instanceof Element) return result.singleNodeValue;
+      }
+      const direct = root.querySelector(sel);
+      if (direct instanceof Element) return direct;
+    } catch {}
+    try {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+      let node;
+      while ((node = walker.nextNode())) {
+        if (node.shadowRoot) {
+          const shadowMatch = queryWithShadow(node.shadowRoot, sel);
+          if (shadowMatch) return shadowMatch;
+        }
+      }
+    } catch {}
+    return null;
+  }
+
+  function findControl(name, role, context, selector) {
+    if (selector && typeof selector === "string") {
+      const match = queryWithShadow(document, selector);
+      if (match) return match;
+    }
+    if (!name && selector) {
+      throw new Error("control_missing");
+    }
     const expected = requestedName(name).toLowerCase();
     const candidates = controlElements().filter((element) => (
       (!role || elementRole(element) === role)
@@ -1673,7 +1776,7 @@
       return { action: "click", status: "dispatched", value_returned: false, diagnostics: hitInfo };
     }
     if (message.action === "press_enter") {
-      const element = findControl(message.field, "textbox", message.context);
+      const element = findControl(message.field, "textbox", message.context, message.selector);
       if (!fillableText(element)) throw new Error("control_not_pressable");
       element.focus({ preventScroll: true });
       for (const type of ["keydown", "keypress", "keyup"]) {
@@ -1698,7 +1801,7 @@
     }
     if (message.action === "select_combobox") {
       let control = null;
-      try { control = findControl(message.field, "combobox", message.context); } catch { control = null; }
+      try { control = findControl(message.field, "combobox", message.context, message.selector); } catch { control = null; }
       let input = control && (control.matches('input[role="combobox"], textarea, input')
         ? control
         : control.querySelector('input[role="combobox"], input'));
@@ -1815,7 +1918,7 @@
       };
     }
     if (message.action === "fill") {
-      const element = findControl(message.field, "textbox", message.context);
+      const element = findControl(message.field, "textbox", message.context, message.selector);
       if (!fillableText(element)) throw new Error("control_not_fillable");
       const value = String(message.value ?? "");
       const multilinePublic = message.multiline_public === true;
@@ -2127,7 +2230,7 @@
     }
     if (message.action === "read_network") {
       const entries = performance.getEntriesByType ? performance.getEntriesByType("resource") : [];
-      const records = entries.slice(-60).map((e) => ({
+      const resourceRecords = entries.slice(-40).map((e) => ({
         name: redact(e.name).slice(0, 300),
         initiatorType: e.initiatorType,
         duration_ms: Math.round(e.duration),
@@ -2136,29 +2239,51 @@
       }));
       return {
         action: "read_network",
-        requests: records,
-        total_count: entries.length,
+        in_flight_count: inFlightRequests,
+        intercepted_requests: networkRecords.slice(-40),
+        resource_timing_requests: resourceRecords,
+        requests: networkRecords.length > 0 ? networkRecords.slice(-40) : resourceRecords,
+        total_count: networkRecords.length + entries.length,
       };
     }
     if (message.action === "evaluate_script") {
       const script = String(message.script || "");
-      if (!script || script.length > 10000) throw new Error("script_invalid");
+      if (!script || script.length > 50000) throw new Error("script_invalid");
       let evalResult;
       try {
-        evalResult = window.eval(script);
+        const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+        let fn;
+        try {
+          fn = new AsyncFunction(`return (${script});`);
+        } catch {
+          fn = new AsyncFunction(script);
+        }
+        evalResult = await fn.call(window);
       } catch (err) {
         return {
           action: "evaluate_script",
           success: false,
-          error: redact(err instanceof Error ? err.message : String(err)),
+          error: redact(err instanceof Error ? (err.stack || err.message) : String(err)),
         };
       }
       let serializable = evalResult;
       if (typeof evalResult === "object" && evalResult !== null) {
-        try {
-          serializable = JSON.parse(JSON.stringify(evalResult));
-        } catch {
-          serializable = String(evalResult);
+        if (evalResult instanceof Node) {
+          const rect = evalResult instanceof Element ? evalResult.getBoundingClientRect() : null;
+          serializable = {
+            nodeType: evalResult.nodeType,
+            nodeName: evalResult.nodeName,
+            textContent: evalResult.textContent?.slice(0, 1000),
+            id: evalResult instanceof Element ? evalResult.id : undefined,
+            className: evalResult instanceof Element ? evalResult.className : undefined,
+            rect: rect ? { x: Math.round(rect.x), y: Math.round(rect.y), width: Math.round(rect.width), height: Math.round(rect.height) } : undefined,
+          };
+        } else {
+          try {
+            serializable = JSON.parse(JSON.stringify(evalResult));
+          } catch {
+            serializable = String(evalResult);
+          }
         }
       }
       return {
@@ -2188,28 +2313,51 @@
       const start = Date.now();
       const selector = message.selector;
       const script = message.script;
-      if (!selector && !script) throw new Error("selector_or_script_required");
-      function query(root, sel) {
-        let el = root.querySelector(sel);
-        if (el) return el;
-        for (const item of root.querySelectorAll("*")) {
-          if (item.shadowRoot) {
-            const sub = query(item.shadowRoot, sel);
-            if (sub) return sub;
+      const expectedText = message.text ? normalize(message.text).toLowerCase() : undefined;
+      const condition = message.condition || (message.network_idle ? "network_idle" : expectedText ? "text" : "visible");
+
+      if (!selector && !script && !expectedText && condition !== "network_idle") {
+        throw new Error("selector_or_script_required");
+      }
+
+      while (Date.now() - start < timeout) {
+        let ready = false;
+        if (condition === "network_idle") {
+          if (inFlightRequests === 0) {
+            await new Promise((res) => setTimeout(res, 200));
+            if (inFlightRequests === 0) ready = true;
+          }
+        } else if (selector) {
+          const el = queryWithShadow(document, selector);
+          if (condition === "hidden") {
+            ready = !el || (el instanceof HTMLElement && (el.offsetWidth === 0 || el.offsetHeight === 0 || window.getComputedStyle(el).display === "none"));
+          } else {
+            if (el instanceof Element) {
+              const rect = el.getBoundingClientRect();
+              const style = window.getComputedStyle(el);
+              const isVisible = rect.width > 0 && rect.height > 0 && style.visibility !== "hidden" && style.display !== "none";
+              if (expectedText) {
+                ready = isVisible && (el.textContent || "").toLowerCase().includes(expectedText);
+              } else {
+                ready = isVisible || condition === "attached";
+              }
+            }
+          }
+        } else if (expectedText) {
+          ready = (document.body?.innerText || "").toLowerCase().includes(expectedText);
+        } else if (script) {
+          try {
+            const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+            const fn = new AsyncFunction(`return (${script});`);
+            ready = Boolean(await fn.call(window));
+          } catch {
+            try { ready = Boolean(window.eval(script)); } catch {}
           }
         }
-        return null;
-      }
-      while (Date.now() - start < timeout) {
-        if (selector) {
-          const el = query(document, selector);
-          if (el) return { action: "wait_for", status: "ready", duration_ms: Date.now() - start };
-        } else if (script) {
-          let matched = false;
-          try { matched = Boolean(window.eval(script)); } catch {}
-          if (matched) return { action: "wait_for", status: "ready", duration_ms: Date.now() - start };
+        if (ready) {
+          return { action: "wait_for", status: "ready", condition, duration_ms: Date.now() - start };
         }
-        await new Promise((res) => setTimeout(res, 100));
+        await new Promise((res) => setTimeout(res, 80));
       }
       throw new Error(`wait_for_timeout_${timeout}ms`);
     }

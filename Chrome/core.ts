@@ -66,7 +66,7 @@ export type BrowserInstall = {
 
 export type BrowserCommand = {
   protocol: typeof PROTOCOL;
-  action: "status" | "repair" | "close_group" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "reload_page" | "hot_reload" | "click" | "hover" | "scroll" | "press_key" | "fill" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "activate" | "restore_background" | "terms_diagnostics" | "accept_standard_terms" | "accept_owner_authorized_terms" | "select_ga4_target" | "select_ga4_objective" | "open_clarity_project" | "open_clarity_settings" | "clarity_project_identity" | "capture_clarity_project_id" | "capture_clarity_token" | "capture_ga4_measurement_id" | "capture_screenshot" | "capture_pdf" | "capture_session" | "semantic_snapshot" | "annotate";
+  action: "status" | "repair" | "close_group" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "reload_page" | "hot_reload" | "click" | "hover" | "scroll" | "press_key" | "fill" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "activate" | "restore_background" | "terms_diagnostics" | "accept_standard_terms" | "accept_owner_authorized_terms" | "select_ga4_target" | "select_ga4_objective" | "open_clarity_project" | "open_clarity_settings" | "clarity_project_identity" | "capture_clarity_project_id" | "capture_clarity_token" | "capture_ga4_measurement_id" | "capture_screenshot" | "capture_pdf" | "capture_session" | "semantic_snapshot" | "annotate" | "emulate";
   long?: boolean;
   max_sections?: number;
   mode?: "start" | "stop" | "list" | "add" | "remove" | "clear";
@@ -107,6 +107,13 @@ export type BrowserCommand = {
   multiline_public?: boolean;
   route?: string;
   source?: "ga4_service_account" | "clarity_domain" | "clarity_project_name" | "gsc_service_account";
+  width?: number;
+  height?: number;
+  color_scheme?: "dark" | "light";
+  mobile?: boolean;
+  device_scale_factor?: number;
+  text?: string;
+  condition?: string;
 };
 
 export function loadAuthority(path = AUTHORITY_PATH): BrowserAuthority {
