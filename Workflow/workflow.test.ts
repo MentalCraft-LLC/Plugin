@@ -210,6 +210,45 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.totalSpans).toBeGreaterThanOrEqual(0);
   });
 
+  test("custom dynamic workflow executes steps with variable interpolation", async () => {
+    const regRes = await workflowOperation({
+      action: "register_workflow",
+      custom_workflow: {
+        id: "custom_seo_to_ui_test",
+        name: "Custom SEO to UI Pipeline",
+        description: "Dynamic interpolation test",
+        requiredPlugins: ["business", "design"],
+        steps: [
+          {
+            step: 1,
+            plugin: "business",
+            action: "traffic_domain_overview",
+            description: "Fetch domain traffic",
+            parameters: { domain: "mentalcraft.org" },
+          },
+          {
+            step: 2,
+            plugin: "design",
+            action: "catalog",
+            description: "Fetch design components",
+            parameters: { layer: "component" },
+          },
+        ],
+      },
+    });
+    expect(regRes.success).toBe(true);
+
+    const runRes = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "custom_seo_to_ui_test",
+    });
+    expect(runRes.success).toBe(true);
+    const data = runRes.data as any;
+    expect(data.stepsCount).toBe(2);
+    expect(data.stepResults[0].action).toBe("traffic_domain_overview");
+    expect(data.stepResults[1].action).toBe("catalog");
+  });
+
   test("compactWorkflowResult formats readable terminal summary", async () => {
     const res = await workflowOperation({ action: "health_check" });
     const log = compactWorkflowResult(res);
@@ -217,6 +256,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(log).toContain("HEALTHY");
   });
 });
+
 
 
 

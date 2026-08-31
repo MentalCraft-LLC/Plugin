@@ -38,13 +38,35 @@ function getStoragePaths() {
     dir,
     telemetryFile: join(dir, "telemetry.json"),
     historyFile: join(dir, "history.json"),
+    workflowsFile: join(dir, "workflows.json"),
   };
+}
+
+export function resolvePath(obj: any, path: string): any {
+  return path.split(".").reduce((acc, part) => (acc != null ? acc[part] : undefined), obj);
+}
+
+export function interpolateParams(params: Record<string, any>, context: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = {};
+  for (const [k, v] of Object.entries(params)) {
+    if (typeof v === "string") {
+      result[k] = v.replace(/\$\{([^}]+)\}/g, (_, expr) => {
+        const val = resolvePath(context, expr.trim());
+        return val !== undefined ? String(val) : `\${${expr}}`;
+      });
+    } else if (typeof v === "object" && v !== null && !Array.isArray(v)) {
+      result[k] = interpolateParams(v, context);
+    } else {
+      result[k] = v;
+    }
+  }
+  return result;
 }
 
 function loadPersistedState(): void {
   try {
     const { existsSync, readFileSync } = require("node:fs");
-    const { telemetryFile, historyFile } = getStoragePaths();
+    const { telemetryFile, historyFile, workflowsFile } = getStoragePaths();
 
     if (existsSync(telemetryFile)) {
       const data = JSON.parse(readFileSync(telemetryFile, "utf-8"));
@@ -58,6 +80,14 @@ function loadPersistedState(): void {
         RUN_HISTORY.push(...hist.slice(-50));
       }
     }
+    if (existsSync(workflowsFile)) {
+      const wfList = JSON.parse(readFileSync(workflowsFile, "utf-8"));
+      if (Array.isArray(wfList)) {
+        for (const wf of wfList) {
+          CUSTOM_REGISTRY.set(wf.id, wf);
+        }
+      }
+    }
   } catch {
     // Ignore storage init failures
   }
@@ -66,12 +96,13 @@ function loadPersistedState(): void {
 function savePersistedState(): void {
   try {
     const { mkdirSync, writeFileSync } = require("node:fs");
-    const { dir, telemetryFile, historyFile } = getStoragePaths();
+    const { dir, telemetryFile, historyFile, workflowsFile } = getStoragePaths();
     mkdirSync(dir, { recursive: true, mode: 0o700 });
 
     const telemObj = Object.fromEntries(TELEMETRY_STORE.entries());
     writeFileSync(telemetryFile, JSON.stringify(telemObj, null, 2), "utf-8");
     writeFileSync(historyFile, JSON.stringify(RUN_HISTORY.slice(-50), null, 2), "utf-8");
+    writeFileSync(workflowsFile, JSON.stringify(Array.from(CUSTOM_REGISTRY.values()), null, 2), "utf-8");
   } catch {
     // Ignore persistence errors
   }
@@ -406,6 +437,7 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
       }
 
       CUSTOM_REGISTRY.set(custom.id, custom as WorkflowDefinition);
+      savePersistedState();
 
       return {
         protocol: WORKFLOW_PROTOCOL,
@@ -670,9 +702,26 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
         const r3 = await designOperation({ action: "audit_ui", template_code: (r2.data as any).svelteSnippet });
         stepResults.push({ step: 3, plugin: "design", action: "audit_ui", success: r3.success, durationMs: Math.round(performance.now() - s3), data: r3.data });
       } else {
-        const s1 = performance.now();
-        const r1 = await businessOperation({ action: "market_site_trajectory", domain: (input.parameters as any)?.domain ?? "lovable.dev" });
-        stepResults.push({ step: 1, plugin: "business", action: "market_site_trajectory", success: r1.success, durationMs: Math.round(performance.now() - s1), data: r1.data });
+        const stepContext: Record<string, any> = { input: input.parameters ?? {} };
+        for (const s of wf.steps) {
+          const sT0 = performance.now();
+          const interpolated = interpolateParams(s.parameters ?? {}, stepContext);
+          let r: any;
+          if (s.plugin === "business") {
+            r = await businessOperation({ action: s.action as any, ...interpolated });
+          } else if (s.plugin === "science") {
+            r = await scienceOperation({ action: s.action as any, ...interpolated });
+          } else if (s.plugin === "design") {
+            r = await designOperation({ action: s.action as any, ...interpolated });
+          } else if (s.plugin === "workflow") {
+            r = await workflowOperation({ action: s.action as any, ...interpolated });
+          } else {
+            r = { success: true, data: { status: "executed", plugin: s.plugin, action: s.action } };
+          }
+          const dur = Math.round(performance.now() - sT0);
+          stepResults.push({ step: s.step, plugin: s.plugin, action: s.action, success: r.success ?? true, durationMs: dur, data: r.data ?? r });
+          stepContext[`step${s.step}`] = { data: r.data ?? r, success: r.success ?? true };
+        }
       }
 
       const totalDuration = Math.round(performance.now() - t0);
