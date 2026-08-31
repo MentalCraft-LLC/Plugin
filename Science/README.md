@@ -1,34 +1,125 @@
 # MentalCraft Science: Academic Production Lifecycle Engine
 
-The `science` plugin manages the entire lifecycle of scientific research and academic production across the four core MentalCraft science repositories:
-- **`Science/Paper`**: Authoring, literature search, DOI citation verification, manuscript structure auditing, and peer-review simulation.
-- **`Science/Grant`**: NIH/NSF review rubrics, multi-year budget modeling, and Specific Aims architecture.
-- **`Science/Journal`**: Target journal ranking and Impact Factor matching, camera-ready submission compliance checklists.
-- **`Science/Patent`**: Novelty analysis, USPTO/WIPO prior art search, and claim tree structure validation.
+The `science` plugin manages the end-to-end lifecycle of scientific research, funding acquisition, manuscript authoring, peer review simulation, journal publication, intellectual property protection, and scholarly dissemination across the four core MentalCraft science repositories:
+- **`Science/Paper`**: Authoring, literature search, DOI/BibTeX AST validation, manuscript balance auditing, compilation-ready LaTeX generation, and simulated peer review.
+- **`Science/Grant`**: NIH/NSF review rubrics, Specific Aims independence validation, and multi-year MTDC budget modeling.
+- **`Science/Journal`**: Target journal ranking and Impact Factor matching, 8-point camera-ready submission compliance checklists.
+- **`Science/Patent`**: USPTO 35 U.S.C. 101/102/103 novelty analysis, claim tree antecedent basis validation, and patent specification scaffolding.
 
 ---
 
-## ⚡ Protocol Actions (11 Actions across 4 Pillars)
+## 🏛️ Symmetrical 8-Stage Academic Production Lifecycle
 
-| Pillar | Action | Description | Key Parameters |
-|---|---|---|---|
-| **Paper** | `paper_literature_search` | Search peer-reviewed papers, arXiv preprints, DOIs, and citation counts | `query`, `limit` |
-| **Paper** | `paper_citation_verify` | Validate DOI syntax, parse BibTeX records, format APA/IEEE/Nature styles | `doi`, `bibtex`, `citation_style` |
-| **Paper** | `paper_structure_audit` | Audit manuscript section completeness (Abstract, Intro, Method, etc.) & word counts | `sections`, `manuscript_title` |
-| **Paper** | `paper_peer_review_simulate` | Simulate a rigorous 3-reviewer panel with scoring, weaknesses, and rebuttal guide | `manuscript_title`, `manuscript_text` |
-| **Grant** | `grant_criteria_audit` | Audit grant proposal against NIH/NSF 5-dimension review rubrics (1.0-9.0 score) | `grant_abstract`, `funding_agency` |
-| **Grant** | `grant_budget_calculator` | Calculate multi-year direct and indirect (F&A) costs with personnel effort | `direct_costs`, `indirect_rate_percent`, `duration_years` |
-| **Grant** | `grant_aims_alignment` | Validate Specific Aims independence, mechanistic depth, and funding priority fit | `aims` |
-| **Journal** | `journal_matcher` | Match research manuscripts to top journals by Impact Factor and review speed | `desired_impact_factor_min`, `field_of_study` |
-| **Journal** | `journal_submission_checklist` | Comprehensive pre-submission camera-ready audit (IRB, CRediT, Data/Code statements) | N/A |
-| **Patent** | `patent_novelty_check` | USPTO/WIPO prior art search, claim differentiation, and 0-100 novelty score | `invention_title`, `invention_summary` |
-| **Patent** | `patent_claim_structure` | Validate independent and dependent claims tree, checking antecedent basis | `claims_text` |
-| **Core** | `list_actions` | List all available academic production lifecycle capabilities | N/A |
+```mermaid
+graph LR
+    S1[1. Literature & Citations] --> S2[2. Methodology & Rigor]
+    S2 --> S3[3. Grants & Funding]
+    S3 --> S4[4. Manuscript & LaTeX]
+    S4 --> S5[5. Peer Review & Rebuttal]
+    S5 --> S6[6. Journal Submission]
+    S6 --> S7[7. Patent & IP Conversion]
+    S7 --> S8[8. Scholarly Impact]
+```
+
+---
+
+## ⚡ Protocol Actions (16 Actions across 8 Stages)
+
+### Stage 1: Literature & Citation Discovery
+- **`paper_literature_search`**: Search indexed peer-reviewed papers, arXiv preprints, DOIs, citation counts, and topic tags.
+  - *Parameters*: `query`, `limit`
+- **`paper_citation_verify`**: Validate DOI syntax, parse BibTeX records into structured ASTs (verifying required fields per entry type), and format citations across **APA 7th**, **IEEE**, **Nature**, **ACM**, and **Chicago (Author-Date)** styles.
+  - *Parameters*: `doi`, `bibtex`, `citation_style`
+
+### Stage 2: Methodology & Reproducibility Design
+- **`paper_methodology_audit`**: Audit methodology rigor, compute **statistical power** ($1-\beta \ge 0.80$), calculate **Cohen's d effect size** (Negligible/Small/Medium/Large/Huge), benchmark against a **SOTA baseline matrix**, verify ablation component drops, and assign reproducibility grades (Grade A/B/C).
+  - *Parameters*: `manuscript_title`, `methodology_data` (`sample_size`, `treatment_mean`, `control_mean`, `pooled_std`, `baselines`)
+
+### Stage 3: Research Grants & Funding Acquisition
+- **`grant_criteria_audit`**: Audit grant proposals against **NIH 5-dimension rubrics** (Significance, Innovation, Approach, Investigators, Environment; 1.0-9.0 scale) or **NSF rubrics** (Intellectual Merit, Broader Impacts; 1.0-5.0 scale).
+  - *Parameters*: `funding_agency`, `grant_abstract`
+- **`grant_aims_alignment`**: Validate Specific Aims non-contingency, ensuring partial negative outcomes in Aim 1 do not invalidate Aims 2/3, and generate the formal dependency matrix.
+  - *Parameters*: `aims`
+- **`grant_budget_calculator`**: Calculate multi-year direct costs, personnel fringe benefits (**28%**), Modified Total Direct Costs (**MTDC** exclusions: equipment >$5k, subawards over $25k, participant support), Facilities & Administrative indirect costs (**F&A 52%**), and annual cost-of-living escalation (**3%**).
+  - *Parameters*: `duration_years`, `direct_costs`, `fringe_rate_percent`, `indirect_rate_percent`, `annual_escalation_percent`
+
+### Stage 4: Manuscript Authoring & LaTeX Scaffolding
+- **`paper_structure_audit`**: Audit section completeness (Abstract, Introduction, Related Work, Methodology, Experiments, Discussion, References), target word count proportions, and LaTeX syntax balance.
+  - *Parameters*: `manuscript_title`, `manuscript_text`, `sections`
+- **`paper_latex_scaffold`**: Generate clean, compilation-ready LaTeX source code for **ACM SIGCONF** (`acmart`) and **IEEE Transactions** (`IEEEtran`) with modern preambles, algorithm blocks, tables, and sample BibTeX entries.
+  - *Parameters*: `manuscript_title`, `latex_template` (`"acm"` | `"ieee"`)
+
+### Stage 5: Simulated Peer Review & Rebuttal
+- **`paper_peer_review_simulate`**: Simulate a diverse 3-reviewer expert panel (Theoretical Foundations, Systems Architecture, Applications & Reproducibility) with criteria ratings (1-10), reviewer confidence (1-5), consensus recommendation, and a comprehensive point-by-point rebuttal matrix.
+  - *Parameters*: `manuscript_title`, `manuscript_text`
+
+### Stage 6: Target Journal Matching & Camera-Ready Submission
+- **`journal_matcher`**: Match research manuscripts against indexed JCR/Scimago venues by Impact Factor, H-index, acceptance rate, review turnaround weeks, and Open Access model (Gold, Hybrid, Diamond).
+  - *Parameters*: `field_of_study`, `desired_impact_factor_min`, `target_review_weeks_max`, `open_access_preference`
+- **`journal_submission_checklist`**: Comprehensive 8-point camera-ready pre-submission audit:
+  1. CRediT Author Taxonomy
+  2. Data Availability Statement
+  3. Code & Artifact Availability Statement
+  4. Ethics & IRB Exemption Statement
+  5. High-Resolution Vector Figures (300+ DPI)
+  6. LaTeX / Template & Margin Compliance
+  7. Conflict of Interest Declaration
+  8. Cover Letter & Non-Conflicted Reviewer Suggestions
+
+### Stage 7: Intellectual Property & Patent Conversion
+- **`patent_novelty_check`**: Evaluate invention patentability under US Patent Law:
+  - **35 U.S.C. § 101**: Subject matter eligibility & Alice/Mayo technical transformation.
+  - **35 U.S.C. § 102**: Single-reference prior art novelty anticipation.
+  - **35 U.S.C. § 103**: Non-obviousness and unexpected synergistic technical advantages.
+  - *Parameters*: `invention_title`, `invention_summary`
+- **`patent_claim_structure`**: Audit independent/dependent claim hierarchy and verify **35 U.S.C. § 112 antecedent basis** (detecting missing indefinite antecedents for definite noun and step references).
+  - *Parameters*: `claims_text`, `claims_list`
+- **`patent_spec_scaffold`**: Scaffold formal 9-section USPTO/WIPO specification document (Title, Cross-Reference, Field, Background, Summary, Drawing Descriptions, Detailed Embodiments, Claims, Abstract).
+  - *Parameters*: `invention_title`
+
+### Stage 8: Scholarly Impact & Dissemination
+- **`scholarly_impact_forecast`**: Forecast 3-year citation velocity trajectories, project Altmetric Attention Scores with channel breakdowns (Twitter/X, News, Policy, Reddit/Hacker News, Wikipedia), outline multi-tier dissemination strategies, and audit open-source reproducible artifact checklists.
+  - *Parameters*: `manuscript_title`
+
+### Core Discovery
+- **`list_actions`**: Return the complete inventory of all 16 academic production actions structured across the 8 lifecycle stages.
+
+---
+
+## 🔌 Model Context Protocol (MCP) Integration
+
+The Science plugin provides native JSON-RPC 2.0 stdio MCP server support in `Plugin/Science/mcp-server.ts`.
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "science",
+    "arguments": {
+      "action": "grant_budget_calculator",
+      "duration_years": 3,
+      "fringe_rate_percent": 28,
+      "indirect_rate_percent": 52,
+      "direct_costs": {
+        "personnel": 240000,
+        "equipment": 45000,
+        "supplies": 15000,
+        "travel": 12000
+      }
+    }
+  }
+}
+```
 
 ---
 
 ## 🧪 Testing & Verification
 
+Execute the test suite with Bun:
+
 ```bash
-bun test Science/
+cd /Users/laiyongzhang/Documents/Holar/Plugin/Science
+bun test science.test.ts
 ```

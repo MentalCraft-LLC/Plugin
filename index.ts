@@ -5,7 +5,7 @@
  * with 100% Agent-Less and host-agnostic guarantees.
  */
 
-// Business Pillar (Venture Lifecycle across Websites, Apps, Games, SEO, ASO, Steam, Stripe)
+// Business Pillar (8-Stage Venture Lifecycle across Websites, Apps, Games, SEO, ASO, Steam, Stripe)
 export {
   BUSINESS_PROTOCOL,
   formatBusinessSummary,
@@ -15,12 +15,15 @@ export {
   type BusinessInput,
   type BusinessResult,
   type MarketValidationResult,
+  type PmfValidationResult,
   type AcquisitionAuditResult,
+  type ActivationFunnelResult,
   type UnitEconomicsResult,
   type RetentionCurvesResult,
   type MonetizationTelemetryResult,
   type PricingExperimentResult,
   type GrowthPlaybookResult,
+  type ExpansionMoatResult,
   type KeywordDifficultyResult,
   type StripeSiteInsight,
   type TrafficCvDomainOverview,
@@ -29,7 +32,7 @@ export {
 } from "./Business/core.ts";
 export { businessOperation, TrafficCvClient } from "./Business/operation.ts";
 
-// Science Pillar (Academic Production Lifecycle across Paper, Grant, Journal, and Patent)
+// Science Pillar (8-Stage Academic Production Lifecycle across Paper, Grant, Journal, and Patent)
 export {
   SCIENCE_PROTOCOL,
   formatScienceSummary,
@@ -39,13 +42,39 @@ export {
   type ScienceResult,
   type AcademicPaper,
   type CitationStyle,
+  type BibtexAst,
+  type CitationVerifyResult,
+  type StatisticalPowerAnalysis,
+  type CohensDEffectSize,
+  type SotaBaselineComparison,
+  type MethodologyAuditResult,
   type ManuscriptSectionAudit,
+  type ManuscriptStructureAuditResult,
+  type LatexScaffoldResult,
+  type ReviewerFeedback,
   type PeerReviewFeedback,
   type GrantRubricScore,
+  type GrantCriteriaAuditResult,
+  type GrantBudgetYear,
+  type GrantBudgetResult,
+  type GrantAimsAlignmentResult,
   type JournalRecommendation,
+  type JournalChecklistItem,
+  type JournalSubmissionChecklistResult,
+  type PatentNoveltyResult,
   type PatentClaim,
+  type PatentClaimStructureResult,
+  type PatentSpecScaffoldResult,
+  type ScholarlyImpactForecastResult,
 } from "./Science/core.ts";
-export { scienceOperation } from "./Science/operation.ts";
+export {
+  scienceOperation,
+  parseBibtexToAst,
+  formatCitationFromFields,
+  computeStatisticalPower,
+  computeCohensD,
+  validateClaimAntecedentBasis,
+} from "./Science/operation.ts";
 
 // Design Pillar (5-Layer Architecture, Svelte 5 Runes UI, On-Demand Subpaths, Tokens)
 export {

@@ -1131,6 +1131,48 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
         const s6 = performance.now();
         const r6 = await businessOperation({ action: "venture_growth_playbook", modality, venture_name: vName });
         stepResults.push({ step: 6, plugin: "business", action: "venture_growth_playbook", success: r6.success, durationMs: Math.round(performance.now() - s6), data: r6.data });
+      } else if (targetId === "shop_ecommerce_lifecycle") {
+        const vName = (input.parameters as any)?.venture_name ?? "EcoCraft Merch Shop";
+
+        // Step 1: Market validation
+        const s1 = performance.now();
+        const r1 = await businessOperation({ action: "venture_market_validation", modality: "shop", venture_name: vName });
+        stepResults.push({ step: 1, plugin: "business", action: "venture_market_validation", success: r1.success, durationMs: Math.round(performance.now() - s1), data: r1.data });
+
+        // Step 2: Acquisition audit
+        const s2 = performance.now();
+        const r2 = await businessOperation({ action: "venture_acquisition_audit", modality: "shop", venture_name: vName });
+        stepResults.push({ step: 2, plugin: "business", action: "venture_acquisition_audit", success: r2.success, durationMs: Math.round(performance.now() - s2), data: r2.data });
+
+        // Step 3: Activation funnel (ATC to checkout)
+        const s3 = performance.now();
+        const r3 = await businessOperation({ action: "venture_activation_funnel", modality: "shop", venture_name: vName });
+        stepResults.push({ step: 3, plugin: "business", action: "venture_activation_funnel", success: r3.success, durationMs: Math.round(performance.now() - s3), data: r3.data });
+
+        // Step 4: Unit economics (COGS & shipping)
+        const s4 = performance.now();
+        const r4 = await businessOperation({ action: "venture_unit_economics", modality: "shop", venture_name: vName });
+        stepResults.push({ step: 4, plugin: "business", action: "venture_unit_economics", success: r4.success, durationMs: Math.round(performance.now() - s4), data: r4.data });
+
+        // Step 5: Retention curves (30/60/90 repurchase)
+        const s5 = performance.now();
+        const r5 = await businessOperation({ action: "venture_retention_curves", modality: "shop", venture_name: vName });
+        stepResults.push({ step: 5, plugin: "business", action: "venture_retention_curves", success: r5.success, durationMs: Math.round(performance.now() - s5), data: r5.data });
+
+        // Step 6: Pricing experiment
+        const s6 = performance.now();
+        const r6 = await businessOperation({ action: "venture_pricing_experiment", modality: "shop", venture_name: vName });
+        stepResults.push({ step: 6, plugin: "business", action: "venture_pricing_experiment", success: r6.success, durationMs: Math.round(performance.now() - s6), data: r6.data });
+
+        // Step 7: Expansion moat & Inventory ROP
+        const s7 = performance.now();
+        const r7 = await businessOperation({ action: "venture_expansion_moat", modality: "shop", venture_name: vName });
+        stepResults.push({ step: 7, plugin: "business", action: "venture_expansion_moat", success: r7.success, durationMs: Math.round(performance.now() - s7), data: r7.data });
+
+        // Step 8: Growth playbook
+        const s8 = performance.now();
+        const r8 = await businessOperation({ action: "venture_growth_playbook", modality: "shop", venture_name: vName });
+        stepResults.push({ step: 8, plugin: "business", action: "venture_growth_playbook", success: r8.success, durationMs: Math.round(performance.now() - s8), data: r8.data });
       } else if (targetId === "launch_product_campaign") {
         // Step 1: Business SEO
         const s1 = performance.now();

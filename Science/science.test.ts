@@ -1,195 +1,492 @@
 import { describe, expect, test } from "bun:test";
-import { scienceOperation } from "./operation.ts";
-import { handleScienceRpc } from "./mcp-server.ts";
-import { SCIENCE_PROTOCOL, compactScienceResult } from "./core.ts";
+import {
+  scienceOperation,
+  parseBibtexToAst,
+  formatCitationFromFields,
+  computeStatisticalPower,
+  computeCohensD,
+  validateClaimAntecedentBasis,
+} from "./operation.ts";
+import { handleScienceRpc, SCIENCE_INPUT_SCHEMA } from "./mcp-server.ts";
+import { SCIENCE_PROTOCOL, compactScienceResult, formatScienceSummary } from "./core.ts";
 
-describe("Plugin/Science Academic Production Lifecycle Engine", () => {
-  test("list_actions returns all 14 academic actions across Paper, Grant, Journal, and Patent", async () => {
+describe("Plugin/Science 8-Stage Academic Production Lifecycle Engine", () => {
+  // Discovery & Inventory
+  test("list_actions returns all 16 academic actions across the 8 production stages", async () => {
     const res = await scienceOperation({ action: "list_actions" });
     expect(res.success).toBe(true);
     expect(res.protocol).toBe(SCIENCE_PROTOCOL);
     const data = res.data as any;
-    expect(data.totalActions).toBe(14);
-    expect(data.pillars.paper.length).toBe(5);
-    expect(data.pillars.grant.length).toBe(3);
-    expect(data.pillars.journal.length).toBe(2);
-    expect(data.pillars.patent.length).toBe(3);
+    expect(data.totalActions).toBe(16);
+    expect(data.stages.stage1_literature.length).toBe(2);
+    expect(data.stages.stage2_methodology.length).toBe(1);
+    expect(data.stages.stage3_grants.length).toBe(3);
+    expect(data.stages.stage4_authoring.length).toBe(2);
+    expect(data.stages.stage5_peer_review.length).toBe(1);
+    expect(data.stages.stage6_journal_submission.length).toBe(2);
+    expect(data.stages.stage7_intellectual_property.length).toBe(3);
+    expect(data.stages.stage8_scholarly_impact.length).toBe(1);
   });
 
-  test("Paper pillar: literature search returns indexed peer-reviewed papers with bibtexKeys", async () => {
-    const res = await scienceOperation({ action: "paper_literature_search", query: "agent workflow" });
-    expect(res.success).toBe(true);
-    const data = res.data as any;
-    expect(data.total).toBeGreaterThan(0);
-    expect(data.papers[0].doi).toBeDefined();
-    expect(data.papers[0].bibtexKey).toBeDefined();
-  });
-
-  test("Paper pillar: citation verify validates DOI syntax and formats APA/IEEE/Nature styles", async () => {
-    const res = await scienceOperation({ action: "paper_citation_verify", doi: "10.1038/s41586-024-07521-3", citation_style: "apa" });
-    expect(res.success).toBe(true);
-    const data = res.data as any;
-    expect(data.valid).toBe(true);
-    expect(data.formattedCitation).toContain("Nature Machine Intelligence");
-    expect(data.bibtex).toContain("@article");
-  });
-
-  test("Paper pillar: structure audit checks manuscript completeness and word count", async () => {
-    const res = await scienceOperation({
-      action: "paper_structure_audit",
-      manuscript_title: "Deterministic Host-Agnostic AI Plugin Protocol",
-      sections: {
-        Abstract: "A comprehensive abstract...",
-        Introduction: "Detailed introduction...",
-        "Related Work": "Extensive literature...",
-        Methodology: "Formal mathematical formulation...",
-        Experiments: "Rigorous benchmarking...",
-        Discussion: "Limitations and future work...",
-        References: "Complete references list...",
-      },
+  // Stage 1: Literature Discovery & Citation Verification
+  describe("Stage 1: Literature & Citation Verification", () => {
+    test("paper_literature_search returns indexed peer-reviewed papers with bibtexKeys", async () => {
+      const res = await scienceOperation({ action: "paper_literature_search", query: "agent workflow" });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.total).toBeGreaterThan(0);
+      expect(data.papers[0].doi).toBeDefined();
+      expect(data.papers[0].bibtexKey).toBeDefined();
+      expect(data.papers[0].authors.length).toBeGreaterThan(0);
     });
-    expect(res.success).toBe(true);
-    const data = res.data as any;
-    expect(data.readinessScore).toBe(100);
-    expect(data.sections.length).toBe(7);
-  });
 
-  test("Paper pillar: peer review simulate provides reviewer scoring and rebuttal matrix", async () => {
-    const res = await scienceOperation({ action: "paper_peer_review_simulate" });
-    expect(res.success).toBe(true);
-    const data = res.data as any;
-    expect(data.score).toBeGreaterThanOrEqual(8.0);
-    expect(data.overallRecommendation).toBe("Strong Accept");
-    expect(data.reviews.length).toBe(3);
-    expect(data.rebuttalMatrix.length).toBeGreaterThanOrEqual(3);
-    expect(data.rebuttalMatrix[0].suggestedResponse).toBeDefined();
-  });
-
-  test("Paper pillar: latex scaffold generates compilation-ready ACM/IEEE manuscript code", async () => {
-    const res = await scienceOperation({
-      action: "paper_latex_scaffold",
-      manuscript_title: "Universal Host-Neutral Plugin Protocol",
+    test("paper_literature_search filters by topic keywords", async () => {
+      const res = await scienceOperation({ action: "paper_literature_search", query: "bioinformatics" });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.papers.some((p: any) => p.venue.includes("Bioinformatics"))).toBe(true);
     });
-    expect(res.success).toBe(true);
-    const data = res.data as any;
-    expect(data.latexCode).toContain("\\documentclass");
-    expect(data.latexCode).toContain("Universal Host-Neutral Plugin Protocol");
-    expect(data.linesCount).toBeGreaterThan(20);
-  });
 
-  test("Grant pillar: criteria audit evaluates NIH/NSF review rubrics", async () => {
-    const res = await scienceOperation({ action: "grant_criteria_audit", funding_agency: "NIH" });
-    expect(res.success).toBe(true);
-    const data = res.data as any;
-    expect(data.compositeNihScore).toBeLessThanOrEqual(2.0); // 1.0 = Exceptional
-    expect(data.criteria.length).toBe(5);
-  });
-
-  test("Grant pillar: budget calculator computes multi-year direct, MTDC, and F&A indirect costs", async () => {
-    const res = await scienceOperation({
-      action: "grant_budget_calculator",
-      duration_years: 3,
-      fringe_rate_percent: 28,
-      indirect_rate_percent: 52,
-      direct_costs: { personnel: 200000, equipment: 40000, supplies: 10000, travel: 10000 },
+    test("paper_citation_verify validates DOI syntax and formats APA style", async () => {
+      const res = await scienceOperation({ action: "paper_citation_verify", doi: "10.1038/s41586-024-07521-3", citation_style: "apa" });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.valid).toBe(true);
+      expect(data.formattedCitation).toContain("Nature Machine Intelligence");
+      expect(data.formattedCitation).toContain("https://doi.org/");
+      expect(data.bibtex).toContain("@article");
     });
-    expect(res.success).toBe(true);
-    const data = res.data as any;
-    expect(data.durationYears).toBe(3);
-    expect(data.totalBudgetUsd).toBeGreaterThan(0);
-    expect(data.fringeRatePercent).toBe(28);
-  });
 
-  test("Grant pillar: aims alignment validates specific aims independence and dependency matrix", async () => {
-    const res = await scienceOperation({
-      action: "grant_aims_alignment",
-      aims: [
-        "Aim 1: Topological DAG formulation",
-        "Aim 2: Zero-eval runtime implementation",
-        "Aim 3: Multi-domain empirical validation",
-      ],
+    test("paper_citation_verify formats IEEE, Nature, ACM, and Chicago styles", async () => {
+      const styles = ["ieee", "nature", "acm", "chicago"] as const;
+      for (const style of styles) {
+        const res = await scienceOperation({ action: "paper_citation_verify", doi: "10.1038/s41586-024-07521-3", citation_style: style });
+        expect(res.success).toBe(true);
+        const data = res.data as any;
+        expect(data.style).toBe(style);
+        expect(data.formattedCitation.length).toBeGreaterThan(20);
+      }
     });
-    expect(res.success).toBe(true);
-    const data = res.data as any;
-    expect(data.aimsCount).toBe(3);
-    expect(data.alignmentScore).toBe(95);
-    expect(data.dependencyMatrix.length).toBeGreaterThan(0);
-  });
 
-  test("Journal pillar: journal matcher finds top venues by Impact Factor", async () => {
-    const res = await scienceOperation({ action: "journal_matcher", desired_impact_factor_min: 5.0 });
-    expect(res.success).toBe(true);
-    const data = res.data as any;
-    expect(data.matchedCount).toBeGreaterThan(0);
-    expect(data.recommendations[0].impactFactor).toBeGreaterThanOrEqual(5.0);
-  });
+    test("parseBibtexToAst parses valid BibTeX and validates required fields", () => {
+      const rawBib = `@article{zhang2025autonomous,
+        author = {Zhang, Laiyong and Chen, Wei},
+        title = {Autonomous Agent Architectures for Scientific Discovery},
+        journal = {Nature Machine Intelligence},
+        year = {2025},
+        volume = {7},
+        pages = {142--158},
+        doi = {10.1038/s41586-024-07521-3}
+      }`;
 
-  test("Journal pillar: submission checklist audits camera-ready requirements", async () => {
-    const res = await scienceOperation({ action: "journal_submission_checklist" });
-    expect(res.success).toBe(true);
-    const data = res.data as any;
-    expect(data.totalChecks).toBe(8);
-    expect(data.readyForSubmission).toBe(true);
-  });
-
-  test("Patent pillar: novelty check evaluates 35 USC statutory factors and prior art", async () => {
-    const res = await scienceOperation({
-      action: "patent_novelty_check",
-      invention_title: "DETERMINISTIC AGENT-LESS EXECUTION PIPELINES",
-      invention_summary: "A method for DAG dependency verification and zero-eval parameter interpolation.",
+      const ast = parseBibtexToAst(rawBib);
+      expect(ast.isValid).toBe(true);
+      expect(ast.entryType).toBe("article");
+      expect(ast.citeKey).toBe("zhang2025autonomous");
+      expect(ast.fields.journal).toBe("Nature Machine Intelligence");
+      expect(ast.fields.year).toBe("2025");
+      expect(ast.validationErrors.length).toBe(0);
     });
-    expect(res.success).toBe(true);
-    const data = res.data as any;
-    expect(data.noveltyScore).toBeGreaterThanOrEqual(80);
-    expect(data.priorArtCount).toBeGreaterThan(0);
-    expect(data.statutoryFactors.novelty35USC102).toContain("Passed");
-  });
 
-  test("Patent pillar: claim structure checks independent/dependent hierarchy and antecedent basis", async () => {
-    const res = await scienceOperation({ action: "patent_claim_structure" });
-    expect(res.success).toBe(true);
-    const data = res.data as any;
-    expect(data.totalClaims).toBe(3);
-    expect(data.independentClaims).toBe(1);
-    expect(data.validAntecedent).toBe(true);
-  });
+    test("parseBibtexToAst detects invalid syntax and missing required fields", () => {
+      const invalidBib = `@article{broken_key,
+        author = {Anonymous}
+      }`;
 
-  test("Patent pillar: spec scaffold builds complete specification structure", async () => {
-    const res = await scienceOperation({
-      action: "patent_spec_scaffold",
-      invention_title: "SYSTEM AND METHOD FOR DETERMINISTIC AGENT-LESS EXECUTION PIPELINES",
+      const ast = parseBibtexToAst(invalidBib);
+      expect(ast.isValid).toBe(false);
+      expect(ast.requiredMissingFields).toContain("title");
+      expect(ast.requiredMissingFields).toContain("journal");
+      expect(ast.requiredMissingFields).toContain("year");
     });
-    expect(res.success).toBe(true);
-    const data = res.data as any;
-    expect(data.sectionsCount).toBe(5);
-    expect(data.claimsCount).toBe(3);
-    expect(data.sections.fieldOfInvention).toBeDefined();
-    expect(data.sections.detailedDescription).toBeDefined();
-  });
 
-  test("MCP Protocol server handles initialize, tools/list, and tools/call", async () => {
-    const initRes = await handleScienceRpc({ jsonrpc: "2.0", id: 1, method: "initialize" });
-    expect(initRes.result.serverInfo.name).toBe("mentalcraft-science-mcp");
+    test("paper_citation_verify processes raw bibtex input with AST validation", async () => {
+      const rawBib = `@inproceedings{mentalcraft2024layered,
+        author = {MentalCraft Research Lab},
+        title = {Layered Design Token Hierarchy for Accessible Svelte 5 User Interfaces},
+        booktitle = {ACM Conference on Human Factors in Computing Systems (CHI)},
+        year = {2024},
+        doi = {10.1145/3613904.3642100}
+      }`;
 
-    const listRes = await handleScienceRpc({ jsonrpc: "2.0", id: 2, method: "tools/list" });
-    expect(listRes.result.tools[0].name).toBe("science");
-
-    const callRes = await handleScienceRpc({
-      jsonrpc: "2.0",
-      id: 3,
-      method: "tools/call",
-      params: {
-        name: "science",
-        arguments: { action: "paper_literature_search", query: "agent" },
-      },
+      const res = await scienceOperation({ action: "paper_citation_verify", bibtex: rawBib, citation_style: "ieee" });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.parsedAst).toBeDefined();
+      expect(data.parsedAst.entryType).toBe("inproceedings");
+      expect(data.formattedCitation).toContain("Layered Design Token Hierarchy");
     });
-    expect(callRes.result.content[0].text).toContain("Autonomous Agent Architectures");
   });
 
-  test("compactScienceResult formats clean terminal summary", async () => {
-    const res = await scienceOperation({ action: "paper_literature_search", query: "agent" });
-    const summary = compactScienceResult(res);
-    expect(summary).toContain("Literature Search");
-    expect(summary).toContain("papers indexed");
+  // Stage 2: Methodology & Reproducibility Design
+  describe("Stage 2: Methodology & Reproducibility Design", () => {
+    test("paper_methodology_audit evaluates baseline coverage, effect size, and statistical power", async () => {
+      const res = await scienceOperation({
+        action: "paper_methodology_audit",
+        manuscript_title: "Deterministic Host-Agnostic Agent Plugin Architecture",
+        methodology_data: {
+          sample_size: 1000,
+          treatment_mean: 98.4,
+          control_mean: 76.2,
+          pooled_std: 14.1,
+        },
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.methodologyScore).toBeGreaterThanOrEqual(90);
+      expect(data.reproducibilityGrade).toContain("Fully Reproducible");
+      expect(data.baselineCheck.stateOfTheArtCovered).toBe(true);
+      expect(data.sotaBaselineMatrix.length).toBeGreaterThanOrEqual(3);
+      expect(data.powerAnalysis.powerAdequate).toBe(true);
+      expect(data.powerAnalysis.power).toBeGreaterThan(0.8);
+      expect(data.effectSize.interpretation).toBe("Huge"); // d = 1.57 >= 1.2
+      expect(data.ablationCheck.conducted).toBe(true);
+      expect(data.ablationCheck.isolatedComponents.length).toBe(3);
+    });
+
+    test("computeCohensD accurately categorizes effect sizes", () => {
+      expect(computeCohensD(10, 9.8, 2.0).interpretation).toBe("Negligible"); // d = 0.1
+      expect(computeCohensD(10, 9.3, 2.0).interpretation).toBe("Small"); // d = 0.35
+      expect(computeCohensD(10, 8.8, 2.0).interpretation).toBe("Medium"); // d = 0.6
+      expect(computeCohensD(10, 8.0, 2.0).interpretation).toBe("Large"); // d = 1.0
+      expect(computeCohensD(10, 6.0, 2.0).interpretation).toBe("Huge"); // d = 2.0
+    });
+
+    test("computeStatisticalPower computes statistical power across sample sizes", () => {
+      const highPower = computeStatisticalPower(500, 0.8, 0.05);
+      expect(highPower).toBeGreaterThan(0.99);
+
+      const lowPower = computeStatisticalPower(10, 0.2, 0.05);
+      expect(lowPower).toBeLessThan(0.8);
+    });
+  });
+
+  // Stage 3: Research Grants & Funding Acquisition
+  describe("Stage 3: Research Grants & Funding Acquisition", () => {
+    test("grant_criteria_audit evaluates NIH 5-dimension review rubrics", async () => {
+      const res = await scienceOperation({ action: "grant_criteria_audit", funding_agency: "NIH" });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.fundingAgency).toBe("NIH");
+      expect(data.compositeNihScore).toBeLessThanOrEqual(2.0); // 1.0 = Exceptional
+      expect(data.criteria.length).toBe(5);
+      expect(data.criteria[0].criterion).toBe("Significance");
+      expect(data.criteria[1].criterion).toBe("Innovation");
+    });
+
+    test("grant_criteria_audit evaluates NSF Intellectual Merit & Broader Impacts", async () => {
+      const res = await scienceOperation({ action: "grant_criteria_audit", funding_agency: "NSF" });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.fundingAgency).toBe("NSF");
+      expect(data.compositeScore).toBeGreaterThanOrEqual(4.5); // 5.0 = Superior
+      expect(data.criteria.some((c: any) => c.criterion === "Intellectual Merit")).toBe(true);
+      expect(data.criteria.some((c: any) => c.criterion === "Broader Impacts")).toBe(true);
+    });
+
+    test("grant_aims_alignment validates specific aims independence and dependency matrix", async () => {
+      const res = await scienceOperation({
+        action: "grant_aims_alignment",
+        aims: [
+          "Aim 1: Topological DAG formulation",
+          "Aim 2: Zero-eval runtime implementation",
+          "Aim 3: Multi-domain empirical validation",
+        ],
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.aimsCount).toBe(3);
+      expect(data.alignmentScore).toBe(95);
+      expect(data.independenceCheck).toContain("Passed");
+      expect(data.dependencyMatrix.length).toBe(2);
+      expect(data.aimsEvaluations.length).toBe(3);
+    });
+
+    test("grant_budget_calculator computes multi-year direct, MTDC, and F&A indirect costs", async () => {
+      const res = await scienceOperation({
+        action: "grant_budget_calculator",
+        duration_years: 3,
+        fringe_rate_percent: 28,
+        indirect_rate_percent: 52,
+        annual_escalation_percent: 3,
+        direct_costs: {
+          personnel: 200000,
+          equipment: 40000,
+          supplies: 10000,
+          travel: 10000,
+          subawards_over_25k: 0,
+          participant_support: 0,
+          other: 5000,
+        },
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.durationYears).toBe(3);
+      expect(data.totalBudgetUsd).toBeGreaterThan(0);
+      expect(data.totalDirectCostsUsd).toBeGreaterThan(0);
+      expect(data.totalIndirectCostsUsd).toBeGreaterThan(0);
+      expect(data.totalMtdcBaseUsd).toBeLessThan(data.totalDirectCostsUsd); // MTDC excludes equipment
+      expect(data.fringeRatePercent).toBe(28);
+      expect(data.fAndARatePercent).toBe(52);
+      expect(data.yearlyBreakdown.length).toBe(3);
+      expect(data.yearlyBreakdown[0].equipmentCost).toBe(40000);
+    });
+  });
+
+  // Stage 4: Manuscript Authoring & LaTeX Structuring
+  describe("Stage 4: Manuscript Authoring & LaTeX Scaffolding", () => {
+    test("paper_structure_audit checks section completeness, word count, and proportions", async () => {
+      const res = await scienceOperation({
+        action: "paper_structure_audit",
+        manuscript_title: "Deterministic Host-Agnostic AI Plugin Protocol",
+        sections: {
+          Abstract: "A comprehensive abstract covering deterministic tool execution and host-agnostic protocols with zero overhead...",
+          Introduction: "Detailed introduction on autonomous AI agent workflows and modern tool use paradigms...",
+          "Related Work": "Extensive literature review on workflow engines, Model Context Protocol, and agent DAGs...",
+          Methodology: "Formal mathematical formulation of Kahn's topological sort and AST-based parameter template resolution...",
+          Experiments: "Rigorous empirical benchmarking across 1,000 runs verifying sub-millisecond execution...",
+          Discussion: "Limitations and future work including distributed cross-host networking and thread pools...",
+          References: "Complete references list indexing peer-reviewed literature in Nature, IEEE, and ACM...",
+        },
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.readinessScore).toBe(100);
+      expect(data.completeness).toBe("Ready for Submission");
+      expect(data.sections.length).toBe(7);
+      expect(data.latexSyntaxValid).toBe(true);
+    });
+
+    test("paper_latex_scaffold generates compilation-ready ACM and IEEE manuscript code", async () => {
+      const acmRes = await scienceOperation({
+        action: "paper_latex_scaffold",
+        manuscript_title: "Universal Host-Neutral Plugin Protocol",
+        latex_template: "acm",
+      });
+      expect(acmRes.success).toBe(true);
+      const acmData = acmRes.data as any;
+      expect(acmData.latexCode).toContain("\\documentclass[sigconf,nonacm]{acmart}");
+      expect(acmData.latexCode).toContain("Universal Host-Neutral Plugin Protocol");
+      expect(acmData.linesCount).toBeGreaterThan(20);
+      expect(acmData.packagesIncluded).toContain("microtype");
+
+      const ieeeRes = await scienceOperation({
+        action: "paper_latex_scaffold",
+        manuscript_title: "Universal Host-Neutral Plugin Protocol",
+        latex_template: "ieee",
+      });
+      expect(ieeeRes.success).toBe(true);
+      const ieeeData = ieeeRes.data as any;
+      expect(ieeeData.latexCode).toContain("\\documentclass[journal,compsoc]{IEEEtran}");
+      expect(ieeeData.latexCode).toContain("IEEEkeywords");
+    });
+  });
+
+  // Stage 5: Simulated Peer Review & Rebuttal
+  describe("Stage 5: Simulated Peer Review & Rebuttal", () => {
+    test("paper_peer_review_simulate provides 3-reviewer scoring and point-by-point rebuttal matrix", async () => {
+      const res = await scienceOperation({ action: "paper_peer_review_simulate" });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.score).toBeGreaterThanOrEqual(8.0);
+      expect(data.overallRecommendation).toBe("Strong Accept");
+      expect(data.reviews.length).toBe(3);
+      expect(data.reviews[0].criteriaScores.originality).toBeGreaterThanOrEqual(8);
+      expect(data.rebuttalMatrix.length).toBeGreaterThanOrEqual(3);
+      expect(data.rebuttalMatrix[0].critique).toBeDefined();
+      expect(data.rebuttalMatrix[0].suggestedResponse).toBeDefined();
+      expect(data.rebuttalMatrix[0].actionItem).toBeDefined();
+    });
+  });
+
+  // Stage 6: Target Journal Matching & Camera-Ready Submission
+  describe("Stage 6: Target Journal Matching & Camera-Ready", () => {
+    test("journal_matcher finds top venues by Impact Factor and review speed", async () => {
+      const res = await scienceOperation({
+        action: "journal_matcher",
+        desired_impact_factor_min: 5.0,
+        target_review_weeks_max: 15,
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.matchedCount).toBeGreaterThan(0);
+      expect(data.recommendations[0].impactFactor).toBeGreaterThanOrEqual(5.0);
+      expect(data.recommendations[0].jcrQuartile).toBe("Q1");
+    });
+
+    test("journal_submission_checklist audits 8-point camera-ready requirements", async () => {
+      const res = await scienceOperation({ action: "journal_submission_checklist" });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.totalChecks).toBe(8);
+      expect(data.passedChecks).toBe(8);
+      expect(data.readyForSubmission).toBe(true);
+      expect(data.creditTaxonomyCovered).toBe(true);
+    });
+  });
+
+  // Stage 7: Intellectual Property & Patent Conversion
+  describe("Stage 7: Intellectual Property & Patent Conversion", () => {
+    test("patent_novelty_check evaluates 35 U.S.C. 101/102/103 statutory factors and prior art", async () => {
+      const res = await scienceOperation({
+        action: "patent_novelty_check",
+        invention_title: "DETERMINISTIC AGENT-LESS EXECUTION PIPELINES",
+        invention_summary: "A method for DAG dependency verification and zero-eval parameter interpolation.",
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.noveltyScore).toBeGreaterThanOrEqual(80);
+      expect(data.patentable).toBe(true);
+      expect(data.priorArtCount).toBeGreaterThan(0);
+      expect(data.statutoryFactors.novelty35USC102).toContain("Passed");
+      expect(data.statutoryFactors.nonObviousness35USC103).toContain("Passed");
+      expect(data.statutoryFactors.utility35USC101).toContain("Passed");
+      expect(data.claimsGuidance.length).toBeGreaterThan(0);
+    });
+
+    test("patent_claim_structure checks independent/dependent hierarchy and antecedent basis", async () => {
+      const res = await scienceOperation({ action: "patent_claim_structure" });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.totalClaims).toBe(3);
+      expect(data.independentClaims).toBe(1);
+      expect(data.dependentClaims).toBe(2);
+      expect(data.validAntecedent).toBe(true);
+    });
+
+    test("validateClaimAntecedentBasis detects missing antecedent basis in defective claims", () => {
+      const defectiveClaims = [
+        {
+          claimNumber: 1,
+          type: "independent" as const,
+          text: "A computer-implemented method comprising: receiving a data packet; and processing the data packet.",
+        },
+        {
+          claimNumber: 2,
+          type: "dependent" as const,
+          dependsOnClaim: 1,
+          text: "The method of claim 1, wherein said neural network classifier optimizes the processing speed.",
+        },
+      ];
+
+      const validation = validateClaimAntecedentBasis(defectiveClaims);
+      expect(validation.valid).toBe(false);
+      expect(validation.claimsWithIssues[1].antecedentBasisValid).toBe(false);
+      expect(validation.diagnostics.length).toBeGreaterThan(0);
+    });
+
+    test("patent_spec_scaffold builds complete specification structure", async () => {
+      const res = await scienceOperation({
+        action: "patent_spec_scaffold",
+        invention_title: "SYSTEM AND METHOD FOR DETERMINISTIC AGENT-LESS EXECUTION PIPELINES",
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.sectionsCount).toBe(5);
+      expect(data.claimsCount).toBe(3);
+      expect(data.sections.fieldOfInvention).toBeDefined();
+      expect(data.sections.detailedDescription).toBeDefined();
+      expect(data.sections.claims.length).toBe(3);
+      expect(data.sections.summary).toBeDefined();
+    });
+  });
+
+  // Stage 8: Scholarly Impact & Dissemination
+  describe("Stage 8: Scholarly Impact & Dissemination", () => {
+    test("scholarly_impact_forecast projects 3-year citation trajectory and dissemination strategy", async () => {
+      const res = await scienceOperation({
+        action: "scholarly_impact_forecast",
+        manuscript_title: "Universal Host-Neutral Plugin Protocol",
+      });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.projectedCitationsYear1).toBe(35);
+      expect(data.projectedCitationsYear2).toBe(95);
+      expect(data.projectedCitationsYear3).toBe(180);
+      expect(data.projectedAltmetricScore).toBe(88);
+      expect(data.altmetricBreakdown.twitterMentions).toBeGreaterThan(0);
+      expect(data.disseminationChannels.length).toBe(4);
+      expect(data.reproducibleArtifactsChecklist.length).toBe(4);
+    });
+  });
+
+  // MCP Protocol Server Tests
+  describe("MCP Protocol Server & Summary Formatting", () => {
+    test("MCP Protocol server handles initialize, tools/list, and tools/call", async () => {
+      const initRes = await handleScienceRpc({ jsonrpc: "2.0", id: 1, method: "initialize" });
+      expect(initRes.result.serverInfo.name).toBe("mentalcraft-science-mcp");
+
+      const listRes = await handleScienceRpc({ jsonrpc: "2.0", id: 2, method: "tools/list" });
+      expect(listRes.result.tools[0].name).toBe("science");
+      expect(SCIENCE_INPUT_SCHEMA.properties.action.enum.length).toBe(16);
+
+      const callRes = await handleScienceRpc({
+        jsonrpc: "2.0",
+        id: 3,
+        method: "tools/call",
+        params: {
+          name: "science",
+          arguments: { action: "scholarly_impact_forecast", manuscript_title: "Agent Architecture" },
+        },
+      });
+      expect(callRes.result.content[0].text).toContain("projectedCitationsYear3");
+    });
+
+    test("MCP Protocol server rejects unknown tools and invalid methods", async () => {
+      const badToolRes = await handleScienceRpc({
+        jsonrpc: "2.0",
+        id: 4,
+        method: "tools/call",
+        params: { name: "invalid_tool", arguments: {} },
+      });
+      expect(badToolRes.error).toBeDefined();
+      expect(badToolRes.error?.code).toBe(-32601);
+
+      const badMethodRes = await handleScienceRpc({
+        jsonrpc: "2.0",
+        id: 5,
+        method: "unknown_method",
+      });
+      expect(badMethodRes.error?.code).toBe(-32601);
+    });
+
+    test("compactScienceResult / formatScienceSummary formats clean terminal summaries across actions", async () => {
+      const actions = [
+        "list_actions",
+        "paper_literature_search",
+        "paper_citation_verify",
+        "paper_methodology_audit",
+        "paper_structure_audit",
+        "paper_peer_review_simulate",
+        "paper_latex_scaffold",
+        "grant_criteria_audit",
+        "grant_budget_calculator",
+        "grant_aims_alignment",
+        "journal_matcher",
+        "journal_submission_checklist",
+        "patent_novelty_check",
+        "patent_claim_structure",
+        "patent_spec_scaffold",
+        "scholarly_impact_forecast",
+      ] as const;
+
+      for (const act of actions) {
+        const res = await scienceOperation({ action: act });
+        const summary = compactScienceResult(res);
+        expect(typeof summary).toBe("string");
+        expect(summary.length).toBeGreaterThan(10);
+      }
+
+      // Test failure formatting
+      const failSummary = formatScienceSummary({
+        protocol: SCIENCE_PROTOCOL,
+        action: "paper_citation_verify",
+        success: false,
+        timestamp: new Date().toISOString(),
+        data: null,
+        diagnostics: ["Network timeout"],
+      });
+      expect(failSummary).toContain("✗ Science paper_citation_verify failed");
+    });
   });
 });

@@ -7,8 +7,8 @@
 | Subsystem | Actions | Protocol | Key Domain Scope |
 |---|---|---|---|
 | `Workflow` | 13 | `holar.workflow.v1` | Multi-plugin compound DAG execution, health diagnostics, telemetry & circuit breaker |
-| `Business` | 18 | `holar.business.v1` | Venture lifecycle (Websites, Apps, Games), SEO KD, ASO, Steam wishlists, CAC/LTV, Pricing elasticity, Stripe |
-| `Science` | 14 | `holar.science.v1` | Academic production lifecycle: Paper authoring, Peer review sim, Grant rubrics (NIH/NSF), Journal IF, Patent spec |
+| `Business` | 21 | `holar.business.v1` | 8-Stage Venture Lifecycle (Websites, Apps, Games), PMF, SEO KD, ASO, Steam, Activation, Unit Economics, Moats |
+| `Science` | 16 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, Methodology, Grants, Authoring, Peer Review, Journals, Patents, Impact |
 | `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |
 | `Chrome` | 38 | `holar.browser.v1` | Inactive tab driving, CDP inspection, HUD annotations, storage/cookie receipts |
 | `Message` | 4 | `holar.message.v1` | Multi-channel priority bus (Telegram > iMessage > Email) with mode-0600 isolation |
@@ -64,6 +64,19 @@
   4. **[business]** `venture_retention_curves`: Model D1/D7/D30 cohort retention curves against industry benchmarks.
   5. **[business]** `venture_pricing_experiment`: Simulate price elasticity curve to maximize expected revenue per visitor.
   6. **[business]** `venture_growth_playbook`: Synthesize 90-day execution sprint roadmap.
+
+### `shop_ecommerce_lifecycle` — Full-Cycle E-Commerce & Shop Commercialization Pipeline
+- **Description**: Shop lifecycle: E-commerce TAM/SAM/SOM → TikTok/Amazon acquisition audit → Cart/Checkout activation funnel → COGS/3PL unit economics → 30/60/90-day repurchase retention → Volume tiering → Inventory ROP safety stock.
+- **Required Plugins**: `business`
+- **Execution Steps**:
+  1. **[business]** `venture_market_validation`: Validate e-commerce market size, sourcing feasibility, and omnichannel strategy.
+  2. **[business]** `venture_acquisition_audit`: Audit TikTok Shop creator affiliates, Google Shopping, and Amazon PPC ROAS.
+  3. **[business]** `venture_activation_funnel`: Audit Add-to-Cart (ATC), Initiate Checkout, and abandonment recovery flows.
+  4. **[business]** `venture_unit_economics`: Calculate COGS, 3PL shipping, gateway fees, blended ROAS, and net margin.
+  5. **[business]** `venture_retention_curves`: Track 30/60/90-day repurchase retention and VIP customer lifetime value.
+  6. **[business]** `venture_pricing_experiment`: Optimize bundle packaging, volume tiering, and AOV boost elasticity.
+  7. **[business]** `venture_expansion_moat`: Calculate inventory reorder point (ROP), safety stock, and 3PL moats.
+  8. **[business]** `venture_growth_playbook`: Generate 90-day omnichannel e-commerce launch sprint roadmap.
 
 ### `automated_revenue_monitor` — Automated Competitor Revenue & Alert Monitor
 - **Description**: Track Stripe billing trajectory and dispatch milestone notifications to Telegram.

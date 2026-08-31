@@ -75,6 +75,15 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     });
     expect(ventureRes.success).toBe(true);
     expect((ventureRes.data as any).stepsCount).toBe(6);
+
+    // 5. Shop E-Commerce Lifecycle
+    const shopWfRes = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "shop_ecommerce_lifecycle",
+      parameters: { venture_name: "EcoCraft Merch Store" },
+    });
+    expect(shopWfRes.success).toBe(true);
+    expect((shopWfRes.data as any).stepsCount).toBe(8);
   });
 
   test("MCP Protocol server handles initialize, tools/list, and tools/call", async () => {

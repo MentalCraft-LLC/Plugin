@@ -54,8 +54,8 @@ export function generateMarkdownCatalog(): string {
     "| Subsystem | Actions | Protocol | Key Domain Scope |",
     "|---|---|---|---|",
     "| `Workflow` | 13 | `holar.workflow.v1` | Multi-plugin compound DAG execution, health diagnostics, telemetry & circuit breaker |",
-    "| `Business` | 18 | `holar.business.v1` | Venture lifecycle (Websites, Apps, Games), SEO KD, ASO, Steam wishlists, CAC/LTV, Pricing elasticity, Stripe |",
-    "| `Science` | 14 | `holar.science.v1` | Academic production lifecycle: Paper authoring, Peer review sim, Grant rubrics (NIH/NSF), Journal IF, Patent spec |",
+    "| `Business` | 21 | `holar.business.v1` | 8-Stage Venture Lifecycle (Websites, Apps, Games), PMF, SEO KD, ASO, Steam, Activation, Unit Economics, Moats |",
+    "| `Science` | 16 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, Methodology, Grants, Authoring, Peer Review, Journals, Patents, Impact |",
     "| `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |",
     "| `Chrome` | 38 | `holar.browser.v1` | Inactive tab driving, CDP inspection, HUD annotations, storage/cookie receipts |",
     "| `Message` | 4 | `holar.message.v1` | Multi-channel priority bus (Telegram > iMessage > Email) with mode-0600 isolation |",
@@ -218,9 +218,9 @@ async function mainCommand(cmd: string) {
 ║ Overall Health: ${report.overallStatus === "healthy" ? "🟢 HEALTHY" : "🟡 DEGRADED"} (Score: ${report.healthScore}/100) | Healthy Plugins: ${report.healthyPlugins}/${report.totalPlugins}   ║
 ║ Protocols: MCP Stdio, HTTP/SSE (Port 3890), OpenRPC 1.3, OpenAPI 3.1           ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
-║ ACTIVE CAPABILITY SUBSYSTEMS (6 Modules / 97 Actions)                          ║
-║  • Business  [${report.plugins.business.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (18 actions) | Venture Lifecycle (Web/App/Game), SEO, ASO, Steam ║
-║  • Science   [${report.plugins.science.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (14 actions) | Paper Review, Grant NIH/NSF, Journal, Patent Spec  ║
+║ ACTIVE CAPABILITY SUBSYSTEMS (6 Modules / 102 Actions)                         ║
+║  • Business  [${report.plugins.business.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (21 actions) | 8-Stage Venture Lifecycle (Web/App/Game)    ║
+║  • Science   [${report.plugins.science.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (16 actions) | 8-Stage Academic Production Lifecycle       ║
 ║  • Design    [${report.plugins.design.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (10 actions) | 5-Layer UI, Runes, Tokens, Presets     ║
 ║  • Workflow  [${report.plugins.workflow.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (13 actions) | DAG Engine, OTel Spans, Batch Pool    ║
 ║  • Chrome    [${report.plugins.chrome.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (38 actions) | Tab HUD, Native Bridge, Session Vault  ║

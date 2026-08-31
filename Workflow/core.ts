@@ -38,6 +38,7 @@ export type WorkflowId =
   | "grant_proposal_lifecycle"
   | "patent_invention_pipeline"
   | "venture_growth_lifecycle"
+  | "shop_ecommerce_lifecycle"
   | "automated_revenue_monitor"
   | "design_system_audit_pipeline"
   | (string & {});
@@ -161,6 +162,22 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
       { step: 4, plugin: "business", action: "venture_retention_curves", description: "Model D1/D7/D30 cohort retention curves against industry benchmarks." },
       { step: 5, plugin: "business", action: "venture_pricing_experiment", description: "Simulate price elasticity curve to maximize expected revenue per visitor." },
       { step: 6, plugin: "business", action: "venture_growth_playbook", description: "Synthesize 90-day execution sprint roadmap." },
+    ],
+  },
+  {
+    id: "shop_ecommerce_lifecycle",
+    name: "Full-Cycle E-Commerce & Shop Commercialization Pipeline",
+    description: "Shop lifecycle: E-commerce TAM/SAM/SOM → TikTok/Amazon acquisition audit → Cart/Checkout activation funnel → COGS/3PL unit economics → 30/60/90-day repurchase retention → Volume tiering → Inventory ROP safety stock.",
+    requiredPlugins: ["business"],
+    steps: [
+      { step: 1, plugin: "business", action: "venture_market_validation", description: "Validate e-commerce market size, sourcing feasibility, and omnichannel strategy." },
+      { step: 2, plugin: "business", action: "venture_acquisition_audit", description: "Audit TikTok Shop creator affiliates, Google Shopping, and Amazon PPC ROAS." },
+      { step: 3, plugin: "business", action: "venture_activation_funnel", description: "Audit Add-to-Cart (ATC), Initiate Checkout, and abandonment recovery flows." },
+      { step: 4, plugin: "business", action: "venture_unit_economics", description: "Calculate COGS, 3PL shipping, gateway fees, blended ROAS, and net margin." },
+      { step: 5, plugin: "business", action: "venture_retention_curves", description: "Track 30/60/90-day repurchase retention and VIP customer lifetime value." },
+      { step: 6, plugin: "business", action: "venture_pricing_experiment", description: "Optimize bundle packaging, volume tiering, and AOV boost elasticity." },
+      { step: 7, plugin: "business", action: "venture_expansion_moat", description: "Calculate inventory reorder point (ROP), safety stock, and 3PL moats." },
+      { step: 8, plugin: "business", action: "venture_growth_playbook", description: "Generate 90-day omnichannel e-commerce launch sprint roadmap." },
     ],
   },
   {
