@@ -1043,6 +1043,9 @@
     return null;
   }
 
+  let domObserver = null;
+  let resizeObs = null;
+
   function attach() {
     if (listening) return;
     listening = true;
@@ -1054,6 +1057,18 @@
     document.addEventListener("scroll", scheduleSync, { capture: true, passive: true });
     window.addEventListener("scroll", scheduleSync, { capture: true, passive: true });
     window.addEventListener("resize", scheduleSync);
+    if (typeof MutationObserver === "function" && !domObserver && document.body) {
+      try {
+        domObserver = new MutationObserver(() => scheduleSync());
+        domObserver.observe(document.body, { childList: true, subtree: true, attributes: false });
+      } catch {}
+    }
+    if (typeof ResizeObserver === "function" && !resizeObs && document.body) {
+      try {
+        resizeObs = new ResizeObserver(() => scheduleSync());
+        resizeObs.observe(document.body);
+      } catch {}
+    }
   }
 
   function detach() {
@@ -1067,6 +1082,14 @@
     document.removeEventListener("scroll", scheduleSync, { capture: true });
     window.removeEventListener("scroll", scheduleSync, { capture: true });
     window.removeEventListener("resize", scheduleSync);
+    if (domObserver) {
+      try { domObserver.disconnect(); } catch {}
+      domObserver = null;
+    }
+    if (resizeObs) {
+      try { resizeObs.disconnect(); } catch {}
+      resizeObs = null;
+    }
     hideHighlight();
   }
 
