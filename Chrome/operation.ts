@@ -62,6 +62,8 @@ export type BrowserContextInput = {
   device_scale_factor?: number;
   text?: string;
   condition?: string;
+  position?: "top" | "bottom" | "page_down" | "page_up" | "start" | "end";
+  modifiers?: ("Shift" | "Alt" | "Control" | "Meta")[];
 };
 
 export type BrowserOperationContext = {
@@ -228,6 +230,8 @@ export function createBrowserContextOperation(options: {
         protocol: PROTOCOL,
         action: "scroll",
         url,
+        selector: params.selector,
+        position: params.position,
         delta_x: params.delta_x,
         delta_y: params.delta_y,
         allow_active: allowActive,
@@ -238,6 +242,8 @@ export function createBrowserContextOperation(options: {
         action: "press_key",
         url,
         key: params.key,
+        selector: params.selector,
+        modifiers: params.modifiers,
         allow_active: allowActive,
       };
     } else if (params.action === "wait_for") {

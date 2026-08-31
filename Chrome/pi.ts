@@ -191,6 +191,8 @@ function registerBrowserTool(
       device_scale_factor: Type.Optional(Type.Number({ minimum: 0.1, maximum: 10 })),
       text: Type.Optional(Type.String({ minLength: 1, maxLength: 500 })),
       condition: Type.Optional(StringEnum(["visible", "hidden", "text", "network_idle", "attached"] as const)),
+      position: Type.Optional(StringEnum(["top", "bottom", "page_down", "page_up", "start", "end"] as const)),
+      modifiers: Type.Optional(Type.Array(StringEnum(["Shift", "Alt", "Control", "Meta"] as const))),
       mode: Type.Optional(StringEnum(["start", "stop", "list", "add", "remove", "clear"] as const)),
     }, { additionalProperties: false }),
     executionMode: "sequential",

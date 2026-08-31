@@ -109,4 +109,28 @@ describe("Extension Upgrades & DevTools Superpowers", () => {
     expect(inspectByField.field).toBe("Submit");
     expect(inspectByField.role).toBe("button");
   });
+
+  test("BrowserContextInput supports scroll positions and press_key modifiers", () => {
+    const scrollBottom: BrowserContextInput = {
+      action: "scroll",
+      position: "bottom",
+    };
+    expect(scrollBottom.position).toBe("bottom");
+
+    const scrollElement: BrowserContextInput = {
+      action: "scroll",
+      selector: "#target-section",
+    };
+    expect(scrollElement.selector).toBe("#target-section");
+
+    const keyCombo: BrowserContextInput = {
+      action: "press_key",
+      key: "Enter",
+      modifiers: ["Control", "Shift"],
+      selector: "input.search",
+    };
+    expect(keyCombo.key).toBe("Enter");
+    expect(keyCombo.modifiers).toEqual(["Control", "Shift"]);
+    expect(keyCombo.selector).toBe("input.search");
+  });
 });

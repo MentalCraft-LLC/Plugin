@@ -2310,9 +2310,32 @@
       return { action: "hover", status: "not_found", selector: selector || field };
     }
     if (message.action === "scroll") {
-      const deltaX = message.delta_x ?? 0;
-      const deltaY = message.delta_y ?? 0;
-      window.scrollBy({ left: deltaX, top: deltaY, behavior: "instant" });
+      if (message.selector) {
+        const el = queryWithShadow(document, message.selector);
+        if (el) {
+          try { el.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" }); } catch {}
+          return {
+            action: "scroll",
+            status: "scrolled_to_element",
+            selector: message.selector,
+            scroll_x: window.scrollX,
+            scroll_y: window.scrollY,
+          };
+        }
+      }
+      if (message.position === "top") {
+        window.scrollTo({ left: 0, top: 0, behavior: "smooth" });
+      } else if (message.position === "bottom") {
+        window.scrollTo({ left: 0, top: document.body.scrollHeight || document.documentElement.scrollHeight, behavior: "smooth" });
+      } else if (message.position === "page_down") {
+        window.scrollBy({ left: 0, top: window.innerHeight * 0.85, behavior: "smooth" });
+      } else if (message.position === "page_up") {
+        window.scrollBy({ left: 0, top: -window.innerHeight * 0.85, behavior: "smooth" });
+      } else {
+        const deltaX = message.delta_x ?? 0;
+        const deltaY = message.delta_y ?? 0;
+        window.scrollBy({ left: deltaX, top: deltaY, behavior: "instant" });
+      }
       return {
         action: "scroll",
         status: "scrolled",
@@ -2321,21 +2344,43 @@
       };
     }
     if (message.action === "press_key") {
-      const key = message.key || "Enter";
-      const target = document.activeElement || document.body;
+      let rawKey = String(message.key || "Enter");
+      let shift = message.modifiers?.includes("Shift") ?? false;
+      let alt = message.modifiers?.includes("Alt") ?? false;
+      let ctrl = message.modifiers?.includes("Control") ?? false;
+      let meta = message.modifiers?.includes("Meta") ?? false;
+      if (rawKey.includes("+")) {
+        const parts = rawKey.split("+");
+        rawKey = parts.pop() || "Enter";
+        for (const p of parts) {
+          const lp = p.toLowerCase();
+          if (lp === "ctrl" || lp === "control") ctrl = true;
+          else if (lp === "shift") shift = true;
+          else if (lp === "alt" || lp === "option") alt = true;
+          else if (lp === "meta" || lp === "cmd" || lp === "command") meta = true;
+        }
+      }
+      let target = document.activeElement;
+      if (message.selector) {
+        const el = queryWithShadow(document, message.selector);
+        if (el) target = el;
+      }
+      if (!target) target = document.body;
       const eventInit = {
-        key,
-        code: key,
+        key: rawKey,
+        code: rawKey,
         bubbles: true,
         cancelable: true,
-        shiftKey: message.modifiers?.includes("Shift") ?? false,
-        altKey: message.modifiers?.includes("Alt") ?? false,
-        ctrlKey: message.modifiers?.includes("Control") ?? false,
-        metaKey: message.modifiers?.includes("Meta") ?? false,
+        composed: true,
+        shiftKey: shift,
+        altKey: alt,
+        ctrlKey: ctrl,
+        metaKey: meta,
       };
       target.dispatchEvent(new KeyboardEvent("keydown", eventInit));
+      target.dispatchEvent(new KeyboardEvent("keypress", eventInit));
       target.dispatchEvent(new KeyboardEvent("keyup", eventInit));
-      return { action: "press_key", status: "key_pressed", key };
+      return { action: "press_key", status: "key_pressed", key: rawKey, modifiers: { shift, alt, ctrl, meta } };
     }
     if (message.action === "read_console") {
       const level = typeof message.level === "string" ? message.level : undefined;

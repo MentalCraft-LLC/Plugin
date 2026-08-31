@@ -126,6 +126,8 @@ export const CHROME_INPUT_SCHEMA = {
     device_scale_factor: { type: "number", minimum: 0.1, maximum: 10 },
     text: { type: "string", minLength: 1, maxLength: 500 },
     condition: { type: "string", enum: ["visible", "hidden", "text", "network_idle", "attached"] },
+    position: { type: "string", enum: ["top", "bottom", "page_down", "page_up", "start", "end"] },
+    modifiers: { type: "array", items: { type: "string", enum: ["Shift", "Alt", "Control", "Meta"] } },
     fps: { type: "integer", minimum: 1, maximum: 60 },
     mode: { type: "string", enum: ["start", "stop", "list", "add", "remove", "clear"] },
   },

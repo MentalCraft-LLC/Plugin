@@ -114,6 +114,8 @@ export type BrowserCommand = {
   device_scale_factor?: number;
   text?: string;
   condition?: string;
+  position?: "top" | "bottom" | "page_down" | "page_up" | "start" | "end";
+  modifiers?: ("Shift" | "Alt" | "Control" | "Meta")[];
 };
 
 export function loadAuthority(path = AUTHORITY_PATH): BrowserAuthority {
