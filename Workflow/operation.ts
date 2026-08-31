@@ -534,6 +534,41 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
       };
     }
 
+    case "export_trace": {
+      loadPersistedState();
+      const traces = RUN_HISTORY.map((r) => ({
+        traceId: r.runId,
+        name: r.workflowName,
+        workflowId: r.workflowId,
+        startTime: r.startTime,
+        endTime: r.endTime,
+        durationMs: r.durationMs,
+        success: r.success,
+        spans: (r.spans && r.spans.length > 0) ? r.spans : r.stepResults.map((s, idx) => ({
+          name: `${s.plugin}.${s.action}`,
+          step: s.step,
+          plugin: s.plugin,
+          action: s.action,
+          startOffsetMs: idx * 2,
+          durationMs: s.durationMs,
+          status: s.success ? "OK" : "ERROR",
+        })),
+      }));
+
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "export_trace",
+        success: true,
+        timestamp,
+        data: {
+          format: "OpenTelemetry_v1",
+          tracesCount: traces.length,
+          totalSpans: traces.reduce((sum, t) => sum + t.spans.length, 0),
+          traces,
+        },
+      };
+    }
+
     case "health_check": {
       const report = await executeHealthCheck(input.target_plugin ?? "all");
       return {
@@ -650,6 +685,16 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
       }
       recordTelemetry(`workflow.${targetId}`, totalDuration, isSuccess);
 
+      const spans: WorkflowSpan[] = stepResults.map((s, idx) => ({
+        name: `${s.plugin}.${s.action}`,
+        step: s.step,
+        plugin: s.plugin,
+        action: s.action,
+        startOffsetMs: idx * 2,
+        durationMs: s.durationMs,
+        status: s.success ? "OK" : "ERROR",
+      }));
+
       const receipt: WorkflowRunReceipt = {
         runId,
         workflowId: targetId,
@@ -659,7 +704,9 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
         durationMs: totalDuration,
         success: isSuccess,
         stepsCount: stepResults.length,
+        executionMode: wf.concurrencyMode ?? "concurrent_dag",
         stepResults,
+        spans,
       };
 
       RUN_HISTORY.push(receipt);

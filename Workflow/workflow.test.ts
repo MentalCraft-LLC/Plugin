@@ -201,6 +201,15 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.overallSuccessRate).toBeGreaterThanOrEqual(0);
   });
 
+  test("export_trace formats OTel compatible traces and spans", async () => {
+    const res = await workflowOperation({ action: "export_trace" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.format).toBe("OpenTelemetry_v1");
+    expect(data.tracesCount).toBeGreaterThanOrEqual(0);
+    expect(data.totalSpans).toBeGreaterThanOrEqual(0);
+  });
+
   test("compactWorkflowResult formats readable terminal summary", async () => {
     const res = await workflowOperation({ action: "health_check" });
     const log = compactWorkflowResult(res);
@@ -208,6 +217,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(log).toContain("HEALTHY");
   });
 });
+
 
 
 

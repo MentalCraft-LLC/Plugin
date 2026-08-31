@@ -359,6 +359,13 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "trace":
+    case "spans": {
+      const res = await workflowOperation({ action: "export_trace" });
+      console.log(JSON.stringify(res.data, null, 2));
+      break;
+    }
+
     case "repl":
     case "i": {
       await startInteractiveRepl();

@@ -44,6 +44,8 @@ export type WorkflowStep = {
   plugin: PluginId;
   action: string;
   description: string;
+  dependsOn?: number[];
+  parameters?: Record<string, unknown>;
 };
 
 export type WorkflowDefinition = {
@@ -52,6 +54,17 @@ export type WorkflowDefinition = {
   description: string;
   requiredPlugins: PluginId[];
   steps: WorkflowStep[];
+  concurrencyMode?: "sequential" | "concurrent_dag";
+};
+
+export type WorkflowSpan = {
+  name: string;
+  plugin: PluginId;
+  action: string;
+  step: number;
+  startOffsetMs: number;
+  durationMs: number;
+  status: "OK" | "ERROR";
 };
 
 export type WorkflowRunReceipt = {
@@ -63,6 +76,7 @@ export type WorkflowRunReceipt = {
   durationMs: number;
   success: boolean;
   stepsCount: number;
+  executionMode: "sequential" | "concurrent_dag";
   stepResults: Array<{
     step: number;
     plugin: PluginId;
@@ -71,6 +85,7 @@ export type WorkflowRunReceipt = {
     durationMs: number;
     data: unknown;
   }>;
+  spans?: WorkflowSpan[];
 };
 
 export type ClientTargetConfig = "claude_desktop" | "cursor" | "antigravity" | "pi" | "all";
@@ -159,6 +174,7 @@ export type WorkflowAction =
   | "install_mcp_schemas"
   | "export_schema_catalog"
   | "get_metrics"
+  | "export_trace"
   | "health_check"
   | "dry_run";
 
@@ -227,6 +243,10 @@ export function formatWorkflowSummary(result: WorkflowResult): string {
     case "get_metrics": {
       const data = result.data as any;
       return `Telemetry: ${data.totalInvocations} total calls (${data.overallSuccessRate}% success) | ${Object.keys(data.metricsByAction).length} actions tracked`;
+    }
+    case "export_trace": {
+      const data = result.data as any;
+      return `Trace Export: ${data.tracesCount} traces, ${data.totalSpans} spans formatted (${data.format})`;
     }
     case "run_workflow": {
       const data = result.data as any;
