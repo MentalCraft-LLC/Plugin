@@ -12,7 +12,7 @@ import { executeHealthCheck, workflowOperation } from "./operation.ts";
 import { designOperation } from "../Design/operation.ts";
 import { businessOperation } from "../Business/operation.ts";
 import { scienceOperation } from "../Science/operation.ts";
-import { createBrowserContextOperation } from "../Chrome/operation.ts";
+import { createBrowserContextOperation } from "../Browser/operation.ts";
 import { createMessageOperation } from "../Message/operation.ts";
 import { startGatewayMcpStdio, startGatewayMcpHttp } from "./gateway.ts";
 import { createInterface } from "node:readline/promises";

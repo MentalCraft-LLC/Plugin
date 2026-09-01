@@ -14,7 +14,7 @@ import { workflowOperation } from "./operation.ts";
 import { designOperation } from "../Design/operation.ts";
 import { businessOperation } from "../Business/operation.ts";
 import { scienceOperation } from "../Science/operation.ts";
-import { createBrowserContextOperation } from "../Chrome/operation.ts";
+import { createBrowserContextOperation } from "../Browser/operation.ts";
 import { createMessageOperation } from "../Message/operation.ts";
 
 import { WORKFLOW_INPUT_SCHEMA } from "./mcp-server.ts";
@@ -134,7 +134,7 @@ export async function handleGatewayRpc(request: JsonRpcRequest): Promise<JsonRpc
         output = await businessOperation(args as any);
       } else if (toolName === "science") {
         output = await scienceOperation(args as any);
-      } else if (toolName === "chrome") {
+      } else if (toolName === "browser" || toolName === "chrome") {
         output = await executeChrome(args as any);
       } else if (toolName === "message") {
         output = await executeMessage(args as any);

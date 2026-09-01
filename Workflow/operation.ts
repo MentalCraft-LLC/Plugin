@@ -25,14 +25,15 @@ import {
 import { designOperation } from "../Design/operation.ts";
 import { businessOperation } from "../Business/operation.ts";
 import { scienceOperation } from "../Science/operation.ts";
-import { createBrowserContextOperation } from "../Chrome/operation.ts";
+import { createBrowserContextOperation } from "../Browser/operation.ts";
 import { createMessageOperation, channelConfigured } from "../Message/operation.ts";
 import { COMPONENT_CATALOG, DESIGN_TOKENS, DOMAIN_PRESETS } from "../Design/core.ts";
 
-const rawExecuteChrome = createBrowserContextOperation();
-const executeChrome = async (input: any) => {
-  return await rawExecuteChrome(input, undefined, { isProjectTrusted: () => true }, "workflow_session", undefined);
+const rawExecuteBrowser = createBrowserContextOperation();
+const executeBrowser = async (input: any) => {
+  return await rawExecuteBrowser(input, undefined, { isProjectTrusted: () => true }, "workflow_session", undefined);
 };
+const executeChrome = executeBrowser;
 const executeMessage = createMessageOperation();
 
 const RUN_HISTORY: WorkflowRunReceipt[] = [];
@@ -879,8 +880,8 @@ export async function batchExecute(
           r = await designOperation({ action: task.action as any, ...(task.parameters ?? {}) });
         } else if (task.plugin === "workflow") {
           r = await workflowOperation({ action: task.action as any, ...(task.parameters ?? {}) });
-        } else if (task.plugin === "chrome") {
-          r = await executeChrome({ action: task.action as any, ...(task.parameters ?? {}) });
+        } else if (task.plugin === "browser" || task.plugin === "chrome") {
+          r = await executeBrowser({ action: task.action as any, ...(task.parameters ?? {}) });
         } else if (task.plugin === "message") {
           r = await executeMessage({ action: task.action as any, ...(task.parameters ?? {}) });
         } else {
@@ -1923,8 +1924,8 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
             r = await designOperation({ action: s.action as any, ...interpolated });
           } else if (s.plugin === "workflow") {
             r = await workflowOperation({ action: s.action as any, ...interpolated });
-          } else if (s.plugin === "chrome") {
-            r = await executeChrome({ action: s.action as any, ...interpolated });
+          } else if (s.plugin === "browser" || s.plugin === "chrome") {
+            r = await executeBrowser({ action: s.action as any, ...interpolated });
           } else if (s.plugin === "message") {
             r = await executeMessage({ action: s.action as any, ...interpolated });
           } else {

@@ -253,10 +253,10 @@ describe("Chrome MCP adapter", () => {
     const { fileURLToPath } = await import("node:url");
     const here = fileURLToPath(new URL(".", import.meta.url));
     const manifest = JSON.parse(readFileSync(resolve(here, "../../.mcp.json"), "utf8")) as {
-      mcpServers: { chrome: { command: string; args: string[] } };
+      mcpServers: { browser: { command: string; args: string[] } };
     };
-    expect(manifest.mcpServers.chrome.command).toBe("bun");
-    expect(manifest.mcpServers.chrome.args).toEqual(["Plugin/Chrome/serve.mjs"]);
+    expect(manifest.mcpServers.browser.command).toBe("bun");
+    expect(manifest.mcpServers.browser.args).toEqual(["Plugin/Browser/serve.mjs"]);
     expect(readFileSync(resolve(here, "./serve.mjs"), "utf8")).toContain("locateServer");
   });
 });

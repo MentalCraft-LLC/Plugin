@@ -136,17 +136,18 @@ export {
   redactSensitiveData,
 } from "./operation.ts";
 
-// Chrome Subsystem
+// Browser Subsystem
 export {
+  PROTOCOL as BROWSER_PROTOCOL,
   PROTOCOL as CHROME_PROTOCOL,
   compactBrowserResult,
   formatBrowserSummary,
-} from "../Chrome/core.ts";
+} from "../Browser/core.ts";
 export {
   createBrowserContextOperation,
   type BrowserContextInput,
   type BrowserContextOperation,
-} from "../Chrome/operation.ts";
+} from "../Browser/operation.ts";
 
 // Message Subsystem
 export {
