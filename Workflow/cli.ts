@@ -187,10 +187,11 @@ async function mainCommand(cmd: string) {
       console.log("\n📦 Holar Plugin Registry\n" + "=".repeat(60));
       const plugins = [
         { id: "workflow", name: "Workflow Orchestrator & Health Engine", actions: 17, desc: "Multi-plugin compound DAG execution, latency benchmark suite, OpenRPC/OpenAPI specs & pre-flight health diagnostics" },
-        { id: "business", name: "Business & Market Intelligence", actions: 21, desc: "8-Stage Venture Lifecycle (Websites, Apps, Games, Shops), Gefei SEO KD, TrafficCV domain traffic & channels, Stripe Radar" },
-        { id: "science", name: "Science & Research Intelligence", actions: 16, desc: "8-Stage Academic Production Lifecycle: Literature, Methodology, Grants, LaTeX, Peer Review, Journals, Patents" },
+        { id: "business", name: "Business & Market Intelligence", actions: 24, desc: "8-Stage Venture Lifecycle (Websites, Apps, Games, Shops), Gefei SEO KD, TrafficCV domain traffic & channels, Stripe Radar, SpriteFlow $10k MRR" },
+        { id: "science", name: "Science & Academic Production Intelligence", actions: 23, desc: "8-Stage Academic Production Lifecycle: Literature, CSS Empirical, Grants, LaTeX, Peer Review, CSSCI/SSCI Journals, Patents" },
+        { id: "content", name: "Content Creative & Commercial Engine", actions: 10, desc: "Fiction Worldbuilding, Character Arcs (Want vs Need), 15 Plot Beats, Sensory Prose, Lore Linter, PAS Copy, Omnichannel Launch Matrix" },
         { id: "design", name: "Design System & UI Intelligence", actions: 10, desc: "5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths" },
-        { id: "chrome", name: "Chrome Automation & Native Bridge", actions: 38, desc: "Inactive-tab driving, CDP, HUD annotations, Storage" },
+        { id: "browser", name: "Browser Automation & DevTools Superset", actions: 54, desc: "DevTools Superset (Lighthouse, Trace, Heap, Waterfall), Resilience (Personas, Schemas, Chaos), Background Driving" },
         { id: "message", name: "Agent Message Bus", actions: 4, desc: "Multi-channel priority dispatching (Telegram > iMessage > Email)" },
         { id: "secret", name: "Local Credential Vault", actions: 2, desc: "Mode-0600 secure token vault" },
       ];
@@ -223,7 +224,7 @@ async function mainCommand(cmd: string) {
     case "top":
     case "dash": {
       const report = await executeHealthCheck();
-      const { getSystemTelemetry, getAllWorkflows } = require("./Workflow/operation.ts");
+      const { getSystemTelemetry, getAllWorkflows } = require("./operation.ts");
       const telemetry = getSystemTelemetry();
       const wfs = getAllWorkflows();
 
@@ -232,15 +233,16 @@ async function mainCommand(cmd: string) {
 ║  ⚡ MentalCraft Universal Plugin Architecture — Live System Status              ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
 ║ Overall Health: ${report.overallStatus === "healthy" ? "🟢 HEALTHY" : "🟡 DEGRADED"} (Score: ${report.healthScore}/100) | Healthy Plugins: ${report.healthyPlugins}/${report.totalPlugins}   ║
-║ Protocols: MCP Stdio, HTTP/SSE (Port 3890), OpenRPC 1.3, OpenAPI 3.1           ║
+║ Protocols: MCP Stdio, HTTP/SSE (Port 3999), OpenRPC 1.3, OpenAPI 3.1           ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
-║ ACTIVE CAPABILITY SUBSYSTEMS (6 Modules / 106 Actions)                         ║
-║  • Business  [${report.plugins.business.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (21 actions) | 8-Stage Venture Lifecycle (Web/App/Game/Shop)║
-║  • Science   [${report.plugins.science.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (16 actions) | 8-Stage Academic Production Lifecycle       ║
-║  • Design    [${report.plugins.design.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (10 actions) | 5-Layer UI, Runes, Tokens, Presets     ║
-║  • Workflow  [${report.plugins.workflow.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (17 actions) | DAG Engine, OTel Spans, Batch, Benchmark  ║
-║  • Chrome    [${report.plugins.chrome.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (38 actions) | Tab HUD, Native Bridge, Session Vault  ║
-║  • Message   [${report.plugins.message.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] ( 4 actions) | Telegram, iMessage, Email Secure Bus  ║
+║ ACTIVE CAPABILITY SUBSYSTEMS (7 Modules / 144 Actions)                         ║
+║  • Business  [${report.plugins.business?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (24 actions) | 8-Stage Venture Lifecycle (Web/App/Game/Shop)║
+║  • Science   [${report.plugins.science?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (23 actions) | 8-Stage Academic Production Lifecycle       ║
+║  • Content   [${report.plugins.content?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (10 actions) | Fiction Worldbuilding, 15 Beats, PAS Copy   ║
+║  • Design    [${report.plugins.design?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (10 actions) | 5-Layer UI, Runes, Tokens, Presets     ║
+║  • Browser   [${(report.plugins.browser || report.plugins.chrome)?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (54 actions) | DevTools Superset, Chaos & Resilience  ║
+║  • Workflow  [${report.plugins.workflow?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (17 actions) | DAG Engine, OTel Spans, Batch, Benchmark  ║
+║  • Message   [${report.plugins.message?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] ( 4 actions) | Telegram, iMessage, Email Secure Bus  ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
 ║ METRICS & TELEMETRY                                                            ║
 ║  Total Invocations: ${telemetry.totalInvocations} | Success Rate: ${telemetry.overallSuccessRate}% | Tracked Actions: ${Object.keys(telemetry.metricsByAction).length} ║
