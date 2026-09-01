@@ -791,5 +791,24 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
     expect(leakData.identifiedLeaks.length).toBe(4);
     expect(leakData.identifiedLeaks[0].implementationStatus).toBe("PLUGGED");
     expect(leakData.prioritizedActionPlan.length).toBe(4);
+
+    // 6. Independent Detector $10,000 MRR Engine
+    const detRes = await businessOperation({ action: "essay_detector_mrr_engine" });
+    expect(detRes.success).toBe(true);
+    const detData = detRes.data as any;
+    expect(detData.productName).toBe("EssayDetector.org");
+    expect(detData.targetMrrUsd).toBe(10000);
+    expect(detData.projectedMrrUsd).toBeGreaterThanOrEqual(10000);
+    expect(detData.subscribersRequiredTotal).toBe(701);
+    expect(detData.unitEconomics.grossMarginPercent).toBeGreaterThan(90);
+
+    // 7. Dual Independent $20,000 MRR Enterprise Engine
+    const dual20kRes = await businessOperation({ action: "essay_dual_independent_10k_mrr" });
+    expect(dual20kRes.success).toBe(true);
+    const dual20kData = dual20kRes.data as any;
+    expect(dual20kData.totalCombinedMrrUsd).toBe(20180);
+    expect(dual20kData.totalCombinedArrUsd).toBe(242160);
+    expect(dual20kData.totalCombinedSubscribers).toBe(1320);
+    expect(dual20kData.enterpriseValuationEstimateUsd).toBeGreaterThan(1500000);
   });
 });

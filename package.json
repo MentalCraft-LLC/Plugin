@@ -1,0 +1,41 @@
+{
+  "name": "mentalcraft-plugins",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./Workflow/index.ts",
+  "exports": {
+    ".": "./Workflow/index.ts",
+    "./cli": "./Workflow/cli.ts",
+    "./gateway": "./Workflow/gateway.ts",
+    "./business": "./Business/operation.ts",
+    "./science": "./Science/operation.ts",
+    "./design": "./Design/operation.ts",
+    "./content": "./Content/operation.ts",
+    "./workflow": "./Workflow/operation.ts",
+    "./browser": "./Browser/operation.ts",
+    "./message": "./Message/operation.ts"
+  },
+  "workspaces": [
+    "Browser",
+    "Business",
+    "Content",
+    "Design",
+    "Message",
+    "Science",
+    "Secret",
+    "Workflow"
+  ],
+  "scripts": {
+    "test": "bun test",
+    "gateway": "bun ./Workflow/gateway.ts",
+    "cli": "bun ./Workflow/cli.ts",
+    "bench": "bun ./Workflow/cli.ts bench",
+    "health": "bun ./Workflow/cli.ts health",
+    "doctor": "bun ./Workflow/cli.ts doctor",
+    "install-mcp": "bun ./Workflow/cli.ts install-mcp"
+  },
+  "devDependencies": {
+    "marked": "^18.0.11"
+  }
+}

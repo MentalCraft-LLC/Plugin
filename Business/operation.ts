@@ -43,6 +43,8 @@ import {
   designEssayCrossSellFunnel,
   trackEssayTelemetryEvents,
   auditEssayConversionLeaks,
+  calculateDetectorIndependentMrrEngine,
+  calculateDualIndependent20kEnterpriseMrr,
 } from "./modules/essay_growth.ts";
 
 export class TrafficCvClient {
@@ -2150,6 +2152,30 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         return {
           protocol: BUSINESS_PROTOCOL,
           action: "essay_conversion_leak_auditor",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "essay_detector_mrr_engine": {
+        const data = calculateDetectorIndependentMrrEngine();
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "essay_detector_mrr_engine",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "essay_dual_independent_10k_mrr": {
+        const data = calculateDualIndependent20kEnterpriseMrr();
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "essay_dual_independent_10k_mrr",
           success: true,
           timestamp,
           provider: "auto",

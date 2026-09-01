@@ -689,3 +689,270 @@ export function auditEssayConversionLeaks(): ConversionLeakAuditResult {
   };
 }
 
+export type IndependentProductMrrProjection = {
+  productName: "EssayHumanize.com" | "EssayDetector.org";
+  timestamp: string;
+  targetMrrUsd: number;
+  targetArrUsd: number;
+  projectedMrrUsd: number;
+  subscribersRequiredTotal: number;
+  plans: EssaySubscriptionPlan[];
+  unitEconomics: {
+    blendedAovUsd: number;
+    blendedCacUsd: number;
+    grossMarginPercent: number;
+    churnRateMonthlyPercent: number;
+    ltvUsd: number;
+    paybackPeriodMonths: number;
+  };
+  keyGrowthVectors: string[];
+};
+
+export type DualIndependentEnterpriseResult = {
+  timestamp: string;
+  totalCombinedMrrUsd: number;
+  totalCombinedArrUsd: number;
+  totalCombinedSubscribers: number;
+  humanizeEngine: IndependentProductMrrProjection;
+  detectorEngine: IndependentProductMrrProjection;
+  crossProductSynergyLiftUsd: number;
+  enterpriseValuationEstimateUsd: number; // 8x ARR multiple for high-growth SaaS
+};
+
+/**
+ * Calculate independent $10,000 MRR path for EssayDetector.org.
+ */
+export function calculateDetectorIndependentMrrEngine(): IndependentProductMrrProjection {
+  const timestamp = new Date().toISOString();
+  const subPass = 550;
+  const subEdu = 140;
+  const subEnt = 11;
+
+  const revPass = subPass * 9; // $4,950
+  const revEdu = subEdu * 29; // $4,060
+  const revEnt = subEnt * 99; // $1,089
+  const totalMrr = revPass + revEdu + revEnt; // $10,099
+
+  const plans: EssaySubscriptionPlan[] = [
+    {
+      tier: "free",
+      name: "Free Detection Scanner",
+      monthlyPriceUsd: 0,
+      annualPriceUsd: 0,
+      wordQuotaMonthly: 15000,
+      maxInputWordsPerCheck: 500,
+      targetSubscriberCountFor10kMrr: 30000,
+      projectedMonthlyRevenueUsd: 0,
+      features: [
+        "Standard sentence-level perplexity audit",
+        "500 words per single scan",
+        "Community queue & rate limits",
+      ],
+    },
+    {
+      tier: "student_pro",
+      name: "Detector Pro Pass",
+      monthlyPriceUsd: 9,
+      annualPriceUsd: 79,
+      wordQuotaMonthly: 200000,
+      maxInputWordsPerCheck: 2500,
+      targetSubscriberCountFor10kMrr: subPass,
+      projectedMonthlyRevenueUsd: revPass,
+      features: [
+        "200,000 words / month quota",
+        "Multi-engine radar (GPTZero, Copyleaks, Turnitin proxy)",
+        "Deep sentence burstiness & perplexity visualizer",
+        "Priority instant scan (< 1.2s)",
+      ],
+    },
+    {
+      tier: "scholar_unlimited",
+      name: "Educator & Lab Multi-Scan",
+      monthlyPriceUsd: 29,
+      annualPriceUsd: 249,
+      wordQuotaMonthly: 1000000,
+      maxInputWordsPerCheck: 10000,
+      targetSubscriberCountFor10kMrr: subEdu,
+      projectedMonthlyRevenueUsd: revEdu,
+      features: [
+        "1,000,000 words / month",
+        "Batch multi-document PDF / DOCX processing",
+        "Plagiarism & AI authenticity certification export",
+        "Zero data retention privacy guarantee",
+      ],
+    },
+    {
+      tier: "campus_team",
+      name: "Enterprise Developer API",
+      monthlyPriceUsd: 99,
+      annualPriceUsd: 899,
+      wordQuotaMonthly: 5000000,
+      maxInputWordsPerCheck: 50000,
+      targetSubscriberCountFor10kMrr: subEnt,
+      projectedMonthlyRevenueUsd: revEnt,
+      features: [
+        "5,000,000 words / month API quota",
+        "Webhook event triggers & LMS integrations (Canvas, Moodle)",
+        "Sub-500ms edge SLA",
+        "Dedicated technical onboarding",
+      ],
+    },
+  ];
+
+  const blendedAov = totalMrr / (subPass + subEdu + subEnt);
+  const churn = 4.2;
+  const ltv = (blendedAov * (1 / (churn / 100))) * 0.91; // 91% gross margin
+
+  return {
+    productName: "EssayDetector.org",
+    timestamp,
+    targetMrrUsd: 10000,
+    targetArrUsd: 120000,
+    projectedMrrUsd: totalMrr,
+    subscribersRequiredTotal: subPass + subEdu + subEnt,
+    plans,
+    unitEconomics: {
+      blendedAovUsd: Number(blendedAov.toFixed(2)),
+      blendedCacUsd: 0,
+      grossMarginPercent: 91.2,
+      churnRateMonthlyPercent: churn,
+      ltvUsd: Number(ltv.toFixed(2)),
+      paybackPeriodMonths: 0.1,
+    },
+    keyGrowthVectors: [
+      "1. Programmatic SEO on AI detector benchmarks (80+ high-volume keywords)",
+      "2. Free embeddable AI detector widget for college student portals",
+      "3. Direct B2B API integrations with academic institutions & LMS platforms",
+    ],
+  };
+}
+
+/**
+ * Calculate independent $10,000 MRR path for EssayHumanize.com.
+ */
+export function calculateHumanizeIndependentMrrEngine(): IndependentProductMrrProjection {
+  const timestamp = new Date().toISOString();
+  const subPro = 500;
+  const subScholar = 110;
+  const subCampus = 9;
+
+  const revPro = subPro * 12; // $6,000
+  const revScholar = subScholar * 29; // $3,190
+  const revCampus = subCampus * 99; // $891
+  const totalMrr = revPro + revScholar + revCampus; // $10,081
+
+  const plans: EssaySubscriptionPlan[] = [
+    {
+      tier: "free",
+      name: "Free Humanize Sandbox",
+      monthlyPriceUsd: 0,
+      annualPriceUsd: 0,
+      wordQuotaMonthly: 9000,
+      maxInputWordsPerCheck: 300,
+      targetSubscriberCountFor10kMrr: 25000,
+      projectedMonthlyRevenueUsd: 0,
+      features: ["300 words free sandbox", "Turnitin bypass sample", "Watermark footer link"],
+    },
+    {
+      tier: "student_pro",
+      name: "Student Pro Pass",
+      monthlyPriceUsd: 12,
+      annualPriceUsd: 99,
+      wordQuotaMonthly: 50000,
+      maxInputWordsPerCheck: 1500,
+      targetSubscriberCountFor10kMrr: subPro,
+      projectedMonthlyRevenueUsd: revPro,
+      features: [
+        "50,000 words / month",
+        "Turnitin 2026 100% bypass guarantee",
+        "APA/IEEE citation preserver",
+        "Instant priority queue",
+      ],
+    },
+    {
+      tier: "scholar_unlimited",
+      name: "Scholar Unlimited",
+      monthlyPriceUsd: 29,
+      annualPriceUsd: 199,
+      wordQuotaMonthly: "unlimited",
+      maxInputWordsPerCheck: 5000,
+      targetSubscriberCountFor10kMrr: subScholar,
+      projectedMonthlyRevenueUsd: revScholar,
+      features: [
+        "Unlimited words / month",
+        "Deep Academic Lexicon mode",
+        "Full API Key access (100k words/mo)",
+        "0% AI score guarantee",
+      ],
+    },
+    {
+      tier: "campus_team",
+      name: "Campus Lab Team",
+      monthlyPriceUsd: 99,
+      annualPriceUsd: 799,
+      wordQuotaMonthly: 500000,
+      maxInputWordsPerCheck: 15000,
+      targetSubscriberCountFor10kMrr: subCampus,
+      projectedMonthlyRevenueUsd: revCampus,
+      features: [
+        "5 Team seats included",
+        "500,000 shared words / month",
+        "Institutional compliance reports",
+        "Dedicated SLA",
+      ],
+    },
+  ];
+
+  const blendedAov = totalMrr / (subPro + subScholar + subCampus);
+  const churn = 4.8;
+  const ltv = (blendedAov * (1 / (churn / 100))) * 0.88;
+
+  return {
+    productName: "EssayHumanize.com",
+    timestamp,
+    targetMrrUsd: 10000,
+    targetArrUsd: 120000,
+    projectedMrrUsd: totalMrr,
+    subscribersRequiredTotal: subPro + subScholar + subCampus,
+    plans,
+    unitEconomics: {
+      blendedAovUsd: Number(blendedAov.toFixed(2)),
+      blendedCacUsd: 0,
+      grossMarginPercent: 88.5,
+      churnRateMonthlyPercent: churn,
+      ltvUsd: Number(ltv.toFixed(2)),
+      paybackPeriodMonths: 0.1,
+    },
+    keyGrowthVectors: [
+      "1. 150+ low-KD programmatic SEO long-tail keywords (82k+ UV/mo)",
+      "2. Classmate viral referral program with 5k word credits ($K=1.18$)",
+      "3. Google Docs / Word Add-in for seamless in-editor humanization",
+    ],
+  };
+}
+
+/**
+ * Calculate the dual independent $20,000 MRR ($240,000 ARR) enterprise architecture.
+ */
+export function calculateDualIndependent20kEnterpriseMrr(): DualIndependentEnterpriseResult {
+  const timestamp = new Date().toISOString();
+  const humanize = calculateHumanizeIndependentMrrEngine();
+  const detector = calculateDetectorIndependentMrrEngine();
+
+  const totalMrr = humanize.projectedMrrUsd + detector.projectedMrrUsd; // $10,081 + $10,099 = $20,180
+  const totalArr = totalMrr * 12; // $242,160
+  const totalSubs = humanize.subscribersRequiredTotal + detector.subscribersRequiredTotal; // 619 + 701 = 1,320
+
+  return {
+    timestamp,
+    totalCombinedMrrUsd: totalMrr,
+    totalCombinedArrUsd: totalArr,
+    totalCombinedSubscribers: totalSubs,
+    humanizeEngine: humanize,
+    detectorEngine: detector,
+    crossProductSynergyLiftUsd: 4800,
+    enterpriseValuationEstimateUsd: totalArr * 8, // $1,937,280 valuation at 8x ARR
+  };
+}
+
+

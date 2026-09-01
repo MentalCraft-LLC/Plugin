@@ -58,6 +58,8 @@ export type BusinessAction =
   | "essay_cross_sell_loop"
   | "essay_telemetry_event_tracker"
   | "essay_conversion_leak_auditor"
+  | "essay_detector_mrr_engine"
+  | "essay_dual_independent_10k_mrr"
   | "application_market_validation"
   | "application_niche_discovery"
   | "application_pmf_validation"

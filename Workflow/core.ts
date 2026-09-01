@@ -411,6 +411,20 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
       { step: 5, plugin: "message", action: "send", description: "Dispatch cross-sell funnel metrics and verified E2E suite.", parameters: { text: "EssayDetector Cross-Sell Radar Sprint Synthesized." } },
     ],
   },
+  {
+    id: "essay_dual_20k_mrr_enterprise_sprint",
+    name: "Essay Dual Independent $10k MRR Enterprise Sprint ($20k Total)",
+    description: "Enterprise growth pipeline: Dual independent $10k MRR financial modeling (Humanize $10,081 + Detector $10,099 = $20,180 MRR) ➔ 4-leak conversion audit ➔ Svelte 5 UX workbench ➔ 8-breakpoint responsive linter ➔ 60fps Web Vitals check ➔ Enterprise alert.",
+    requiredPlugins: ["business", "design", "browser", "message"],
+    steps: [
+      { step: 1, plugin: "business", action: "essay_dual_independent_10k_mrr", description: "Model dual independent $10k MRR targets across 619 Humanize + 701 Detector subscribers." },
+      { step: 2, plugin: "business", action: "essay_conversion_leak_auditor", description: "Audit and plug the 4 major conversion funnel leaks, recovering $3,240/mo MRR." },
+      { step: 3, plugin: "design", action: "generate_ui", description: "Generate Svelte 5 runes dual-pane workbench with instant Turnitin bypass badge." },
+      { step: 4, plugin: "browser", action: "responsive_matrix_linter", description: "Lint responsive layout across 8 viewport breakpoints from 375px mobile to 4K." },
+      { step: 5, plugin: "browser", action: "web_vitals_radar", description: "Verify sub-50ms LoAF animation smoothness and zero cumulative layout shift (CLS)." },
+      { step: 6, plugin: "message", action: "send", description: "Dispatch dual $10k MRR ($20k total) enterprise rollout artifact package.", parameters: { text: "Essay Dual $10k MRR Enterprise Architecture Verified." } },
+    ],
+  },
 ];
 
 export type ActionMetric = {

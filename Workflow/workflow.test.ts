@@ -699,6 +699,26 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.stepResults[4].action).toBe("send");
   }, { timeout: 15000 });
 
+  test("run_workflow executes essay_dual_20k_mrr_enterprise_sprint compound workflow", async () => {
+    const res = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "essay_dual_20k_mrr_enterprise_sprint",
+      parameters: {
+        target: "enterprise",
+      },
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.workflowId).toBe("essay_dual_20k_mrr_enterprise_sprint");
+    expect(data.stepsCount).toBe(6);
+    expect(data.stepResults[0].action).toBe("essay_dual_independent_10k_mrr");
+    expect(data.stepResults[1].action).toBe("essay_conversion_leak_auditor");
+    expect(data.stepResults[2].action).toBe("generate_ui");
+    expect(data.stepResults[3].action).toBe("responsive_matrix_linter");
+    expect(data.stepResults[4].action).toBe("web_vitals_radar");
+    expect(data.stepResults[5].action).toBe("send");
+  }, { timeout: 15000 });
+
   test("benchmark engine measures latency percentiles and ops/sec across all 7 subsystems", async () => {
     const { executeBenchmark } = require("./operation.ts");
     const bench = await executeBenchmark({ iterations: 50, warmupIterations: 5 });
