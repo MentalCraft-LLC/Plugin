@@ -45,12 +45,12 @@ It bridges the headless Svelte 5 component architecture in `Design/Svelte` (`inf
 
 | Primitive ID | Name | Role | Key Props / Capabilities |
 |---|---|---|---|
-| `table_head` | `Table.Head` | `<thead>` Container | Sticky positioning, border divider |
-| `table_header_cell` | `Table.HeaderCell` | `<th>` Column Header | Interactive sort arrows, column resize grip, text alignment |
-| `table_body` | `Table.Body` | `<tbody>` Data Container | Zebra striping, reactive row selection state, empty states |
-| `table_row` | `Table.Row` | `<tr>` Row Container | Active selection checkbox, hover highlights, expandable sub-rows |
-| `table_cell` | `Table.Cell` | `<td>` Data Cell | Monospace tabular numbers (`fontFeature: tnum`), alignment, heatmap |
-| `table_footer` | `Table.Footer` | `<tfoot>` Summary Row | Top border, bold accumulator metrics |
+| `head` | `Head` (`Table.Head`) | `<thead>` Container | Sticky positioning, border divider |
+| `header` | `Header` (`Table.Header`) | `<th>` Column Header | Interactive sort arrows, column resize grip, text alignment |
+| `body` | `Body` (`Table.Body`) | `<tbody>` Data Container | Zebra striping, reactive row selection state, empty states |
+| `row` | `Row` (`Table.Row`) | `<tr>` Row Container | Active selection checkbox, hover highlights, expandable sub-rows |
+| `cell` | `Cell` (`Table.Cell`) | `<td>` Data Cell | Monospace tabular numbers (`fontFeature: tnum`), alignment, heatmap |
+| `footer` | `Footer` (`Table.Footer`) | `<tfoot>` Summary Row | Top border, bold accumulator metrics |
 
 ---
 
@@ -58,21 +58,21 @@ It bridges the headless Svelte 5 component architecture in `Design/Svelte` (`inf
 
 | Primitive ID | Name | Role | Key Props / Capabilities |
 |---|---|---|---|
-| `chart_axis` | `Chart.Axis` | Coordinate Axes | X/Y placement (`bottom`/`left`), tick subdivisions, value formatters |
-| `chart_grid` | `Chart.Grid` | Cartesian Gridlines | Solid/dashed reference lines, sub-tick grid alignments |
-| `chart_rule` | `Chart.Rule` | Threshold Baseline | Constant reference indicator line (e.g. target $10k MRR) |
-| `chart_line` | `Chart.Line` | Spline Line Mark | SVG monotonic cubic spline, gradient strokes, line widths |
-| `chart_area` | `Chart.Area` | Area Fill Mark | Continuous polygon area with vertical gradient opacity falloff |
-| `chart_bar` | `Chart.Bar` | Column / Bar Mark | Rounded rectangular geometry, stacked cohort series support |
-| `chart_point` | `Chart.Point` | Discrete Scatter Points | Circle, diamond, square, and sized bubble marks |
-| `chart_arc` | `Chart.Arc` | Polar Slices | Pie and donut slice geometry with corner radius and pad angle |
-| `chart_radar` | `Chart.Radar` | Multiaxial Web | Polygonal polar area for multi-dimensional trait mapping |
-| `chart_candlestick`| `Chart.Candlestick`| Financial OHLC Mark | Box-and-whisker geometry for price volatility tracking |
-| `chart_funnel` | `Chart.Funnel` | Conversion Stages | Stepped trapezoid geometry with step drop-off ratios |
-| `chart_treemap` | `Chart.Treemap` | Hierarchical Partition| 2D squarified spatial area for category breakdown |
-| `chart_sparkline`| `Chart.Sparkline`| Inline Micro-Trend | Ultra-dense sparkline with highlighted start/end endpoints |
-| `chart_legend` | `Chart.Legend` | Series Guide | Interactive visibility toggle checkboxes and color indicators |
-| `chart_tooltip`| `Chart.Tooltip` | Hover Popover | Spring-physics floating popover tracking nearest active data point |
+| `axis` | `Axis` (`Chart.Axis`) | Coordinate Axes | X/Y placement (`bottom`/`left`), tick subdivisions, value formatters |
+| `grid` | `Grid` (`Chart.Grid`) | Cartesian Gridlines | Solid/dashed reference lines, sub-tick grid alignments |
+| `rule` | `Rule` (`Chart.Rule`) | Threshold Baseline | Constant reference indicator line (e.g. target $10k MRR) |
+| `line` | `Line` (`Chart.Line`) | Spline Line Mark | SVG monotonic cubic spline, gradient strokes, line widths |
+| `area` | `Area` (`Chart.Area`) | Area Fill Mark | Continuous polygon area with vertical gradient opacity falloff |
+| `bar` | `Bar` (`Chart.Bar`) | Column / Bar Mark | Rounded rectangular geometry, stacked cohort series support |
+| `point` | `Point` (`Chart.Point`) | Discrete Scatter Points | Circle, diamond, square, and sized bubble marks |
+| `arc` | `Arc` (`Chart.Arc`) | Polar Slices | Pie and donut slice geometry with corner radius and pad angle |
+| `radar` | `Radar` (`Chart.Radar`) | Multiaxial Web | Polygonal polar area for multi-dimensional trait mapping |
+| `candlestick` | `Candlestick` (`Chart.Candlestick`)| Financial OHLC Mark | Box-and-whisker geometry for price volatility tracking |
+| `funnel` | `Funnel` (`Chart.Funnel`) | Conversion Stages | Stepped trapezoid geometry with step drop-off ratios |
+| `treemap` | `Treemap` (`Chart.Treemap`) | Hierarchical Partition| 2D squarified spatial area for category breakdown |
+| `sparkline` | `Sparkline` (`Chart.Sparkline`)| Inline Micro-Trend | Ultra-dense sparkline with highlighted start/end endpoints |
+| `legend` | `Legend` (`Chart.Legend`) | Series Guide | Interactive visibility toggle checkboxes and color indicators |
+| `tooltip` | `Tooltip` (`Chart.Tooltip`) | Hover Popover | Spring-physics floating popover tracking nearest active data point |
 
 ---
 

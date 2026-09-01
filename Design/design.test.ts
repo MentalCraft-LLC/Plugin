@@ -76,38 +76,40 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
     expect(drawerData.component.name).toBe("Drawer");
     expect(drawerData.component.layer).toBe("composite");
 
-    // Inspect Chart Composite and its underlying primitives
+    // Inspect Chart Composite and its underlying single-word primitives
     const chartRes = await designOperation({ action: "inspect_component", component_id: "chart" });
     expect(chartRes.success).toBe(true);
     const chartData = chartRes.data as any;
     expect(chartData.component.layer).toBe("composite");
     expect(chartData.resolvedPrimitives.length).toBeGreaterThanOrEqual(10);
-    expect(chartData.resolvedPrimitives.map((p: any) => p.name)).toContain("ChartAxis");
-    expect(chartData.resolvedPrimitives.map((p: any) => p.name)).toContain("ChartGrid");
-    expect(chartData.resolvedPrimitives.map((p: any) => p.name)).toContain("ChartLine");
-    expect(chartData.resolvedPrimitives.map((p: any) => p.name)).toContain("ChartTooltip");
+    expect(chartData.resolvedPrimitives.map((p: any) => p.name)).toContain("Axis");
+    expect(chartData.resolvedPrimitives.map((p: any) => p.name)).toContain("Grid");
+    expect(chartData.resolvedPrimitives.map((p: any) => p.name)).toContain("Line");
+    expect(chartData.resolvedPrimitives.map((p: any) => p.name)).toContain("Tooltip");
 
-    // Inspect Table Composite and its underlying primitives
+    // Inspect Table Composite and its underlying single-word primitives
     const tableRes = await designOperation({ action: "inspect_component", component_id: "table" });
     expect(tableRes.success).toBe(true);
     const tableData = tableRes.data as any;
     expect(tableData.component.layer).toBe("composite");
     expect(tableData.resolvedPrimitives.length).toBeGreaterThanOrEqual(5);
-    expect(tableData.resolvedPrimitives.map((p: any) => p.name)).toContain("TableCell");
-    expect(tableData.resolvedPrimitives.map((p: any) => p.name)).toContain("TableRow");
-    expect(tableData.resolvedPrimitives.map((p: any) => p.name)).toContain("TableHeaderCell");
+    expect(tableData.resolvedPrimitives.map((p: any) => p.name)).toContain("Cell");
+    expect(tableData.resolvedPrimitives.map((p: any) => p.name)).toContain("Row");
+    expect(tableData.resolvedPrimitives.map((p: any) => p.name)).toContain("Header");
 
-    // Inspect individual primitive linking back to parent composite
-    const cellRes = await designOperation({ action: "inspect_component", component_id: "table_cell" });
+    // Inspect individual single-word primitive linking back to parent composite
+    const cellRes = await designOperation({ action: "inspect_component", component_id: "cell" });
     expect(cellRes.success).toBe(true);
     const cellData = cellRes.data as any;
     expect(cellData.component.layer).toBe("component");
+    expect(cellData.component.name).toBe("Cell");
     expect(cellData.parentComposite.name).toBe("Table");
 
-    const axisRes = await designOperation({ action: "inspect_component", component_id: "chart_axis" });
+    const axisRes = await designOperation({ action: "inspect_component", component_id: "axis" });
     expect(axisRes.success).toBe(true);
     const axisData = axisRes.data as any;
     expect(axisData.component.layer).toBe("component");
+    expect(axisData.component.name).toBe("Axis");
     expect(axisData.parentComposite.name).toBe("Chart");
 
     // Graceful error on non-existent component
