@@ -279,6 +279,36 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
     expect(data.svelteSnippet).toContain("Optimal Revenue Band");
   });
 
+  test("generate_ui generates kanban_board, terminal_cli, and command_palette_modal with rich variants", async () => {
+    // Kanban Board
+    const kanban = await designOperation({ action: "generate_ui", intent: "kanban_board" });
+    expect(kanban.success).toBe(true);
+    const kData = kanban.data as any;
+    expect(kData.requiredImports).toContain("Card");
+    expect(kData.requiredImports).toContain("Badge");
+    expect(kData.svelteSnippet).toContain("Sprint Production Board");
+    expect(kData.svelteSnippet).toContain("let columns = $state");
+    expect(kData.svelteSnippet).toContain("Backlog");
+    expect(kData.svelteSnippet).toContain("In Progress");
+
+    // Terminal CLI
+    const terminal = await designOperation({ action: "generate_ui", intent: "terminal_cli" });
+    expect(terminal.success).toBe(true);
+    const tData = terminal.data as any;
+    expect(tData.svelteSnippet).toContain("holar@antigravity");
+    expect(tData.svelteSnippet).toContain("Node/Bun v1.3.14");
+    expect(tData.svelteSnippet).toContain("let lines = $state");
+
+    // Command Palette Modal
+    const cmd = await designOperation({ action: "generate_ui", intent: "command_palette_modal" });
+    expect(cmd.success).toBe(true);
+    const cData = cmd.data as any;
+    expect(cData.requiredImports).toContain("Dialog");
+    expect(cData.requiredImports).toContain("Input");
+    expect(cData.svelteSnippet).toContain("Type a command or search actions (⌘K)");
+    expect(cData.svelteSnippet).toContain("filtered = $derived");
+  });
+
   test("audit_ui checks code against token usage, A11y labels and touch targets", async () => {
     const badCode = `
       <div style="background-color: #ff0000;">

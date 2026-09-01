@@ -1134,7 +1134,206 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
     </div>
   </Card>
 </div>`;
+      } else if (intent === "kanban_board") {
+        requiredImports = ["Card", "Badge", "Button"];
+        code = `<script lang="ts">
+  import { Card, Badge, Button } from "infra-ui-svelte";
+  import "infra-ui-svelte/styles.css";
+
+  // Task Kanban State with Svelte 5 Runes
+  let columns = $state([
+    {
+      id: "backlog",
+      title: "Backlog",
+      color: "border-muted",
+      cards: [
+        { id: "MC-101", title: "Add WebGPU fallback shader to SpriteFlow", priority: "medium", tag: "Engine", points: 3 },
+        { id: "MC-102", title: "Implement Stripe webhook retry queue", priority: "high", tag: "Billing", points: 5 },
+      ],
+    },
+    {
+      id: "in_progress",
+      title: "In Progress",
+      color: "border-primary",
+      cards: [
+        { id: "MC-103", title: "Refactor Table to 7 atomic primitives", priority: "urgent", tag: "Design", points: 8 },
+        { id: "MC-104", title: "Wire GAD-7 screener to practitioner DB", priority: "high", tag: "Clinical", points: 5 },
+      ],
+    },
+    {
+      id: "done",
+      title: "Completed",
+      color: "border-success",
+      cards: [
+        { id: "MC-105", title: "Publish CSSCI empirical manuscript", priority: "urgent", tag: "Science", points: 13 },
+        { id: "MC-106", title: "Zero-cost viral loops on GitHub & Itch.io", priority: "medium", tag: "Growth", points: 5 },
+      ],
+    },
+  ]);
+
+  function getPriorityBadge(priority: string) {
+    if (priority === "urgent") return { variant: "destructive" as const, label: "Urgent" };
+    if (priority === "high") return { variant: "warning" as const, label: "High" };
+    return { variant: "outline" as const, label: "Normal" };
+  }
+</script>
+
+<div class="w-full space-y-6 p-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-title-1 font-bold text-foreground">Sprint Production Board</h1>
+      <p class="text-caption text-muted">Multi-track autonomous delivery across Design, Business, and Science.</p>
+    </div>
+    <Button variant="primary">+ New Task</Button>
+  </div>
+
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+    {#each columns as col}
+      <div class="flex flex-col space-y-3 rounded-xl border border-border bg-surface-raised/50 p-4">
+        <div class="flex items-center justify-between border-b border-border pb-3">
+          <div class="flex items-center space-x-2">
+            <span class="h-2.5 w-2.5 rounded-full {col.color === 'border-success' ? 'bg-success' : col.color === 'border-primary' ? 'bg-primary' : 'bg-muted'}"></span>
+            <h2 class="text-caption font-bold text-foreground">{col.title}</h2>
+          </div>
+          <Badge variant="pill">{col.cards.length}</Badge>
+        </div>
+
+        <div class="flex flex-1 flex-col space-y-3">
+          {#each col.cards as card}
+            <Card padding="sm" class="space-y-2 border-border bg-surface transition-all hover:border-primary hover:shadow-sm">
+              <div class="flex items-center justify-between text-xs text-muted">
+                <span class="font-mono font-semibold">{card.id}</span>
+                <Badge variant={getPriorityBadge(card.priority).variant}>
+                  {getPriorityBadge(card.priority).label}
+                </Badge>
+              </div>
+              <p class="text-caption font-medium text-foreground">{card.title}</p>
+              <div class="flex items-center justify-between pt-1">
+                <Badge variant="outline">{card.tag}</Badge>
+                <span class="font-mono text-xs text-muted">{card.points} pts</span>
+              </div>
+            </Card>
+          {/each}
+        </div>
+      </div>
+    {/each}
+  </div>
+</div>`;
+      } else if (intent === "terminal_cli") {
+        requiredImports = ["Card", "Badge", "Button"];
+        code = `<script lang="ts">
+  import { Card, Badge, Button } from "infra-ui-svelte";
+  import "infra-ui-svelte/styles.css";
+
+  let lines = $state([
+    { text: "$ agy --version", type: "command" },
+    { text: "Google Antigravity CLI v2.4.0 (darwin-arm64)", type: "stdout" },
+    { text: "$ bun test Plugin/", type: "command" },
+    { text: "✓ 255 pass across 26 files (3,349 assertions, 0 errors)", type: "success" },
+    { text: "$ git push origin main", type: "command" },
+    { text: "To https://github.com/MentalCraft-LLC/Plugin.git", type: "stdout" },
+    { text: "   fcf5d09..63a53a8  main -> main", type: "success" },
+  ]);
+
+  let commandInput = $state("");
+
+  function executeCommand(e: Event) {
+    e.preventDefault();
+    if (!commandInput.trim()) return;
+    lines = [...lines, { text: \`$ \${commandInput}\`, type: "command" }, { text: "Executing task...", type: "stdout" }];
+    commandInput = "";
+  }
+</script>
+
+<div class="mx-auto w-full max-w-4xl p-6">
+  <div class="overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 font-mono text-sm shadow-2xl">
+    <!-- Titlebar -->
+    <div class="flex items-center justify-between border-b border-neutral-800 bg-neutral-900/80 px-4 py-2.5">
+      <div class="flex items-center space-x-2">
+        <span class="h-3 w-3 rounded-full bg-red-500/80"></span>
+        <span class="h-3 w-3 rounded-full bg-yellow-500/80"></span>
+        <span class="h-3 w-3 rounded-full bg-green-500/80"></span>
+        <span class="ml-2 text-xs font-medium text-neutral-400">holar@antigravity: ~/Holar</span>
+      </div>
+      <Badge variant="primary">Node/Bun v1.3.14</Badge>
+    </div>
+
+    <!-- Terminal Buffer -->
+    <div class="space-y-1.5 p-4 text-xs text-neutral-200">
+      {#each lines as line}
+        {#if line.type === "command"}
+          <div class="text-neutral-400 font-semibold">{line.text}</div>
+        {#else if line.type === "success"}
+          <div class="text-emerald-400">{line.text}</div>
+        {#else}
+          <div class="text-neutral-300">{line.text}</div>
+        {/if}
+      {/each}
+
+      <!-- Interactive Input Line -->
+      <form onsubmit={executeCommand} class="flex items-center space-x-2 pt-2">
+        <span class="text-primary font-bold">❯</span>
+        <input
+          bind:value={commandInput}
+          placeholder="Type command..."
+          class="flex-1 bg-transparent text-neutral-100 placeholder-neutral-600 focus:outline-none"
+        />
+      </form>
+    </div>
+  </div>
+</div>`;
+      } else if (intent === "command_palette_modal") {
+        requiredImports = ["Dialog", "Input", "Badge", "Kbd"];
+        code = `<script lang="ts">
+  import { Dialog, Input, Badge } from "infra-ui-svelte";
+  import "infra-ui-svelte/styles.css";
+
+  let open = $state(true);
+  let searchQuery = $state("");
+
+  const actions = [
+    { id: "new_screener", title: "Create Clinical Screener Link", category: "MentalCraft", shortcut: "⌘N" },
+    { id: "view_mrr", title: "Open Revenue Telemetry Dashboard", category: "SpriteFlow", shortcut: "⌘R" },
+    { id: "audit_paper", title: "Audit Manuscript Triangulation", category: "Science", shortcut: "⌘S" },
+    { id: "run_benchmark", title: "Run Microsecond Latency Benchmark", category: "Plugin", shortcut: "⌘B" },
+  ];
+
+  const filtered = $derived(
+    actions.filter(a => a.title.toLowerCase().includes(searchQuery.toLowerCase()) || a.category.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+</script>
+
+<div class="mx-auto w-full max-w-xl p-4">
+  <div class="overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl backdrop-blur-xl">
+    <div class="border-b border-border p-4">
+      <Input
+        bind:value={searchQuery}
+        placeholder="Type a command or search actions (⌘K)..."
+        class="border-0 bg-transparent text-base focus:ring-0"
+      />
+    </div>
+
+    <div class="max-h-72 divide-y divide-border overflow-y-auto p-2">
+      {#each filtered as action}
+        <button
+          type="button"
+          class="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition-colors hover:bg-surface-raised"
+          onclick={() => alert(\`Executed \${action.title}\`)}
+        >
+          <div class="flex items-center space-x-3">
+            <span class="text-caption font-semibold text-muted">[{action.category}]</span>
+            <span class="font-medium text-foreground">{action.title}</span>
+          </div>
+          <kbd class="rounded border border-border bg-surface-raised px-1.5 py-0.5 font-mono text-xs text-muted">
+            {action.shortcut}
+          </kbd>
+        </button>
+      {/each}
+    </div>
+  </div>
+</div>`;
       } else {
+        requiredImports = ["Card", "Button"];
         code = `<script lang="ts">
   import { Card, Button } from "infra-ui-svelte";
   import "infra-ui-svelte/styles.css";
