@@ -157,15 +157,16 @@ export function generateScheduleSpec(
   const vName = goal.ventureName || "MentalCraft";
   const targetMrr = goal.targetMrrUsd || 10000;
 
-  let cronExpr = "0 * * * *"; // default: every hour
-  if (intervalMinutes === 30) {
-    cronExpr = "*/30 * * * *";
-  } else if (intervalMinutes === 15) {
-    cronExpr = "*/15 * * * *";
+  let cronExpr = `*/${intervalMinutes} * * * *`;
+  if (intervalMinutes === 60) {
+    cronExpr = "0 * * * *";
   } else if (intervalMinutes === 1440) {
     cronExpr = "0 9 * * *"; // 9 AM daily
   } else if (intervalMinutes === 360) {
     cronExpr = "0 */6 * * *"; // Every 6 hours
+  } else if (intervalMinutes >= 60) {
+    const hours = Math.round(intervalMinutes / 60);
+    cronExpr = `0 */${hours} * * *`;
   }
 
   const prompt = `[Autopilot Wakeup] 执行 ${vName} $${targetMrr.toLocaleString()} MRR 商业化自推进巡检：\n` +
