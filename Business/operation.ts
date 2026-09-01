@@ -46,6 +46,9 @@ import {
   calculateDetectorIndependentMrrEngine,
   calculateDualIndependent20kEnterpriseMrr,
   auditBrandLlmoReadiness,
+  trackLiveMrrTelemetryProgress,
+  generateMultilingualPseoMatrix,
+  designCampusAmbassadorAndReferralEngine,
 } from "./modules/essay_growth.ts";
 
 export class TrafficCvClient {
@@ -2190,6 +2193,45 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         return {
           protocol: BUSINESS_PROTOCOL,
           action: "essay_llmo_engine",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "essay_live_telemetry_monitor": {
+        const sprintDay = (input as any).sprint_day;
+        const currentHumanizeSubs = (input as any).current_humanize_subs;
+        const currentDetectorSubs = (input as any).current_detector_subs;
+        const data = trackLiveMrrTelemetryProgress({ sprintDay, currentHumanizeSubs, currentDetectorSubs });
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "essay_live_telemetry_monitor",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "essay_multilingual_pseo_matrix": {
+        const data = generateMultilingualPseoMatrix();
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "essay_multilingual_pseo_matrix",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "essay_campus_ambassador_loop": {
+        const data = designCampusAmbassadorAndReferralEngine();
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "essay_campus_ambassador_loop",
           success: true,
           timestamp,
           provider: "auto",

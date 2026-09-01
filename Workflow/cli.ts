@@ -60,7 +60,7 @@ export function generateMarkdownCatalog(): string {
     "| Subsystem | Actions | Protocol | Key Domain Scope |",
     "|---|---|---|---|",
     "| `Workflow` | 17 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |",
-    "| `Business` | 32 | `holar.business.v1` | 8-Stage Venture Lifecycle, Dual $10k MRR Engines, LLMO Engine, Telemetry Tracker, Leak Auditor |",
+    "| `Business` | 35 | `holar.business.v1` | 8-Stage Venture Lifecycle, Dual $10k MRR Engines, Multilingual pSEO, Campus Ambassador, Live Telemetry |",
     "| `Science` | 23 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, CSS, Grants, Authoring, Peer Review, Journals, Patents, Impact |",
     "| `Content` | 10 | `holar.content.v1` | Creative & Commercial Content: Fiction Worldbuilding, 15 Plot Beats, Character Arcs, PAS Copy, Omnichannel Matrix |",
     "| `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |",
@@ -235,8 +235,8 @@ async function mainCommand(cmd: string) {
 ║ Overall Health: ${report.overallStatus === "healthy" ? "🟢 HEALTHY" : "🟡 DEGRADED"} (Score: ${report.healthScore}/100) | Healthy Plugins: ${report.healthyPlugins}/${report.totalPlugins}   ║
 ║ Protocols: MCP Stdio, HTTP/SSE (Port 3999), OpenRPC 1.3, OpenAPI 3.1           ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
-║ ACTIVE CAPABILITY SUBSYSTEMS (7 Modules / 163 Actions)                         ║
-║  • Business  [${report.plugins.business?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (32 actions) | 8-Stage Venture Lifecycle, LLMO & $10k MRR║
+║ ACTIVE CAPABILITY SUBSYSTEMS (7 Modules / 166 Actions)                         ║
+║  • Business  [${report.plugins.business?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (35 actions) | 8-Stage Venture Lifecycle & Dual $10k MRR║
 ║  • Science   [${report.plugins.science?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (23 actions) | 8-Stage Academic Production Lifecycle       ║
 ║  • Content   [${report.plugins.content?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (10 actions) | Fiction Worldbuilding, 15 Beats, PAS Copy   ║
 ║  • Design    [${report.plugins.design?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (10 actions) | 5-Layer UI, Runes, Tokens, Presets     ║

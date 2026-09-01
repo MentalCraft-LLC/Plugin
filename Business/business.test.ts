@@ -820,5 +820,31 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
     expect(llmoData.generatedLlmsTxtSpecs.essayDetectorLlmsTxt).toContain("EssayDetector.org");
     expect(llmoData.llmSearchEngineRatings.length).toBe(4);
     expect(llmoData.actionableLlmoRecommendations.length).toBe(4);
+
+    // 9. Live MRR Telemetry Monitor & Pacing
+    const liveRes = await businessOperation({ action: "essay_live_telemetry_monitor", sprint_day: 30 } as any);
+    expect(liveRes.success).toBe(true);
+    const liveData = liveRes.data as any;
+    expect(liveData.essayHumanize.targetMrrUsd).toBe(10081);
+    expect(liveData.essayDetector.targetMrrUsd).toBe(10099);
+    expect(liveData.combinedEnterprise.totalTargetMrrUsd).toBe(20180);
+    expect(liveData.combinedEnterprise.pacingStatus).toBe("ON_TRACK");
+
+    // 10. Multilingual Programmatic SEO Matrix (6 Languages, 500+ keywords)
+    const multiRes = await businessOperation({ action: "essay_multilingual_pseo_matrix" });
+    expect(multiRes.success).toBe(true);
+    const multiData = multiRes.data as any;
+    expect(multiData.languagesSupported.length).toBe(6);
+    expect(multiData.totalGlobalEstimatedMonthlySearchVolume).toBeGreaterThan(250000);
+    expect(multiData.projectedInternationalMrrUsd).toBeGreaterThan(8000);
+
+    // 11. Campus Ambassador & Viral Peer Referral Engine
+    const ambRes = await businessOperation({ action: "essay_campus_ambassador_loop" });
+    expect(ambRes.success).toBe(true);
+    const ambData = ambRes.data as any;
+    expect(ambData.viralCoefficientK).toBeGreaterThan(1.2);
+    expect(ambData.referralIncentiveStructure.referrerRewardWords).toBe(5000);
+    expect(ambData.ambassadorTiers.length).toBe(3);
+    expect(ambData.targetCampusCount).toBe(200);
   });
 });

@@ -114,6 +114,9 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "essay_detector_mrr_engine",
       "essay_dual_independent_10k_mrr",
       "essay_llmo_engine",
+      "essay_live_telemetry_monitor",
+      "essay_multilingual_pseo_matrix",
+      "essay_campus_ambassador_loop",
       "list_actions",
     ],
     science: [
