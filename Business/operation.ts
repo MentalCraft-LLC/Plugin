@@ -14,7 +14,7 @@
  * Supports four primary commercial modalities: 'website', 'app', 'game', and 'shop'.
  */
 
-import { GefeiClient } from "../Gefei/core.ts";
+import { GefeiClient } from "./gefei.ts";
 import {
   BUSINESS_PROTOCOL,
   type BusinessInput,

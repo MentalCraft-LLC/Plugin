@@ -12,7 +12,6 @@ Private repo: https://github.com/MentalCraft-LLC/Plugin
 | `Workflow/` | Compound multi-plugin pipelines, latency/throughput benchmark suite, OpenRPC/OpenAPI spec exporters |
 | `Message/` | Multi-channel communication engine (Telegram bot webhook/polling, iMessage AppleEvents, Gmail API) |
 | `Secret/` | Atomic 0600 secure file write primitives & multi-vault secret manager |
-| `Gefei/` | SEO intelligence, keyword difficulty, backlink & competitor analytics MCP server |
 
 ### Rules
 - Work only under this tree.
