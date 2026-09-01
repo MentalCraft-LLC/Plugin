@@ -2,12 +2,12 @@ import { describe, expect, test } from "bun:test";
 import { businessOperation } from "../Business/operation.ts";
 import { scienceOperation } from "../Science/operation.ts";
 import { designOperation } from "../Design/operation.ts";
-import { workflowOperation } from "../Workflow/operation.ts";
+import { workflowOperation } from "./operation.ts";
 import { BUSINESS_PROTOCOL } from "../Business/core.ts";
 import { SCIENCE_PROTOCOL } from "../Science/core.ts";
 import { DESIGN_PROTOCOL } from "../Design/core.ts";
-import { WORKFLOW_PROTOCOL } from "../Workflow/core.ts";
-import { handleGatewayRpc } from "../gateway.ts";
+import { WORKFLOW_PROTOCOL } from "./core.ts";
+import { handleGatewayRpc } from "./gateway.ts";
 
 describe("Golden Protocol & Contract Verification Across All 6 Plugins", () => {
   test("Business plugin contract conforms to strict output schema", async () => {

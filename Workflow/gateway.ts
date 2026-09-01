@@ -10,18 +10,18 @@
  * - message (Multi-Channel Priority Communication Bus)
  */
 
-import { workflowOperation } from "./Workflow/operation.ts";
-import { designOperation } from "./Design/operation.ts";
-import { businessOperation } from "./Business/operation.ts";
-import { scienceOperation } from "./Science/operation.ts";
-import { createBrowserContextOperation } from "./Chrome/operation.ts";
-import { createMessageOperation } from "./Message/operation.ts";
+import { workflowOperation } from "./operation.ts";
+import { designOperation } from "../Design/operation.ts";
+import { businessOperation } from "../Business/operation.ts";
+import { scienceOperation } from "../Science/operation.ts";
+import { createBrowserContextOperation } from "../Chrome/operation.ts";
+import { createMessageOperation } from "../Message/operation.ts";
 
-import { WORKFLOW_INPUT_SCHEMA } from "./Workflow/mcp-server.ts";
-import { DESIGN_INPUT_SCHEMA } from "./Design/mcp-server.ts";
-import { BUSINESS_INPUT_SCHEMA } from "./Business/mcp-server.ts";
-import { SCIENCE_INPUT_SCHEMA } from "./Science/mcp-server.ts";
-import { MESSAGE_INPUT_SCHEMA } from "./Message/mcp-server.ts";
+import { WORKFLOW_INPUT_SCHEMA } from "./mcp-server.ts";
+import { DESIGN_INPUT_SCHEMA } from "../Design/mcp-server.ts";
+import { BUSINESS_INPUT_SCHEMA } from "../Business/mcp-server.ts";
+import { SCIENCE_INPUT_SCHEMA } from "../Science/mcp-server.ts";
+import { MESSAGE_INPUT_SCHEMA } from "../Message/mcp-server.ts";
 
 export type JsonRpcId = string | number | null;
 
@@ -230,14 +230,14 @@ export function startGatewayMcpHttp(port = 3890) {
       }
 
       if (url.pathname === "/health") {
-        const { executeHealthCheck } = require("./Workflow/operation.ts");
+        const { executeHealthCheck } = require("./operation.ts");
         const report = await executeHealthCheck("all");
         const status = report.overallStatus === "healthy" ? 200 : 503;
         return new Response(JSON.stringify(report, null, 2), { status, headers: corsHeaders });
       }
 
       if (url.pathname === "/metrics") {
-        const { getSystemTelemetry } = require("./Workflow/operation.ts");
+        const { getSystemTelemetry } = require("./operation.ts");
         const telemetry = getSystemTelemetry();
         return new Response(JSON.stringify(telemetry, null, 2), { status: 200, headers: corsHeaders });
       }

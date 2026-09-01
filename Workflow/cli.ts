@@ -7,13 +7,13 @@
  * interactive REPL console, and automatic documentation generation.
  */
 
-import { BUILTIN_WORKFLOWS, type PluginId } from "./Workflow/core.ts";
-import { executeHealthCheck, workflowOperation } from "./Workflow/operation.ts";
-import { designOperation } from "./Design/operation.ts";
-import { businessOperation } from "./Business/operation.ts";
-import { scienceOperation } from "./Science/operation.ts";
-import { createBrowserContextOperation } from "./Chrome/operation.ts";
-import { createMessageOperation } from "./Message/operation.ts";
+import { BUILTIN_WORKFLOWS, type PluginId } from "./core.ts";
+import { executeHealthCheck, workflowOperation } from "./operation.ts";
+import { designOperation } from "../Design/operation.ts";
+import { businessOperation } from "../Business/operation.ts";
+import { scienceOperation } from "../Science/operation.ts";
+import { createBrowserContextOperation } from "../Chrome/operation.ts";
+import { createMessageOperation } from "../Message/operation.ts";
 import { startGatewayMcpStdio, startGatewayMcpHttp } from "./gateway.ts";
 import { createInterface } from "node:readline/promises";
 import { writeFileSync, existsSync, mkdirSync } from "node:fs";
@@ -363,7 +363,7 @@ async function mainCommand(cmd: string) {
     case "export-specs":
     case "specs": {
       const outDirArg = args.find((a) => a.startsWith("--dir="));
-      const outDir = outDirArg ? outDirArg.split("=")[1] : join(import.meta.dir, ".agents/specs");
+      const outDir = outDirArg ? outDirArg.split("=")[1] : join(import.meta.dir, "../.agents/specs");
       if (!existsSync(outDir)) {
         mkdirSync(outDir, { recursive: true });
       }
@@ -401,7 +401,7 @@ async function mainCommand(cmd: string) {
     case "docs":
     case "catalog": {
       const doc = generateMarkdownCatalog();
-      const agentsDir = join(import.meta.dir, ".agents");
+      const agentsDir = join(import.meta.dir, "../.agents");
       if (!existsSync(agentsDir)) {
         mkdirSync(agentsDir, { recursive: true });
       }

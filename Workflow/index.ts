@@ -1,11 +1,8 @@
 /**
- * MentalCraft Plugin Ecosystem - Root Unified SDK
- *
- * Exposes all 6 core capability engines, protocols, types, and dispatcher operations
- * with 100% Agent-Less and host-agnostic guarantees.
+ * MentalCraft Plugin Ecosystem - Unified Workflow & Core Engine SDK
  */
 
-// Business Pillar (8-Stage Venture Lifecycle across Websites, Apps, Games, SEO, ASO, Steam, Stripe)
+// Business Subsystem
 export {
   BUSINESS_PROTOCOL,
   formatBusinessSummary,
@@ -33,10 +30,10 @@ export {
   type SpriteFlowPseoMatrixResult,
   type ZeroCostViralLoopsResult,
   type PseoKeywordEntry,
-} from "./Business/core.ts";
-export { businessOperation, TrafficCvClient } from "./Business/operation.ts";
+} from "../Business/core.ts";
+export { businessOperation, TrafficCvClient } from "../Business/operation.ts";
 
-// Science Pillar (8-Stage Academic Production Lifecycle across Paper, Grant, Journal, and Patent)
+// Science Subsystem
 export {
   SCIENCE_PROTOCOL,
   formatScienceSummary,
@@ -74,7 +71,7 @@ export {
   type PatentClaimStructureResult,
   type PatentSpecScaffoldResult,
   type ScholarlyImpactForecastResult,
-} from "./Science/core.ts";
+} from "../Science/core.ts";
 export {
   scienceOperation,
   parseBibtexToAst,
@@ -85,14 +82,16 @@ export {
   performSocialScienceReviewAudit,
   formatChineseAcademicPaper,
   matchSsciTopJournals,
-} from "./Science/operation.ts";
+} from "../Science/operation.ts";
 
-// Design Pillar (5-Layer Architecture, Svelte 5 Runes UI, On-Demand Subpaths, Tokens)
+// Design Subsystem
 export {
   DESIGN_PROTOCOL,
   COMPONENT_CATALOG,
   DESIGN_TOKENS,
   DOMAIN_PRESETS,
+  DUOTONE_RECIPES,
+  SUBSTRATES,
   formatDesignSummary,
   compactDesignResult,
   type DesignAction,
@@ -101,10 +100,13 @@ export {
   type ComponentSpec,
   type TokenDefinition,
   type DomainPreset,
-} from "./Design/core.ts";
-export { designOperation } from "./Design/operation.ts";
+  type DuotonePaletteId,
+  type SubstrateId,
+  type EditorialManifest,
+} from "../Design/core.ts";
+export { designOperation } from "../Design/operation.ts";
 
-// Workflow Pillar (Cross-Plugin DAG Orchestrator, Health Probes, OpenRPC Catalogs)
+// Workflow Subsystem
 export {
   WORKFLOW_PROTOCOL,
   BUILTIN_WORKFLOWS,
@@ -120,7 +122,7 @@ export {
   type SystemHealthReport,
   type PluginHealthReport,
   type ExportConfigResult,
-} from "./Workflow/core.ts";
+} from "./core.ts";
 export {
   workflowOperation,
   executeHealthCheck,
@@ -132,28 +134,28 @@ export {
   batchExecute,
   withRetry,
   redactSensitiveData,
-} from "./Workflow/operation.ts";
+} from "./operation.ts";
 
-// Chrome Subsystem (Browser Automation & Native Messaging Bridge)
+// Chrome Subsystem
 export {
   PROTOCOL as CHROME_PROTOCOL,
   compactBrowserResult,
   formatBrowserSummary,
-} from "./Chrome/core.ts";
+} from "../Chrome/core.ts";
 export {
   createBrowserContextOperation,
   type BrowserContextInput,
   type BrowserContextOperation,
-} from "./Chrome/operation.ts";
+} from "../Chrome/operation.ts";
 
-// Message Subsystem (Multi-Channel Priority Communication Bus)
+// Message Subsystem
 export {
   createMessageOperation,
   type MessageInput,
   type MessageResult,
-} from "./Message/operation.ts";
+} from "../Message/operation.ts";
 
-// Master MCP Gateway
+// Gateway
 export {
   handleGatewayRpc,
   startGatewayMcpHttp,

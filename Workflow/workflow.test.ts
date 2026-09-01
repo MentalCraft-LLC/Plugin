@@ -235,7 +235,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
   });
 
   test("Master Gateway MCP handles initialize, tools/list, and multi-plugin tools/call", async () => {
-    const { handleGatewayRpc, startGatewayMcpHttp } = require("../gateway.ts");
+    const { handleGatewayRpc, startGatewayMcpHttp } = require("./gateway.ts");
     const initRes = await handleGatewayRpc({ jsonrpc: "2.0", id: 1, method: "initialize" });
     expect(initRes.result.serverInfo.name).toBe("mentalcraft-gateway-mcp");
 
@@ -278,7 +278,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
   });
 
   test("Root index.ts cleanly re-exports all 6 capabilities and gateway", async () => {
-    const root = await import("../index.ts");
+    const root = await import("./index.ts");
     expect(root.businessOperation).toBeDefined();
     expect(root.scienceOperation).toBeDefined();
     expect(root.designOperation).toBeDefined();
