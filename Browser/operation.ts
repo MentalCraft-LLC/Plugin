@@ -19,9 +19,18 @@ import {
   type BrowserCommand,
 } from "./core.ts";
 import { acquireChromeOsLease } from "./os-lease.ts";
+import {
+  runLighthouseAudit,
+  analyzePerformanceTrace,
+  analyzeHeapMemory,
+  analyzeNetworkWaterfall,
+  auditSecurityAndConsole,
+  resolveEmulationProfile,
+  buildAccessibilityTree,
+} from "./modules/devtools.ts";
 
 export type BrowserContextInput = {
-  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "set_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "drag_and_drop" | "upload_file" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate" | "emulate";
+  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "set_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "drag_and_drop" | "upload_file" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate" | "emulate" | "lighthouse_audit" | "performance_trace" | "heap_analysis" | "network_waterfall" | "security_audit" | "emulate_profile" | "accessibility_tree";
   mode?: "start" | "stop" | "list" | "add" | "remove" | "clear";
   url?: string;
   max_sections?: number;
@@ -76,6 +85,14 @@ export type BrowserContextInput = {
   base64?: string;
   files?: Array<{ name: string; type?: string; content?: string; base64?: string }>;
   storage_type?: "local" | "session" | "all";
+  categories?: ("performance" | "accessibility" | "best_practices" | "seo" | "pwa")[];
+  device_preset?: "iphone_15_pro" | "pixel_8" | "ipad_pro" | "desktop_4k" | "laptop_1080p" | "galaxy_s24";
+  network_throttle?: "offline" | "slow_3g" | "fast_3g" | "4g" | "wifi" | "custom";
+  cpu_throttling_rate?: 1 | 2 | 4 | 6;
+  reduced_motion?: "reduce" | "no-preference";
+  geolocation?: { latitude: number; longitude: number; accuracy: number };
+  timezone_id?: string;
+  locale?: string;
 };
 
 export type BrowserOperationContext = {
@@ -310,6 +327,28 @@ export function createBrowserContextOperation(options: {
         files: params.files,
         allow_active: allowActive,
       };
+    } else if (params.action === "lighthouse_audit") {
+      return runLighthouseAudit(url, { categories: params.categories });
+    } else if (params.action === "performance_trace") {
+      return analyzePerformanceTrace(url);
+    } else if (params.action === "heap_analysis") {
+      return analyzeHeapMemory(url);
+    } else if (params.action === "network_waterfall") {
+      return analyzeNetworkWaterfall(url);
+    } else if (params.action === "security_audit") {
+      return auditSecurityAndConsole(url);
+    } else if (params.action === "emulate_profile") {
+      return resolveEmulationProfile(params.device_preset, {
+        networkThrottle: params.network_throttle,
+        cpuThrottlingRate: params.cpu_throttling_rate,
+        colorScheme: params.color_scheme,
+        reducedMotion: params.reduced_motion,
+        geolocation: params.geolocation,
+        timezoneId: params.timezone_id,
+        locale: params.locale,
+      });
+    } else if (params.action === "accessibility_tree") {
+      return buildAccessibilityTree(url);
     } else if (params.action === "annotate") {
       const mode = params.mode ?? "list";
       const note = mode === "add" && params.value ? safePublicMultiline(params.value) : params.value;

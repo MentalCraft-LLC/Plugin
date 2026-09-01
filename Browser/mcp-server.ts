@@ -66,10 +66,19 @@ export const CHROME_ACTIONS = [
   "semantic_snapshot",
   "annotate",
   "emulate",
+  "lighthouse_audit",
+  "performance_trace",
+  "heap_analysis",
+  "network_waterfall",
+  "security_audit",
+  "emulate_profile",
+  "accessibility_tree",
   "drag_and_drop",
   "upload_file",
   "close_group",
 ] as const;
+
+export const BROWSER_ACTIONS = CHROME_ACTIONS;
 
 export const CHROME_INPUT_SCHEMA = {
   type: "object",
@@ -144,8 +153,25 @@ export const CHROME_INPUT_SCHEMA = {
     storage_type: { type: "string", enum: ["local", "session", "all"] },
     fps: { type: "integer", minimum: 1, maximum: 60 },
     mode: { type: "string", enum: ["start", "stop", "list", "add", "remove", "clear"] },
+    categories: { type: "array", items: { type: "string", enum: ["performance", "accessibility", "best_practices", "seo", "pwa"] } },
+    device_preset: { type: "string", enum: ["iphone_15_pro", "pixel_8", "ipad_pro", "desktop_4k", "laptop_1080p", "galaxy_s24"] },
+    network_throttle: { type: "string", enum: ["offline", "slow_3g", "fast_3g", "4g", "wifi", "custom"] },
+    cpu_throttling_rate: { type: "integer", enum: [1, 2, 4, 6] },
+    reduced_motion: { type: "string", enum: ["reduce", "no-preference"] },
+    geolocation: {
+      type: "object",
+      properties: {
+        latitude: { type: "number" },
+        longitude: { type: "number" },
+        accuracy: { type: "number" },
+      },
+    },
+    timezone_id: { type: "string" },
+    locale: { type: "string" },
   },
 } as const;
+
+export const BROWSER_INPUT_SCHEMA = CHROME_INPUT_SCHEMA;
 
 export type JsonRpcId = string | number | null;
 

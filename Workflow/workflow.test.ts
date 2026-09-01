@@ -539,7 +539,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(bench.subsystems.science.length).toBeGreaterThanOrEqual(4);
     expect(bench.subsystems.design.length).toBeGreaterThanOrEqual(4);
     expect(bench.subsystems.workflow.length).toBeGreaterThanOrEqual(4);
-    expect(bench.subsystems.chrome.length).toBeGreaterThanOrEqual(1);
+    expect((bench.subsystems.browser || bench.subsystems.chrome).length).toBeGreaterThanOrEqual(1);
     expect(bench.subsystems.message.length).toBeGreaterThanOrEqual(2);
 
     // Also verify via workflowOperation

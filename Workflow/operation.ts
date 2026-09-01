@@ -155,6 +155,24 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "health_check",
       "dry_run",
     ],
+    browser: [
+      "navigate",
+      "screenshot",
+      "inspect_element",
+      "profile_vitals",
+      "evaluate_script",
+      "click",
+      "fill",
+      "hover",
+      "lighthouse_audit",
+      "performance_trace",
+      "heap_analysis",
+      "network_waterfall",
+      "security_audit",
+      "emulate_profile",
+      "accessibility_tree",
+      "disassemble",
+    ],
     chrome: [
       "navigate",
       "screenshot",
@@ -164,6 +182,14 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "click",
       "fill",
       "hover",
+      "lighthouse_audit",
+      "performance_trace",
+      "heap_analysis",
+      "network_waterfall",
+      "security_audit",
+      "emulate_profile",
+      "accessibility_tree",
+      "disassemble",
     ],
     message: [
       "send",
@@ -714,13 +740,49 @@ export async function executeBenchmark(options: {
     );
   }
 
-  if (allowedSubsystems.has("chrome")) {
+  if (allowedSubsystems.has("browser") || allowedSubsystems.has("chrome")) {
     targets.push(
       {
-        subsystem: "chrome",
-        action: "status",
-        label: "Chrome: status (native bridge status)",
-        fn: () => executeChrome({ action: "status" }),
+        subsystem: "browser",
+        action: "lighthouse_audit",
+        label: "Browser: lighthouse_audit (5-category scoring)",
+        fn: () => executeBrowser({ action: "lighthouse_audit", url: "https://example.com" }),
+      },
+      {
+        subsystem: "browser",
+        action: "performance_trace",
+        label: "Browser: performance_trace (Navigation & Web Vitals)",
+        fn: () => executeBrowser({ action: "performance_trace", url: "https://example.com" }),
+      },
+      {
+        subsystem: "browser",
+        action: "heap_analysis",
+        label: "Browser: heap_analysis (V8 Heap & DOM leaks)",
+        fn: () => executeBrowser({ action: "heap_analysis", url: "https://example.com" }),
+      },
+      {
+        subsystem: "browser",
+        action: "network_waterfall",
+        label: "Browser: network_waterfall (Request forensics & savings)",
+        fn: () => executeBrowser({ action: "network_waterfall", url: "https://example.com" }),
+      },
+      {
+        subsystem: "browser",
+        action: "security_audit",
+        label: "Browser: security_audit (Headers & console forensics)",
+        fn: () => executeBrowser({ action: "security_audit", url: "https://example.com" }),
+      },
+      {
+        subsystem: "browser",
+        action: "emulate_profile",
+        label: "Browser: emulate_profile (Device & throttling)",
+        fn: () => executeBrowser({ action: "emulate_profile", url: "https://example.com", device_preset: "iphone_15_pro" }),
+      },
+      {
+        subsystem: "browser",
+        action: "accessibility_tree",
+        label: "Browser: accessibility_tree (LLM-optimized AXTree)",
+        fn: () => executeBrowser({ action: "accessibility_tree", url: "https://example.com" }),
       }
     );
   }
