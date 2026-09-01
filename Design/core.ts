@@ -1026,6 +1026,38 @@ export const COMPONENT_CATALOG: ComponentSpec[] = [
     slots: ["before", "after", "controls"],
     example: `<Comparison title="Typography Balance Test">\n  {#snippet before()}...\n  {#snippet after()}...\n  {#snippet controls()}...\n</Comparison>`,
   },
+  {
+    id: "spotlight",
+    name: "Spotlight",
+    layer: "component",
+    category: "effect",
+    description: "Interactive ambient cursor-tracking lighting effect illuminating cards and surface borders on hover.",
+    importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/effect/spotlight",
+    estimatedSizeKb: 1.2,
+    props: [
+      { name: "size", type: "number", required: false, default: "400", description: "Spotlight radius in px" },
+      { name: "color", type: "string", required: false, description: "Radial gradient color" },
+    ],
+    slots: ["children"],
+    a11yRole: "presentation",
+    example: `<Spotlight>\n  <Card>Hover me to see ambient lighting</Card>\n</Spotlight>`,
+  },
+  {
+    id: "noise",
+    name: "Noise",
+    layer: "component",
+    category: "effect",
+    description: "Tactile SVG fractal noise overlay giving physical paper/glass grain texture with 0 layout shift.",
+    importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/effect/noise",
+    estimatedSizeKb: 0.8,
+    props: [
+      { name: "opacity", type: "number", required: false, default: "0.035", description: "Texture opacity ratio" },
+    ],
+    a11yRole: "presentation",
+    example: `<Noise opacity={0.04} />`,
+  },
 ];
 
 /** Domain-Specific Plug-and-Play Design Slices */
