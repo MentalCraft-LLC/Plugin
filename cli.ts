@@ -16,7 +16,7 @@ import { createBrowserContextOperation } from "./Chrome/operation.ts";
 import { createMessageOperation } from "./Message/operation.ts";
 import { startGatewayMcpStdio, startGatewayMcpHttp } from "./gateway.ts";
 import { createInterface } from "node:readline/promises";
-import { writeFileSync } from "node:fs";
+import { writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
 const args = process.argv.slice(2);
@@ -363,7 +363,10 @@ async function mainCommand(cmd: string) {
     case "export-specs":
     case "specs": {
       const outDirArg = args.find((a) => a.startsWith("--dir="));
-      const outDir = outDirArg ? outDirArg.split("=")[1] : import.meta.dir;
+      const outDir = outDirArg ? outDirArg.split("=")[1] : join(import.meta.dir, ".agents/specs");
+      if (!existsSync(outDir)) {
+        mkdirSync(outDir, { recursive: true });
+      }
       const rpcRes = await workflowOperation({ action: "export_openrpc_spec" });
       const apiRes = await workflowOperation({ action: "export_openapi_spec" });
 
@@ -398,7 +401,11 @@ async function mainCommand(cmd: string) {
     case "docs":
     case "catalog": {
       const doc = generateMarkdownCatalog();
-      const targetFile = join(import.meta.dir, "CATALOG.md");
+      const agentsDir = join(import.meta.dir, ".agents");
+      if (!existsSync(agentsDir)) {
+        mkdirSync(agentsDir, { recursive: true });
+      }
+      const targetFile = join(agentsDir, "CATALOG.md");
       writeFileSync(targetFile, doc, "utf-8");
       console.log(`\n✓ Generated documentation catalog: ${targetFile}\n`);
       break;
