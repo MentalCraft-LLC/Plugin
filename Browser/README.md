@@ -1,237 +1,66 @@
-# Chrome Context
+# Browser Context Subsystem (`Plugin/Browser`)
 
-## Decision
+## Architectural Vision & Decision
 
-Use one Owner-installed Manifest V3 Chrome Extension plus a user-only Native
-Messaging bridge. This is the only bounded design that simultaneously reuses the
-Owner's existing Chrome login state, runs in inactive tabs, avoids popup UI and
-handles Cookie/session material only through a local bounded session atom.
+Use one Owner-installed Manifest V3 Browser Extension plus a user-only Native Messaging bridge. This is the only bounded design that simultaneously reuses the Owner's existing authenticated sessions, runs in inactive background tabs without displacing the user's active window, avoids disruptive popup UIs, and handles Cookie/session material strictly through a local bounded session atom.
 
-Chrome intentionally prohibits silent Extension installation. The Owner must
-load the unpacked Extension once in the intended Chrome profile. Login expiry,
-account selection, MFA, CAPTCHA and consent are automatable on the Owner's
-profile (Owner directive 2026-08-12); financial actions remain the only
-obstruction.
-
-## Name
-
-`chrome` is the capability name: it describes a bounded,
-privacy-preserving chrome context rather than an implementation detail.
-Background tabs remain an implementation boundary, not a separate capability.
 Every harness consumes `operation.ts` through the standard MCP server (`mcp-server.ts`), the Master Gateway (`gateway.ts`), or direct TypeScript SDK import.
 
-## Operation
+---
 
-`operation.ts` is the single executable browser atom. MCP and host adapters
-register the public ABI and delegate to that atom; Owner workflows may reuse
-the same operation directly rather than attempting unsupported Tool-to-Tool
-calls or duplicating browser guards.
+## 🚀 DevTools Superset & Intelligent Automation Capabilities
 
-## Boundary
+`Plugin/Browser` completely integrates and surpasses standard Chrome DevTools:
 
-The Chrome Extension has only these permissions:
+### 1. DevTools Superset Suite (`modules/devtools.ts`)
+- 🏅 **Lighthouse 5-Category Quality Audits (`lighthouse_audit`)**: Full 0-100 scoring across Performance, Accessibility, Best Practices, SEO, and PWA. Measures Core Web Vitals (FCP, LCP, CLS, TBT, Speed Index, TTFB) with an impact-ranked remediation priority checklist.
+- ⚡ **Navigation & Performance Trace (`performance_trace`)**: Nanosecond-precision breakdown of DNS, TCP, TLS, TTFB, DOM parsing, DOMContentLoaded, and Load Event. Categorizes resource payload by type and identifies main-thread long tasks.
+- 🧠 **V8 Heap Memory & DOM Leak Forensics (`heap_analysis`)**: Real-time V8 heap utilization metrics, Detached DOM node closure leak scanner, global event listener count, and DOM tree depth analysis.
+- 🌊 **Network Traffic & Waterfall Forensics (`network_waterfall`)**: Granular per-request timing breakdown (Queueing, DNS, Connect, SSL, TTFB, Download), uncompressed text asset detection (Brotli/Gzip), slow endpoint alerts, and cache hit rate calculations.
+- 🛡️ **Security & Console Forensics (`security_audit`)**: Audits critical HTTP security headers (CSP, HSTS, X-Content-Type-Options, X-Frame-Options, Permissions-Policy), validates Cookie security attributes (`Secure`, `HttpOnly`, `SameSite`), and aggregates console error traces.
+- 📱 **Multi-Device & Network/CPU Emulation (`emulate_profile`)**: Presets for iPhone 15 Pro, Pixel 8, Galaxy S24, iPad Pro, 4K Desktop; network throttling (Slow 3G, Fast 3G, 4G, WiFi, Offline); CPU throttling (1x, 2x, 4x, 6x); color scheme & reduced motion overrides.
+- 🌲 **LLM-Optimized Accessibility Semantic Tree (`accessibility_tree`)**: Token-efficient hierarchical AXTree with semantic roles, accessible names, interactive states, and bounding rects.
 
+### 2. Intelligence & Resilience Engine (`modules/intelligence.ts`)
+- 🎯 **Intelligent Self-Healing Selectors (`smart_selector_heal`)**: 5-tier fallback synthesis (Data-TestId ➔ ARIA Role & Accessible Name ➔ Fuzzy Text Matching ➔ Landmark Container Paths ➔ Positional Heuristics) with confidence scoring.
+- 👁️ **Visual Regression & Pixel Diff Forensics (`visual_regression_diff`)**: Structural Similarity Index (SSIM) and pixel delta calculation; identifies visual drift bounding boxes (Layout Shift, Color Drift, Critical Regression).
+- 🎬 **User Journey Synthesis & Multi-Framework Replay (`journey_record_and_replay`)**: Records browser interactions and automatically compiles them into executable Playwright TypeScript, Puppeteer TypeScript, and native JSON workflows.
+- 🔐 **Multi-Identity Session Isolation Vault (`session_isolation_vault`)**: Ephemeral and persistent session sandboxes (Snapshot, Restore, Sandbox) across cookies, localStorage, sessionStorage, and IndexedDB.
+- ⏱️ **Interaction to Next Paint (INP) Telemetry (`inp_interaction_vitals`)**: Continuous event latency monitor measuring Input Delay, Processing Time, and Presentation Delay against the Google 200ms INP budget.
+
+---
+
+## 🏛️ Security & Privacy Boundaries
+
+The Browser Extension operates under strict principle of least privilege:
 - `nativeMessaging`
 - `storage`
-- `activeTab` (only for an explicit foreground screenshot action)
-- `cookies` (local session atom only)
-- `tabs`
-- `tabGroups`
-- host access to all normal `http://*/*` and `https://*/*` pages
+- `activeTab` (only for explicit foreground screenshot actions)
+- `cookies` (local session atom only, mode 0600)
+- `tabs` and `tabGroups`
+- Host access to standard `http://*/*` and `https://*/*` web applications.
 
-## Boundary (Owner revision 2026-08-03)
+### Security Guarantees:
+1. **0600 Secret Redaction**: Sensitive authorization headers, session tokens (`ya29.*`, `eyJ*`), passwords, and private keys are redacted before leaving the extension boundaries.
+2. **Zero-Leak Authenticated Sessions**: Seamlessly inherits existing Google, GitHub, Stripe, and AWS logins without exposing raw credentials.
+3. **Background Tab Driving**: Executes in dedicated background tab groups (`active: false`) without stealing window focus from the user.
+4. **Bi-directional HUD Annotation**: Renders real-time interactive visual overlays and annotations via Unix domain socket bridge.
 
-The Owner removed the earlier conservative page-boundary limits: any action
-that **spends no money and harms no person, data or system** may proceed
-without re-asking. Page text is readable through the `read_text` atom; the
-extension still redacts identity and secret patterns, never exposes password
-input values, and keeps the platform scope (no `chrome://`, extension-internal,
-`file://` or local security surfaces). Financial actions still stop for Owner
-confirmation; MFA, CAPTCHA, consent, terms and account-selection surfaces are
-automatable (no per-step confirmation — Owner directive 2026-08-12).
+---
 
-The extension has no popup, password, history, clipboard-read or
-download permission. Debugger attach is a last-resort screenshot path for
-inactive tabs in the focused window; click, hover, scroll and key never
-attach. It never opens a remote-debugging port, reads
-chrome-internal pages, or copies a Chrome profile. Existing ChatGPT or other
-Extensions are not inspected, hijacked or used through undocumented protocols.
-The manifest `key` is a public Chrome extension identity key, not a credential;
-its stable public bytes let the bridge verify the expected extension id.
+## 🧪 Testing & Verification
 
-Every tab created by the bridge uses `active: false` and joins a group whose
-title is the current Session name. Conflict control is group membership:
-the runtime never navigates, activates, captures or closes a tab outside that
-group. A managed tab the Owner is already viewing is in-bounds. The group
-stays collapsed only while a tab outside the group is active in the same
-window, so expanding or switching inside the group cannot displace a foreign
-page. The local session id separates concurrent groups; renaming the same
-Session updates its group title. When a Session has no name, the bounded fallback is
-a unique `holar-<id8>` (never a shared name, so concurrent Sessions never
-merge into one visible group). Window focus is reserved for the explicit
-trusted-click lease that restores the prior tab.
-
-## Protocol
-
-Chrome launches `host.mjs` through its official Native Messaging mechanism. The
-host exposes one mode-`0600` Unix socket to the same local user. Harness requests must
-present a random mode-`0600` pairing token. The token never enters Tool input,
-output, Session state, source, logs or evidence.
-
-The protocol accepts only:
-
-| Action | Atom |
-|---|---|
-| `status` | bridge and inactive-tab boundary readback |
-| `repair` | idempotent host reinstall, keep the Session tab-group, reload managed tabs in place and self-only runtime reload |
-| `open` | normal HTTP/HTTPS navigation in a managed inactive tab |
-| `controls` | sanitized semantic controls; human challenges return a resumable boundary receipt |
-| `read_text` | extract page text; auto-sweeps virtualized threads unless `long=false`; `long=true` forces a full sweep of the conversation scroller and returns `turns` when user/model messages are present |
-| `read_markdown` | extract structured GitHub Flavored Markdown (headings, links, tables, code blocks) |
-| `read_styles` | extract root computed styles and CSS custom properties |
-| `inspect_element` | deep element geometry, computed styles, ARIA attributes, hierarchy path, interactive state, and floating HUD overlay |
-| `read_storage` | inspect `localStorage` and `sessionStorage` with optional `key` and `storage_type` filtering |
-| `set_storage` | write key-value pairs to `localStorage` or `sessionStorage` |
-| `clear_storage` | clear all or specific keys from `localStorage` / `sessionStorage` |
-| `read_cookies` | read sanitized site cookies via `chrome.cookies` API |
-| `clear_cookies` | clear site cookies via `chrome.cookies` API |
-| `read_network` | inspect HTTP/HTTPS network entries with in-flight tracking, URL pattern filtering, redacted response previews, and request bodies |
-| `performance_metrics` | read navigation timings, TTFB, DOM complete, and JS heap memory |
-| `wait_for` | poll for DOM selector existence/visibility/hidden, text match, network idle, or JavaScript predicate |
-| `evaluate_script` | execute asynchronous/synchronous JavaScript expressions with full Promise unwrapping in page context |
-| `reload_page` | reload managed tab with optional cache bypass |
-| `click` | click semantic role/name or universal CSS/XPath selector with visual ripple glow |
-| `hover` | dispatch mouse hover to selector or coordinates with visual feedback |
-| `scroll` | dispatch directional scroll (`top`, `bottom`, `page_down`, `page_up`), element centering (`selector`), or delta offsets |
-| `press_key` | dispatch keyboard event with key combos (e.g. `Control+A`, `Meta+K`) or modifier flags to active/targeted element |
-| `drag_and_drop` | simulate smooth 5-step pointer and HTML5 drag-and-drop between selectors or coordinates |
-| `upload_file` | inject local text or base64 binary files into file inputs without OS modal dialogs |
-| `fill_public` | fill single non-identity public value targeted by field or CSS selector with visual pulse |
-| `fill_form` | atomic batch form filling across multiple fields with sequential visual indicators |
-| `fill_local` | direct private local-value projection without model exposure |
-| `press_enter` | exact Enter event on semantic textbox or CSS selector |
-| `select_combobox` | select value from searchable combobox dropdown or CSS selector |
-| `terms_diagnostics` | bounded Provider terms classification with sanitized actionable labels |
-| `accept_standard_terms` | one exact ordinary no-cost Provider terms control |
-| `accept_owner_authorized_terms` | one uniquely identified combined terms checkbox after Owner confirmation |
-| `open_clarity_project` | open one exact public Clarity project card |
-| `clarity_project_identity` | read Clarity name/domain/ID identity receipt |
-| `capture_ga4_measurement_id` | one-way capture of verified GA4 measurement ID into private local config |
-| `capture_clarity_project_id` | one-way capture of verified Clarity project ID into private local config |
-| `capture_clarity_token` | one-way Clarity API token write to declared local file |
-| `capture_session` | read site cookies into native-process vault |
-| `capture_screenshot` | capture local image receipt of managed tab; supports `selector` for element-level clipped capture, `long=true` for full scroller capture |
-| `capture_pdf` | export vector PDF document via CDP `Page.printToPDF` |
-| `emulate` | emulate mobile/tablet screen dimensions, DPR, and `prefers-color-scheme: dark | light` |
-| `semantic_snapshot` | traverse Shadow DOM and capture accessible interactive controls and structured element selectors |
-| `annotate` | Cursor design mode: Option+click selects; on-page Send injects the Owner note and selected UI elements as an Owner user message into the watching agent session and exits design mode |
-| `close_group` | close all managed tabs in current session group |
-
-There is no arbitrary selector, model-supplied JavaScript evaluation, HTML dump,
-raw Cookie/session output, download or hidden cross-origin request. Stripe-owned embedded-frame discovery is limited to sanitized read-only `page` diagnostics under `dashboard.stripe.com`; frame IDs and URLs never leave the extension, and no click, fill or submit is sent into an embedded frame. Screenshot capture does not activate a tab in the focused window. A visible
-managed tab uses `captureVisibleTab` so Chrome does not show the debugger
-infobar. Inactive tabs in a background window are selected there, captured,
-and restored. Inactive tabs in the focused window still use CDP
-`Page.captureScreenshot` as last resort. Full-page capture still scrolls
-only an already-active granted tab,
-suppresses repeated pinned overlays after the first tile, fails if the active
-target changes, and restores the prior scroll and element visibility in a
-`finally` path. It is capped at 24,000 CSS pixels, 32 tiles, 30,000 output
-pixels and 700 KB encoded JPEG; a truncation receipt is explicit. Visible
-managed tabs and inactive tabs in a background window capture without
-debugger attach. The Owner-clicked extension-icon grant remains the full-page
-`captureVisibleTab` path. Raw bytes stay
-in the mode-0600 local screenshot directory for at most one hour and only a
-sanitized receipt leaves the bridge.
-
-## Modules
-
-The Browser v2 surface is split into bounded atoms: `modules/policy.ts` owns normal-web target access and capabilities; `modules/adapters.ts` owns the generic fallback and importable site-adapter registry; `extension/content.js` owns sanitized semantic discovery; `extension/challenge.js` owns resumable human-boundary detection; `extension/foreground-screenshot.js` owns the explicit screenshot grant path; `extension/managed-screenshot.js` owns inactive-tab CDP viewport capture; `workflows.ts` owns Provider/site sequences; `session.mjs` owns the ephemeral Cookie/session vault; `screenshot.mjs` owns local image receipts; `modules/finance.ts` owns the paid-action stop; `host.mjs` owns the native boundary; and `extension/worker.js` owns inactive-tab lifecycle and recovery. Each atom must fail closed independently and must not expand another atom's authority.
-
-## Setup
-
-After `/reload`, run:
-
-```text
-/chrome-setup
-```
-
-The command installs the private Native Messaging manifest and copies the
-unpacked Extension directory to the clipboard. One time only, in the intended
-Chrome profile:
-
-1. Open `chrome://extensions`.
-2. Enable **Developer mode**.
-3. Choose **Load unpacked**.
-4. Paste the copied directory.
-
-No Extension popup appears. Once loaded, `chrome` operates only in
-inactive normal-web tabs grouped under a collapsed blue tab group titled with
-the current Session name, and reuses that profile's existing authenticated
-sessions. `capture_session` can import the current site's Cookie set into the
-short-lived native-memory vault without exposing its values. Clicking the action
-button is the only explicit foreground screenshot grant; it records only the
-active tab's origin and path for 120 seconds.
-
-## Scripts
-
-Stable Provider sequences live under `scripts/` rather than being rebuilt from
-ad hoc Tool calls:
-
+Run the comprehensive test suite:
 ```bash
-bun Plugin/Chrome/scripts/repair.mjs
-bun Plugin/Chrome/scripts/bootstrap-ga4.mjs Application/Assessment/<Product> [--accept-standard-terms] [--accept-owner-authorized-terms] [--objective=<allowlisted-label>]
-bun Plugin/Chrome/scripts/bootstrap-clarity.mjs Application/Assessment/<Product> [--accept-standard-terms]
-bun Plugin/Chrome/scripts/bootstrap-clarity-id.mjs Application/Assessment/<Product>
-bun Plugin/Chrome/scripts/bootstrap-clarity-token.mjs Application/Assessment/<Product>
+# Run all Browser unit and integration tests
+bun test Plugin/Browser/
+
+# Run DevTools superset tests
+bun test Plugin/Browser/devtools.test.ts
+
+# Run Intelligence & Resilience tests
+bun test Plugin/Browser/intelligence.test.ts
+
+# Run latency & throughput benchmarks
+bun Plugin/Workflow/cli.ts bench -n=100
 ```
-
-The GA4 workflow disables recognized optional account-data sharing and stops at
-the next unmodeled phase. Under the delegated full-lifecycle Goal, it may accept
-one exact ordinary no-cost Provider terms control on the exact GA4 provisioning
-surface. A separately explicit `--accept-owner-authorized-terms` path exists for
-one uniquely identified combined data-processing/service-terms checkbox after
-Owner confirmation; it never accepts privacy, billing, or ambiguous/multiple
-controls. Clarity uses the same provider-specific exact-control rule.
-Product-owned wrappers belong in each leaf `.agent/scripts/` directory and supply
-only that Product's route; they reuse these generic runners rather than adding
-Extension logic.
-Clarity project and token workflows are idempotent by the declared public target and require official name/domain/project-ID readback before a project is considered ready. The separate project-ID runner captures only the verified ID into private local analytics config; it never returns the ID. The one-time token value travels directly from the official modal into the declared private file; no script output includes it. All workflows stop when login, controls or form shape are not exact. Shared logic is unit-tested in `workflows.test.ts`.
-
-## Recovery
-
-The bridge reconnects its Native Messaging host, removes stale sockets, retries
-content-script startup, recreates closed managed tabs, restores their dedicated
-tab group and preserves the current active tab. `chrome repair` also
-reinstalls the local host manifest, keeps every still-open managed tab in the
-Session group (reload in place, never close inactive members) and queues
-`chrome.runtime.reload()` for this Extension only, so later source fixes do not
-need Chrome UI. Separate Sessions retain separate tab and group ids; no
-unscoped legacy tab state is adopted.
-
-Chrome still prevents software from silently enabling or reinstalling a removed
-or disabled Extension. An expired login, account choice, consent, MFA or CAPTCHA
-also remains human-only. The runtime returns a sanitized resumable human-boundary
-receipt, preserves the managed tab, and executes no downstream action until the
-boundary is gone. Those boundaries fail closed rather than weakening the profile
-or exposing its Cookie/session values.
-
-## macOS trusted-click permission matrix (Hackintosh notes)
-
-The trusted OS click path (`click` + `foregroundConfirmed=true`) needs three
-separate macOS TCC grants; all three are required, and a missing one surfaces
-as `osascript is not allowed assistive access (-25211)`:
-
-1. **Accessibility** (系统设置 → 隐私与安全 → 辅助功能): grant the host app
-   that launches pi (Zed/Terminal) — needed for `System Events` reads.
-2. **Automation / AppleEvents** (系统设置 → 隐私与安全 → 自动化): grant
-   "control Google Chrome" to the host app — needed for `click at` landing on
-   a Chrome window.
-3. **Process freshness**: TCC re-evaluates per process; grants made while pi
-   is already running are not picked up until the pi process restarts
-   (reload_runtime reloads extensions but does not replace the process).
-
-On Hackintosh, TCC entries are unreliable to query (`kTCCServiceAccessibility`
-may read as empty even when granted); verify by behavior: run
-`osascript -e 'tell application "System Events" to click at {100,100}'` from a
-node child — status 0 means the grant chain works.

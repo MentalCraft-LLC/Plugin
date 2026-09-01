@@ -28,9 +28,16 @@ import {
   resolveEmulationProfile,
   buildAccessibilityTree,
 } from "./modules/devtools.ts";
+import {
+  smartHealSelector,
+  analyzeVisualRegression,
+  synthesizeUserJourney,
+  manageSessionVault,
+  monitorInteractionVitals,
+} from "./modules/intelligence.ts";
 
 export type BrowserContextInput = {
-  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "set_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "drag_and_drop" | "upload_file" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate" | "emulate" | "lighthouse_audit" | "performance_trace" | "heap_analysis" | "network_waterfall" | "security_audit" | "emulate_profile" | "accessibility_tree";
+  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "set_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "drag_and_drop" | "upload_file" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate" | "emulate" | "lighthouse_audit" | "performance_trace" | "heap_analysis" | "network_waterfall" | "security_audit" | "emulate_profile" | "accessibility_tree" | "smart_selector_heal" | "visual_regression_diff" | "journey_record_and_replay" | "session_isolation_vault" | "inp_interaction_vitals";
   mode?: "start" | "stop" | "list" | "add" | "remove" | "clear";
   url?: string;
   max_sections?: number;
@@ -93,6 +100,28 @@ export type BrowserContextInput = {
   geolocation?: { latitude: number; longitude: number; accuracy: number };
   timezone_id?: string;
   locale?: string;
+  baseline_url?: string;
+  tolerance_percentage?: number;
+  data_testid?: string;
+  parent_container_selector?: string;
+  tag_name?: string;
+  accessible_name?: string;
+  journey_name?: string;
+  steps?: Array<{
+    step: number;
+    type: "navigate" | "click" | "fill" | "hover" | "press_key" | "assert_text" | "assert_visible" | "wait_for";
+    selector?: string;
+    url?: string;
+    value?: string;
+    key?: string;
+    expectedText?: string;
+    timeoutMs?: number;
+    description: string;
+  }>;
+  profile_id?: string;
+  cookies?: Array<{ name: string; value: string; domain: string; path: string; secure: boolean; httpOnly: boolean }>;
+  local_storage?: Record<string, string>;
+  session_storage?: Record<string, string>;
 };
 
 export type BrowserOperationContext = {
@@ -349,6 +378,37 @@ export function createBrowserContextOperation(options: {
       });
     } else if (params.action === "accessibility_tree") {
       return buildAccessibilityTree(url);
+    } else if (params.action === "smart_selector_heal") {
+      return smartHealSelector(params.selector || "button", {
+        text: params.text || params.name,
+        role: params.role,
+        accessibleName: params.accessible_name || params.name,
+        tagName: params.tag_name,
+        dataTestId: params.data_testid,
+        parentContainerSelector: params.parent_container_selector,
+      });
+    } else if (params.action === "visual_regression_diff") {
+      return analyzeVisualRegression(params.baseline_url || url, url, {
+        tolerancePercentage: params.tolerance_percentage,
+      });
+    } else if (params.action === "journey_record_and_replay") {
+      return synthesizeUserJourney(params.journey_name || "User Journey", params.steps || [
+        { step: 1, type: "navigate", url, description: "Navigate to landing page" },
+        { step: 2, type: "assert_visible", selector: "main", description: "Verify main container renders" },
+      ]);
+    } else if (params.action === "session_isolation_vault") {
+      return manageSessionVault(
+        params.mode === "add" ? "snapshot" : params.mode === "clear" ? "clear" : params.mode === "list" ? "list" : "restore",
+        params.profile_id || "default",
+        {
+          url,
+          cookies: params.cookies,
+          localStorage: params.local_storage,
+          sessionStorage: params.session_storage,
+        }
+      );
+    } else if (params.action === "inp_interaction_vitals") {
+      return monitorInteractionVitals(url);
     } else if (params.action === "annotate") {
       const mode = params.mode ?? "list";
       const note = mode === "add" && params.value ? safePublicMultiline(params.value) : params.value;

@@ -171,6 +171,11 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "security_audit",
       "emulate_profile",
       "accessibility_tree",
+      "smart_selector_heal",
+      "visual_regression_diff",
+      "journey_record_and_replay",
+      "session_isolation_vault",
+      "inp_interaction_vitals",
       "disassemble",
     ],
     chrome: [
@@ -189,6 +194,11 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "security_audit",
       "emulate_profile",
       "accessibility_tree",
+      "smart_selector_heal",
+      "visual_regression_diff",
+      "journey_record_and_replay",
+      "session_isolation_vault",
+      "inp_interaction_vitals",
       "disassemble",
     ],
     message: [
