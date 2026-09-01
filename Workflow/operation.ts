@@ -29,6 +29,13 @@ import { contentOperation } from "../Content/operation.ts";
 import { createBrowserContextOperation } from "../Browser/operation.ts";
 import { createMessageOperation, channelConfigured } from "../Message/operation.ts";
 import { COMPONENT_CATALOG, DESIGN_TOKENS, DOMAIN_PRESETS } from "../Design/core.ts";
+import {
+  advanceAutopilotCycle,
+  loadAutopilotCheckpoint,
+  generateScheduleSpec,
+  formatAutopilotSummary,
+  type AutopilotGoalConfig,
+} from "./autopilot.ts";
 
 const rawExecuteBrowser = createBrowserContextOperation();
 const executeBrowser = async (input: any) => {
@@ -2185,6 +2192,48 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
         success: isSuccess,
         timestamp: endTime,
         data: receipt,
+      };
+    }
+
+    case "autopilot_step":
+    case "autopilot_run": {
+      const goalConfig: AutopilotGoalConfig = input.goal ?? {
+        ventureName: input.venture_name ?? "MentalCraft",
+      };
+      const stepRes = await advanceAutopilotCycle(goalConfig);
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: input.action,
+        success: stepRes.success,
+        timestamp,
+        data: stepRes,
+      };
+    }
+
+    case "autopilot_status": {
+      const vName = input.venture_name ?? input.goal?.ventureName ?? "MentalCraft";
+      const status = loadAutopilotCheckpoint(vName);
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "autopilot_status",
+        success: true,
+        timestamp,
+        data: status,
+      };
+    }
+
+    case "autopilot_schedule_spec": {
+      const goalConfig: AutopilotGoalConfig = input.goal ?? {
+        ventureName: input.venture_name ?? "MentalCraft",
+      };
+      const interval = input.interval_minutes ?? 60;
+      const spec = generateScheduleSpec(goalConfig, interval);
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "autopilot_schedule_spec",
+        success: true,
+        timestamp,
+        data: spec,
       };
     }
   }

@@ -9,6 +9,7 @@
 
 import { BUILTIN_WORKFLOWS, type PluginId } from "./core.ts";
 import { executeHealthCheck, workflowOperation } from "./operation.ts";
+import { formatAutopilotSummary } from "./autopilot.ts";
 import { designOperation } from "../Design/operation.ts";
 import { businessOperation } from "../Business/operation.ts";
 import { scienceOperation } from "../Science/operation.ts";
@@ -549,6 +550,36 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "autopilot": {
+      const sub = args[1] || "step";
+      const vName = args.find((a) => a.startsWith("--venture="))?.split("=")[1] || "MentalCraft";
+      const targetMrr = parseInt(args.find((a) => a.startsWith("--target-mrr="))?.split("=")[1] || "10000", 10);
+      const interval = parseInt(args.find((a) => a.startsWith("--interval="))?.split("=")[1] || "60", 10);
+
+      if (sub === "status") {
+        const res = await workflowOperation({ action: "autopilot_status", venture_name: vName });
+        console.log(JSON.stringify(res.data, null, 2));
+      } else if (sub === "schedule" || sub === "cron") {
+        const res = await workflowOperation({
+          action: "autopilot_schedule_spec",
+          venture_name: vName,
+          goal: { ventureName: vName, targetMrrUsd: targetMrr },
+          interval_minutes: interval,
+        });
+        console.log(JSON.stringify(res.data, null, 2));
+      } else {
+        console.log(`\n🧭 Running Autopilot Step for [${vName}] (Target: $${targetMrr.toLocaleString()} MRR)...\n` + "=".repeat(70));
+        const res = await workflowOperation({
+          action: "autopilot_step",
+          goal: { ventureName: vName, targetMrrUsd: targetMrr },
+        });
+        const data = res.data as any;
+        console.log(formatAutopilotSummary(data));
+        console.log("=".repeat(70) + "\n");
+      }
+      break;
+    }
+
     case "serve": {
       const httpFlag = args.includes("--http");
       const portArg = args.find((a) => a.startsWith("--port="));
@@ -582,6 +613,7 @@ Commands:
   docs, catalog            Generate Markdown CATALOG.md documentation
   benchmark, bench         Run P50/P90/P99 latency & ops/sec benchmark suite
   metrics, telemetry       Show live telemetry & circuit breaker status
+  autopilot [step|status|cron] Run autonomous goal self-advancement cycle
   repl, i                  Launch interactive developer REPL shell
   exec <p> <a> [d]         Execute an action on a plugin directly
   serve [--http] [--port]  Launch master MCP server (Stdio or HTTP/SSE)

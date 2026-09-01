@@ -537,7 +537,11 @@ export type WorkflowAction =
   | "export_mermaid_dag"
   | "batch_run"
   | "health_check"
-  | "dry_run";
+  | "dry_run"
+  | "autopilot_step"
+  | "autopilot_status"
+  | "autopilot_schedule_spec"
+  | "autopilot_run";
 
 export type WorkflowInput = {
   action: WorkflowAction;
@@ -554,6 +558,22 @@ export type WorkflowInput = {
   concurrency?: number;
   client_target?: ClientTargetConfig;
   parameters?: Record<string, unknown>;
+  goal?: {
+    ventureName: string;
+    targetMrrUsd?: number;
+    proPriceUsd?: number;
+    proTargetSubs?: number;
+    sponsorPriceUsd?: number;
+    sponsorTargetSubs?: number;
+    apiPriceUsd?: number;
+    apiTargetSubs?: number;
+    minDomainsIndexed?: number;
+    minBadgesGenerated?: number;
+    minFounderOutreach?: number;
+    autoVerify?: boolean;
+  };
+  venture_name?: string;
+  interval_minutes?: number;
   benchmark_options?: {
     iterations?: number;
     warmupIterations?: number;
@@ -637,6 +657,19 @@ export function formatWorkflowSummary(result: WorkflowResult): string {
     case "run_workflow": {
       const data = result.data as any;
       return `✓ Workflow [${data.workflowName ?? data.name}]: All ${data.stepsCount ?? data.executedStepsCount} steps completed (${data.durationMs ?? 0}ms)`;
+    }
+    case "autopilot_step":
+    case "autopilot_run": {
+      const data = result.data as any;
+      return `🧭 Autopilot [${data.newPhase}]: Tick #${data.tick} MRR $${data.mrrCurrentUsd?.toLocaleString()} / $${data.mrrTargetUsd?.toLocaleString()} (${data.goalAchieved ? "GOAL ACHIEVED" : "IN PROGRESS"})`;
+    }
+    case "autopilot_status": {
+      const data = result.data as any;
+      return `Autopilot Status [${data.ventureName}]: Phase ${data.currentPhase}, MRR $${data.mrrCurrentUsd?.toLocaleString()} / $${data.mrrTargetUsd?.toLocaleString()} (${data.tickCount} ticks)`;
+    }
+    case "autopilot_schedule_spec": {
+      const data = result.data as any;
+      return `Autopilot Schedule Spec: Cron "${data.CronExpression}" (Every ${data.RecommendedIntervalMinutes} min)`;
     }
   }
 }
