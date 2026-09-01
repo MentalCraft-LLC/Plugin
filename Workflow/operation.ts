@@ -176,6 +176,10 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "journey_record_and_replay",
       "session_isolation_vault",
       "inp_interaction_vitals",
+      "persona_emulation",
+      "extract_structured_data",
+      "chaos_resilience_test",
+      "batch_tab_orchestration",
       "disassemble",
     ],
     chrome: [
@@ -199,6 +203,10 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "journey_record_and_replay",
       "session_isolation_vault",
       "inp_interaction_vitals",
+      "persona_emulation",
+      "extract_structured_data",
+      "chaos_resilience_test",
+      "batch_tab_orchestration",
       "disassemble",
     ],
     message: [

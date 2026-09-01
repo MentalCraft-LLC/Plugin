@@ -35,9 +35,15 @@ import {
   manageSessionVault,
   monitorInteractionVitals,
 } from "./modules/intelligence.ts";
+import {
+  auditAccessibilityPersonas,
+  extractStructuredData,
+  simulateChaosResilience,
+  orchestrateBatchTabs,
+} from "./modules/resilience.ts";
 
 export type BrowserContextInput = {
-  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "set_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "drag_and_drop" | "upload_file" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate" | "emulate" | "lighthouse_audit" | "performance_trace" | "heap_analysis" | "network_waterfall" | "security_audit" | "emulate_profile" | "accessibility_tree" | "smart_selector_heal" | "visual_regression_diff" | "journey_record_and_replay" | "session_isolation_vault" | "inp_interaction_vitals";
+  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "set_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "drag_and_drop" | "upload_file" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate" | "emulate" | "lighthouse_audit" | "performance_trace" | "heap_analysis" | "network_waterfall" | "security_audit" | "emulate_profile" | "accessibility_tree" | "smart_selector_heal" | "visual_regression_diff" | "journey_record_and_replay" | "session_isolation_vault" | "inp_interaction_vitals" | "persona_emulation" | "extract_structured_data" | "chaos_resilience_test" | "batch_tab_orchestration";
   mode?: "start" | "stop" | "list" | "add" | "remove" | "clear";
   url?: string;
   max_sections?: number;
@@ -122,6 +128,10 @@ export type BrowserContextInput = {
   cookies?: Array<{ name: string; value: string; domain: string; path: string; secure: boolean; httpOnly: boolean }>;
   local_storage?: Record<string, string>;
   session_storage?: Record<string, string>;
+  persona_id?: "screen_reader_blind" | "low_vision_high_contrast" | "motor_impaired_keyboard_only" | "cognitive_overload_distraction_free" | "international_rtl_reader";
+  chaos_scenario?: "flaky_api_intermittent_500" | "extreme_latency_spike_5000ms" | "offline_disconnect_recovery" | "packet_loss_50_percent" | "rate_limit_429_backoff";
+  urls?: string[];
+  concurrency_pool_size?: number;
 };
 
 export type BrowserOperationContext = {
@@ -409,6 +419,14 @@ export function createBrowserContextOperation(options: {
       );
     } else if (params.action === "inp_interaction_vitals") {
       return monitorInteractionVitals(url);
+    } else if (params.action === "persona_emulation") {
+      return auditAccessibilityPersonas(url, params.persona_id);
+    } else if (params.action === "extract_structured_data") {
+      return extractStructuredData(url);
+    } else if (params.action === "chaos_resilience_test") {
+      return simulateChaosResilience(url, params.chaos_scenario);
+    } else if (params.action === "batch_tab_orchestration") {
+      return orchestrateBatchTabs(params.urls || [url], params.concurrency_pool_size || 4);
     } else if (params.action === "annotate") {
       const mode = params.mode ?? "list";
       const note = mode === "add" && params.value ? safePublicMultiline(params.value) : params.value;
