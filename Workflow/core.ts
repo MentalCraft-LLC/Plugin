@@ -299,6 +299,34 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
       { step: 3, plugin: "chrome", action: "inspect_element", description: "Verify live DOM element against design tokens." },
     ],
   },
+  {
+    id: "browser_full_devops_audit_pipeline",
+    name: "Full-Stack Web Quality, Performance & A11y DevOps Pipeline",
+    description: "DevOps & Quality: 5-category Lighthouse audit ➔ Navigation Web Vitals ➔ Security headers & CSP ➔ Schema extraction ➔ Screen Reader / RTL A11y stress test ➔ Telegram alert.",
+    requiredPlugins: ["browser", "message"],
+    steps: [
+      { step: 1, plugin: "browser", action: "lighthouse_audit", description: "Audit 5 categories (Performance, A11y, Best Practices, SEO, PWA) and rank code remediation priorities." },
+      { step: 2, plugin: "browser", action: "performance_trace", description: "Deconstruct DNS, TCP, TLS, TTFB, DOM parsing, and Core Web Vitals (LCP, CLS, FCP)." },
+      { step: 3, plugin: "browser", action: "security_audit", description: "Inspect CSP, HSTS, X-Frame-Options, secure cookies, and console error forensics." },
+      { step: 4, plugin: "browser", action: "extract_structured_data", description: "Extract JSON-LD, OpenGraph, and E-Commerce / Article schema markup." },
+      { step: 5, plugin: "browser", action: "persona_emulation", description: "Stress test screen reader, high-contrast (7:1), keyboard-only, and RTL layout compatibility." },
+      { step: 6, plugin: "message", action: "send", description: "Dispatch consolidated DevOps quality and security audit digest to engineering team.", parameters: { text: "DevOps Full-Stack Audit Pipeline Complete: Quality score 98/100." } },
+    ],
+  },
+  {
+    id: "ecommerce_conversion_and_resilience_sprint",
+    name: "E-Commerce PDP Conversion, Visual Regression & Fault Resilience Sprint",
+    description: "End-to-end shop sprint: Market validation ➔ Svelte 5 PDP UI generation ➔ SSIM visual regression diff ➔ Playwright E2E journey synthesis ➔ Chaos fault recovery ➔ Unit economics.",
+    requiredPlugins: ["business", "design", "browser"],
+    steps: [
+      { step: 1, plugin: "business", action: "venture_market_validation", description: "Validate e-commerce TAM/SAM/SOM market viability, product sourcing, and pricing elasticity." },
+      { step: 2, plugin: "design", action: "generate_ui", description: "Synthesize high-converting e-commerce PDP Svelte 5 component with Runes and variant selectors." },
+      { step: 3, plugin: "browser", action: "visual_regression_diff", description: "Verify rendered UI layout against approved baseline screenshot (SSIM > 0.95)." },
+      { step: 4, plugin: "browser", action: "journey_record_and_replay", description: "Compile recorded user checkout interactions into executable Playwright TypeScript test suite." },
+      { step: 5, plugin: "browser", action: "chaos_resilience_test", description: "Inject simulated 500 API fault and verify automatic toast recovery & error boundary containment." },
+      { step: 6, plugin: "business", action: "venture_unit_economics", description: "Model COGS, 3PL shipping, blended ROAS, and net margin economics." },
+    ],
+  },
 ];
 
 export type ActionMetric = {

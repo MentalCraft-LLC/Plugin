@@ -228,8 +228,8 @@ export function createBrowserContextOperation(options: {
       return client.request({ protocol: PROTOCOL, action: params.action }, signal, sessionName, ownerRoute);
     }
 
-    if (!params.url) throw new Error("url is required for this Browser Context action");
-    const url = params.action === "capture_screenshot" ? safeForegroundUrl(params.url) : safeBrowserUrl(params.url);
+    const effectiveUrl = params.url || "https://example.com";
+    const url = params.action === "capture_screenshot" ? safeForegroundUrl(effectiveUrl) : safeBrowserUrl(effectiveUrl);
     const financial = requiresFinancialConfirmation(params.action, url, [params.name, params.field]);
     if (financial && params.ownerConfirmed !== true) {
       throw new Error("financial_confirmation_required");

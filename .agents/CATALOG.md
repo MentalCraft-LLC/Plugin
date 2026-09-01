@@ -163,6 +163,28 @@
   2. **[design]** `resolve_imports`: Calculate optimal tree-shaken on-demand subpaths.
   3. **[chrome]** `inspect_element`: Verify live DOM element against design tokens.
 
+### `browser_full_devops_audit_pipeline` — Full-Stack Web Quality, Performance & A11y DevOps Pipeline
+- **Description**: DevOps & Quality: 5-category Lighthouse audit ➔ Navigation Web Vitals ➔ Security headers & CSP ➔ Schema extraction ➔ Screen Reader / RTL A11y stress test ➔ Telegram alert.
+- **Required Plugins**: `browser` ➔ `message`
+- **Execution Steps**:
+  1. **[browser]** `lighthouse_audit`: Audit 5 categories (Performance, A11y, Best Practices, SEO, PWA) and rank code remediation priorities.
+  2. **[browser]** `performance_trace`: Deconstruct DNS, TCP, TLS, TTFB, DOM parsing, and Core Web Vitals (LCP, CLS, FCP).
+  3. **[browser]** `security_audit`: Inspect CSP, HSTS, X-Frame-Options, secure cookies, and console error forensics.
+  4. **[browser]** `extract_structured_data`: Extract JSON-LD, OpenGraph, and E-Commerce / Article schema markup.
+  5. **[browser]** `persona_emulation`: Stress test screen reader, high-contrast (7:1), keyboard-only, and RTL layout compatibility.
+  6. **[message]** `send`: Dispatch consolidated DevOps quality and security audit digest to engineering team.
+
+### `ecommerce_conversion_and_resilience_sprint` — E-Commerce PDP Conversion, Visual Regression & Fault Resilience Sprint
+- **Description**: End-to-end shop sprint: Market validation ➔ Svelte 5 PDP UI generation ➔ SSIM visual regression diff ➔ Playwright E2E journey synthesis ➔ Chaos fault recovery ➔ Unit economics.
+- **Required Plugins**: `business` ➔ `design` ➔ `browser`
+- **Execution Steps**:
+  1. **[business]** `venture_market_validation`: Validate e-commerce TAM/SAM/SOM market viability, product sourcing, and pricing elasticity.
+  2. **[design]** `generate_ui`: Synthesize high-converting e-commerce PDP Svelte 5 component with Runes and variant selectors.
+  3. **[browser]** `visual_regression_diff`: Verify rendered UI layout against approved baseline screenshot (SSIM > 0.95).
+  4. **[browser]** `journey_record_and_replay`: Compile recorded user checkout interactions into executable Playwright TypeScript test suite.
+  5. **[browser]** `chaos_resilience_test`: Inject simulated 500 API fault and verify automatic toast recovery & error boundary containment.
+  6. **[business]** `venture_unit_economics`: Model COGS, 3PL shipping, blended ROAS, and net margin economics.
+
 ---
 
 ## 🛠️ CLI Quick Reference

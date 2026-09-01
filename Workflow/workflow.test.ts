@@ -526,6 +526,48 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.stepResults[4].action).toBe("venture_growth_playbook");
   });
 
+  test("run_workflow executes browser_full_devops_audit_pipeline compound workflow", async () => {
+    const res = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "browser_full_devops_audit_pipeline",
+      parameters: {
+        url: "https://app.mentalcraft.org",
+      },
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.workflowId).toBe("browser_full_devops_audit_pipeline");
+    expect(data.stepsCount).toBe(6);
+    expect(data.stepResults[0].action).toBe("lighthouse_audit");
+    expect(data.stepResults[1].action).toBe("performance_trace");
+    expect(data.stepResults[2].action).toBe("security_audit");
+    expect(data.stepResults[3].action).toBe("extract_structured_data");
+    expect(data.stepResults[4].action).toBe("persona_emulation");
+    expect(data.stepResults[5].action).toBe("send");
+  });
+
+  test("run_workflow executes ecommerce_conversion_and_resilience_sprint compound workflow", async () => {
+    const res = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "ecommerce_conversion_and_resilience_sprint",
+      parameters: {
+        venture_name: "MentalCraft Merch",
+        modality: "shop",
+        url: "https://shop.mentalcraft.org/pdp/hoodie",
+      },
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.workflowId).toBe("ecommerce_conversion_and_resilience_sprint");
+    expect(data.stepsCount).toBe(6);
+    expect(data.stepResults[0].action).toBe("venture_market_validation");
+    expect(data.stepResults[1].action).toBe("generate_ui");
+    expect(data.stepResults[2].action).toBe("visual_regression_diff");
+    expect(data.stepResults[3].action).toBe("journey_record_and_replay");
+    expect(data.stepResults[4].action).toBe("chaos_resilience_test");
+    expect(data.stepResults[5].action).toBe("venture_unit_economics");
+  });
+
   test("benchmark engine measures latency percentiles and ops/sec across all 6 subsystems", async () => {
     const { executeBenchmark } = require("./operation.ts");
     const bench = await executeBenchmark({ iterations: 50, warmupIterations: 5 });

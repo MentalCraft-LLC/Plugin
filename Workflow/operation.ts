@@ -1994,7 +1994,7 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
         const stepContext: Record<string, any> = { input: input.parameters ?? {} };
         for (const s of wf.steps) {
           const sT0 = performance.now();
-          const interpolated = interpolateParams(s.parameters ?? {}, stepContext);
+          const interpolated = { ...(input.parameters ?? {}), ...interpolateParams(s.parameters ?? {}, stepContext) };
           let r: any;
           if (s.plugin === "business") {
             r = await businessOperation({ action: s.action as any, ...interpolated });
