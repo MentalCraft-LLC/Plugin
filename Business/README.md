@@ -132,3 +132,32 @@ Run the comprehensive unit test suite:
 ```bash
 cd /Users/laiyongzhang/Documents/Holar/Plugin/Business && bun test business.test.ts
 ```
+
+---
+
+## 📊 Umami Analytics
+
+Public host: `https://analytics.mentalcraft.org`  
+Tracker script: `https://analytics.mentalcraft.org/umami`  
+Event send: `POST https://analytics.mentalcraft.org/api/send`  
+Fallback host: `https://analytics.vestgap.com`
+
+Live stats (`umami_website_stats`) require `UMAMI_API_TOKEN` in the environment. Do not commit tokens or admin passwords.
+
+| Site | Domain | Website ID |
+|---|---|---|
+| AdCut | adcutapp.com | 5d37ac35-c441-4be6-93e0-3221817b6aed |
+| Am I Big Back | amibigback.com | 77a3e559-2077-4443-9644-6f6877671c4e |
+| EssayDetector | essaydetector.org | 8548f245-ceae-42d5-b607-0fe751d3db76 |
+| EssayHumanize | essayhumanize.com | ae58182e-0e69-4c59-bdb5-ac832c5b1191 |
+| Hookly | hookly.cc | 1731d5ff-5cc0-4f8f-9d9c-f6917e8b4c1e |
+| HumanBench | humanbench.org | 8b7c6f6a-58ad-40eb-9ada-fdc6c606a76c |
+| HWProbe | hwprobe.com | df0577c4-5f0c-42fe-921f-3bf3d665c56c |
+| iProbe | iprobe.net | fc547cb1-8bc8-43df-94af-548beaa57174 |
+| MentalCraft | mentalcraft.org | ad55ece2-f383-43da-97de-0bf4865568e0 |
+| PosiChat | posichat.app | 7c7dd1e2-b23e-46ca-9696-cbc3f59a431d |
+| TractionRank | tractionrank.com | c57157e1-70a3-4117-a4b1-7bb0863867d0 |
+| VestGap | vestgap.com | 0af8b3f8-091d-40f1-bf23-a1139713a486 |
+
+Actions: `umami_list_websites`, `umami_tracker_snippet` (`domain`), `umami_website_stats` (`domain`).
+

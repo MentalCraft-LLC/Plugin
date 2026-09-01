@@ -9,7 +9,7 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
     expect(res.success).toBe(true);
     expect(res.protocol).toBe(BUSINESS_PROTOCOL);
     const data = res.data as any;
-    expect(data.totalActions).toBe(52);
+    expect(data.totalActions).toBe(55);
     expect(data.modalities).toEqual(["website", "app", "game", "shop"]);
     expect(data.modules.application.name).toBe("Application (产品与软件工程线)");
     expect(Object.keys(data.modules.application.stages).length).toBe(10);
@@ -902,5 +902,51 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
     expect(genData.articleMarkdown).toContain("Academic Syntax Morphing");
     expect(genData.conversionCtas.length).toBe(2);
     expect(genData.llmoCitationTriggers.length).toBe(3);
+  });
+
+  test("Umami catalog lists 12 websites and skips psycheck.me", async () => {
+    const res = await businessOperation({ action: "umami_list_websites" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.host).toBe("https://analytics.mentalcraft.org");
+    expect(data.total).toBe(12);
+    expect(data.websites.length).toBe(12);
+    const domains = data.websites.map((site: { domain: string }) => site.domain);
+    expect(domains).toContain("adcutapp.com");
+    expect(domains).toContain("hookly.cc");
+    expect(domains).toContain("vestgap.com");
+    expect(domains).not.toContain("psycheck.me");
+    expect(JSON.stringify(data).toLowerCase()).not.toContain("psycheck");
+  });
+
+  test("Umami tracker snippet for vestgap.com uses the live website id", async () => {
+    const res = await businessOperation({ action: "umami_tracker_snippet", domain: "vestgap.com" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.websiteId).toBe("0af8b3f8-091d-40f1-bf23-a1139713a486");
+    expect(data.snippet).toBe(
+      '<script defer src="https://analytics.mentalcraft.org/umami" data-website-id="0af8b3f8-091d-40f1-bf23-a1139713a486"></script>',
+    );
+  });
+
+  test("Umami unknown domain returns an error object", async () => {
+    const res = await businessOperation({ action: "umami_tracker_snippet", domain: "psycheck.me" });
+    expect(res.success).toBe(false);
+    expect(res.data).toBeNull();
+    expect(res.diagnostics?.join(" ")).toContain("Unknown Umami website domain");
+  });
+
+  test("Umami website stats without token reports missing UMAMI_API_TOKEN", async () => {
+    const previous = process.env.UMAMI_API_TOKEN;
+    delete process.env.UMAMI_API_TOKEN;
+    try {
+      const res = await businessOperation({ action: "umami_website_stats", domain: "vestgap.com" });
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(data.ok).toBe(false);
+      expect(data.reason).toBe("UMAMI_API_TOKEN missing");
+    } finally {
+      if (previous !== undefined) process.env.UMAMI_API_TOKEN = previous;
+    }
   });
 });
