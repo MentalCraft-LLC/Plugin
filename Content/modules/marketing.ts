@@ -5,7 +5,7 @@
  * 3-second viral hook generation, and 14-day product launch campaign roadmaps.
  */
 
-export type TargetAudiencePersona = "indie_game_dev" | "saas_founder" | "academic_researcher" | "creative_writer" | "indie_hacker";
+export type TargetAudiencePersona = "indie_game_dev" | "saas_founder" | "academic_researcher" | "creative_writer" | "indie_hacker" | "clinician_therapist";
 
 export type PasCopyResult = {
   productName: string;
@@ -81,6 +81,11 @@ export function generatePasCopy(
   const proof = options.metricProof || "显存占用降低 80%，打包耗时仅 0.12 秒";
 
   const pasProfiles: Record<TargetAudiencePersona, { problem: string; agitation: string; solution: string }> = {
+    clinician_therapist: {
+      problem: "每次咨询前都要给来访者发繁琐的注册链接或纸质问卷，会谈前 15 分钟都在手动计算 GAD-7 / PHQ-9 分数与整理病历？",
+      agitation: "来访者因隐私顾虑或下载注册门槛放弃作答，咨询师缺乏会前量化抓手，不仅消耗宝贵会谈时间，更难以建立标准化的测量式照护（MBC）与 CPT 保险报销凭证。",
+      solution: `${productName} 提供 0 注册门槛的免登录私密筛查链接与即时矢量二维码，来访者 2 分钟匿名作答，咨询师即时获得 DSM-5 诊断差分、8 周护理轨迹与 CPT 96127 Superbill 一键生成，13x 实践 ROI 极简上手。`,
+    },
     indie_game_dev: {
       problem: "游戏即将上架 Steam，低配显卡玩家频繁反馈掉帧卡顿，排查发现零散碎图把 2D 显存彻底撑爆了？",
       agitation: "在 Photoshop 里一张张手动拼合贴图不仅枯燥耗时，一旦动画帧有所增减就得全部推倒重来，熬夜改 BUG 濒临崩溃。",
