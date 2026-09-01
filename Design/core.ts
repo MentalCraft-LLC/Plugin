@@ -1058,6 +1058,20 @@ export const COMPONENT_CATALOG: ComponentSpec[] = [
     a11yRole: "presentation",
     example: `<Noise opacity={0.04} />`,
   },
+  {
+    id: "showcase",
+    name: "Showcase",
+    layer: "template",
+    category: "scaffold",
+    description: "Turnkey Design Engineering Magazine & Interactive Sandbox showcase page combining Blueprints, Rulers, Sandboxes, and Spotlights.",
+    importPath: "infra-ui-svelte",
+    subpath: "infra-ui-svelte/page/showcase",
+    estimatedSizeKb: 4.8,
+    props: [
+      { name: "title", type: "string", required: false, default: "'Interfaces Magazine'", description: "Showcase headline title" },
+    ],
+    example: `<Showcase title="Interfaces Magazine" />`,
+  },
 ];
 
 /** Domain-Specific Plug-and-Play Design Slices */

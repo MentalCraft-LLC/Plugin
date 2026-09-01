@@ -352,6 +352,11 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
     const noise = await designOperation({ action: "inspect_component", component_id: "noise" });
     expect(noise.success).toBe(true);
     expect((noise.data as any).component.name).toBe("Noise");
+
+    const showcase = await designOperation({ action: "inspect_component", component_id: "showcase" });
+    expect(showcase.success).toBe(true);
+    expect((showcase.data as any).component.name).toBe("Showcase");
+    expect((showcase.data as any).component.layer).toBe("template");
   });
 
   test("audit_ui checks code against token usage, A11y labels and touch targets", async () => {
