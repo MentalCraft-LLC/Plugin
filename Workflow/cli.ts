@@ -37,12 +37,12 @@ export async function executePluginAction(plugin: string, action: string, jsonAr
     return await scienceOperation({ action: action as any, ...jsonArgs });
   } else if (plugin === "workflow") {
     return await workflowOperation({ action: action as any, ...jsonArgs });
-  } else if (plugin === "chrome") {
+  } else if (plugin === "browser" || plugin === "chrome") {
     return await executeChrome({ action: action as any, ...jsonArgs });
   } else if (plugin === "message") {
     return await executeMessage({ action: action as any, ...jsonArgs });
   } else {
-    throw new Error(`Unknown plugin '${plugin}'. Available: business, science, design, workflow, chrome, message`);
+    throw new Error(`Unknown plugin '${plugin}'. Available: business, science, design, workflow, browser, message`);
   }
 }
 
@@ -57,10 +57,10 @@ export function generateMarkdownCatalog(): string {
     "| Subsystem | Actions | Protocol | Key Domain Scope |",
     "|---|---|---|---|",
     "| `Workflow` | 17 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |",
-    "| `Business` | 21 | `holar.business.v1` | 8-Stage Venture Lifecycle (Websites, Apps, Games, Shops), PMF, SEO KD, ASO, Steam, Activation, Unit Economics, Moats |",
-    "| `Science` | 16 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, Methodology, Grants, Authoring, Peer Review, Journals, Patents, Impact |",
+    "| `Business` | 24 | `holar.business.v1` | 8-Stage Venture Lifecycle (Websites, Apps, Games, Shops), PMF, SEO KD, ASO, Steam, Activation, Unit Economics, Moats |",
+    "| `Science` | 23 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, CSS, Grants, Authoring, Peer Review, Journals, Patents, Impact |",
     "| `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |",
-    "| `Chrome` | 38 | `holar.browser.v1` | Inactive tab driving, CDP inspection, HUD annotations, storage/cookie receipts |",
+    "| `Browser` | 54 | `spiral.browser.v1` | DevTools Superset (Lighthouse, Flamechart, Heap, Waterfall), Resilience (Personas, Schemas, Chaos), Background driving |",
     "| `Message` | 4 | `holar.message.v1` | Multi-channel priority bus (Telegram > iMessage > Email) with mode-0600 isolation |",
     "",
     "---",
