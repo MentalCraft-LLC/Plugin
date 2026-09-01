@@ -112,14 +112,14 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
     id: "launch_product_campaign",
     name: "Autonomous Product Campaign Launch",
     description: "Commercial validation: Keyword research & Stripe revenue benchmark → Svelte 5 landing page UI → Chrome live visual/vitals audit.",
-    requiredPlugins: ["business", "design", "chrome"],
+    requiredPlugins: ["business", "design", "browser"],
     steps: [
       { step: 1, plugin: "business", action: "seo_keyword_difficulty", description: "Evaluate search volume & low-hanging fruit ranking opportunities." },
       { step: 2, plugin: "business", action: "market_stripe_radar", description: "Benchmark revenue tiers of top competitors in the niche." },
       { step: 3, plugin: "design", action: "generate_ui", description: "Synthesize Svelte 5 Runes marketing hero and pricing table." },
       { step: 4, plugin: "design", action: "audit_ui", description: "Audit generated code against A11y and OKLCH color tokens." },
-      { step: 5, plugin: "chrome", action: "navigate", description: "Load the deployed preview page in an isolated browser context." },
-      { step: 6, plugin: "chrome", action: "profile_vitals", description: "Verify LCP, CLS, and FID performance scores." },
+      { step: 5, plugin: "browser", action: "navigate", description: "Load the deployed preview page in an isolated browser context." },
+      { step: 6, plugin: "browser", action: "profile_vitals", description: "Verify LCP, CLS, and FID performance scores." },
     ],
   },
   {
@@ -292,11 +292,11 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
     id: "design_system_audit_pipeline",
     name: "Design System & A11y Compliance Pipeline",
     description: "Audit template code for tokens, resolve minimal subpath imports, and verify DOM tokens via Chrome.",
-    requiredPlugins: ["design", "chrome"],
+    requiredPlugins: ["design", "browser"],
     steps: [
       { step: 1, plugin: "design", action: "audit_ui", description: "Lint template code against hardcoded hex and raw buttons." },
       { step: 2, plugin: "design", action: "resolve_imports", description: "Calculate optimal tree-shaken on-demand subpaths." },
-      { step: 3, plugin: "chrome", action: "inspect_element", description: "Verify live DOM element against design tokens." },
+      { step: 3, plugin: "browser", action: "inspect_element", description: "Verify live DOM element against design tokens." },
     ],
   },
   {

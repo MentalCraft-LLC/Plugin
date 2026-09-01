@@ -75,7 +75,7 @@ export const GATEWAY_TOOLS = [
     inputSchema: CONTENT_INPUT_SCHEMA,
   },
   {
-    name: "chrome",
+    name: "browser",
     description: "MentalCraft Browser Automation & Native Bridge. Inactive tab driving, screencasts, visual HUD, storage mutation, and CDP inspection.",
     inputSchema: {
       type: "object",

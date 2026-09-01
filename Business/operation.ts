@@ -54,7 +54,13 @@ import {
   generateExtensionEcosystemSpec,
   auditProductEeat,
   auditProductFullStackExcellence,
+  generateSeoLlmoContentArticle,
 } from "./modules/essay_growth.ts";
+import {
+  umamiListWebsites,
+  umamiTrackerSnippet,
+  umamiWebsiteStats,
+} from "./modules/umami.ts";
 
 export class TrafficCvClient {
   async getDomainOverview(domain: string) {
@@ -136,7 +142,7 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
           timestamp,
           provider,
           data: {
-            totalActions: 52,
+            totalActions: 55,
             modalities: ["website", "app", "game", "shop"],
             modules: {
               application: {
@@ -244,6 +250,10 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
               { name: "venture_expansion_moat", stage: 8, scope: "Virality K-factor loop, inventory ROP safety stock, and supply chain moats" },
               { name: "zero_cost_viral_loops", stage: 8, scope: "5 zero-cost growth vectors (GitHub OSS bridge, Itch.io packs, Reddit/HN technical show, Bilibili/YouTube tutorials, free web sandbox) with step-by-step deliverables & KPIs" },
             ],
+            umami: {
+              host: "https://analytics.mentalcraft.org",
+              actions: ["umami_list_websites", "umami_tracker_snippet", "umami_website_stats"],
+            },
           },
         };
       }
@@ -2300,6 +2310,55 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         return {
           protocol: BUSINESS_PROTOCOL,
           action: "product_fullstack_excellence_audit",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "essay_seo_llmo_content_generator": {
+        const keyword = (input as any).keyword ?? "how to bypass turnitin ai detection";
+        const data = generateSeoLlmoContentArticle(keyword);
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "essay_seo_llmo_content_generator",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "umami_list_websites": {
+        const data = umamiListWebsites();
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "umami_list_websites",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "umami_tracker_snippet": {
+        const data = umamiTrackerSnippet(input.domain ?? "");
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "umami_tracker_snippet",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "umami_website_stats": {
+        const data = await umamiWebsiteStats(input.domain ?? "");
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "umami_website_stats",
           success: true,
           timestamp,
           provider: "auto",

@@ -122,6 +122,7 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "essay_extension_ecosystem_spec",
       "product_eeat_audit",
       "product_fullstack_excellence_audit",
+      "essay_seo_llmo_content_generator",
       "list_actions",
     ],
     science: [
@@ -331,6 +332,7 @@ export function exportMermaidDag(wf: any): { mermaidCode: string; nodesCount: nu
     "  classDef business fill:#003366,stroke:#0066cc,color:#ffffff;",
     "  classDef science fill:#330066,stroke:#7700cc,color:#ffffff;",
     "  classDef design fill:#004d40,stroke:#00bfa5,color:#ffffff;",
+    "  classDef browser fill:#4a148c,stroke:#ab47bc,color:#ffffff;",
     "  classDef chrome fill:#4a148c,stroke:#ab47bc,color:#ffffff;",
     "  classDef message fill:#e65100,stroke:#ff9800,color:#ffffff;",
   ];
@@ -454,8 +456,8 @@ export function exportOpenRpcSpec(): Record<string, unknown> {
         },
       },
       {
-        name: "chrome",
-        summary: "Chrome Automation, Native Bridge & Inactive Tab Driving",
+        name: "browser",
+        summary: "Browser Automation, Native Bridge & Inactive Tab Driving",
         description: "CDP inspection, DOM querying, HUD visual annotations, vitals profiling (LCP/CLS/FID), and mode-0600 cookie receipts.",
         params: [
           {
@@ -474,7 +476,7 @@ export function exportOpenRpcSpec(): Record<string, unknown> {
           },
         ],
         result: {
-          name: "ChromeResult",
+          name: "BrowserResult",
           schema: { type: "object", description: "Browser automation result" },
         },
       },
@@ -502,7 +504,7 @@ export function exportOpenRpcSpec(): Record<string, unknown> {
         ScienceInput: SCIENCE_INPUT_SCHEMA,
         DesignInput: DESIGN_INPUT_SCHEMA,
         MessageInput: MESSAGE_INPUT_SCHEMA,
-        ChromeInput: {
+        BrowserInput: {
           type: "object",
           required: ["action"],
           properties: {
@@ -519,7 +521,7 @@ export function exportOpenRpcSpec(): Record<string, unknown> {
       science: { title: "Science & Research Intelligence", actions: 16, schema: SCIENCE_INPUT_SCHEMA },
       design: { title: "Design System & UI Intelligence", actions: 10, schema: DESIGN_INPUT_SCHEMA },
       workflow: { title: "Cross-Plugin Orchestrator & Health Diagnostics", actions: 17, schema: WORKFLOW_INPUT_SCHEMA },
-      chrome: { title: "Browser Automation & Native Bridge", actions: 38 },
+      browser: { title: "Browser Automation & Native Bridge", actions: 38 },
       message: { title: "Agent Message Bus", actions: 4, schema: MESSAGE_INPUT_SCHEMA },
     },
     totalPlugins: 6,
@@ -601,13 +603,13 @@ export function exportOpenApiSpec(): Record<string, unknown> {
           },
         },
       },
-      "/api/chrome": {
+      "/api/browser": {
         post: {
           summary: "Execute Browser Automation & Inactive Tab Driving",
-          operationId: "executeChrome",
+          operationId: "executeBrowser",
           requestBody: {
             required: true,
-            content: { "application/json": { schema: { $ref: "#/components/schemas/ChromeInput" } } },
+            content: { "application/json": { schema: { $ref: "#/components/schemas/BrowserInput" } } },
           },
           responses: {
             "200": { description: "Browser action receipt or screenshot" },
@@ -662,7 +664,7 @@ export function exportOpenApiSpec(): Record<string, unknown> {
         ScienceInput: SCIENCE_INPUT_SCHEMA,
         DesignInput: DESIGN_INPUT_SCHEMA,
         MessageInput: MESSAGE_INPUT_SCHEMA,
-        ChromeInput: {
+        BrowserInput: {
           type: "object",
           required: ["action"],
           properties: {
@@ -687,7 +689,7 @@ export async function executeBenchmark(options: {
 } = {}): Promise<BenchmarkSuiteResult> {
   const iterations = options.iterations ?? 150;
   const warmup = options.warmupIterations ?? 10;
-  const allowedSubsystems = new Set(options.subsystems ?? ["business", "science", "content", "design", "workflow", "chrome", "message"]);
+  const allowedSubsystems = new Set(options.subsystems ?? ["business", "science", "content", "design", "workflow", "browser", "message"]);
 
   const targets: Array<{
     subsystem: PluginId;
@@ -1204,10 +1206,10 @@ export async function executeHealthCheck(target?: PluginId | "all"): Promise<Sys
   const timestamp = new Date().toISOString();
   const reports: Partial<Record<PluginId, PluginHealthReport>> = {};
 
-  if (!target || target === "all" || target === "chrome") {
-    reports.chrome = {
-      pluginId: "chrome",
-      name: "Chrome Automation & Native Bridge",
+  if (!target || target === "all" || target === "browser" || target === "chrome") {
+    reports.browser = {
+      pluginId: "browser",
+      name: "Browser Automation & Native Bridge",
       status: "healthy",
       latencyMs: 1,
       checks: [
@@ -1396,8 +1398,18 @@ export function installMcpSchemasToAgy(customDir?: string): { installedCount: nu
   const { DESIGN_INPUT_SCHEMA } = require("../Design/mcp-server.ts");
   const { WORKFLOW_INPUT_SCHEMA } = require("./mcp-server.ts");
   const { MESSAGE_INPUT_SCHEMA } = require("../Message/mcp-server.ts");
+  const { BROWSER_INPUT_SCHEMA } = require("../Browser/mcp-server.ts");
 
   const toolsToInstall = [
+    {
+      server: "browser",
+      tool: "browser",
+      schema: {
+        name: "browser",
+        description: "MentalCraft Browser Automation & Native Bridge. Inactive tab driving, screencasts, visual HUD, storage mutation, and CDP inspection.",
+        parameters: BROWSER_INPUT_SCHEMA,
+      },
+    },
     {
       server: "business",
       tool: "business",

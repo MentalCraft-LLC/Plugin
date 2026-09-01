@@ -21,7 +21,7 @@ function collectFrames(buffer: Buffer): unknown[] {
   return messages;
 }
 
-describe("Chrome MCP adapter", () => {
+describe("Browser MCP adapter", () => {
   test("public action list matches the chrome Tool ABI", () => {
     expect([...CHROME_ACTIONS]).toEqual([
       "status",
@@ -116,7 +116,7 @@ describe("Chrome MCP adapter", () => {
     ]);
   });
 
-  test("initialize and tools/list expose chrome plus setup", async () => {
+  test("initialize and tools/list expose browser plus setup", async () => {
     const dispatch = createChromeMcpDispatcher({
       execute: async () => ({ status: "unused" }),
       setup: () => ({
@@ -135,12 +135,34 @@ describe("Chrome MCP adapter", () => {
     });
     expect(initialized?.result).toMatchObject({
       protocolVersion: PROTOCOL_VERSION,
-      serverInfo: { name: "chrome" },
+      serverInfo: { name: "browser" },
       capabilities: { tools: { listChanged: false } },
     });
     const listed = await dispatch({ jsonrpc: "2.0", id: 2, method: "tools/list" });
     const tools = (listed?.result as { tools: Array<{ name: string }> }).tools.map((tool) => tool.name);
-    expect(tools).toEqual(["chrome", "chrome_setup"]);
+    expect(tools).toEqual(["browser", "browser_setup"]);
+  });
+
+  test("tools/call still accepts the chrome alias", async () => {
+    const calls: unknown[] = [];
+    const dispatch = createChromeMcpDispatcher({
+      execute: async (params) => {
+        calls.push(params);
+        return { status: "ready" };
+      },
+      setup: () => {
+        throw new Error("setup should not run");
+      },
+      closeGroup: unusedCloseGroup,
+    });
+    const response = await dispatch({
+      jsonrpc: "2.0",
+      id: 7,
+      method: "tools/call",
+      params: { name: "chrome", arguments: { action: "status" } },
+    });
+    expect(calls).toEqual([{ action: "status" }]);
+    expect((response?.result as { isError?: boolean }).isError).toBeUndefined();
   });
 
   test("tools/call reuses the shared chrome operation and redacts secrets", async () => {
@@ -161,7 +183,7 @@ describe("Chrome MCP adapter", () => {
       jsonrpc: "2.0",
       id: 3,
       method: "tools/call",
-      params: { name: "chrome", arguments: { action: "status" } },
+      params: { name: "browser", arguments: { action: "status" } },
     });
     expect(calls).toEqual([
       { params: { action: "status" }, trusted: true, sessionName: "grok-session" },
@@ -188,7 +210,7 @@ describe("Chrome MCP adapter", () => {
       jsonrpc: "2.0",
       id: 4,
       method: "tools/call",
-      params: { name: "chrome_setup", arguments: {} },
+      params: { name: "browser_setup", arguments: {} },
     });
     const text = (response?.result as { content: Array<{ text: string }> }).content[0].text;
     expect(text).toContain("/tmp/holar-chrome/extension");
@@ -211,7 +233,7 @@ describe("Chrome MCP adapter", () => {
       id: 5,
       method: "tools/call",
       params: {
-        name: "chrome",
+        name: "browser",
         arguments: { action: "click", url: "https://checkout.stripe.com/pay", name: "Pay" },
       },
     });
@@ -251,7 +273,7 @@ describe("Chrome MCP adapter", () => {
       jsonrpc: "2.0",
       id: 6,
       method: "tools/call",
-      params: { name: "chrome", arguments: { action: "close_group" } },
+      params: { name: "browser", arguments: { action: "close_group" } },
     });
     expect(closed).toBe(1);
     expect((response?.result as { content: Array<{ text: string }> }).content[0].text).toContain("group_closed");

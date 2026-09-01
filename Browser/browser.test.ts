@@ -794,7 +794,7 @@ describe("Browser Context Extension", () => {
     expect(worker).not.toContain("The tab-group strictly mirrors the Session name");
     expect(worker).not.toContain("session.workspace} · ${session.name}");
     expect(worker).not.toContain('GROUP_TITLE = "Spiral Analytics"');
-    expect(mcpServer).toContain('export const SERVER_NAME = "chrome";');
+    expect(mcpServer).toContain('export const SERVER_NAME = "browser";');
     expect(mcpServer).toContain('export const CHROME_ACTIONS = [');
     expect(mcpServer).not.toContain("chrome_context");
     expect(worker).toContain("chrome.tabs.group");

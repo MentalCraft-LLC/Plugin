@@ -43,7 +43,7 @@ export const WORKFLOW_INPUT_SCHEMA = {
     },
     target_plugin: {
       type: "string",
-      enum: ["chrome", "design", "business", "science", "message", "secret", "workflow", "all"],
+      enum: ["browser", "chrome", "design", "business", "science", "message", "secret", "workflow", "all"],
       description: "Target plugin for health check.",
     },
     client_target: {

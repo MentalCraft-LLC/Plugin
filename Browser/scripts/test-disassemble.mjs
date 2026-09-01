@@ -8,7 +8,7 @@ async function main() {
     jsonrpc: "2.0",
     id: 1,
     method: "tools/call",
-    params: { name: "chrome", arguments: { action: "status" } },
+    params: { name: "browser", arguments: { action: "status" } },
   });
   console.log("Status:", hotRes?.result?.content?.[0]?.text);
 
@@ -18,7 +18,7 @@ async function main() {
     id: 2,
     method: "tools/call",
     params: {
-      name: "chrome",
+      name: "browser",
       arguments: {
         action: "disassemble",
         url: "http://localhost:5173/foundation/layout",

@@ -7,7 +7,7 @@
 | Subsystem | Actions | Protocol | Key Domain Scope |
 |---|---|---|---|
 | `Workflow` | 17 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |
-| `Business` | 40 | `holar.business.v1` | 8-Stage Venture Lifecycle, Dual $10k MRR, E-E-A-T Quality, Full-Stack Excellence (SEO+LLMO+EEAT+UX+Funnel) |
+| `Business` | 41 | `holar.business.v1` | 8-Stage Venture Lifecycle, Dual $10k MRR, SEO/LLMO Content Gen, Full-Stack Excellence |
 | `Science` | 23 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, CSS, Grants, Authoring, Peer Review, Journals, Patents, Impact |
 | `Content` | 10 | `holar.content.v1` | Creative & Commercial Content: Fiction Worldbuilding, 15 Plot Beats, Character Arcs, PAS Copy, Omnichannel Matrix |
 | `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |
@@ -20,14 +20,14 @@
 
 ### `launch_product_campaign` — Autonomous Product Campaign Launch
 - **Description**: Commercial validation: Keyword research & Stripe revenue benchmark → Svelte 5 landing page UI → Chrome live visual/vitals audit.
-- **Required Plugins**: `business` ➔ `design` ➔ `chrome`
+- **Required Plugins**: `business` ➔ `design` ➔ `browser`
 - **Execution Steps**:
   1. **[business]** `seo_keyword_difficulty`: Evaluate search volume & low-hanging fruit ranking opportunities.
   2. **[business]** `market_stripe_radar`: Benchmark revenue tiers of top competitors in the niche.
   3. **[design]** `generate_ui`: Synthesize Svelte 5 Runes marketing hero and pricing table.
   4. **[design]** `audit_ui`: Audit generated code against A11y and OKLCH color tokens.
-  5. **[chrome]** `navigate`: Load the deployed preview page in an isolated browser context.
-  6. **[chrome]** `profile_vitals`: Verify LCP, CLS, and FID performance scores.
+  5. **[browser]** `navigate`: Load the deployed preview page in an isolated browser context.
+  6. **[browser]** `profile_vitals`: Verify LCP, CLS, and FID performance scores.
 
 ### `academic_paper_to_journal_submission` — Academic Paper to Journal Submission Pipeline
 - **Description**: Academic lifecycle: Literature discovery & citation verification → Manuscript structure audit → Target journal matching → Camera-ready checklist.
@@ -158,11 +158,11 @@
 
 ### `design_system_audit_pipeline` — Design System & A11y Compliance Pipeline
 - **Description**: Audit template code for tokens, resolve minimal subpath imports, and verify DOM tokens via Chrome.
-- **Required Plugins**: `design` ➔ `chrome`
+- **Required Plugins**: `design` ➔ `browser`
 - **Execution Steps**:
   1. **[design]** `audit_ui`: Lint template code against hardcoded hex and raw buttons.
   2. **[design]** `resolve_imports`: Calculate optimal tree-shaken on-demand subpaths.
-  3. **[chrome]** `inspect_element`: Verify live DOM element against design tokens.
+  3. **[browser]** `inspect_element`: Verify live DOM element against design tokens.
 
 ### `browser_full_devops_audit_pipeline` — Full-Stack Web Quality, Performance & A11y DevOps Pipeline
 - **Description**: DevOps & Quality: 5-category Lighthouse audit ➔ Navigation Web Vitals ➔ Security headers & CSP ➔ Schema extraction ➔ Screen Reader / RTL A11y stress test ➔ Telegram alert.

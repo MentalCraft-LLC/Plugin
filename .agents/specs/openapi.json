@@ -96,16 +96,16 @@
         }
       }
     },
-    "/api/chrome": {
+    "/api/browser": {
       "post": {
         "summary": "Execute Browser Automation & Inactive Tab Driving",
-        "operationId": "executeChrome",
+        "operationId": "executeBrowser",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ChromeInput"
+                "$ref": "#/components/schemas/BrowserInput"
               }
             }
           }
@@ -211,6 +211,7 @@
           "target_plugin": {
             "type": "string",
             "enum": [
+              "browser",
               "chrome",
               "design",
               "business",
@@ -344,6 +345,7 @@
               "essay_extension_ecosystem_spec",
               "product_eeat_audit",
               "product_fullstack_excellence_audit",
+              "essay_seo_llmo_content_generator",
               "application_market_validation",
               "application_niche_discovery",
               "application_pmf_validation",
@@ -1115,7 +1117,7 @@
           }
         }
       },
-      "ChromeInput": {
+      "BrowserInput": {
         "type": "object",
         "required": [
           "action"

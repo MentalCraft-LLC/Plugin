@@ -48,6 +48,7 @@ export const BUSINESS_ACTIONS = [
   "essay_extension_ecosystem_spec",
   "product_eeat_audit",
   "product_fullstack_excellence_audit",
+  "essay_seo_llmo_content_generator",
   "application_market_validation",
   "application_niche_discovery",
   "application_pmf_validation",
@@ -82,6 +83,9 @@ export const BUSINESS_ACTIONS = [
   "company_expansion_moat",
   "company_compliance_audit",
   "company_capital_efficiency",
+  "umami_list_websites",
+  "umami_tracker_snippet",
+  "umami_website_stats",
   "list_actions",
 ] as const;
 
@@ -129,7 +133,7 @@ export const BUSINESS_INPUT_SCHEMA = {
     },
     domain: {
       type: "string",
-      description: "Domain name for Stripe billing trajectory or TrafficCV analytics.",
+      description: "Domain name for Stripe billing trajectory, TrafficCV analytics, or Umami website lookup (optional).",
     },
     domains: {
       type: "array",

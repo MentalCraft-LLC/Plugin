@@ -17,7 +17,7 @@ export const SUPPORTED_PROTOCOL_VERSIONS = new Set([
   "2025-03-26",
   "2025-06-18",
 ]);
-export const SERVER_NAME = "chrome";
+export const SERVER_NAME = "browser";
 export const SERVER_VERSION = "1.0.0";
 
 export const CHROME_ACTIONS = [
@@ -226,19 +226,22 @@ export type ChromeMcpHandlers = {
   trusted?: () => boolean;
 };
 
-const CHROME_TOOL = {
-  name: "chrome",
+const BROWSER_TOOL = {
+  name: "browser",
   description:
-    "Drive the Owner-installed Chrome profile through the local Native Messaging bridge. Host-agnostic MCP adapter over the Holar chrome operation: open, read sanitized text, inspect semantic controls, click, fill, capture local-only session or screenshot receipts, close this session's tab group. Only financial actions require ownerConfirmed=true; do not ask the Owner to confirm anything else. Never returns Cookie, password or pairing-token values.",
-  inputSchema: CHROME_INPUT_SCHEMA,
+    "Drive the Owner-installed Chrome profile through the local Native Messaging bridge. Host-agnostic MCP adapter over the Holar browser operation: open, read sanitized text, inspect semantic controls, click, fill, capture local-only session or screenshot receipts, close this session's tab group. Only financial actions require ownerConfirmed=true; do not ask the Owner to confirm anything else. Never returns Cookie, password or pairing-token values.",
+  inputSchema: BROWSER_INPUT_SCHEMA,
 };
 
 const SETUP_TOOL = {
-  name: "chrome_setup",
+  name: "browser_setup",
   description:
     "Install the local Native Messaging host and return the unpacked Chrome Extension path for a one-time Load unpacked step. Does not return the pairing token.",
   inputSchema: { type: "object", additionalProperties: false, properties: {} },
 };
+
+const BROWSER_TOOL_NAMES = new Set(["browser", "chrome"]);
+const SETUP_TOOL_NAMES = new Set(["browser_setup", "chrome_setup"]);
 
 export function encodeMessage(message: object): Buffer {
   return Buffer.from(`${JSON.stringify(message)}\n`);
@@ -359,16 +362,16 @@ export function createChromeMcpDispatcher(handlers: ChromeMcpHandlers) {
     }
 
     if (message.method === "tools/list") {
-      return { jsonrpc: "2.0", id: message.id, result: { tools: [CHROME_TOOL, SETUP_TOOL] } };
+      return { jsonrpc: "2.0", id: message.id, result: { tools: [BROWSER_TOOL, SETUP_TOOL] } };
     }
 
     if (message.method === "tools/call") {
       const params = (message.params ?? {}) as { name?: string; arguments?: Record<string, unknown> };
       try {
-        if (params.name === "chrome_setup") {
+        if (params.name && SETUP_TOOL_NAMES.has(params.name)) {
           return { jsonrpc: "2.0", id: message.id, result: textResult(handlers.setup()) };
         }
-        if (params.name !== "chrome") {
+        if (!params.name || !BROWSER_TOOL_NAMES.has(params.name)) {
           return { jsonrpc: "2.0", id: message.id, result: textResult({ error: "unknown tool" }, true) };
         }
         const input = (params.arguments ?? {}) as BrowserContextInput & { action?: string };

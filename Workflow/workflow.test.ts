@@ -20,7 +20,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     const data = res.data as any;
     expect(data.healthScore).toBe(100);
     expect(data.healthyPlugins).toBeGreaterThanOrEqual(6);
-    expect(data.plugins.chrome.status).toBe("healthy");
+    expect(data.plugins.browser.status).toBe("healthy");
     expect(data.plugins.design.status).toBe("healthy");
     expect(data.plugins.business.status).toBe("healthy");
     expect(data.plugins.science.status).toBe("healthy");
@@ -39,7 +39,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.plan.length).toBe(6);
     expect(data.plan[0].plugin).toBe("business");
     expect(data.plan[2].plugin).toBe("design");
-    expect(data.plan[4].plugin).toBe("chrome");
+    expect(data.plan[4].plugin).toBe("browser");
   });
 
   test("run_workflow executes Academic Paper, Grant, and Patent pipelines", async () => {
@@ -211,8 +211,8 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     try {
       const { installMcpSchemasToAgy } = require("./operation.ts");
       const res = installMcpSchemasToAgy(tmp);
-      expect(res.installedCount).toBe(6);
-      expect(res.installedPaths.length).toBe(6);
+      expect(res.installedCount).toBe(7);
+      expect(res.installedPaths.length).toBe(7);
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }
@@ -230,7 +230,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.plugins.science).toBeDefined();
     expect(data.plugins.design).toBeDefined();
     expect(data.plugins.workflow).toBeDefined();
-    expect(data.plugins.chrome).toBeDefined();
+    expect(data.plugins.browser).toBeDefined();
     expect(data.plugins.message).toBeDefined();
   });
 
@@ -434,7 +434,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.paths["/api/business"]).toBeDefined();
     expect(data.paths["/api/science"]).toBeDefined();
     expect(data.paths["/api/design"]).toBeDefined();
-    expect(data.paths["/api/chrome"]).toBeDefined();
+    expect(data.paths["/api/browser"]).toBeDefined();
     expect(data.paths["/api/message"]).toBeDefined();
     expect(data.components.schemas.BusinessInput).toBeDefined();
   });
@@ -452,7 +452,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.methods.map((m: any) => m.name)).toContain("business");
     expect(data.methods.map((m: any) => m.name)).toContain("science");
     expect(data.methods.map((m: any) => m.name)).toContain("design");
-    expect(data.methods.map((m: any) => m.name)).toContain("chrome");
+    expect(data.methods.map((m: any) => m.name)).toContain("browser");
     expect(data.methods.map((m: any) => m.name)).toContain("message");
   });
 

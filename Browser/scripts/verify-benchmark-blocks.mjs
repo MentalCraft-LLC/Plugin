@@ -8,7 +8,7 @@ async function main() {
     jsonrpc: "2.0",
     id: 1,
     method: "tools/call",
-    params: { name: "chrome", arguments: { action: "status" } },
+    params: { name: "browser", arguments: { action: "status" } },
   });
   console.log("Status:", statusRes?.result?.content?.[0]?.text);
 
@@ -26,7 +26,7 @@ async function main() {
       id: 10 + i,
       method: "tools/call",
       params: {
-        name: "chrome",
+        name: "browser",
         arguments: {
           action: "open",
           url: target.url,
@@ -40,7 +40,7 @@ async function main() {
       id: 20 + i,
       method: "tools/call",
       params: {
-        name: "chrome",
+        name: "browser",
         arguments: {
           action: "semantic_snapshot",
           max_elements: 30,

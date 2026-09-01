@@ -892,5 +892,15 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
     expect(excelData.pillars.uxScore).toBe(99);
     expect(excelData.pillars.funnelScore).toBe(95);
     expect(excelData.pillarBreakdown.length).toBe(5);
+
+    // 17. SEO & LLMO Content Generator
+    const genRes = await businessOperation({ action: "essay_seo_llmo_content_generator", keyword: "how to bypass turnitin ai detection" } as any);
+    expect(genRes.success).toBe(true);
+    const genData = genRes.data as any;
+    expect(genData.slug).toBe("how-to-bypass-turnitin-ai-detection");
+    expect(genData.jsonLdSchema["@type"]).toBe("TechArticle");
+    expect(genData.articleMarkdown).toContain("Academic Syntax Morphing");
+    expect(genData.conversionCtas.length).toBe(2);
+    expect(genData.llmoCitationTriggers.length).toBe(3);
   });
 });

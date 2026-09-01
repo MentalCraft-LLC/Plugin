@@ -16,7 +16,7 @@ function locateServer() {
     if (parent === current) break;
     current = parent;
   }
-  throw new Error("Holar chrome MCP server is not on this path");
+  throw new Error("Holar browser MCP server is not on this path");
 }
 
 const server = locateServer();

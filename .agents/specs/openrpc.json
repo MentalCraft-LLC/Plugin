@@ -67,6 +67,7 @@
               "target_plugin": {
                 "type": "string",
                 "enum": [
+                  "browser",
                   "chrome",
                   "design",
                   "business",
@@ -218,6 +219,7 @@
                   "essay_extension_ecosystem_spec",
                   "product_eeat_audit",
                   "product_fullstack_excellence_audit",
+                  "essay_seo_llmo_content_generator",
                   "application_market_validation",
                   "application_niche_discovery",
                   "application_pmf_validation",
@@ -999,8 +1001,8 @@
       }
     },
     {
-      "name": "chrome",
-      "summary": "Chrome Automation, Native Bridge & Inactive Tab Driving",
+      "name": "browser",
+      "summary": "Browser Automation, Native Bridge & Inactive Tab Driving",
       "description": "CDP inspection, DOM querying, HUD visual annotations, vitals profiling (LCP/CLS/FID), and mode-0600 cookie receipts.",
       "params": [
         {
@@ -1033,7 +1035,7 @@
         }
       ],
       "result": {
-        "name": "ChromeResult",
+        "name": "BrowserResult",
         "schema": {
           "type": "object",
           "description": "Browser automation result"
@@ -1135,6 +1137,7 @@
           "target_plugin": {
             "type": "string",
             "enum": [
+              "browser",
               "chrome",
               "design",
               "business",
@@ -1268,6 +1271,7 @@
               "essay_extension_ecosystem_spec",
               "product_eeat_audit",
               "product_fullstack_excellence_audit",
+              "essay_seo_llmo_content_generator",
               "application_market_validation",
               "application_niche_discovery",
               "application_pmf_validation",
@@ -2039,7 +2043,7 @@
           }
         }
       },
-      "ChromeInput": {
+      "BrowserInput": {
         "type": "object",
         "required": [
           "action"
@@ -2115,6 +2119,7 @@
               "essay_extension_ecosystem_spec",
               "product_eeat_audit",
               "product_fullstack_excellence_audit",
+              "essay_seo_llmo_content_generator",
               "application_market_validation",
               "application_niche_discovery",
               "application_pmf_validation",
@@ -2898,6 +2903,7 @@
           "target_plugin": {
             "type": "string",
             "enum": [
+              "browser",
               "chrome",
               "design",
               "business",
@@ -2982,7 +2988,7 @@
         }
       }
     },
-    "chrome": {
+    "browser": {
       "title": "Browser Automation & Native Bridge",
       "actions": 38
     },

@@ -19,6 +19,7 @@
  */
 
 export * from "./modules/essay_growth.ts";
+export * from "./modules/umami.ts";
 
 export const BUSINESS_PROTOCOL = "holar.business.v1" as const;
 
@@ -69,6 +70,7 @@ export type BusinessAction =
   | "essay_extension_ecosystem_spec"
   | "product_eeat_audit"
   | "product_fullstack_excellence_audit"
+  | "essay_seo_llmo_content_generator"
   | "application_market_validation"
   | "application_niche_discovery"
   | "application_pmf_validation"
@@ -103,6 +105,9 @@ export type BusinessAction =
   | "company_expansion_moat"
   | "company_compliance_audit"
   | "company_capital_efficiency"
+  | "umami_list_websites"
+  | "umami_tracker_snippet"
+  | "umami_website_stats"
   | "list_actions";
 
 export type MarketValidationResult = {
