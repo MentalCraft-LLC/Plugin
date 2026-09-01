@@ -635,6 +635,30 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.stepResults[5].action).toBe("send");
   }, { timeout: 15000 });
 
+  test("run_workflow executes holistic_commercial_and_creative_launch_sprint compound workflow", async () => {
+    const res = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "holistic_commercial_and_creative_launch_sprint",
+      parameters: {
+        product_name: "MentalCraft Studio",
+        modality: "app",
+        source_topic: "AI Agentic Development IDE",
+      },
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.workflowId).toBe("holistic_commercial_and_creative_launch_sprint");
+    expect(data.stepsCount).toBe(8);
+    expect(data.stepResults[0].action).toBe("venture_market_validation");
+    expect(data.stepResults[1].action).toBe("story_worldbuilding_forge");
+    expect(data.stepResults[2].action).toBe("marketing_pas_copywriter");
+    expect(data.stepResults[3].action).toBe("generate_ui");
+    expect(data.stepResults[4].action).toBe("responsive_matrix_linter");
+    expect(data.stepResults[5].action).toBe("stealth_profile_guard");
+    expect(data.stepResults[6].action).toBe("venture_unit_economics");
+    expect(data.stepResults[7].action).toBe("send");
+  }, { timeout: 15000 });
+
   test("benchmark engine measures latency percentiles and ops/sec across all 7 subsystems", async () => {
     const { executeBenchmark } = require("./operation.ts");
     const bench = await executeBenchmark({ iterations: 50, warmupIterations: 5 });

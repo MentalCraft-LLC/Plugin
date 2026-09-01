@@ -218,6 +218,19 @@
   5. **[browser]** `e2e_spec_generator`: Synthesize production-grade Playwright TypeScript test suite with POM and Axe accessibility.
   6. **[message]** `send`: Dispatch synthesized E2E test suite and visual saliency report to QA engineering channel.
 
+### `holistic_commercial_and_creative_launch_sprint` — Omni-Disciplinary Commercial & Creative Product Launch Sprint
+- **Description**: Holistic 6-domain sprint: TAM validation ➔ Narrative worldbuilding ➔ PAS copywriting ➔ Svelte 5 UI generation ➔ 8-breakpoint responsive audit ➔ Anti-bot stealth guard ➔ Unit economics modeling ➔ Launch alert.
+- **Required Plugins**: `business` ➔ `content` ➔ `design` ➔ `browser` ➔ `message`
+- **Execution Steps**:
+  1. **[business]** `venture_market_validation`: Validate market opportunity, TAM/SAM/SOM sizing, and competitor landscape.
+  2. **[content]** `story_worldbuilding_forge`: Forge brand narrative worldbuilding, lore continuity, and core emotional resonance.
+  3. **[content]** `marketing_pas_copywriter`: Draft high-converting Problem-Agitate-Solve copy deck for target landing page.
+  4. **[design]** `generate_ui`: Generate responsive Svelte 5 runes product hero and conversion section.
+  5. **[browser]** `responsive_matrix_linter`: Audit generated layout across 8 device breakpoints from 375px mobile to 4K ultrawide.
+  6. **[browser]** `stealth_profile_guard`: Configure anti-bot evasion and browser fingerprint security profile.
+  7. **[business]** `venture_unit_economics`: Model CAC, LTV, payback velocity, gross margin, and 12-month MRR projection.
+  8. **[message]** `send`: Dispatch comprehensive launch artifact package to leadership channel.
+
 ---
 
 ## 🛠️ CLI Quick Reference

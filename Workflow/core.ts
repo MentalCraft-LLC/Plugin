@@ -368,6 +368,22 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
       { step: 6, plugin: "message", action: "send", description: "Dispatch synthesized E2E test suite and visual saliency report to QA engineering channel.", parameters: { text: "Autonomous E2E Suite & Saliency Radar Synthesized." } },
     ],
   },
+  {
+    id: "holistic_commercial_and_creative_launch_sprint",
+    name: "Omni-Disciplinary Commercial & Creative Product Launch Sprint",
+    description: "Holistic 6-domain sprint: TAM validation ➔ Narrative worldbuilding ➔ PAS copywriting ➔ Svelte 5 UI generation ➔ 8-breakpoint responsive audit ➔ Anti-bot stealth guard ➔ Unit economics modeling ➔ Launch alert.",
+    requiredPlugins: ["business", "content", "design", "browser", "message"],
+    steps: [
+      { step: 1, plugin: "business", action: "venture_market_validation", description: "Validate market opportunity, TAM/SAM/SOM sizing, and competitor landscape." },
+      { step: 2, plugin: "content", action: "story_worldbuilding_forge", description: "Forge brand narrative worldbuilding, lore continuity, and core emotional resonance." },
+      { step: 3, plugin: "content", action: "marketing_pas_copywriter", description: "Draft high-converting Problem-Agitate-Solve copy deck for target landing page." },
+      { step: 4, plugin: "design", action: "generate_ui", description: "Generate responsive Svelte 5 runes product hero and conversion section." },
+      { step: 5, plugin: "browser", action: "responsive_matrix_linter", description: "Audit generated layout across 8 device breakpoints from 375px mobile to 4K ultrawide." },
+      { step: 6, plugin: "browser", action: "stealth_profile_guard", description: "Configure anti-bot evasion and browser fingerprint security profile." },
+      { step: 7, plugin: "business", action: "venture_unit_economics", description: "Model CAC, LTV, payback velocity, gross margin, and 12-month MRR projection." },
+      { step: 8, plugin: "message", action: "send", description: "Dispatch comprehensive launch artifact package to leadership channel.", parameters: { text: "Omni-Disciplinary Launch Sprint Synthesized & Verified." } },
+    ],
+  },
 ];
 
 export type ActionMetric = {
