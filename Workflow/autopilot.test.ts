@@ -6,19 +6,20 @@ import {
   generateScheduleSpec,
   formatAutopilotSummary,
   AUTOPILOT_OBJECTIVES,
+  TARGET_MENTALCRAFT_MRR,
   type AutopilotGoalConfig,
 } from "./autopilot.ts";
 import { workflowOperation } from "./operation.ts";
 import { formatWorkflowSummary } from "./core.ts";
 
-describe("Workflow Autopilot & Autonomous Self-Advancement Engine", () => {
+describe("MentalCraft $10,000 MRR 5-Pillar Autopilot Engine", () => {
   test("loadAutopilotCheckpoint returns a clean default state for new venture", () => {
-    const initial = loadAutopilotCheckpoint("TestVenture_" + Date.now());
+    const initial = loadAutopilotCheckpoint("TestMentalCraft_" + Date.now());
     expect(initial.version).toBe("1.0.0");
     expect(initial.currentPhase).toBe("IDLE");
     expect(initial.goalAchieved).toBe(false);
     expect(initial.liveMrrUsd).toBe(0);
-    expect(initial.mrrGapUsd).toBe(10120);
+    expect(initial.mrrGapUsd).toBe(TARGET_MENTALCRAFT_MRR);
     expect(initial.tickCount).toBe(0);
     expect(initial.activeObjectiveIndex).toBe(0);
     expect(initial.history).toBeArray();
@@ -33,7 +34,7 @@ describe("Workflow Autopilot & Autonomous Self-Advancement Engine", () => {
     // 1-min cron
     const oneMin = generateScheduleSpec(goal, 1);
     expect(oneMin.CronExpression).toBe("* * * * *");
-    expect(oneMin.Prompt).toContain("1-Min Tick");
+    expect(oneMin.Prompt).toContain("10,000 MRR");
     expect(oneMin.TimerCondition).toBe("never");
 
     // 3-min cron
@@ -49,42 +50,53 @@ describe("Workflow Autopilot & Autonomous Self-Advancement Engine", () => {
     expect(daily.CronExpression).toBe("0 9 * * *");
   });
 
-  test("advanceAutopilotCycle measures realistic live MRR and tracks Goal-Gap", async () => {
-    const testVenture = "RealTelemetryVenture_" + Date.now();
+  test("advanceAutopilotCycle measures realistic live MRR and cycles 5 MentalCraft pillars", async () => {
+    const testVenture = "MentalCraftPillarVenture_" + Date.now();
 
-    // Default pre-launch state (0 live paying subscribers)
+    // Pillar 1: SEO & LLMO
     const t1 = await advanceAutopilotCycle({ ventureName: testVenture });
     expect(t1.success).toBe(true);
-    expect(t1.objectiveId).toBe("mentalcraft_tractionrank");
+    expect(t1.objectiveId).toBe("mentalcraft_seo_llmo");
     expect(t1.liveMrrUsd).toBe(0);
-    expect(t1.targetMrrUsd).toBe(10120);
-    expect(t1.mrrGapUsd).toBe(10120);
+    expect(t1.targetMrrUsd).toBe(TARGET_MENTALCRAFT_MRR);
+    expect(t1.mrrGapUsd).toBe(TARGET_MENTALCRAFT_MRR);
     expect(t1.progressPercent).toBe(0);
     expect(t1.goalAchieved).toBe(false);
     expect(t1.newPhase).toBe("CONVERSION_OPTIMIZATION");
 
-    // When actual paying subscribers are converted
-    const t2 = await advanceAutopilotCycle({
+    // Pillar 2: EEAT
+    const t2 = await advanceAutopilotCycle({ ventureName: testVenture });
+    expect(t2.success).toBe(true);
+    expect(t2.objectiveId).toBe("mentalcraft_eeat_clinical");
+    expect(t2.targetMrrUsd).toBe(TARGET_MENTALCRAFT_MRR);
+
+    // Pillar 3: Funnel
+    const t3 = await advanceAutopilotCycle({ ventureName: testVenture });
+    expect(t3.success).toBe(true);
+    expect(t3.objectiveId).toBe("mentalcraft_funnel_conversion");
+    expect(t3.targetMrrUsd).toBe(TARGET_MENTALCRAFT_MRR);
+
+    // When 350 Pro @ $19 + 17 Clinic @ $200 are achieved
+    const tAchieved = await advanceAutopilotCycle({
       ventureName: testVenture,
       liveProSubs: 350,
-      liveSponsorSubs: 25,
-      liveApiSubs: 5,
+      liveClinicSubs: 17,
     });
-    expect(t2.success).toBe(true);
-    expect(t2.liveMrrUsd).toBe(10120);
-    expect(t2.mrrGapUsd).toBe(0);
-    expect(t2.progressPercent).toBe(100);
-    expect(t2.goalAchieved).toBe(true);
-    expect(t2.newPhase).toBe("GOAL_STABILIZED");
+    expect(tAchieved.success).toBe(true);
+    expect(tAchieved.liveMrrUsd).toBe(10050);
+    expect(tAchieved.mrrGapUsd).toBe(0);
+    expect(tAchieved.progressPercent).toBe(100);
+    expect(tAchieved.goalAchieved).toBe(true);
+    expect(tAchieved.newPhase).toBe("GOAL_STABILIZED");
 
     const formatted = formatAutopilotSummary(t1);
-    expect(formatted).toContain("Live MRR (Realized)");
-    expect(formatted).toContain("MRR Gap Remaining");
-    expect(formatted).toContain("$10,120");
+    expect(formatted).toContain("Active Growth Pillar");
+    expect(formatted).toContain("mentalcraft.org");
+    expect(formatted).toContain("$10,000 MRR Goal");
   });
 
   test("workflowOperation dispatches autopilot_step, autopilot_status, and autopilot_schedule_spec", async () => {
-    const vName = "WorkflowDispatchTest_" + Date.now();
+    const vName = "MentalCraftOperationTest_" + Date.now();
     // 1. Step with realistic gap
     const stepRes = await workflowOperation({
       action: "autopilot_step",
@@ -95,7 +107,7 @@ describe("Workflow Autopilot & Autonomous Self-Advancement Engine", () => {
     });
     expect(stepRes.success).toBe(true);
     expect((stepRes.data as any).liveMrrUsd).toBe(0);
-    expect((stepRes.data as any).mrrGapUsd).toBe(10120);
+    expect((stepRes.data as any).mrrGapUsd).toBe(TARGET_MENTALCRAFT_MRR);
 
     // 2. Status
     const statusRes = await workflowOperation({
