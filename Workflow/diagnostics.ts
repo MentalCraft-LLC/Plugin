@@ -135,7 +135,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
   // =========================================================================
   let convPassed = true;
   let convDetails = "Landing surfaces feature 3-tier pricing (Free $0 / Pro $19 / Clinic $200)";
-  const landingCopyPath = join(mcAppPath, "src/lib/slice/landing-copy.ts");
+  const landingCopyPath = join(mcAppPath, "src/lib/portal/landing-copy.ts");
   if (existsSync(landingCopyPath)) {
     const copyContent = readFileSync(landingCopyPath, "utf-8");
     if (!copyContent.includes("clinic:") || !copyContent.includes("$200")) {
@@ -147,7 +147,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
         severity: "HIGH",
         title: "Missing $200/mo Clinic Workspace Tier in Landing Copy",
         description: "Clinic monetization tier ($200/mo) missing from landing-copy.ts.",
-        targetPath: "Business/Application/MentalCraft/src/lib/slice/landing-copy.ts",
+        targetPath: "Business/Application/MentalCraft/src/lib/portal/landing-copy.ts",
         status: "DETECTED",
         remediationSuggestion: "Add clinic tier across en, es, pt, and zh in landing-copy.ts.",
       });
@@ -276,7 +276,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
   // =========================================================================
   let pracPassed = true;
   let pracDetails = "1-click private link generator, longitudinal retest trend, and Clinic multi-seat support";
-  const workbenchPath = join(mcAppPath, "src/lib/slice/Workbench.svelte");
+  const workbenchPath = join(mcAppPath, "src/lib/portal/Workbench.svelte");
   if (existsSync(workbenchPath)) {
     const content = readFileSync(workbenchPath, "utf-8");
     if (!content.includes("onUpgrade") || !content.includes("tier")) {
@@ -288,7 +288,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
         severity: "HIGH",
         title: "Workbench onUpgrade Does Not Support Tier Parameter",
         description: "Workbench upgrade handler cannot trigger Clinic tier checkout.",
-        targetPath: "Business/Application/MentalCraft/src/lib/slice/Workbench.svelte",
+        targetPath: "Business/Application/MentalCraft/src/lib/portal/Workbench.svelte",
         status: "DETECTED",
         remediationSuggestion: "Add tier parameter to onUpgrade function in Workbench.svelte.",
       });

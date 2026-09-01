@@ -333,8 +333,13 @@ export type JsonRpcResponse = {
   };
 };
 
-export async function handleBusinessRpc(request: JsonRpcRequest): Promise<JsonRpcResponse> {
-  const id = request.id ?? null;
+export async function handleBusinessRpc(request: JsonRpcRequest): Promise<JsonRpcResponse | null> {
+  const id = request.id;
+
+  // JSON-RPC 2.0 Notification: requests without an id (or notifications/*) MUST NOT return a response
+  if (id === undefined || request.method.startsWith("notifications/")) {
+    return null;
+  }
 
   if (request.method === "initialize") {
     return {
@@ -350,6 +355,38 @@ export async function handleBusinessRpc(request: JsonRpcRequest): Promise<JsonRp
           version: "1.0.0",
         },
       },
+    };
+  }
+
+  if (request.method === "ping") {
+    return {
+      jsonrpc: "2.0",
+      id,
+      result: {},
+    };
+  }
+
+  if (request.method === "resources/list") {
+    return {
+      jsonrpc: "2.0",
+      id,
+      result: { resources: [] },
+    };
+  }
+
+  if (request.method === "prompts/list") {
+    return {
+      jsonrpc: "2.0",
+      id,
+      result: { prompts: [] },
+    };
+  }
+
+  if (request.method === "logging/setLevel") {
+    return {
+      jsonrpc: "2.0",
+      id,
+      result: {},
     };
   }
 
@@ -436,7 +473,9 @@ export function startBusinessMcpServer() {
       try {
         const req = JSON.parse(trimmed) as JsonRpcRequest;
         const res = await handleBusinessRpc(req);
-        process.stdout.write(JSON.stringify(res) + "\n");
+        if (res !== null && res !== undefined) {
+          process.stdout.write(JSON.stringify(res) + "\n");
+        }
       } catch (err) {
         process.stdout.write(
           JSON.stringify({

@@ -57,8 +57,13 @@ export const CONTENT_INPUT_SCHEMA = {
   },
 };
 
-export function handleContentMcpMessage(request: any): any {
+export async function handleContentMcpMessage(request: any): Promise<any> {
   const { id, method, params } = request;
+
+  // JSON-RPC 2.0 Notification: requests without an id (or notifications/*) MUST NOT return a response
+  if (id === undefined || (typeof method === "string" && method.startsWith("notifications/"))) {
+    return null;
+  }
 
   if (method === "initialize") {
     return {
@@ -73,6 +78,38 @@ export function handleContentMcpMessage(request: any): any {
           description: "MentalCraft Creative & Commercial Content Production Engine (Story, Worldbuilding, Character Arcs, 15 Plot Beats, PAS Copywriting, Omnichannel Adapters).",
         },
       },
+    };
+  }
+
+  if (method === "ping") {
+    return {
+      jsonrpc: "2.0",
+      id,
+      result: {},
+    };
+  }
+
+  if (method === "resources/list") {
+    return {
+      jsonrpc: "2.0",
+      id,
+      result: { resources: [] },
+    };
+  }
+
+  if (method === "prompts/list") {
+    return {
+      jsonrpc: "2.0",
+      id,
+      result: { prompts: [] },
+    };
+  }
+
+  if (method === "logging/setLevel") {
+    return {
+      jsonrpc: "2.0",
+      id,
+      result: {},
     };
   }
 
@@ -94,23 +131,21 @@ export function handleContentMcpMessage(request: any): any {
 
   if (method === "tools/call") {
     const args = params?.arguments ?? {};
-    return (async () => {
-      const res = await contentOperation(args as ContentCommand);
-      const text = formatContentSummary(res);
-      return {
-        jsonrpc: "2.0",
-        id,
-        result: {
-          content: [
-            {
-              type: "text",
-              text: `${text}\n\n\`\`\`json\n${JSON.stringify(res, null, 2)}\n\`\`\``,
-            },
-          ],
-          isError: !res.success,
-        },
-      };
-    })();
+    const res = await contentOperation(args as ContentCommand);
+    const text = formatContentSummary(res);
+    return {
+      jsonrpc: "2.0",
+      id,
+      result: {
+        content: [
+          {
+            type: "text",
+            text: `${text}\n\n\`\`\`json\n${JSON.stringify(res, null, 2)}\n\`\`\``,
+          },
+        ],
+        isError: !res.success,
+      },
+    };
   }
 
   return {
@@ -120,18 +155,31 @@ export function handleContentMcpMessage(request: any): any {
   };
 }
 
-if (import.meta.main) {
-  const readline = require("node:readline");
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: false });
+export function startContentMcpServer() {
+  let buffer = "";
+  process.stdin.setEncoding("utf-8");
 
-  rl.on("line", async (line: string) => {
-    if (!line.trim()) return;
-    try {
-      const req = JSON.parse(line);
-      const res = await handleContentMcpMessage(req);
-      process.stdout.write(JSON.stringify(res) + "\n");
-    } catch (err: any) {
-      process.stdout.write(JSON.stringify({ jsonrpc: "2.0", error: { code: -32700, message: "Parse error", data: String(err) } }) + "\n");
+  process.stdin.on("data", async (chunk: string) => {
+    buffer += chunk;
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      try {
+        const req = JSON.parse(trimmed);
+        const res = await handleContentMcpMessage(req);
+        if (res !== null && res !== undefined) {
+          process.stdout.write(JSON.stringify(res) + "\n");
+        }
+      } catch (err: any) {
+        process.stdout.write(JSON.stringify({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "Parse error", data: String(err) } }) + "\n");
+      }
     }
   });
+}
+
+if (import.meta.main) {
+  startContentMcpServer();
 }

@@ -145,10 +145,10 @@ describe("Plugin/Content Creative & Commercial Engine", () => {
   });
 
   test("handleContentMcpMessage responds to initialize, tools/list, and tools/call", async () => {
-    const initRes = handleContentMcpMessage({ jsonrpc: "2.0", id: 1, method: "initialize" });
+    const initRes = await handleContentMcpMessage({ jsonrpc: "2.0", id: 1, method: "initialize" });
     expect(initRes.result.serverInfo.name).toBe("mentalcraft-content");
 
-    const listRes = handleContentMcpMessage({ jsonrpc: "2.0", id: 2, method: "tools/list" });
+    const listRes = await handleContentMcpMessage({ jsonrpc: "2.0", id: 2, method: "tools/list" });
     expect(listRes.result.tools[0].name).toBe("content");
 
     const callRes = await handleContentMcpMessage({
