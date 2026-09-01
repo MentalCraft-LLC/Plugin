@@ -846,5 +846,51 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
     expect(ambData.referralIncentiveStructure.referrerRewardWords).toBe(5000);
     expect(ambData.ambassadorTiers.length).toBe(3);
     expect(ambData.targetCampusCount).toBe(200);
+
+    // 12. Dynamic Purchasing Power Parity (PPP) Pricing
+    const pppRes = await businessOperation({ action: "essay_dynamic_ppp_pricing", country_code: "BR" } as any);
+    expect(pppRes.success).toBe(true);
+    const pppData = pppRes.data as any;
+    expect(pppData.tierGroup).toBe("TIER_2_MODERATE");
+    expect(pppData.discountPercent).toBe(30);
+    expect(pppData.adjustedPlans[0].adjustedPriceUsd).toBe(8.4);
+    expect(pppData.expectedGlobalConversionLiftPercent).toBeGreaterThanOrEqual(40);
+
+    // 13. Automated Lifecycle Email Drip Engine
+    const dripRes = await businessOperation({ action: "essay_lifecycle_email_drip" });
+    expect(dripRes.success).toBe(true);
+    const dripData = dripRes.data as any;
+    expect(dripData.totalTriggers).toBe(4);
+    expect(dripData.projectedMonthlyRecoveredMrrUsd).toBeGreaterThan(2000);
+    expect(dripData.dripCampaigns[0].expectedOpenRatePercent).toBeGreaterThan(60);
+
+    // 14. Browser & Word Extension Ecosystem Specification
+    const extRes = await businessOperation({ action: "essay_extension_ecosystem_spec" });
+    expect(extRes.success).toBe(true);
+    const extData = extRes.data as any;
+    expect(extData.platformsSupported.length).toBe(4);
+    expect(extData.projectedDauMauBoostPercent).toBeGreaterThanOrEqual(40);
+    expect(extData.manifestV3Features.length).toBe(4);
+
+    // 15. Google E-E-A-T Quality Audit
+    const eeatRes = await businessOperation({ action: "product_eeat_audit", product_name: "EssayHumanize.com" } as any);
+    expect(eeatRes.success).toBe(true);
+    const eeatData = eeatRes.data as any;
+    expect(eeatData.overallEeatScore).toBeGreaterThanOrEqual(95);
+    expect(eeatData.dimensions.trustworthinessScore).toBe(99);
+    expect(eeatData.eeatChecklist.length).toBe(4);
+
+    // 16. Full-Stack 5-Pillar Excellence Audit (SEO + LLMO + EEAT + UX + Funnel)
+    const excelRes = await businessOperation({ action: "product_fullstack_excellence_audit", product_name: "EssayDetector.org" } as any);
+    expect(excelRes.success).toBe(true);
+    const excelData = excelRes.data as any;
+    expect(excelData.status).toBe("MAXED_OUT");
+    expect(excelData.holisticExcellenceScore).toBeGreaterThanOrEqual(95);
+    expect(excelData.pillars.seoScore).toBe(98);
+    expect(excelData.pillars.llmoScore).toBe(96);
+    expect(excelData.pillars.eeatScore).toBe(98);
+    expect(excelData.pillars.uxScore).toBe(99);
+    expect(excelData.pillars.funnelScore).toBe(95);
+    expect(excelData.pillarBreakdown.length).toBe(5);
   });
 });

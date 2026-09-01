@@ -739,6 +739,47 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.stepResults[5].action).toBe("send");
   }, { timeout: 15000 });
 
+  test("run_workflow executes essay_retention_and_monetization_deepening_sprint compound workflow", async () => {
+    const res = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "essay_retention_and_monetization_deepening_sprint",
+      parameters: {
+        country_code: "BR",
+      },
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.workflowId).toBe("essay_retention_and_monetization_deepening_sprint");
+    expect(data.stepsCount).toBe(6);
+    expect(data.stepResults[0].action).toBe("essay_dynamic_ppp_pricing");
+    expect(data.stepResults[1].action).toBe("essay_lifecycle_email_drip");
+    expect(data.stepResults[2].action).toBe("essay_extension_ecosystem_spec");
+    expect(data.stepResults[3].action).toBe("generate_ui");
+    expect(data.stepResults[4].action).toBe("responsive_matrix_linter");
+    expect(data.stepResults[5].action).toBe("send");
+  }, { timeout: 15000 });
+
+  test("run_workflow executes holistic_product_excellence_master_pipeline compound workflow", async () => {
+    const res = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "holistic_product_excellence_master_pipeline",
+      parameters: {
+        product_name: "EssayHumanize.com",
+      },
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.workflowId).toBe("holistic_product_excellence_master_pipeline");
+    expect(data.stepsCount).toBe(7);
+    expect(data.stepResults[0].action).toBe("product_fullstack_excellence_audit");
+    expect(data.stepResults[1].action).toBe("product_eeat_audit");
+    expect(data.stepResults[2].action).toBe("essay_llmo_engine");
+    expect(data.stepResults[3].action).toBe("generate_ui");
+    expect(data.stepResults[4].action).toBe("responsive_matrix_linter");
+    expect(data.stepResults[5].action).toBe("web_vitals_radar");
+    expect(data.stepResults[6].action).toBe("send");
+  }, { timeout: 15000 });
+
   test("benchmark engine measures latency percentiles and ops/sec across all 7 subsystems", async () => {
     const { executeBenchmark } = require("./operation.ts");
     const bench = await executeBenchmark({ iterations: 50, warmupIterations: 5 });

@@ -49,6 +49,11 @@ import {
   trackLiveMrrTelemetryProgress,
   generateMultilingualPseoMatrix,
   designCampusAmbassadorAndReferralEngine,
+  calculateDynamicPppPricing,
+  generateLifecycleEmailDripSpecs,
+  generateExtensionEcosystemSpec,
+  auditProductEeat,
+  auditProductFullStackExcellence,
 } from "./modules/essay_growth.ts";
 
 export class TrafficCvClient {
@@ -2232,6 +2237,69 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         return {
           protocol: BUSINESS_PROTOCOL,
           action: "essay_campus_ambassador_loop",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "essay_dynamic_ppp_pricing": {
+        const countryCode = (input as any).country_code ?? "US";
+        const data = calculateDynamicPppPricing(countryCode);
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "essay_dynamic_ppp_pricing",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "essay_lifecycle_email_drip": {
+        const data = generateLifecycleEmailDripSpecs();
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "essay_lifecycle_email_drip",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "essay_extension_ecosystem_spec": {
+        const data = generateExtensionEcosystemSpec();
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "essay_extension_ecosystem_spec",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "product_eeat_audit": {
+        const productName = (input as any).product_name ?? "EssayHumanize.com";
+        const data = auditProductEeat(productName);
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "product_eeat_audit",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "product_fullstack_excellence_audit": {
+        const productName = (input as any).product_name ?? "EssayHumanize.com";
+        const data = auditProductFullStackExcellence(productName);
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "product_fullstack_excellence_audit",
           success: true,
           timestamp,
           provider: "auto",
