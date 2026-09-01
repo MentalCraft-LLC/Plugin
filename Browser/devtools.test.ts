@@ -16,9 +16,13 @@ describe("Plugin/Browser DevTools Superset Engine", () => {
   const mockContext = { isProjectTrusted: () => true };
   const browserOp = createBrowserContextOperation();
 
-  test("runLighthouseAudit generates 5-category audit scores and remediation checklist", () => {
+  test("runLighthouseAudit generates mobile-first 5-category audit scores and mobile ergonomics", () => {
+    // Default Mobile Audit
     const report = runLighthouseAudit("https://example.com/pricing");
     expect(report.url).toBe("https://example.com/pricing");
+    expect(report.formFactor).toBe("mobile");
+    expect(report.emulationSettings.cpuThrottlingRate).toBe(4);
+    expect(report.emulationSettings.networkThrottle).toContain("Fast 3G / 4G");
     expect(report.overallScore).toBeGreaterThanOrEqual(0);
     expect(report.overallScore).toBeLessThanOrEqual(100);
 
@@ -32,10 +36,25 @@ describe("Plugin/Browser DevTools Superset Engine", () => {
     expect(report.webVitals.lcpMs).toBeGreaterThanOrEqual(report.webVitals.fcpMs);
     expect(report.webVitals.clsScore).toBeGreaterThanOrEqual(0);
     expect(report.webVitals.tbtMs).toBeGreaterThanOrEqual(0);
+    expect(report.webVitals.inpMs).toBeGreaterThan(0);
 
-    expect(report.audits.length).toBeGreaterThan(10);
+    // Mobile Ergonomics
+    expect(report.mobileErgonomicsSummary).toBeDefined();
+    expect(report.mobileErgonomicsSummary?.viewportConfigured).toBe(true);
+    expect(report.mobileErgonomicsSummary?.tapTargetsScore).toBeGreaterThanOrEqual(0);
+
+    expect(report.audits.length).toBeGreaterThan(12);
+    const tapAudit = report.audits.find((a) => a.id === "tap-targets");
+    expect(tapAudit).toBeDefined();
+    expect(tapAudit?.isMobileSpecific).toBe(true);
+
     expect(report.passedCount + report.failedCount).toBe(report.totalAudits);
     expect(Array.isArray(report.remediationPriorityList)).toBe(true);
+
+    // Desktop Audit
+    const desktopReport = runLighthouseAudit("https://example.com/pricing", { formFactor: "desktop" });
+    expect(desktopReport.formFactor).toBe("desktop");
+    expect(desktopReport.emulationSettings.cpuThrottlingRate).toBe(1);
   });
 
   test("analyzePerformanceTrace profiles navigation timeline and Web Vitals ratings", () => {

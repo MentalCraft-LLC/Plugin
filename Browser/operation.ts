@@ -99,6 +99,7 @@ export type BrowserContextInput = {
   files?: Array<{ name: string; type?: string; content?: string; base64?: string }>;
   storage_type?: "local" | "session" | "all";
   categories?: ("performance" | "accessibility" | "best_practices" | "seo" | "pwa")[];
+  form_factor?: "mobile" | "desktop";
   device_preset?: "iphone_15_pro" | "pixel_8" | "ipad_pro" | "desktop_4k" | "laptop_1080p" | "galaxy_s24";
   network_throttle?: "offline" | "slow_3g" | "fast_3g" | "4g" | "wifi" | "custom";
   cpu_throttling_rate?: 1 | 2 | 4 | 6;
@@ -367,7 +368,7 @@ export function createBrowserContextOperation(options: {
         allow_active: allowActive,
       };
     } else if (params.action === "lighthouse_audit") {
-      return runLighthouseAudit(url, { categories: params.categories });
+      return runLighthouseAudit(url, { categories: params.categories, formFactor: params.form_factor });
     } else if (params.action === "performance_trace") {
       return analyzePerformanceTrace(url);
     } else if (params.action === "heap_analysis") {

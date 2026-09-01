@@ -163,6 +163,7 @@ export const CHROME_INPUT_SCHEMA = {
     fps: { type: "integer", minimum: 1, maximum: 60 },
     mode: { type: "string", enum: ["start", "stop", "list", "add", "remove", "clear"] },
     categories: { type: "array", items: { type: "string", enum: ["performance", "accessibility", "best_practices", "seo", "pwa"] } },
+    form_factor: { type: "string", enum: ["mobile", "desktop"] },
     device_preset: { type: "string", enum: ["iphone_15_pro", "pixel_8", "ipad_pro", "desktop_4k", "laptop_1080p", "galaxy_s24"] },
     network_throttle: { type: "string", enum: ["offline", "slow_3g", "fast_3g", "4g", "wifi", "custom"] },
     cpu_throttling_rate: { type: "integer", enum: [1, 2, 4, 6] },
