@@ -187,6 +187,11 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "stealth_profile_guard",
       "attention_heatmap_predict",
       "e2e_spec_generator",
+      "memory_leak_tracer",
+      "responsive_matrix_linter",
+      "security_sandbox_audit",
+      "dom_race_profiler",
+      "lighthouse_ci_budget",
       "disassemble",
     ],
     chrome: [
@@ -220,6 +225,11 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "stealth_profile_guard",
       "attention_heatmap_predict",
       "e2e_spec_generator",
+      "memory_leak_tracer",
+      "responsive_matrix_linter",
+      "security_sandbox_audit",
+      "dom_race_profiler",
+      "lighthouse_ci_budget",
       "disassemble",
     ],
     message: [

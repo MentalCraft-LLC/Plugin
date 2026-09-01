@@ -11,7 +11,7 @@
 | `Science` | 23 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, CSS, Grants, Authoring, Peer Review, Journals, Patents, Impact |
 | `Content` | 10 | `holar.content.v1` | Creative & Commercial Content: Fiction Worldbuilding, 15 Plot Beats, Character Arcs, PAS Copy, Omnichannel Matrix |
 | `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |
-| `Browser` | 54 | `spiral.browser.v1` | DevTools Superset (Lighthouse, Flamechart, Heap, Waterfall), Resilience (Personas, Schemas, Chaos), Background driving |
+| `Browser` | 65 | `spiral.browser.v1` | DevTools Superset, Next-Gen Radar & Saliency, Anti-bot Stealth, E2E Codegen, Memory Tracer, Responsive Matrix |
 | `Message` | 4 | `holar.message.v1` | Multi-channel priority bus (Telegram > iMessage > Email) with mode-0600 isolation |
 
 ---

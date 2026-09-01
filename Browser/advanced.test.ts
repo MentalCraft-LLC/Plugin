@@ -6,6 +6,11 @@ import {
   generateStealthProfile,
   predictVisualAttention,
   synthesizeE2eTestSuite,
+  traceMemoryLeaks,
+  auditResponsiveMatrix,
+  auditSecuritySandbox,
+  profileDomRaceConditions,
+  evaluateLighthouseCiBudget,
 } from "./core.ts";
 import { createBrowserContextOperation } from "./operation.ts";
 
@@ -112,7 +117,50 @@ describe("Plugin/Browser Advanced Next-Gen Intelligence Suite", () => {
     expect(specFile?.code).toContain("toHaveScreenshot");
   });
 
-  test("End-to-End Operation Dispatcher executes all 6 next-gen browser actions", async () => {
+  test("Memory Leak Tracer: tracks retained closure growth and detached DOM elements", () => {
+    const mem = traceMemoryLeaks("https://app.mentalcraft.org/modal-test", { iterations: 20 });
+    expect(mem.iterationCount).toBe(20);
+    expect(mem.heapSummary.initialHeapSizeBytes).toBeGreaterThan(0);
+    expect(mem.leakCandidates.length).toBeGreaterThan(0);
+    expect(mem.leakCandidates[0].retainedSizeBytes).toBeGreaterThan(0);
+    expect(mem.leakCandidates[0].remediationSnippet.length).toBeGreaterThan(0);
+    expect(mem.recommendations.length).toBeGreaterThan(0);
+  });
+
+  test("Responsive Matrix Linter: audits layout across 8 canonical breakpoints without horizontal overflow", () => {
+    const resp = auditResponsiveMatrix("https://app.mentalcraft.org/responsive");
+    expect(resp.totalBreakpointsTested).toBe(8);
+    expect(resp.overallResponsiveScore).toBeGreaterThan(90);
+    expect(resp.matrix.length).toBe(8);
+    expect(resp.matrix.some((b) => b.preset === "mobile_small_375")).toBe(true);
+    expect(resp.matrix.some((b) => b.preset === "ultrawide_4k_2560")).toBe(true);
+  });
+
+  test("Security Sandbox Auditor: flags missing SRI hashes and verifies iframe permissions", () => {
+    const sec = auditSecuritySandbox("https://app.mentalcraft.org/payment");
+    expect(sec.securityScore).toBeGreaterThanOrEqual(90);
+    expect(sec.defects.length).toBeGreaterThan(0);
+    expect(sec.summary.externalScriptsAudited).toBeGreaterThan(0);
+    expect(sec.remediationPlan.length).toBeGreaterThan(0);
+  });
+
+  test("DOM Race Profiler: detects layout thrashing and forced synchronous reflows", () => {
+    const race = profileDomRaceConditions("https://app.mentalcraft.org/feed");
+    expect(race.thrashingScore).toBeGreaterThan(80);
+    expect(race.domMutationMetrics.totalMutationsObserved).toBeGreaterThan(0);
+    expect(race.performanceHardeningRecommendations.length).toBeGreaterThan(0);
+  });
+
+  test("Lighthouse CI Budget: evaluates strict PR budgets and generates Markdown comment", () => {
+    const budget = evaluateLighthouseCiBudget("https://app.mentalcraft.org", {
+      customBudgets: { performance_score: 90, lcp_ms: 2000 },
+    });
+    expect(budget.status).toBe("PASSED");
+    expect(budget.ciExitCode).toBe(0);
+    expect(budget.githubPrCommentMarkdown).toContain("Lighthouse CI Performance Budget Report");
+  });
+
+  test("End-to-End Operation Dispatcher executes all 11 next-gen browser actions", async () => {
     const mockRes = await browserOp({ action: "network_mock_interceptor", url: "https://example.com" }, undefined, mockContext);
     expect(mockRes.totalActiveRules).toBeGreaterThan(0);
 
@@ -130,5 +178,20 @@ describe("Plugin/Browser Advanced Next-Gen Intelligence Suite", () => {
 
     const e2eRes = await browserOp({ action: "e2e_spec_generator", url: "https://example.com", suite_name: "Login Journey" } as any, undefined, mockContext);
     expect(e2eRes.generatedFiles.length).toBe(2);
+
+    const memRes = await browserOp({ action: "memory_leak_tracer", url: "https://example.com" }, undefined, mockContext);
+    expect(memRes.heapSummary.leakConfidenceScore).toBeGreaterThan(80);
+
+    const respRes = await browserOp({ action: "responsive_matrix_linter", url: "https://example.com" }, undefined, mockContext);
+    expect(respRes.totalBreakpointsTested).toBe(8);
+
+    const secRes = await browserOp({ action: "security_sandbox_audit", url: "https://example.com" }, undefined, mockContext);
+    expect(secRes.securityScore).toBeGreaterThan(80);
+
+    const raceRes = await browserOp({ action: "dom_race_profiler", url: "https://example.com" }, undefined, mockContext);
+    expect(raceRes.thrashingScore).toBeGreaterThan(80);
+
+    const budgetRes = await browserOp({ action: "lighthouse_ci_budget", url: "https://example.com" }, undefined, mockContext);
+    expect(budgetRes.status).toBe("PASSED");
   });
 });
