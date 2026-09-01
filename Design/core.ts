@@ -109,6 +109,57 @@ export type UIIntent =
   | "venture_telemetry_dashboard"
   | "custom";
 
+export type DuotonePaletteId =
+  | "cobalt_terracotta"
+  | "powder_signal"
+  | "botanical_oxblood"
+  | "charcoal_signal"
+  | "electric_carbon"
+  | "mint_charcoal"
+  | "ultramarine_safety"
+  | "cyan_brick"
+  | "tangerine_slate";
+
+export type SubstrateId = "neutral_white" | "cool_gray" | "pale_beige";
+
+export type EditorialManifest = {
+  subject: string;
+  intent: string;
+  exact_text: string;
+  ratio: string;
+  substrate: { id: SubstrateId; name: string; hex: string };
+  mode: "controlled_two_ink" | "pure_one_ink" | "overprint_duotone";
+  palette: DuotonePaletteId;
+  dominant_ink: { name: string; hex: string; role: string; area_percent: number };
+  accent_ink?: { name: string; hex: string; role: string; area_percent: number };
+  empty_paper_percent: number;
+  focal_event: string;
+  release_zone: string;
+  type_hierarchy: { display: string; support: string };
+  mechanical_process: string;
+  imperfections: string[];
+  generation_prompt: string;
+  svg_preview_snippet: string;
+};
+
+export const DUOTONE_RECIPES: Record<DuotonePaletteId, { name: string; dominant: { name: string; hex: string }; accent: { name: string; hex: string }; useFor: string }> = {
+  cobalt_terracotta: { name: "Cobalt + Terracotta", dominant: { name: "Cobalt", hex: "#2148B8" }, accent: { name: "Terracotta", hex: "#C65F38" }, useFor: "Travel, lifestyle, cultural commentary, editorial publication" },
+  powder_signal: { name: "Powder Blue + Signal Red", dominant: { name: "Powder Blue", hex: "#9EB8D3" }, accent: { name: "Signal Red", hex: "#C83232" }, useFor: "Information-dense guides, public announcements, infographics" },
+  botanical_oxblood: { name: "Botanical Green + Oxblood", dominant: { name: "Botanical Green", hex: "#008A4B" }, accent: { name: "Oxblood", hex: "#8F3434" }, useFor: "Academic paper figures, botanical journals, natural science archives" },
+  charcoal_signal: { name: "Charcoal + Signal Red", dominant: { name: "Charcoal", hex: "#30343A" }, accent: { name: "Signal Red", hex: "#C83232" }, useFor: "Architecture, empirical research reports, conceptual art posters" },
+  electric_carbon: { name: "Electric Blue + Carbon", dominant: { name: "Electric Blue", hex: "#173AE3" }, accent: { name: "Carbon", hex: "#242321" }, useFor: "High-contrast cultural events, indie tech, night exhibitions" },
+  mint_charcoal: { name: "Mint Green + Charcoal", dominant: { name: "Mint Green", hex: "#5EB783" }, accent: { name: "Charcoal", hex: "#302D2E" }, useFor: "Long-form essays, quiet observations, field notes" },
+  ultramarine_safety: { name: "Ultramarine + Safety Orange", dominant: { name: "Ultramarine", hex: "#263E99" }, accent: { name: "Safety Orange", hex: "#E55D2B" }, useFor: "Youth culture, movement, physical sports, active urban subjects" },
+  cyan_brick: { name: "Cyan + Brick Red", dominant: { name: "Cyan", hex: "#159DDA" }, accent: { name: "Brick Red", hex: "#B64032" }, useFor: "SpriteFlow game dev tools, product catalogs, playful info systems" },
+  tangerine_slate: { name: "Tangerine + Slate Blue", dominant: { name: "Tangerine", hex: "#E46C2D" }, accent: { name: "Slate Blue", hex: "#4773A5" }, useFor: "Festivals, creative markets, oversized typographic posters" },
+};
+
+export const SUBSTRATES: Record<SubstrateId, { name: string; hex: string; useFor: string }> = {
+  neutral_white: { name: "Neutral White", hex: "#FAFAF7", useFor: "Contemporary editorial, technology, cultural events, crisp branding" },
+  cool_gray: { name: "Cool Gray", hex: "#E9E9E5", useFor: "Architecture, empirical research, charcoal systems, restrained branding" },
+  pale_beige: { name: "Pale Beige", hex: "#F5F1E8", useFor: "Tactile, food, travel, intimate literature, archival publication" },
+};
+
 export type DesignAction =
   | "catalog"
   | "inspect_component"
@@ -119,7 +170,8 @@ export type DesignAction =
   | "list_layers"
   | "resolve_imports"
   | "domain_presets"
-  | "bundle_optimize";
+  | "bundle_optimize"
+  | "generate_editorial";
 
 export type DesignInput = {
   action: DesignAction;
@@ -132,6 +184,12 @@ export type DesignInput = {
   intent?: UIIntent;
   prompt?: string;
   template_code?: string;
+  theme?: string;
+  palette?: DuotonePaletteId;
+  substrate?: SubstrateId;
+  ratio?: string;
+  exact_text?: string;
+  mode?: "controlled_two_ink" | "pure_one_ink" | "overprint_duotone";
   chrome_element?: {
     tag: string;
     id?: string;
@@ -1314,6 +1372,10 @@ export function formatDesignSummary(result: DesignResult): string {
     case "bundle_optimize": {
       const data = result.data as { optimizedImports: string[]; metrics: { originalEstimatedKb: number; optimizedKb: number; reductionPercent: number } };
       return `Bundle Optimized: ${data.metrics.reductionPercent}% size reduction (${data.metrics.originalEstimatedKb} KB → ${data.metrics.optimizedKb} KB)`;
+    }
+    case "generate_editorial": {
+      const data = result.data as { manifest: EditorialManifest };
+      return `Generated Editorial Visual (${data.manifest.mode}): ${data.manifest.palette} on ${data.manifest.substrate.name} [Subject: ${data.manifest.subject}]`;
     }
   }
 }

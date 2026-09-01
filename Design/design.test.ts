@@ -646,6 +646,50 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
     expect(data.optimizedCode).toContain("infra-ui-svelte/component/feedback/badge");
   });
 
+  test("generate_editorial generates compliant 2-ink Recipe Manifest and production prompt adhering to mono-color rules", async () => {
+    const res = await designOperation({
+      action: "generate_editorial",
+      theme: "Late Night Convenience Store",
+      exact_text: "still open",
+      palette: "cobalt_terracotta",
+      substrate: "neutral_white",
+      ratio: "3:4",
+    });
+
+    expect(res.success).toBe(true);
+    const data = res.data as {
+      manifest: {
+        subject: string;
+        exact_text: string;
+        mode: string;
+        palette: string;
+        dominant_ink: { name: string; hex: string; area_percent: number };
+        accent_ink?: { name: string; hex: string; area_percent: number };
+        empty_paper_percent: number;
+        generation_prompt: string;
+        svg_preview_snippet: string;
+      };
+      prompt: string;
+      svgPreview: string;
+    };
+
+    expect(data.manifest.subject).toBe("Late Night Convenience Store");
+    expect(data.manifest.exact_text).toBe("still open");
+    expect(data.manifest.dominant_ink.name).toBe("Cobalt");
+    expect(data.manifest.dominant_ink.hex).toBe("#2148B8");
+    expect(data.manifest.dominant_ink.area_percent).toBe(75);
+    expect(data.manifest.accent_ink?.name).toBe("Terracotta");
+    expect(data.manifest.accent_ink?.hex).toBe("#C65F38");
+    expect(data.manifest.accent_ink?.area_percent).toBe(25);
+    expect(data.manifest.empty_paper_percent).toBe(35);
+    expect(data.prompt).toContain("Cobalt (#2148B8)");
+    expect(data.prompt).toContain("Terracotta (#C65F38)");
+    expect(data.prompt).toContain("still open");
+    expect(data.prompt).toContain("35% visible empty paper");
+    expect(data.svgPreview).toContain("<svg");
+    expect(data.svgPreview).toContain("#FAFAF7");
+  });
+
   test("Pi compactDesignResult formats readable concise terminal logs", async () => {
     const res = await designOperation({ action: "catalog" });
     const log = compactDesignResult(res);

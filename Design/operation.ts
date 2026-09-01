@@ -12,9 +12,14 @@ import {
   COMPONENT_CATALOG,
   DESIGN_TOKENS,
   DOMAIN_PRESETS,
+  DUOTONE_RECIPES,
+  SUBSTRATES,
   type ComponentSpec,
   type TokenDefinition,
   type DomainPreset,
+  type EditorialManifest,
+  type DuotonePaletteId,
+  type SubstrateId,
 } from "./core.ts";
 
 export async function designOperation(input: DesignInput): Promise<DesignResult> {
@@ -1726,6 +1731,89 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
           previousImport: match[0],
           optimizedImports,
           optimizedCode,
+        },
+      };
+    }
+
+    case "generate_editorial": {
+      const subject = input.theme || input.prompt || "Field Observation & Scientific Inquiry";
+      const exactText = input.exact_text || "field observation";
+      const ratio = input.ratio || "3:4";
+      const paletteId = (input.palette as DuotonePaletteId) || "cobalt_terracotta";
+      const recipe = DUOTONE_RECIPES[paletteId] || DUOTONE_RECIPES.cobalt_terracotta;
+      const substrateId = (input.substrate as SubstrateId) || "neutral_white";
+      const substrate = SUBSTRATES[substrateId] || SUBSTRATES.neutral_white;
+      const mode = input.mode || (paletteId ? "controlled_two_ink" : "pure_one_ink");
+
+      const manifest: EditorialManifest = {
+        subject,
+        intent: "cultural_poster",
+        exact_text: exactText,
+        ratio,
+        substrate: { id: substrateId, name: substrate.name, hex: substrate.hex },
+        mode,
+        palette: paletteId,
+        dominant_ink: {
+          name: recipe.dominant.name,
+          hex: recipe.dominant.hex,
+          role: "Main subject halftone, hero typography, and asymmetrical grid",
+          area_percent: 75,
+        },
+        accent_ink: {
+          name: recipe.accent.name,
+          hex: recipe.accent.hex,
+          role: "Specific milestone date, annotation dot, and overprint intersection",
+          area_percent: 25,
+        },
+        empty_paper_percent: 35,
+        focal_event: "oversized_typography_overlap",
+        release_zone: "bottom_right_open_paper",
+        type_hierarchy: {
+          display: "Contemporary Neo-Grotesk (8:1 scale contrast)",
+          support: "Monospace Tabular Metadata",
+        },
+        mechanical_process: "medium_risograph_halftone_screening",
+        imperfections: ["subtle_misregistration", "ink_density_falloff"],
+        generation_prompt: `A contemporary editorial ${mode.replace("_", " ")} visual artifact of ${subject}. Printed strictly in ${recipe.dominant.name} (${recipe.dominant.hex}) as dominant ink (75% coverage) and ${recipe.accent.name} (${recipe.accent.hex}) as accent ink (25% coverage) on clean ${substrate.name} (${substrate.hex}) paper substrate. Coarse mechanical halftone screen, Risograph grain, subtle ink plate misregistration. Active negative space with 35% visible empty paper. Bold display typography featuring text "${exactText}", 8:1 type hierarchy with small monospace metadata. No 3D render, no digital gradient, no third color, no fake logos or URLs. Flat front-facing editorial poster composition, ratio ${ratio}.`,
+        svg_preview_snippet: `<svg viewBox="0 0 600 800" xmlns="http://www.w3.org/2000/svg" style="background-color: ${substrate.hex}; font-family: monospace;">
+  <!-- Substrate Paper -->
+  <rect width="600" height="800" fill="${substrate.hex}" />
+  <!-- Halftone Pattern Defs -->
+  <defs>
+    <pattern id="halftone" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="2.5" fill="${recipe.dominant.hex}" />
+    </pattern>
+  </defs>
+  <!-- Dominant Subject Graphic Field -->
+  <rect x="48" y="120" width="504" height="420" fill="url(#halftone)" opacity="0.85" />
+  <!-- Accent Overprint Element -->
+  <circle cx="480" cy="180" r="48" fill="${recipe.accent.hex}" style="mix-blend-mode: multiply;" opacity="0.9" />
+  <!-- Oversized Typography -->
+  <text x="48" y="90" fill="${recipe.dominant.hex}" font-size="44" font-weight="700" letter-spacing="-1">${exactText.toUpperCase()}</text>
+  <!-- Metadata & Accent Annotation -->
+  <text x="48" y="580" fill="${recipe.dominant.hex}" font-size="12">${subject}</text>
+  <text x="48" y="600" fill="${recipe.accent.hex}" font-size="11">PLATE: ${recipe.name.toUpperCase()} · RATIO: ${ratio}</text>
+  <line x1="48" y1="620" x2="552" y2="620" stroke="${recipe.dominant.hex}" stroke-width="1" stroke-dasharray="4 4" />
+  <!-- Release Zone (Open Paper) -->
+</svg>`,
+      };
+
+      return {
+        protocol: DESIGN_PROTOCOL,
+        action: "generate_editorial",
+        success: true,
+        timestamp,
+        data: {
+          manifest,
+          prompt: manifest.generation_prompt,
+          recipe: {
+            palette: recipe.name,
+            substrate: substrate.name,
+            dominantInk: recipe.dominant,
+            accentInk: recipe.accent,
+            emptyPaper: "35%",
+          },
+          svgPreview: manifest.svg_preview_snippet,
         },
       };
     }

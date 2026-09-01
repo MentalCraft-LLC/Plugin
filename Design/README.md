@@ -180,6 +180,7 @@ Features MRR/ARR growth metrics cards, D1/D7/D30 cohort retention decay heatmap 
 | `resolve_imports` | Calculate optimal on-demand subpaths (`import Button from 'infra-ui-svelte/component/interaction/button'`) & tree-shaking bundle savings | `components`, `prompt`, `template_code` |
 | `domain_presets` | List and scaffold pre-bundled domain packs (`clinical`, `chat_ai`, `analytics`, `commerce`, `auth`, `ecommerce_pdp`, `ecommerce_checkout`, `academic_manuscript_viewer`, `venture_telemetry_dashboard`) | `preset_name` |
 | `bundle_optimize` | Refactor monolithic barrel imports into cherry-picked subpaths and prune unused components | `template_code` |
+| `generate_editorial` | Generate single-ink or controlled duotone editorial visual with structured Recipe Manifest, production-grade AI prompt, and SVG halftone preview | `theme`, `exact_text`, `palette` (`cobalt_terracotta`, `powder_signal`, `botanical_oxblood`, `charcoal_signal`, `electric_carbon`, `mint_charcoal`, `ultramarine_safety`, `cyan_brick`, `tangerine_slate`), `substrate` (`neutral_white`, `cool_gray`, `pale_beige`), `ratio` |
 
 ---
 

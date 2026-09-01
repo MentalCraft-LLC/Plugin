@@ -19,6 +19,7 @@ export const DESIGN_ACTIONS = [
   "resolve_imports",
   "domain_presets",
   "bundle_optimize",
+  "generate_editorial",
 ] as const;
 
 export const DESIGN_INPUT_SCHEMA = {
@@ -29,7 +30,7 @@ export const DESIGN_INPUT_SCHEMA = {
     action: {
       type: "string",
       enum: DESIGN_ACTIONS,
-      description: "Design action: 'catalog' (list components), 'inspect_component' (deep schema/props/example), 'theme_tokens' (colors, spacing, radius), 'generate_ui' (Svelte 5 runes recipe), 'audit_ui' (A11y/Token linter), 'bridge_chrome' (DOM to component mapper), 'list_layers' (5-layer architecture), 'resolve_imports' (calculate on-demand subpaths & savings), 'domain_presets' (clinical, chat_ai, analytics, commerce, auth, ecommerce_pdp, ecommerce_checkout, academic_manuscript_viewer, venture_telemetry_dashboard), 'bundle_optimize' (refactor monolithic imports).",
+      description: "Design action: 'catalog' (list components), 'inspect_component' (deep schema/props/example), 'theme_tokens' (colors, spacing, radius), 'generate_ui' (Svelte 5 runes recipe), 'audit_ui' (A11y/Token linter), 'bridge_chrome' (DOM to component mapper), 'list_layers' (5-layer architecture), 'resolve_imports' (calculate on-demand subpaths & savings), 'domain_presets' (clinical, chat_ai, analytics, commerce, auth, ecommerce_pdp, ecommerce_checkout, academic_manuscript_viewer, venture_telemetry_dashboard), 'bundle_optimize' (refactor monolithic imports), 'generate_editorial' (single-ink and controlled duotone print visual generation with Recipe Manifest).",
     },
     layer: {
       type: "string",
@@ -118,6 +119,43 @@ export const DESIGN_INPUT_SCHEMA = {
       minimum: 1,
       maximum: 100,
       description: "Maximum number of catalog items to return.",
+    },
+    theme: {
+      type: "string",
+      description: "Subject theme for editorial visual generation (e.g. 'Late Night Convenience Store', 'Nature Research Figure').",
+    },
+    palette: {
+      type: "string",
+      enum: [
+        "cobalt_terracotta",
+        "powder_signal",
+        "botanical_oxblood",
+        "charcoal_signal",
+        "electric_carbon",
+        "mint_charcoal",
+        "ultramarine_safety",
+        "cyan_brick",
+        "tangerine_slate",
+      ],
+      description: "Duotone ink palette recipe for editorial print generation.",
+    },
+    substrate: {
+      type: "string",
+      enum: ["neutral_white", "cool_gray", "pale_beige"],
+      description: "Paper substrate background tone.",
+    },
+    ratio: {
+      type: "string",
+      description: "Aspect ratio for editorial visual (e.g. '3:4', '1:1', '16:9', '4:3').",
+    },
+    exact_text: {
+      type: "string",
+      description: "Preserved display text phrase (2-8 words).",
+    },
+    mode: {
+      type: "string",
+      enum: ["controlled_two_ink", "pure_one_ink", "overprint_duotone"],
+      description: "Print reproduction mode.",
     },
   },
 } as const;
