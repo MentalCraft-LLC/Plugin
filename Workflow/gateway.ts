@@ -14,6 +14,7 @@ import { workflowOperation } from "./operation.ts";
 import { designOperation } from "../Design/operation.ts";
 import { businessOperation } from "../Business/operation.ts";
 import { scienceOperation } from "../Science/operation.ts";
+import { contentOperation } from "../Content/operation.ts";
 import { createBrowserContextOperation } from "../Browser/operation.ts";
 import { createMessageOperation } from "../Message/operation.ts";
 
@@ -21,6 +22,7 @@ import { WORKFLOW_INPUT_SCHEMA } from "./mcp-server.ts";
 import { DESIGN_INPUT_SCHEMA } from "../Design/mcp-server.ts";
 import { BUSINESS_INPUT_SCHEMA } from "../Business/mcp-server.ts";
 import { SCIENCE_INPUT_SCHEMA } from "../Science/mcp-server.ts";
+import { CONTENT_INPUT_SCHEMA } from "../Content/mcp-server.ts";
 import { MESSAGE_INPUT_SCHEMA } from "../Message/mcp-server.ts";
 
 export type JsonRpcId = string | number | null;
@@ -66,6 +68,11 @@ export const GATEWAY_TOOLS = [
     name: "science",
     description: "MentalCraft Science & Research Intelligence Engine (Clinical Scale Scoring GAD-7/PHQ-9, Suicidal Crisis Safety Protocol, Literature Discovery, Patent Novelty Audits).",
     inputSchema: SCIENCE_INPUT_SCHEMA,
+  },
+  {
+    name: "content",
+    description: "MentalCraft Creative & Commercial Content Production Engine (Fiction Worldbuilding, Character Arcs, 15 Plot Beats, Sensory Prose, PAS Copywriting, Omnichannel Adapters).",
+    inputSchema: CONTENT_INPUT_SCHEMA,
   },
   {
     name: "chrome",
@@ -134,6 +141,8 @@ export async function handleGatewayRpc(request: JsonRpcRequest): Promise<JsonRpc
         output = await businessOperation(args as any);
       } else if (toolName === "science") {
         output = await scienceOperation(args as any);
+      } else if (toolName === "content") {
+        output = await contentOperation(args as any);
       } else if (toolName === "browser" || toolName === "chrome") {
         output = await executeChrome(args as any);
       } else if (toolName === "message") {

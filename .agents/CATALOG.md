@@ -9,6 +9,7 @@
 | `Workflow` | 17 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |
 | `Business` | 24 | `holar.business.v1` | 8-Stage Venture Lifecycle (Websites, Apps, Games, Shops), PMF, SEO KD, ASO, Steam, Activation, Unit Economics, Moats |
 | `Science` | 23 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, CSS, Grants, Authoring, Peer Review, Journals, Patents, Impact |
+| `Content` | 10 | `holar.content.v1` | Creative & Commercial Content: Fiction Worldbuilding, 15 Plot Beats, Character Arcs, PAS Copy, Omnichannel Matrix |
 | `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |
 | `Browser` | 54 | `spiral.browser.v1` | DevTools Superset (Lighthouse, Flamechart, Heap, Waterfall), Resilience (Personas, Schemas, Chaos), Background driving |
 | `Message` | 4 | `holar.message.v1` | Multi-channel priority bus (Telegram > iMessage > Email) with mode-0600 isolation |
@@ -184,6 +185,27 @@
   4. **[browser]** `journey_record_and_replay`: Compile recorded user checkout interactions into executable Playwright TypeScript test suite.
   5. **[browser]** `chaos_resilience_test`: Inject simulated 500 API fault and verify automatic toast recovery & error boundary containment.
   6. **[business]** `venture_unit_economics`: Model COGS, 3PL shipping, blended ROAS, and net margin economics.
+
+### `story_to_novel_chapter_pipeline` — Full-Cycle Fiction Novel Chapter & Lore Synthesis Pipeline
+- **Description**: Fiction authoring: Worldbuilding laws ➔ Character psychology (Want vs Need) ➔ 15-beat plot outline ➔ Sensory prose enhancement ➔ Anti-contradiction lore consistency check.
+- **Required Plugins**: `content`
+- **Execution Steps**:
+  1. **[content]** `story_worldbuilding_forge`: Forge hard-law worldbuilding rules, factions, and irreversible resource constraints.
+  2. **[content]** `story_character_arc_architect`: Design protagonist Want vs Need psychology, fatal flaws, and dialogue voice fingerprints.
+  3. **[content]** `story_plot_beat_composer`: Compose 15-beat Save the Cat narrative arc with midpoint shifts and climax stakes.
+  4. **[content]** `story_sensory_prose_render`: Apply 'Show, Don't Tell' sensory detail enhancement across light, sound, scent, and touch.
+  5. **[content]** `story_lore_consistency_linter`: Audit manuscript against world rules, power scaling leaks, and track open foreshadowing clues.
+
+### `marketing_full_launch_campaign` — Omnichannel Growth Marketing & Product Launch Campaign
+- **Description**: Marketing campaign: PAS conversion copy ➔ 3-second viral attention hooks ➔ Multi-channel adaptation (X/Reddit/WeChat/Bilibili/ProductHunt) ➔ 14-day sprint roadmap ➔ Svelte 5 UI ➔ Telegram alert.
+- **Required Plugins**: `content` ➔ `design` ➔ `message`
+- **Execution Steps**:
+  1. **[content]** `marketing_pas_copywriter`: Generate Problem-Agitate-Solve conversion copy deck targeted at core user personas.
+  2. **[content]** `marketing_viral_hook_generator`: Generate 3-second attention hooks, curiosity gap angles, and high-converting CTAs.
+  3. **[content]** `marketing_omnichannel_adapter`: Adapt core announcement across Twitter/X Thread, Show HN, WeChat article, and Bilibili script.
+  4. **[content]** `marketing_campaign_playbook`: Structure 14-day product launch sprint roadmap with channel KPIs and deliverables.
+  5. **[design]** `generate_ui`: Generate high-converting Svelte 5 marketing hero and social preview card with Runes.
+  6. **[message]** `send`: Dispatch launch campaign package and schedule checklist to marketing team.
 
 ---
 

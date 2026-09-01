@@ -7,7 +7,7 @@
 
 export const WORKFLOW_PROTOCOL = "holar.workflow.v1" as const;
 
-export type PluginId = "browser" | "chrome" | "design" | "business" | "science" | "message" | "secret" | "workflow";
+export type PluginId = "browser" | "chrome" | "design" | "business" | "science" | "content" | "message" | "secret" | "workflow";
 
 export type HealthStatus = "healthy" | "degraded" | "unreachable";
 
@@ -325,6 +325,33 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
       { step: 4, plugin: "browser", action: "journey_record_and_replay", description: "Compile recorded user checkout interactions into executable Playwright TypeScript test suite." },
       { step: 5, plugin: "browser", action: "chaos_resilience_test", description: "Inject simulated 500 API fault and verify automatic toast recovery & error boundary containment." },
       { step: 6, plugin: "business", action: "venture_unit_economics", description: "Model COGS, 3PL shipping, blended ROAS, and net margin economics." },
+    ],
+  },
+  {
+    id: "story_to_novel_chapter_pipeline",
+    name: "Full-Cycle Fiction Novel Chapter & Lore Synthesis Pipeline",
+    description: "Fiction authoring: Worldbuilding laws ➔ Character psychology (Want vs Need) ➔ 15-beat plot outline ➔ Sensory prose enhancement ➔ Anti-contradiction lore consistency check.",
+    requiredPlugins: ["content"],
+    steps: [
+      { step: 1, plugin: "content", action: "story_worldbuilding_forge", description: "Forge hard-law worldbuilding rules, factions, and irreversible resource constraints." },
+      { step: 2, plugin: "content", action: "story_character_arc_architect", description: "Design protagonist Want vs Need psychology, fatal flaws, and dialogue voice fingerprints." },
+      { step: 3, plugin: "content", action: "story_plot_beat_composer", description: "Compose 15-beat Save the Cat narrative arc with midpoint shifts and climax stakes." },
+      { step: 4, plugin: "content", action: "story_sensory_prose_render", description: "Apply 'Show, Don't Tell' sensory detail enhancement across light, sound, scent, and touch." },
+      { step: 5, plugin: "content", action: "story_lore_consistency_linter", description: "Audit manuscript against world rules, power scaling leaks, and track open foreshadowing clues." },
+    ],
+  },
+  {
+    id: "marketing_full_launch_campaign",
+    name: "Omnichannel Growth Marketing & Product Launch Campaign",
+    description: "Marketing campaign: PAS conversion copy ➔ 3-second viral attention hooks ➔ Multi-channel adaptation (X/Reddit/WeChat/Bilibili/ProductHunt) ➔ 14-day sprint roadmap ➔ Svelte 5 UI ➔ Telegram alert.",
+    requiredPlugins: ["content", "design", "message"],
+    steps: [
+      { step: 1, plugin: "content", action: "marketing_pas_copywriter", description: "Generate Problem-Agitate-Solve conversion copy deck targeted at core user personas." },
+      { step: 2, plugin: "content", action: "marketing_viral_hook_generator", description: "Generate 3-second attention hooks, curiosity gap angles, and high-converting CTAs." },
+      { step: 3, plugin: "content", action: "marketing_omnichannel_adapter", description: "Adapt core announcement across Twitter/X Thread, Show HN, WeChat article, and Bilibili script." },
+      { step: 4, plugin: "content", action: "marketing_campaign_playbook", description: "Structure 14-day product launch sprint roadmap with channel KPIs and deliverables." },
+      { step: 5, plugin: "design", action: "generate_ui", description: "Generate high-converting Svelte 5 marketing hero and social preview card with Runes." },
+      { step: 6, plugin: "message", action: "send", description: "Dispatch launch campaign package and schedule checklist to marketing team.", parameters: { text: "Marketing Launch Campaign Pack Synthesized & Ready for Dispatch." } },
     ],
   },
 ];

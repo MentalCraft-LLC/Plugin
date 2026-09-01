@@ -151,12 +151,44 @@ describe("Golden Protocol & Contract Verification Across All 6 Plugins", () => {
     expect((traceRes.data as any).format).toBe("OpenTelemetry_v1");
   });
 
+  test("Content plugin contract conforms to creative and marketing output schema", async () => {
+    const { contentOperation } = require("../Content/operation.ts");
+    const actions = [
+      "story_worldbuilding_forge",
+      "story_character_arc_architect",
+      "story_plot_beat_composer",
+      "story_sensory_prose_render",
+      "story_lore_consistency_linter",
+      "story_interactive_ink_exporter",
+      "marketing_pas_copywriter",
+      "marketing_omnichannel_adapter",
+      "marketing_viral_hook_generator",
+      "marketing_campaign_playbook",
+    ] as const;
+
+    for (const action of actions) {
+      const res = await contentOperation({
+        action,
+        title: "Test World",
+        story_title: "Test Story",
+        name: "Test Hero",
+        excerpt: "Test excerpt",
+        manuscript_text: "Test text",
+        product_name: "Test Product",
+        source_topic: "Test Topic",
+      } as any);
+      expect(res.success).toBe(true);
+      expect(res.data).toBeDefined();
+    }
+  });
+
   test("Master Gateway MCP handles concurrent multi-client requests", async () => {
     const clientRequests = [
       handleGatewayRpc({ jsonrpc: "2.0", id: 101, method: "tools/list" }),
       handleGatewayRpc({ jsonrpc: "2.0", id: 102, method: "tools/call", params: { name: "workflow", arguments: { action: "health_check" } } }),
       handleGatewayRpc({ jsonrpc: "2.0", id: 103, method: "tools/call", params: { name: "design", arguments: { action: "list_layers" } } }),
       handleGatewayRpc({ jsonrpc: "2.0", id: 104, method: "tools/call", params: { name: "science", arguments: { action: "list_actions" } } }),
+      handleGatewayRpc({ jsonrpc: "2.0", id: 105, method: "tools/call", params: { name: "content", arguments: { action: "marketing_viral_hook_generator", product_name: "SpriteFlow" } } }),
     ];
 
     const responses = await Promise.all(clientRequests);

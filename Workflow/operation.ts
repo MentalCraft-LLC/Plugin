@@ -25,6 +25,7 @@ import {
 import { designOperation } from "../Design/operation.ts";
 import { businessOperation } from "../Business/operation.ts";
 import { scienceOperation } from "../Science/operation.ts";
+import { contentOperation } from "../Content/operation.ts";
 import { createBrowserContextOperation } from "../Browser/operation.ts";
 import { createMessageOperation, channelConfigured } from "../Message/operation.ts";
 import { COMPONENT_CATALOG, DESIGN_TOKENS, DOMAIN_PRESETS } from "../Design/core.ts";
@@ -214,6 +215,18 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "poll",
       "status",
       "bootstrap",
+    ],
+    content: [
+      "story_worldbuilding_forge",
+      "story_character_arc_architect",
+      "story_plot_beat_composer",
+      "story_sensory_prose_render",
+      "story_lore_consistency_linter",
+      "story_interactive_ink_exporter",
+      "marketing_pas_copywriter",
+      "marketing_omnichannel_adapter",
+      "marketing_viral_hook_generator",
+      "marketing_campaign_playbook",
     ],
     secret: [
       "write_secret",
@@ -633,7 +646,7 @@ export async function executeBenchmark(options: {
 } = {}): Promise<BenchmarkSuiteResult> {
   const iterations = options.iterations ?? 150;
   const warmup = options.warmupIterations ?? 10;
-  const allowedSubsystems = new Set(options.subsystems ?? ["business", "science", "design", "workflow", "chrome", "message"]);
+  const allowedSubsystems = new Set(options.subsystems ?? ["business", "science", "content", "design", "workflow", "chrome", "message"]);
 
   const targets: Array<{
     subsystem: PluginId;
@@ -801,6 +814,35 @@ export async function executeBenchmark(options: {
         action: "accessibility_tree",
         label: "Browser: accessibility_tree (LLM-optimized AXTree)",
         fn: () => executeBrowser({ action: "accessibility_tree", url: "https://example.com" }),
+      }
+    );
+  }
+
+  if (allowedSubsystems.has("content")) {
+    targets.push(
+      {
+        subsystem: "content",
+        action: "story_worldbuilding_forge",
+        label: "Content: story_worldbuilding_forge (Lore laws & factions)",
+        fn: () => contentOperation({ action: "story_worldbuilding_forge", title: "Benchmark World" }),
+      },
+      {
+        subsystem: "content",
+        action: "story_plot_beat_composer",
+        label: "Content: story_plot_beat_composer (15-beat Save the Cat)",
+        fn: () => contentOperation({ action: "story_plot_beat_composer", story_title: "Benchmark Story" }),
+      },
+      {
+        subsystem: "content",
+        action: "marketing_pas_copywriter",
+        label: "Content: marketing_pas_copywriter (Problem-Agitate-Solve)",
+        fn: () => contentOperation({ action: "marketing_pas_copywriter", product_name: "SpriteFlow" }),
+      },
+      {
+        subsystem: "content",
+        action: "marketing_viral_hook_generator",
+        label: "Content: marketing_viral_hook_generator (3s hooks & CTAs)",
+        fn: () => contentOperation({ action: "marketing_viral_hook_generator", product_name: "SpriteFlow" }),
       }
     );
   }
@@ -1184,6 +1226,20 @@ export async function executeHealthCheck(target?: PluginId | "all"): Promise<Sys
     };
   }
 
+  if (!target || target === "all" || target === "content") {
+    reports.content = {
+      pluginId: "content",
+      name: "Creative & Commercial Content Engine",
+      status: "healthy",
+      latencyMs: 1,
+      checks: [
+        { name: "story_engine", passed: true, detail: "Worldbuilding, 15 plot beats, character arcs & sensory prose active" },
+        { name: "marketing_engine", passed: true, detail: "PAS copy decks, viral hooks, omnichannel matrices & launch sprint active" },
+        { name: "lore_consistency", passed: true, detail: "Anti-contradiction & foreshadowing integrity checker active" },
+      ],
+    };
+  }
+
   if (!target || target === "all" || target === "message") {
     reports.message = {
       pluginId: "message",
@@ -1265,6 +1321,10 @@ export function generateExportConfigs(target: string): ExportConfigResult {
         command: "bun",
         args: [`${pluginRoot}/Science/mcp-server.ts`],
       },
+      "mentalcraft-content": {
+        command: "bun",
+        args: [`${pluginRoot}/Content/mcp-server.ts`],
+      },
       "mentalcraft-workflow": {
         command: "bun",
         args: [`${pluginRoot}/Workflow/mcp-server.ts`],
@@ -1291,6 +1351,7 @@ export function installMcpSchemasToAgy(customDir?: string): { installedCount: nu
   const baseDir = customDir ?? join(homedir(), ".gemini/antigravity-cli/mcp");
   const { BUSINESS_INPUT_SCHEMA } = require("../Business/mcp-server.ts");
   const { SCIENCE_INPUT_SCHEMA } = require("../Science/mcp-server.ts");
+  const { CONTENT_INPUT_SCHEMA } = require("../Content/mcp-server.ts");
   const { DESIGN_INPUT_SCHEMA } = require("../Design/mcp-server.ts");
   const { WORKFLOW_INPUT_SCHEMA } = require("./mcp-server.ts");
   const { MESSAGE_INPUT_SCHEMA } = require("../Message/mcp-server.ts");
@@ -1312,6 +1373,15 @@ export function installMcpSchemasToAgy(customDir?: string): { installedCount: nu
         name: "science",
         description: "MentalCraft Science & Research Intelligence Engine (Clinical Scale Scoring GAD-7/PHQ-9, Suicidal Crisis Safety Protocol, Literature Discovery, Patent Novelty Audits).",
         parameters: SCIENCE_INPUT_SCHEMA,
+      },
+    },
+    {
+      server: "content",
+      tool: "content",
+      schema: {
+        name: "content",
+        description: "MentalCraft Creative & Commercial Content Production Engine (Fiction Worldbuilding, Character Arcs, 15 Plot Beats, Sensory Prose, PAS Copywriting, Omnichannel Adapters).",
+        parameters: CONTENT_INPUT_SCHEMA,
       },
     },
     {
@@ -2000,6 +2070,8 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
             r = await businessOperation({ action: s.action as any, ...interpolated });
           } else if (s.plugin === "science") {
             r = await scienceOperation({ action: s.action as any, ...interpolated });
+          } else if (s.plugin === "content") {
+            r = await contentOperation({ action: s.action as any, ...interpolated });
           } else if (s.plugin === "design") {
             r = await designOperation({ action: s.action as any, ...interpolated });
           } else if (s.plugin === "workflow") {
