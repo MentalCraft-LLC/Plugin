@@ -429,7 +429,7 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
     expect(byId.prompt.variants).toEqual(workflowVariants);
     expect(byId.output.variants).toEqual(workflowVariants);
 
-    // 9. Page Archetypes family
+    // 9. Page Archetypes & Domain Tool Blocks
     const pageVariants = ["magazine", "lab", "minimal", "dark_matrix", "editorial"];
     expect(byId.showcase.variants).toEqual(pageVariants);
     expect(byId.hero.variants).toEqual(pageVariants);
@@ -437,6 +437,12 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
     expect(byId.screener.variants).toEqual(pageVariants);
     expect(byId.questionnaire.variants).toEqual(pageVariants);
     expect(byId.comparison.variants).toEqual(pageVariants);
+    expect(byId.ruler.variants).toEqual(pageVariants);
+
+    // 10. Decoration & Lighting Primitives
+    expect(byId.blueprint.variants).toEqual(["primary", "accent", "tint", "monochrome", "grid"]);
+    expect(byId.spotlight.variants).toEqual(["radial", "cone", "linear", "ambient", "border_only"]);
+    expect(byId.noise.variants).toEqual(["subtle", "film", "paper", "heavy", "grain"]);
   });
 
   test("audit_ui checks code against token usage, A11y labels and touch targets", async () => {
