@@ -4,6 +4,7 @@ import {
 	auditTractionRankFivePillars
 } from "./modules/tractionrank_growth.ts";
 import { generateProWeeklyDigest } from "./modules/email_digest.ts";
+import { calculateMrrSnapshot, formatMrrReport } from "./modules/mrr_monitor.ts";
 
 describe("TractionRank Five-Pillar Optimization & $10,000 MRR Engine", () => {
 	test("Five-pillar audit covers SEO, LLMO, EEAT, User Experience, and Conversion Funnel", () => {
@@ -100,5 +101,29 @@ describe("TractionRank Five-Pillar Optimization & $10,000 MRR Engine", () => {
 		expect(digest.markdown).toContain("suno.com");
 		expect(digest.html).toContain("TractionRank Pro Digest");
 		expect(digest.html).toContain("https://tractionrank.com/d/cursor.com");
+	});
+
+	test("MRR Monitor accurately calculates snapshot tiers, gaps, and daily pacing requirements", () => {
+		const snapshot = calculateMrrSnapshot({
+			proSubs: 175, // 50%
+			sponsorSubs: 10, // 40%
+			apiSubs: 2, // 40%
+			window: "2026-07",
+			daysRemainingInSprint: 30
+		});
+
+		expect(snapshot.tiers.pro.mrrUsd).toBe(175 * 19); // $3,325
+		expect(snapshot.tiers.sponsor.mrrUsd).toBe(10 * 99); // $990
+		expect(snapshot.tiers.api.mrrUsd).toBe(2 * 199); // $398
+		expect(snapshot.totalMrrUsd).toBe(3325 + 990 + 398); // $4,713
+		expect(snapshot.mrrGapUsd).toBe(10120 - 4713); // $5,407
+		expect(snapshot.goalAchieved).toBe(false);
+		expect(snapshot.dailyPacingRequired.daysToTarget).toBe(30);
+		expect(snapshot.dailyPacingRequired.proNewPerDay).toBeGreaterThan(5);
+
+		const formatted = formatMrrReport(snapshot);
+		expect(formatted).toContain("TractionRank MRR Progress Report");
+		expect(formatted).toContain("$4,713");
+		expect(formatted).toContain("Category Spotlight Sponsor");
 	});
 });
