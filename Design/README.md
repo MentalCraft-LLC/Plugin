@@ -18,7 +18,9 @@ It bridges the headless Svelte 5 component architecture in `Design/Svelte` (`inf
 
 ---
 
-## 📦 Verified Component Catalog
+## 📦 Verified Component Catalog & Compound Suites
+
+### 1. High-Level Components & Composites
 
 | Component | Layer | Category | Estimated Size | Primary Variants / Features | Import Subpath |
 |---|---|---|---|---|---|
@@ -26,16 +28,51 @@ It bridges the headless Svelte 5 component architecture in `Design/Svelte` (`inf
 | `Card` | `component` | `scaffold` | 1.2 KB | `flat`, `outline`, `elevated`, `glass` | `infra-ui-svelte/component/scaffold/card` |
 | `Input` | `component` | `input` | 1.5 KB | `text`, `email`, `password`, with validation state | `infra-ui-svelte/component/input/text` |
 | `Badge` | `component` | `status` | 1.1 KB | `default`, `primary`, `success`, `warning`, `destructive`, `outline`, `pill`, `pulse` | `infra-ui-svelte/component/feedback/badge` |
-| `Table` | `component` | `display` | 2.9 KB | Accessible tabular data, `striped`, `compact`, heatmap cells | `infra-ui-svelte/component/display/table` |
 | `Avatar` | `component` | `display` | 1.3 KB | `sm`, `md`, `lg`, `xl`, initials fallback, online presence dot | `infra-ui-svelte/component/display/avatar` |
 | `Dialog` | `composite` | `overlay` | 3.4 KB | Focus trap, escape dismiss, backdrop blur | `infra-ui-svelte/composite/overlay/dialog` |
 | `Drawer` | `composite` | `overlay` | 3.8 KB | `right`, `left`, `bottom`, `top`, backdrop dismiss | `infra-ui-svelte/composite/overlay/drawer` |
 | `Hero` | `composite` | `marketing` | 3.1 KB | Headline, pill badge, CTA triggers, media slot | `infra-ui-svelte/composite/marketing/hero` |
 | `Pricing` | `composite` | `commerce` | 4.5 KB | Feature matrix, tier cards, checkout callbacks | `infra-ui-svelte/composite/commerce/pricing` |
 | `Kanban` | `composite` | `interaction` | 8.4 KB | Drag & drop, keyboard reordering, column drop zones | `infra-ui-svelte/composite/interaction/kanban` |
-| `Chart` | `composite` | `display` | 5.6 KB | SVG `line`, `bar`, `donut`, `sparkline` | `infra-ui-svelte/composite/display/chart` |
+| `Table` | `composite` | `display` | 4.2 KB | Compound data table composed of 7 underlying primitives | `infra-ui-svelte/composite/data/table` |
+| `Chart` | `composite` | `display` | 5.6 KB | Compound visualization container composed of 15 primitives | `infra-ui-svelte/composite/display/chart` |
 | `Screener` | `block` | `tool` | 6.8 KB | GAD-7, PHQ-9, quota indicator, private links | `infra-ui-svelte/block/tool/screener` |
 | `Questionnaire` | `block` | `tool` | 7.2 KB | Multi-stage progression, crisis banners, scoring receipt | `infra-ui-svelte/block/tool/questionnaire` |
+
+---
+
+### 2. Table Underlying Primitive Suite (`Table.*`)
+
+| Primitive ID | Name | Role | Key Props / Capabilities |
+|---|---|---|---|
+| `table_head` | `Table.Head` | `<thead>` Container | Sticky positioning, border divider |
+| `table_header_cell` | `Table.HeaderCell` | `<th>` Column Header | Interactive sort arrows, column resize grip, text alignment |
+| `table_body` | `Table.Body` | `<tbody>` Data Container | Zebra striping, reactive row selection state, empty states |
+| `table_row` | `Table.Row` | `<tr>` Row Container | Active selection checkbox, hover highlights, expandable sub-rows |
+| `table_cell` | `Table.Cell` | `<td>` Data Cell | Monospace tabular numbers (`fontFeature: tnum`), alignment, heatmap |
+| `table_footer` | `Table.Footer` | `<tfoot>` Summary Row | Top border, bold accumulator metrics |
+
+---
+
+### 3. Chart Underlying Primitive Suite (`Chart.*`)
+
+| Primitive ID | Name | Role | Key Props / Capabilities |
+|---|---|---|---|
+| `chart_axis` | `Chart.Axis` | Coordinate Axes | X/Y placement (`bottom`/`left`), tick subdivisions, value formatters |
+| `chart_grid` | `Chart.Grid` | Cartesian Gridlines | Solid/dashed reference lines, sub-tick grid alignments |
+| `chart_rule` | `Chart.Rule` | Threshold Baseline | Constant reference indicator line (e.g. target $10k MRR) |
+| `chart_line` | `Chart.Line` | Spline Line Mark | SVG monotonic cubic spline, gradient strokes, line widths |
+| `chart_area` | `Chart.Area` | Area Fill Mark | Continuous polygon area with vertical gradient opacity falloff |
+| `chart_bar` | `Chart.Bar` | Column / Bar Mark | Rounded rectangular geometry, stacked cohort series support |
+| `chart_point` | `Chart.Point` | Discrete Scatter Points | Circle, diamond, square, and sized bubble marks |
+| `chart_arc` | `Chart.Arc` | Polar Slices | Pie and donut slice geometry with corner radius and pad angle |
+| `chart_radar` | `Chart.Radar` | Multiaxial Web | Polygonal polar area for multi-dimensional trait mapping |
+| `chart_candlestick`| `Chart.Candlestick`| Financial OHLC Mark | Box-and-whisker geometry for price volatility tracking |
+| `chart_funnel` | `Chart.Funnel` | Conversion Stages | Stepped trapezoid geometry with step drop-off ratios |
+| `chart_treemap` | `Chart.Treemap` | Hierarchical Partition| 2D squarified spatial area for category breakdown |
+| `chart_sparkline`| `Chart.Sparkline`| Inline Micro-Trend | Ultra-dense sparkline with highlighted start/end endpoints |
+| `chart_legend` | `Chart.Legend` | Series Guide | Interactive visibility toggle checkboxes and color indicators |
+| `chart_tooltip`| `Chart.Tooltip` | Hover Popover | Spring-physics floating popover tracking nearest active data point |
 
 ---
 

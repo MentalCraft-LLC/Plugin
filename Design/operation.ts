@@ -129,6 +129,20 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
           diagnostics: [`Component '${target}' not found in catalog. Run action: 'catalog' to inspect available components.`],
         };
       }
+      const resolvedPrimitives = match.primitives
+        ? COMPONENT_CATALOG.filter((c) => match.primitives!.includes(c.id)).map((p) => ({
+            id: p.id,
+            name: p.name,
+            subpath: p.subpath,
+            description: p.description,
+            example: p.example,
+          }))
+        : undefined;
+
+      const parentComposite = match.parentComposite
+        ? COMPONENT_CATALOG.find((c) => c.id === match.parentComposite)
+        : undefined;
+
       return {
         protocol: DESIGN_PROTOCOL,
         action: "inspect_component",
@@ -137,6 +151,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
         data: {
           component: match,
           quickImport: `import { ${match.name} } from '${match.importPath}';`,
+          resolvedPrimitives,
+          parentComposite: parentComposite ? { id: parentComposite.id, name: parentComposite.name } : undefined,
         },
       };
     }

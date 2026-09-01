@@ -76,6 +76,40 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
     expect(drawerData.component.name).toBe("Drawer");
     expect(drawerData.component.layer).toBe("composite");
 
+    // Inspect Chart Composite and its underlying primitives
+    const chartRes = await designOperation({ action: "inspect_component", component_id: "chart" });
+    expect(chartRes.success).toBe(true);
+    const chartData = chartRes.data as any;
+    expect(chartData.component.layer).toBe("composite");
+    expect(chartData.resolvedPrimitives.length).toBeGreaterThanOrEqual(10);
+    expect(chartData.resolvedPrimitives.map((p: any) => p.name)).toContain("ChartAxis");
+    expect(chartData.resolvedPrimitives.map((p: any) => p.name)).toContain("ChartGrid");
+    expect(chartData.resolvedPrimitives.map((p: any) => p.name)).toContain("ChartLine");
+    expect(chartData.resolvedPrimitives.map((p: any) => p.name)).toContain("ChartTooltip");
+
+    // Inspect Table Composite and its underlying primitives
+    const tableRes = await designOperation({ action: "inspect_component", component_id: "table" });
+    expect(tableRes.success).toBe(true);
+    const tableData = tableRes.data as any;
+    expect(tableData.component.layer).toBe("composite");
+    expect(tableData.resolvedPrimitives.length).toBeGreaterThanOrEqual(5);
+    expect(tableData.resolvedPrimitives.map((p: any) => p.name)).toContain("TableCell");
+    expect(tableData.resolvedPrimitives.map((p: any) => p.name)).toContain("TableRow");
+    expect(tableData.resolvedPrimitives.map((p: any) => p.name)).toContain("TableHeaderCell");
+
+    // Inspect individual primitive linking back to parent composite
+    const cellRes = await designOperation({ action: "inspect_component", component_id: "table_cell" });
+    expect(cellRes.success).toBe(true);
+    const cellData = cellRes.data as any;
+    expect(cellData.component.layer).toBe("component");
+    expect(cellData.parentComposite.name).toBe("Table");
+
+    const axisRes = await designOperation({ action: "inspect_component", component_id: "chart_axis" });
+    expect(axisRes.success).toBe(true);
+    const axisData = axisRes.data as any;
+    expect(axisData.component.layer).toBe("component");
+    expect(axisData.parentComposite.name).toBe("Chart");
+
     // Graceful error on non-existent component
     const missing = await designOperation({ action: "inspect_component", component_id: "non_existent_xyz" });
     expect(missing.success).toBe(false);
