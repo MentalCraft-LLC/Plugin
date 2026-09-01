@@ -37,6 +37,11 @@ import {
   type ViralVectorDeliverable,
   type ZeroCostViralLoopsResult,
 } from "./core.ts";
+import {
+  calculateEssayDualMrrEngine,
+  generateEssayPseoMatrix,
+  designEssayCrossSellFunnel,
+} from "./modules/essay_growth.ts";
 
 export class TrafficCvClient {
   async getDomainOverview(domain: string) {
@@ -2082,6 +2087,46 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
             currentRunwayMonths: 999, // Infinite runway
             magicNumberOrBurnMultiple: 0.04, // Ultra-efficient
           },
+        };
+      }
+
+      case "essay_dual_mrr_engine": {
+        const data = calculateEssayDualMrrEngine({
+          proPrice: input.pro_price,
+          scholarPrice: input.scholar_price,
+          campusPrice: input.campus_price,
+        });
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "essay_dual_mrr_engine",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "essay_dual_pseo_matrix": {
+        const data = generateEssayPseoMatrix();
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "essay_dual_pseo_matrix",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "essay_cross_sell_loop": {
+        const data = designEssayCrossSellFunnel();
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "essay_cross_sell_loop",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
         };
       }
 

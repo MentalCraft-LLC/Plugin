@@ -384,6 +384,33 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
       { step: 8, plugin: "message", action: "send", description: "Dispatch comprehensive launch artifact package to leadership channel.", parameters: { text: "Omni-Disciplinary Launch Sprint Synthesized & Verified." } },
     ],
   },
+  {
+    id: "essay_humanize_full_launch_and_mrr_pipeline",
+    name: "EssayHumanize $10k MRR Full Launch & pSEO Pipeline",
+    description: "EssayHumanize growth suite: $10,000 MRR unit economics model ➔ 150+ low-KD pSEO matrix ➔ Svelte 5 workbench UI ➔ 8-breakpoint responsive audit ➔ Anti-bot stealth guard ➔ Launch alert.",
+    requiredPlugins: ["business", "design", "browser", "message"],
+    steps: [
+      { step: 1, plugin: "business", action: "essay_dual_mrr_engine", description: "Calculate path to $10,000 MRR across Student Pro ($12/mo) and Scholar Unlimited ($29/mo)." },
+      { step: 2, plugin: "business", action: "essay_dual_pseo_matrix", description: "Generate 150+ high-volume low-KD programmatic SEO keywords for organic acquisition." },
+      { step: 3, plugin: "design", action: "generate_ui", description: "Generate Svelte 5 runes dual-pane interactive humanizer workbench with Turnitin bypass guarantee." },
+      { step: 4, plugin: "browser", action: "responsive_matrix_linter", description: "Audit layout responsiveness across 8 viewports from 375px mobile to 4K desktop." },
+      { step: 5, plugin: "browser", action: "stealth_profile_guard", description: "Ensure zero-leak anti-bot stealth profile and WebGL hardware masking." },
+      { step: 6, plugin: "message", action: "send", description: "Dispatch launch summary package and 12-month MRR cohort forecast to team.", parameters: { text: "EssayHumanize $10k MRR Sprint Plan Synthesized." } },
+    ],
+  },
+  {
+    id: "essay_detector_and_cross_sell_sprint",
+    name: "EssayDetector Multi-Engine Radar & Cross-Sell Sprint",
+    description: "EssayDetector suite: Cross-sell conversion loop ➔ Svelte 5 multi-engine radar UI ➔ Web vitals 60fps & LoAF check ➔ E2E Playwright test suite ➔ Team alert.",
+    requiredPlugins: ["business", "design", "browser", "message"],
+    steps: [
+      { step: 1, plugin: "business", action: "essay_cross_sell_loop", description: "Design bidirectional cross-sell conversion funnel with EssayHumanize handoff." },
+      { step: 2, plugin: "design", action: "generate_ui", description: "Generate Svelte 5 multi-engine AI detection radar with sentence-level perplexity flags." },
+      { step: 3, plugin: "browser", action: "web_vitals_radar", description: "Measure real-time 60fps rendering, LoAF animation jank, and CLS stability." },
+      { step: 4, plugin: "browser", action: "e2e_spec_generator", description: "Synthesize autonomous Playwright E2E spec with POM and Axe accessibility." },
+      { step: 5, plugin: "message", action: "send", description: "Dispatch cross-sell funnel metrics and verified E2E suite.", parameters: { text: "EssayDetector Cross-Sell Radar Sprint Synthesized." } },
+    ],
+  },
 ];
 
 export type ActionMetric = {

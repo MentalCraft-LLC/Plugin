@@ -103,6 +103,12 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "venture_pricing_experiment",
       "venture_growth_playbook",
       "venture_expansion_moat",
+      "spriteflow_mrr_engine",
+      "spriteflow_pseo_matrix",
+      "zero_cost_viral_loops",
+      "essay_dual_mrr_engine",
+      "essay_dual_pseo_matrix",
+      "essay_cross_sell_loop",
       "list_actions",
     ],
     science: [

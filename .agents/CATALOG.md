@@ -7,7 +7,7 @@
 | Subsystem | Actions | Protocol | Key Domain Scope |
 |---|---|---|---|
 | `Workflow` | 17 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |
-| `Business` | 24 | `holar.business.v1` | 8-Stage Venture Lifecycle (Websites, Apps, Games, Shops), PMF, SEO KD, ASO, Steam, Activation, Unit Economics, Moats |
+| `Business` | 27 | `holar.business.v1` | 8-Stage Venture Lifecycle, SpriteFlow & Essay $10k MRR Models, pSEO Matrix, Cross-Sell Funnel |
 | `Science` | 23 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, CSS, Grants, Authoring, Peer Review, Journals, Patents, Impact |
 | `Content` | 10 | `holar.content.v1` | Creative & Commercial Content: Fiction Worldbuilding, 15 Plot Beats, Character Arcs, PAS Copy, Omnichannel Matrix |
 | `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |
@@ -230,6 +230,27 @@
   6. **[browser]** `stealth_profile_guard`: Configure anti-bot evasion and browser fingerprint security profile.
   7. **[business]** `venture_unit_economics`: Model CAC, LTV, payback velocity, gross margin, and 12-month MRR projection.
   8. **[message]** `send`: Dispatch comprehensive launch artifact package to leadership channel.
+
+### `essay_humanize_full_launch_and_mrr_pipeline` — EssayHumanize $10k MRR Full Launch & pSEO Pipeline
+- **Description**: EssayHumanize growth suite: $10,000 MRR unit economics model ➔ 150+ low-KD pSEO matrix ➔ Svelte 5 workbench UI ➔ 8-breakpoint responsive audit ➔ Anti-bot stealth guard ➔ Launch alert.
+- **Required Plugins**: `business` ➔ `design` ➔ `browser` ➔ `message`
+- **Execution Steps**:
+  1. **[business]** `essay_dual_mrr_engine`: Calculate path to $10,000 MRR across Student Pro ($12/mo) and Scholar Unlimited ($29/mo).
+  2. **[business]** `essay_dual_pseo_matrix`: Generate 150+ high-volume low-KD programmatic SEO keywords for organic acquisition.
+  3. **[design]** `generate_ui`: Generate Svelte 5 runes dual-pane interactive humanizer workbench with Turnitin bypass guarantee.
+  4. **[browser]** `responsive_matrix_linter`: Audit layout responsiveness across 8 viewports from 375px mobile to 4K desktop.
+  5. **[browser]** `stealth_profile_guard`: Ensure zero-leak anti-bot stealth profile and WebGL hardware masking.
+  6. **[message]** `send`: Dispatch launch summary package and 12-month MRR cohort forecast to team.
+
+### `essay_detector_and_cross_sell_sprint` — EssayDetector Multi-Engine Radar & Cross-Sell Sprint
+- **Description**: EssayDetector suite: Cross-sell conversion loop ➔ Svelte 5 multi-engine radar UI ➔ Web vitals 60fps & LoAF check ➔ E2E Playwright test suite ➔ Team alert.
+- **Required Plugins**: `business` ➔ `design` ➔ `browser` ➔ `message`
+- **Execution Steps**:
+  1. **[business]** `essay_cross_sell_loop`: Design bidirectional cross-sell conversion funnel with EssayHumanize handoff.
+  2. **[design]** `generate_ui`: Generate Svelte 5 multi-engine AI detection radar with sentence-level perplexity flags.
+  3. **[browser]** `web_vitals_radar`: Measure real-time 60fps rendering, LoAF animation jank, and CLS stability.
+  4. **[browser]** `e2e_spec_generator`: Synthesize autonomous Playwright E2E spec with POM and Axe accessibility.
+  5. **[message]** `send`: Dispatch cross-sell funnel metrics and verified E2E suite.
 
 ---
 

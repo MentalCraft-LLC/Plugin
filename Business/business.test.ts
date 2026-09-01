@@ -738,4 +738,33 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
     expect(capRes.success).toBe(true);
     expect((capRes.data as any).fixedServerCostMonthlyUsd).toBe(5.0);
   });
+
+  test("EssayHumanize + EssayDetector Dual Engine: $10,000 MRR financial model, pSEO matrix, and cross-sell funnel", async () => {
+    // 1. Dual MRR Engine
+    const mrrRes = await businessOperation({ action: "essay_dual_mrr_engine" });
+    expect(mrrRes.success).toBe(true);
+    const mrrData = mrrRes.data as any;
+    expect(mrrData.targetMrrUsd).toBe(10000);
+    expect(mrrData.currentProjectedMrrUsd).toBeGreaterThanOrEqual(10000);
+    expect(mrrData.subscribersRequiredTotal).toBe(582);
+    expect(mrrData.plans.length).toBe(4);
+    expect(mrrData.monthly12MonthTrajectory.length).toBe(12);
+    expect(mrrData.unitEconomics.grossMarginPercent).toBeGreaterThan(85);
+
+    // 2. Programmatic SEO Matrix
+    const pseoRes = await businessOperation({ action: "essay_dual_pseo_matrix" });
+    expect(pseoRes.success).toBe(true);
+    const pseoData = pseoRes.data as any;
+    expect(pseoData.keywords.length).toBeGreaterThanOrEqual(6);
+    expect(pseoData.totalEstimatedSearchVolumeMonthly).toBeGreaterThan(100000);
+    expect(pseoData.trafficForecast.projectedOrganicMrrMonth12Usd).toBeGreaterThan(10000);
+
+    // 3. Cross-Sell Funnel
+    const funnelRes = await businessOperation({ action: "essay_cross_sell_loop" });
+    expect(funnelRes.success).toBe(true);
+    const funnelData = funnelRes.data as any;
+    expect(funnelData.funnelSteps.length).toBe(5);
+    expect(funnelData.estimatedMrrBoostUsd).toBeGreaterThan(3000);
+    expect(funnelData.viralGrowthLoop.expectedViralKFactor).toBeGreaterThan(1.0);
+  });
 });

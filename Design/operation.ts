@@ -1416,6 +1416,174 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
     {/snippet}
   </Comparison>
 </div>`;
+      } else if (intent === "essay_humanizer_workbench") {
+        requiredImports = ["Card", "Button", "Badge", "Comparison", "Tabs"];
+        code = `<script lang="ts">
+  import { Card, Button, Badge, Comparison, Tabs } from "infra-ui-svelte";
+  import "infra-ui-svelte/styles.css";
+
+  let inputText = $state("Furthermore, this research demonstrates that artificial intelligence algorithms possess substantial capabilities in optimizing complex workflows.");
+  let outputText = $state("This study reveals how machine learning systems streamline intricate tasks with remarkable speed and precision.");
+  let humanizeMode = $state<"standard" | "academic" | "deep">("academic");
+  let isHumanizing = $state(false);
+  let aiScoreBefore = $state(98);
+  let aiScoreAfter = $state(0);
+
+  let wordCount = $derived(inputText.trim() ? inputText.trim().split(/\\s+/).length : 0);
+
+  async function triggerHumanize() {
+    isHumanizing = true;
+    try {
+      await new Promise(r => setTimeout(r, 600));
+      aiScoreAfter = 0;
+    } finally {
+      isHumanizing = false;
+    }
+  }
+</script>
+
+<div class="mx-auto w-full max-w-6xl px-4 py-8 font-sans text-foreground">
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight">Essay Humanize Workbench</h1>
+      <p class="text-sm text-muted">Bypass Turnitin, GPTZero & Copyleaks with 0% AI detection score.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <Badge variant="success">Turnitin 2026 Bypass Guaranteed</Badge>
+      <Badge variant="outline">0% AI Score</Badge>
+    </div>
+  </div>
+
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-2">
+    <div class="flex gap-1.5">
+      <Button
+        variant={humanizeMode === "standard" ? "primary" : "ghost"}
+        size="sm"
+        onclick={() => humanizeMode = "standard"}
+      >
+        Standard Flow
+      </Button>
+      <Button
+        variant={humanizeMode === "academic" ? "primary" : "ghost"}
+        size="sm"
+        onclick={() => humanizeMode = "academic"}
+      >
+        Academic Tone
+      </Button>
+      <Button
+        variant={humanizeMode === "deep" ? "primary" : "ghost"}
+        size="sm"
+        onclick={() => humanizeMode = "deep"}
+      >
+        Deep Bypass (100%)
+      </Button>
+    </div>
+
+    <div class="text-xs text-muted">
+      Words: <strong class="text-foreground">{wordCount}</strong> / 1,500
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <Card class="flex flex-col p-4">
+      <div class="mb-2 flex items-center justify-between border-b border-border pb-2">
+        <span class="text-xs font-semibold uppercase text-muted">Original AI Text</span>
+        {#if aiScoreBefore > 50}
+          <Badge variant="danger">{aiScoreBefore}% AI Detected</Badge>
+        {/if}
+      </div>
+      <textarea
+        bind:value={inputText}
+        class="h-64 w-full resize-none bg-transparent font-serif text-sm leading-relaxed focus:outline-none"
+        placeholder="Paste your AI-generated essay or draft here..."
+      ></textarea>
+      <div class="mt-auto flex items-center justify-between border-t border-border pt-3">
+        <Button variant="ghost" size="sm" onclick={() => inputText = ""}>Clear</Button>
+        <Button variant="primary" state={isHumanizing ? "busy" : "idle"} onclick={triggerHumanize}>
+          Humanize Text
+        </Button>
+      </div>
+    </Card>
+
+    <Card class="flex flex-col p-4 bg-muted/20">
+      <div class="mb-2 flex items-center justify-between border-b border-border pb-2">
+        <span class="text-xs font-semibold uppercase text-muted">Humanized Output</span>
+        <Badge variant="success">{aiScoreAfter}% AI (100% Human)</Badge>
+      </div>
+      <div class="h-64 overflow-y-auto font-serif text-sm leading-relaxed text-foreground">
+        {outputText}
+      </div>
+      <div class="mt-auto flex items-center justify-between border-t border-border pt-3">
+        <a href="https://essaydetector.org" target="_blank" class="text-xs text-primary hover:underline">
+          Verify on EssayDetector.org →
+        </a>
+        <Button variant="outline" size="sm" onclick={() => navigator.clipboard.writeText(outputText)}>
+          Copy Output
+        </Button>
+      </div>
+    </Card>
+  </div>
+</div>`;
+      } else if (intent === "essay_detector_radar") {
+        requiredImports = ["Card", "Button", "Badge"];
+        code = `<script lang="ts">
+  import { Card, Button, Badge } from "infra-ui-svelte";
+  import "infra-ui-svelte/styles.css";
+
+  let sampleText = $state("In conclusion, the overarching ramifications of modern digital transformation can be observed across every stratum of society.");
+  let overallScore = $state(88);
+  let sentences = $state([
+    { text: "In conclusion, the overarching ramifications of modern digital transformation", score: 92 },
+    { text: "can be observed across every stratum of society.", score: 84 }
+  ]);
+</script>
+
+<div class="mx-auto w-full max-w-5xl px-4 py-8 font-sans text-foreground">
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight">Multi-Engine AI Detector</h1>
+      <p class="text-sm text-muted">Sentence-by-sentence perplexity & burstiness forensics.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <Badge variant="outline">GPT-4o / Claude 3.5 / Gemini Ready</Badge>
+    </div>
+  </div>
+
+  <Card class="mb-6 flex flex-col md:flex-row items-center justify-between gap-6 p-6 border-l-4 border-l-danger">
+    <div class="space-y-1">
+      <h2 class="text-xl font-bold text-foreground">Detection Result: Highly Likely AI-Generated</h2>
+      <p class="text-sm text-muted">This text exhibits low lexical entropy and repetitive grammatical structures.</p>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <div class="text-center">
+        <div class="text-4xl font-extrabold text-danger">{overallScore}%</div>
+        <div class="text-xs uppercase text-muted font-medium">AI Probability</div>
+      </div>
+      <a
+        href="https://essayhumanize.com"
+        target="_blank"
+        class="rounded-lg bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground shadow hover:opacity-90 transition-opacity"
+      >
+        Bypass with EssayHumanize (0% AI) →
+      </a>
+    </div>
+  </Card>
+
+  <Card class="p-4 space-y-3">
+    <h3 class="text-xs font-semibold uppercase text-muted">Sentence-by-Sentence Breakdown</h3>
+    <div class="space-y-2">
+      {#each sentences as s}
+        <div class="flex items-start justify-between gap-3 rounded border border-border p-2.5 bg-danger/5">
+          <p class="text-sm leading-relaxed text-foreground">{s.text}</p>
+          <div class="flex shrink-0 items-center gap-2">
+            <Badge variant="danger">{s.score}% AI</Badge>
+          </div>
+        </div>
+      {/each}
+    </div>
+  </Card>
+</div>`;
       } else {
         requiredImports = ["Card", "Button"];
         code = `<script lang="ts">

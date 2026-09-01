@@ -18,6 +18,8 @@
  * - Stage 8: Scale, Expansion & Moats (Virality K-Factor, Inventory ROP & Safety Stock, B2B Multi-seat)
  */
 
+export * from "./modules/essay_growth.ts";
+
 export const BUSINESS_PROTOCOL = "holar.business.v1" as const;
 
 export type BusinessModality = "website" | "app" | "game" | "shop";
@@ -51,6 +53,9 @@ export type BusinessAction =
   | "spriteflow_mrr_engine"
   | "spriteflow_pseo_matrix"
   | "zero_cost_viral_loops"
+  | "essay_dual_mrr_engine"
+  | "essay_dual_pseo_matrix"
+  | "essay_cross_sell_loop"
   | "application_market_validation"
   | "application_niche_discovery"
   | "application_pmf_validation"
