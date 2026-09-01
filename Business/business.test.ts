@@ -766,5 +766,30 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
     expect(funnelData.funnelSteps.length).toBe(5);
     expect(funnelData.estimatedMrrBoostUsd).toBeGreaterThan(3000);
     expect(funnelData.viralGrowthLoop.expectedViralKFactor).toBeGreaterThan(1.0);
+
+    // 4. Telemetry Event Tracker
+    const telemetryRes = await businessOperation({
+      action: "essay_telemetry_event_tracker",
+      events: [
+        { type: "page_view", platform: "EssayHumanize.com", sessionId: "s1", payload: { slug: "/home" } },
+        { type: "paste_text", platform: "EssayHumanize.com", sessionId: "s1", payload: { words: 500 } },
+        { type: "humanize_complete", platform: "EssayHumanize.com", sessionId: "s1", payload: { ai_score_after: 0 } },
+        { type: "checkout_complete", platform: "EssayHumanize.com", sessionId: "s1", payload: { amountUsd: 12 } },
+      ],
+    } as any);
+    expect(telemetryRes.success).toBe(true);
+    const telemetryData = telemetryRes.data as any;
+    expect(telemetryData.validEventsCount).toBe(4);
+    expect(telemetryData.eventTaxonomyCompliant).toBe(true);
+    expect(telemetryData.stageFunnelMetrics.visitors).toBe(1);
+
+    // 5. Conversion Leak Auditor
+    const leakRes = await businessOperation({ action: "essay_conversion_leak_auditor" });
+    expect(leakRes.success).toBe(true);
+    const leakData = leakRes.data as any;
+    expect(leakData.funnelHealthScore).toBeGreaterThanOrEqual(90);
+    expect(leakData.identifiedLeaks.length).toBe(4);
+    expect(leakData.identifiedLeaks[0].implementationStatus).toBe("PLUGGED");
+    expect(leakData.prioritizedActionPlan.length).toBe(4);
   });
 });

@@ -41,6 +41,8 @@ import {
   calculateEssayDualMrrEngine,
   generateEssayPseoMatrix,
   designEssayCrossSellFunnel,
+  trackEssayTelemetryEvents,
+  auditEssayConversionLeaks,
 } from "./modules/essay_growth.ts";
 
 export class TrafficCvClient {
@@ -2123,6 +2125,31 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         return {
           protocol: BUSINESS_PROTOCOL,
           action: "essay_cross_sell_loop",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "essay_telemetry_event_tracker": {
+        const events = (input as any).events ?? [];
+        const data = trackEssayTelemetryEvents(events);
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "essay_telemetry_event_tracker",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "essay_conversion_leak_auditor": {
+        const data = auditEssayConversionLeaks();
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "essay_conversion_leak_auditor",
           success: true,
           timestamp,
           provider: "auto",

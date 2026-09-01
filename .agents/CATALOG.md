@@ -7,7 +7,7 @@
 | Subsystem | Actions | Protocol | Key Domain Scope |
 |---|---|---|---|
 | `Workflow` | 17 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |
-| `Business` | 27 | `holar.business.v1` | 8-Stage Venture Lifecycle, SpriteFlow & Essay $10k MRR Models, pSEO Matrix, Cross-Sell Funnel |
+| `Business` | 29 | `holar.business.v1` | 8-Stage Venture Lifecycle, Telemetry Tracker, Leak Auditor, $10k MRR Models, Cross-Sell Funnel |
 | `Science` | 23 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, CSS, Grants, Authoring, Peer Review, Journals, Patents, Impact |
 | `Content` | 10 | `holar.content.v1` | Creative & Commercial Content: Fiction Worldbuilding, 15 Plot Beats, Character Arcs, PAS Copy, Omnichannel Matrix |
 | `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |
