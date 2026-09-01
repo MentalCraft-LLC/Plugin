@@ -1,5 +1,5 @@
 ---
-name: plugin-development
+name: plugin
 description: "Core standards and development patterns for MentalCraft Plugin ecosystem: Native messaging hosts, Chrome MV3 extensions, multi-channel messaging engines (Telegram/iMessage/Gmail), and atomic secure storage."
 ---
 
