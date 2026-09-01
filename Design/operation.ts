@@ -1332,6 +1332,85 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
     </div>
   </div>
 </div>`;
+      } else if (intent === "design_engineering_showcase") {
+        requiredImports = ["Blueprint", "Ruler", "Swatch", "Slider", "Comparison", "Button", "Card"];
+        code = `<script lang="ts">
+  import { Blueprint, Ruler, Swatch, Slider, Comparison, Button, Card } from "infra-ui-svelte";
+  import "infra-ui-svelte/styles.css";
+
+  let boxWidth = $state(260);
+  let liveColor = $state("oklch(0.991 0 0)");
+</script>
+
+<div class="mx-auto w-full max-w-4xl px-6 py-20 font-sans text-foreground">
+  <!-- Hero Section with Blueprint & x-height Guideline -->
+  <div class="flex flex-col gap-4">
+    <Blueprint label="294 × 58" xHeight={true} color="blue">
+      <h1 class="text-6xl font-medium tracking-tight">
+        Interfaces <em class="font-serif italic text-muted">Magazine</em>
+      </h1>
+    </Blueprint>
+
+    <div class="flex items-center gap-3 mt-2">
+      <Swatch color={liveColor} label={liveColor} />
+      <Swatch color="oklch(0.173 0 0)" label="dark: oklch(0.173 0 0)" />
+    </div>
+  </div>
+
+  <!-- Spacing Measurement Overlay -->
+  <div class="my-10">
+    <Ruler size={32} color="pink" label="32 px layout gap" />
+  </div>
+
+  <!-- Interactive Comparison Sandbox -->
+  <Comparison
+    title="Design Engineering Live Typography Balance Sandbox"
+    beforeLabel="text-wrap: wrap"
+    afterLabel="text-wrap: balance + pretty"
+  >
+    {#snippet before()}
+      <div class="flex flex-col justify-center gap-2" style="width: \${boxWidth}px;">
+        <p class="text-lg font-medium leading-snug" style="text-wrap: wrap;">
+          Designing interfaces that feel natural and intuitive
+        </p>
+        <p class="text-xs text-muted" style="text-wrap: wrap;">
+          Great design is invisible. It guides users without them ever noticing.
+        </p>
+      </div>
+    {/snippet}
+
+    {#snippet after()}
+      <div class="flex flex-col justify-center gap-2" style="width: \${boxWidth}px;">
+        <p class="text-lg font-medium leading-snug" style="text-wrap: balance;">
+          Designing interfaces that feel natural and intuitive
+        </p>
+        <p class="text-xs text-muted" style="text-wrap: pretty;">
+          Great design is invisible. It guides users without them ever noticing.
+        </p>
+      </div>
+    {/snippet}
+
+    {#snippet controls()}
+      <div class="w-full max-w-sm">
+        <Slider
+          bind:value={boxWidth}
+          min={220}
+          max={340}
+          step={1}
+          label="Card Width"
+          unit="px"
+          variant="diamond"
+        />
+      </div>
+      <Button
+        variant="primary"
+        class="btn-tap ml-auto rounded-full px-6 bg-gradient-to-b from-sky-400 to-sky-500 text-white shadow-custom"
+      >
+        Subscribe Now
+      </Button>
+    {/snippet}
+  </Comparison>
+</div>`;
       } else {
         requiredImports = ["Card", "Button"];
         code = `<script lang="ts">

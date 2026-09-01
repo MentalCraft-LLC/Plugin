@@ -309,6 +309,41 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
     expect(cData.requiredImports).toContain("Input");
     expect(cData.svelteSnippet).toContain("Type a command or search actions (⌘K)");
     expect(cData.svelteSnippet).toContain("filtered = $derived");
+
+    // Design Engineering Showcase (interfaces.dev class)
+    const showcase = await designOperation({ action: "generate_ui", intent: "design_engineering_showcase" });
+    expect(showcase.success).toBe(true);
+    const sData = showcase.data as any;
+    expect(sData.requiredImports).toContain("Blueprint");
+    expect(sData.requiredImports).toContain("Ruler");
+    expect(sData.requiredImports).toContain("Swatch");
+    expect(sData.requiredImports).toContain("Slider");
+    expect(sData.requiredImports).toContain("Comparison");
+    expect(sData.svelteSnippet).toContain("Interfaces <em class=\"font-serif italic");
+    expect(sData.svelteSnippet).toContain("Ruler size={32}");
+    expect(sData.svelteSnippet).toContain("text-wrap: balance");
+  });
+
+  test("inspect_component validates design engineering primitives (blueprint, ruler, swatch, slider, comparison)", async () => {
+    const bp = await designOperation({ action: "inspect_component", component_id: "blueprint" });
+    expect(bp.success).toBe(true);
+    expect((bp.data as any).component.name).toBe("Blueprint");
+
+    const ruler = await designOperation({ action: "inspect_component", component_id: "ruler" });
+    expect(ruler.success).toBe(true);
+    expect((ruler.data as any).component.name).toBe("Ruler");
+
+    const swatch = await designOperation({ action: "inspect_component", component_id: "swatch" });
+    expect(swatch.success).toBe(true);
+    expect((swatch.data as any).component.name).toBe("Swatch");
+
+    const slider = await designOperation({ action: "inspect_component", component_id: "slider" });
+    expect(slider.success).toBe(true);
+    expect((slider.data as any).component.name).toBe("Slider");
+
+    const comp = await designOperation({ action: "inspect_component", component_id: "comparison" });
+    expect(comp.success).toBe(true);
+    expect((comp.data as any).component.name).toBe("Comparison");
   });
 
   test("audit_ui checks code against token usage, A11y labels and touch targets", async () => {
