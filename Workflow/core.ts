@@ -253,13 +253,13 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
   {
     id: "mentalcraft_practitioner_growth_workflow",
     name: "MentalCraft Academic-to-Commercial $10,000 MRR Engine",
-    description: "Dual academic-commercial engine: Academic IRB survey integrity check → B2B practitioner scale workbench ($29/mo) + B2C in-depth parenting diagnostic reports ($9.90) → Real-time telemetry.",
+    description: "Dual academic-commercial engine: Academic IRB survey integrity check → B2B practitioner Pro ($19/mo) + clinic seats ($200/mo) on the live MentalCraft mix → Real-time telemetry.",
     requiredPlugins: ["science", "business", "design"],
     steps: [
       { step: 1, plugin: "science", action: "social_science_peer_review_audit", description: "Audit academic scale validity, psychometrics, and IRB ethical boundary compliance." },
       { step: 2, plugin: "business", action: "venture_market_validation", description: "Model practitioner and parent TAM/SAM/SOM and willingness-to-pay elasticity." },
       { step: 3, plugin: "design", action: "generate_ui", description: "Generate Svelte 5 Runes practitioner screening workbench and assessment summary card." },
-      { step: 4, plugin: "business", action: "company_mrr_engine", description: "Model $10,000 MRR: 250 Practitioner Pro ($29/mo) + 300 In-Depth Reports ($9.90/mo)." },
+      { step: 4, plugin: "business", action: "company_mrr_engine", description: "Model $10,000 MRR: 350 Practitioner Pro ($19/mo) + 17 Clinic ($200/mo)." },
       { step: 5, plugin: "business", action: "venture_monetization_telemetry", description: "Monitor active practitioner retention, screening link throughput, and Stripe ARR." },
     ],
   },

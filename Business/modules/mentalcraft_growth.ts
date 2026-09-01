@@ -21,10 +21,10 @@ export const MENTALCRAFT_EEAT_EXPERTISE = "Expertise";
 export const MENTALCRAFT_EEAT_AUTHORITATIVENESS = "Authoritativeness";
 export const MENTALCRAFT_EEAT_TRUSTWORTHINESS = "Trustworthiness";
 
-export const MENTALCRAFT_PRACTITIONER_PRICE_USD = 29;
-export const MENTALCRAFT_PRACTITIONER_SUBSCRIBERS = 250;
-export const MENTALCRAFT_REPORT_PRICE_USD = 9.9;
-export const MENTALCRAFT_REPORT_SUBSCRIBERS = 300;
+export const MENTALCRAFT_PRACTITIONER_PRICE_USD = 19;
+export const MENTALCRAFT_PRACTITIONER_SUBSCRIBERS = 350;
+export const MENTALCRAFT_CLINIC_PRICE_USD = 200;
+export const MENTALCRAFT_CLINIC_SUBSCRIBERS = 17;
 
 export type MentalCraftSubjectInput = {
   productName?: string;
@@ -136,7 +136,7 @@ export function resolveMentalCraftFivePillarInput(input: MentalCraftFivePillarIn
     llmoVisitors: input.llmoVisitors ?? 2500,
     landingVisitors: input.landingVisitors ?? 4200,
     trialStarts: input.trialStarts ?? 1800,
-    paidConversions: input.paidConversions ?? MENTALCRAFT_PRACTITIONER_SUBSCRIBERS + MENTALCRAFT_REPORT_SUBSCRIBERS,
+    paidConversions: input.paidConversions ?? MENTALCRAFT_PRACTITIONER_SUBSCRIBERS + MENTALCRAFT_CLINIC_SUBSCRIBERS,
     leakRecoveryRate: input.leakRecoveryRate ?? 0.12,
   };
 }
@@ -309,8 +309,8 @@ export type MentalCraftMrrResult = {
 export function computeMentalCraftMrr(input: MentalCraftMrrInput = {}): MentalCraftMrrResult {
   const practitionerPriceUsd = input.practitionerPriceUsd ?? MENTALCRAFT_PRACTITIONER_PRICE_USD;
   const practitionerSubscribers = input.practitionerSubscribers ?? MENTALCRAFT_PRACTITIONER_SUBSCRIBERS;
-  const reportPriceUsd = input.reportPriceUsd ?? MENTALCRAFT_REPORT_PRICE_USD;
-  const reportSubscribers = input.reportSubscribers ?? MENTALCRAFT_REPORT_SUBSCRIBERS;
+  const clinicPriceUsd = input.reportPriceUsd ?? MENTALCRAFT_CLINIC_PRICE_USD;
+  const clinicSubscribers = input.reportSubscribers ?? MENTALCRAFT_CLINIC_SUBSCRIBERS;
 
   const cohorts: MentalCraftCohort[] = [
     {
@@ -320,10 +320,10 @@ export function computeMentalCraftMrr(input: MentalCraftMrrInput = {}): MentalCr
       mrrUsd: roundMoney(practitionerPriceUsd * practitionerSubscribers),
     },
     {
-      name: "In-Depth Reports",
-      priceUsd: reportPriceUsd,
-      subscribers: reportSubscribers,
-      mrrUsd: roundMoney(reportPriceUsd * reportSubscribers),
+      name: "Clinic",
+      priceUsd: clinicPriceUsd,
+      subscribers: clinicSubscribers,
+      mrrUsd: roundMoney(clinicPriceUsd * clinicSubscribers),
     },
   ];
 

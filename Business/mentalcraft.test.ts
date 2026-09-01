@@ -51,7 +51,7 @@ describe("MentalCraft five-pillar path and 10000MRR mix", () => {
     expect(data.dimensions.Trustworthiness.name).toBe("Trustworthiness");
   });
 
-  test("MentalCraft 10000MRR is price × subscribers on Practitioner Pro and In-Depth Reports", async () => {
+  test("MentalCraft 10000MRR is price × subscribers on Practitioner Pro and Clinic", async () => {
     const res = await businessOperation({
       action: "company_mrr_engine",
       venture_name: "MentalCraft",
