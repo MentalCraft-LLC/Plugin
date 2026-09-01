@@ -7,7 +7,7 @@
 | Subsystem | Actions | Protocol | Key Domain Scope |
 |---|---|---|---|
 | `Workflow` | 17 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |
-| `Business` | 29 | `holar.business.v1` | 8-Stage Venture Lifecycle, Telemetry Tracker, Leak Auditor, $10k MRR Models, Cross-Sell Funnel |
+| `Business` | 32 | `holar.business.v1` | 8-Stage Venture Lifecycle, Dual $10k MRR Engines, LLMO Engine, Telemetry Tracker, Leak Auditor |
 | `Science` | 23 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, CSS, Grants, Authoring, Peer Review, Journals, Patents, Impact |
 | `Content` | 10 | `holar.content.v1` | Creative & Commercial Content: Fiction Worldbuilding, 15 Plot Beats, Character Arcs, PAS Copy, Omnichannel Matrix |
 | `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |
@@ -251,6 +251,28 @@
   3. **[browser]** `web_vitals_radar`: Measure real-time 60fps rendering, LoAF animation jank, and CLS stability.
   4. **[browser]** `e2e_spec_generator`: Synthesize autonomous Playwright E2E spec with POM and Axe accessibility.
   5. **[message]** `send`: Dispatch cross-sell funnel metrics and verified E2E suite.
+
+### `essay_dual_20k_mrr_enterprise_sprint` — Essay Dual Independent $10k MRR Enterprise Sprint ($20k Total)
+- **Description**: Enterprise growth pipeline: Dual independent $10k MRR financial modeling (Humanize $10,081 + Detector $10,099 = $20,180 MRR) ➔ 4-leak conversion audit ➔ Svelte 5 UX workbench ➔ 8-breakpoint responsive linter ➔ 60fps Web Vitals check ➔ Enterprise alert.
+- **Required Plugins**: `business` ➔ `design` ➔ `browser` ➔ `message`
+- **Execution Steps**:
+  1. **[business]** `essay_dual_independent_10k_mrr`: Model dual independent $10k MRR targets across 619 Humanize + 701 Detector subscribers.
+  2. **[business]** `essay_conversion_leak_auditor`: Audit and plug the 4 major conversion funnel leaks, recovering $3,240/mo MRR.
+  3. **[design]** `generate_ui`: Generate Svelte 5 runes dual-pane workbench with instant Turnitin bypass badge.
+  4. **[browser]** `responsive_matrix_linter`: Lint responsive layout across 8 viewport breakpoints from 375px mobile to 4K.
+  5. **[browser]** `web_vitals_radar`: Verify sub-50ms LoAF animation smoothness and zero cumulative layout shift (CLS).
+  6. **[message]** `send`: Dispatch dual $10k MRR ($20k total) enterprise rollout artifact package.
+
+### `essay_llmo_and_global_seo_pipeline` — Essay LLMO Citation & Global Programmatic SEO Pipeline
+- **Description**: LLMO & SEO discovery engine: Brand LLM citation readiness (Perplexity, ChatGPT, Gemini, Claude) ➔ 150+ low-KD pSEO matrix ➔ Svelte 5 UX workbench ➔ 8-breakpoint responsive audit ➔ Anti-bot stealth guard ➔ Launch alert.
+- **Required Plugins**: `business` ➔ `design` ➔ `browser` ➔ `message`
+- **Execution Steps**:
+  1. **[business]** `essay_llmo_engine`: Audit LLM citation readiness and generate /llms.txt manifests for ChatGPT Search & Perplexity.
+  2. **[business]** `essay_dual_pseo_matrix`: Generate 150+ low-KD programmatic SEO keyword combinations for organic SERP indexation.
+  3. **[design]** `generate_ui`: Synthesize high-converting Svelte 5 runes workbench with instant 0% AI detection badge.
+  4. **[browser]** `responsive_matrix_linter`: Audit responsive layout integrity across 8 device viewports.
+  5. **[browser]** `stealth_profile_guard`: Configure anti-fingerprinting profile and WebGL hardware masking.
+  6. **[message]** `send`: Dispatch LLMO and programmatic SEO launch artifact package.
 
 ---
 

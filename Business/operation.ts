@@ -45,6 +45,7 @@ import {
   auditEssayConversionLeaks,
   calculateDetectorIndependentMrrEngine,
   calculateDualIndependent20kEnterpriseMrr,
+  auditBrandLlmoReadiness,
 } from "./modules/essay_growth.ts";
 
 export class TrafficCvClient {
@@ -2176,6 +2177,19 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         return {
           protocol: BUSINESS_PROTOCOL,
           action: "essay_dual_independent_10k_mrr",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
+      case "essay_llmo_engine": {
+        const brand = (input as any).brand;
+        const data = auditBrandLlmoReadiness({ brand });
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "essay_llmo_engine",
           success: true,
           timestamp,
           provider: "auto",

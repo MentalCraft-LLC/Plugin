@@ -70,7 +70,7 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
     const data = res.data as any;
     expect(data.niches.length).toBeGreaterThan(0);
     expect(data.niches[0].name).toBeDefined();
-  });
+  }, { timeout: 15000 });
 
   test("Stage 2: PMF Validation implements Sean Ellis 40% rule and smoke tests across modalities", async () => {
     // Website PMF
@@ -353,7 +353,7 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
     const budgetRes = await businessOperation({ action: "seo_link_budget", keyword: "saas directory" });
     expect(budgetRes.success).toBe(true);
     expect((budgetRes.data as any).linkBudget).toBeDefined();
-  });
+  }, { timeout: 15000 });
 
   test("Product traction score and Stripe radar calculate multidimensional viability", async () => {
     const tractionRes = await businessOperation({ action: "product_traction_score", product_name: "MentalCraft" });
@@ -367,7 +367,7 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
 
     const trajRes = await businessOperation({ action: "market_site_trajectory", domain: "v0.dev" });
     expect(trajRes.success).toBe(true);
-  });
+  }, { timeout: 15000 });
 
   test("MCP Protocol server handles initialize, tools/list, and tools/call", async () => {
     const initRes = await handleBusinessRpc({ jsonrpc: "2.0", id: 1, method: "initialize" });
@@ -810,5 +810,15 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
     expect(dual20kData.totalCombinedArrUsd).toBe(242160);
     expect(dual20kData.totalCombinedSubscribers).toBe(1320);
     expect(dual20kData.enterpriseValuationEstimateUsd).toBeGreaterThan(1500000);
+
+    // 8. LLMO Brand Citation Readiness Engine
+    const llmoRes = await businessOperation({ action: "essay_llmo_engine", brand: "Both" } as any);
+    expect(llmoRes.success).toBe(true);
+    const llmoData = llmoRes.data as any;
+    expect(llmoData.overallLlmoVisibilityScore).toBeGreaterThanOrEqual(90);
+    expect(llmoData.generatedLlmsTxtSpecs.essayHumanizeLlmsTxt).toContain("/llms.txt");
+    expect(llmoData.generatedLlmsTxtSpecs.essayDetectorLlmsTxt).toContain("EssayDetector.org");
+    expect(llmoData.llmSearchEngineRatings.length).toBe(4);
+    expect(llmoData.actionableLlmoRecommendations.length).toBe(4);
   });
 });

@@ -425,6 +425,20 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
       { step: 6, plugin: "message", action: "send", description: "Dispatch dual $10k MRR ($20k total) enterprise rollout artifact package.", parameters: { text: "Essay Dual $10k MRR Enterprise Architecture Verified." } },
     ],
   },
+  {
+    id: "essay_llmo_and_global_seo_pipeline",
+    name: "Essay LLMO Citation & Global Programmatic SEO Pipeline",
+    description: "LLMO & SEO discovery engine: Brand LLM citation readiness (Perplexity, ChatGPT, Gemini, Claude) ➔ 150+ low-KD pSEO matrix ➔ Svelte 5 UX workbench ➔ 8-breakpoint responsive audit ➔ Anti-bot stealth guard ➔ Launch alert.",
+    requiredPlugins: ["business", "design", "browser", "message"],
+    steps: [
+      { step: 1, plugin: "business", action: "essay_llmo_engine", description: "Audit LLM citation readiness and generate /llms.txt manifests for ChatGPT Search & Perplexity." },
+      { step: 2, plugin: "business", action: "essay_dual_pseo_matrix", description: "Generate 150+ low-KD programmatic SEO keyword combinations for organic SERP indexation." },
+      { step: 3, plugin: "design", action: "generate_ui", description: "Synthesize high-converting Svelte 5 runes workbench with instant 0% AI detection badge." },
+      { step: 4, plugin: "browser", action: "responsive_matrix_linter", description: "Audit responsive layout integrity across 8 device viewports." },
+      { step: 5, plugin: "browser", action: "stealth_profile_guard", description: "Configure anti-fingerprinting profile and WebGL hardware masking." },
+      { step: 6, plugin: "message", action: "send", description: "Dispatch LLMO and programmatic SEO launch artifact package.", parameters: { text: "Essay LLMO & Global SEO Pipeline Verified." } },
+    ],
+  },
 ];
 
 export type ActionMetric = {

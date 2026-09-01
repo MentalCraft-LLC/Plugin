@@ -113,6 +113,7 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "essay_conversion_leak_auditor",
       "essay_detector_mrr_engine",
       "essay_dual_independent_10k_mrr",
+      "essay_llmo_engine",
       "list_actions",
     ],
     science: [
