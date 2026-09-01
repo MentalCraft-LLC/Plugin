@@ -123,6 +123,7 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "product_eeat_audit",
       "product_fullstack_excellence_audit",
       "essay_seo_llmo_content_generator",
+      "company_mrr_engine",
       "list_actions",
     ],
     science: [
@@ -2053,10 +2054,10 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
         const r3 = await designOperation({ action: "generate_ui", intent: "venture_telemetry_dashboard", prompt: "MentalCraft Practitioner Pro Workbench and Assessment Brief" });
         stepResults.push({ step: 3, plugin: "design", action: "generate_ui", success: r3.success, durationMs: Math.round(performance.now() - s3), data: r3.data });
 
-        // Step 4: business.venture_unit_economics ($10,000 MRR milestone)
+        // Step 4: business.company_mrr_engine ($10,000 MRR MentalCraft mix)
         const s4 = performance.now();
-        const r4 = await businessOperation({ action: "venture_unit_economics", modality: "website", venture_name: vName, cogs: 5, shipping_cost: 0 });
-        stepResults.push({ step: 4, plugin: "business", action: "venture_unit_economics", success: r4.success, durationMs: Math.round(performance.now() - s4), data: r4.data });
+        const r4 = await businessOperation({ action: "company_mrr_engine", venture_name: vName, domain: "mentalcraft.org" });
+        stepResults.push({ step: 4, plugin: "business", action: "company_mrr_engine", success: r4.success, durationMs: Math.round(performance.now() - s4), data: r4.data });
 
         // Step 5: business.venture_monetization_telemetry
         const s5 = performance.now();

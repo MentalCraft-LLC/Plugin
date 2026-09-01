@@ -262,6 +262,42 @@ export const BUSINESS_INPUT_SCHEMA = {
       type: "integer",
       description: "Target Studio subscriber count (e.g. 25).",
     },
+    practitioner_price: {
+      type: "number",
+      description: "MentalCraft Practitioner Pro monthly price in USD (default 29).",
+    },
+    practitioner_subscribers: {
+      type: "integer",
+      description: "MentalCraft Practitioner Pro subscriber count (default 250).",
+    },
+    report_price: {
+      type: "number",
+      description: "MentalCraft in-depth report monthly price in USD (default 9.9).",
+    },
+    report_subscribers: {
+      type: "integer",
+      description: "MentalCraft in-depth report subscriber count (default 300).",
+    },
+    indexed_pages: {
+      type: "integer",
+      description: "Indexed page count used by the MentalCraft SEO pillar.",
+    },
+    keyword_difficulty_median: {
+      type: "number",
+      description: "Median keyword difficulty used by the MentalCraft SEO pillar.",
+    },
+    organic_sessions: {
+      type: "integer",
+      description: "SEO organic sessions feeding the MentalCraft conversion funnel.",
+    },
+    trial_starts: {
+      type: "integer",
+      description: "Workbench trial starts in the MentalCraft conversion funnel.",
+    },
+    paid_conversions: {
+      type: "integer",
+      description: "Paid conversions in the MentalCraft conversion funnel.",
+    },
     engine_filter: {
       type: "string",
       description: "Game engine or ecosystem filter for pSEO matrix (e.g. 'Godot 4', 'Unity', 'Aseprite').",

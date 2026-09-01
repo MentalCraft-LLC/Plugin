@@ -57,10 +57,17 @@ import {
   generateSeoLlmoContentArticle,
 } from "./modules/essay_growth.ts";
 import {
+  auditMentalCraftEeat,
+  auditMentalCraftFivePillars,
+  computeMentalCraftMrr,
+  isMentalCraftSubject,
+} from "./modules/mentalcraft_growth.ts";
+import {
   plausibleListSites,
   plausibleTrackerSnippet,
   plausibleWebsiteStats,
 } from "./modules/plausible.ts";
+
 
 export class TrafficCvClient {
   async getDomainOverview(domain: string) {
@@ -1317,7 +1324,25 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
-      case "company_mrr_engine":
+      case "company_mrr_engine": {
+        const data = computeMentalCraftMrr({
+          ventureName: input.venture_name ?? "MentalCraft",
+          domain: input.domain ?? "mentalcraft.org",
+          practitionerPriceUsd: input.practitioner_price,
+          practitionerSubscribers: input.practitioner_subscribers,
+          reportPriceUsd: input.report_price,
+          reportSubscribers: input.report_subscribers,
+        });
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "company_mrr_engine",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
       case "spriteflow_mrr_engine": {
         const targetMrr = input.target_mrr ?? 10000;
         const targetArr = input.target_mrr ? input.target_mrr * 12 : 120000;
@@ -2292,8 +2317,14 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
       }
 
       case "product_eeat_audit": {
-        const productName = (input as any).product_name ?? "EssayHumanize.com";
-        const data = auditProductEeat(productName);
+        const productName = input.product_name ?? input.venture_name ?? input.domain ?? "EssayHumanize.com";
+        const data = isMentalCraftSubject({ productName, domain: input.domain, ventureName: input.venture_name })
+          ? auditMentalCraftEeat({
+            productName,
+            domain: input.domain,
+            ventureName: input.venture_name,
+          })
+          : auditProductEeat(productName);
         return {
           protocol: BUSINESS_PROTOCOL,
           action: "product_eeat_audit",
@@ -2305,8 +2336,19 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
       }
 
       case "product_fullstack_excellence_audit": {
-        const productName = (input as any).product_name ?? "EssayHumanize.com";
-        const data = auditProductFullStackExcellence(productName);
+        const productName = input.product_name ?? input.venture_name ?? input.domain ?? "EssayHumanize.com";
+        const data = isMentalCraftSubject({ productName, domain: input.domain, ventureName: input.venture_name })
+          ? auditMentalCraftFivePillars({
+            productName,
+            domain: input.domain ?? "mentalcraft.org",
+            ventureName: input.venture_name,
+            indexedPages: input.indexed_pages,
+            keywordDifficultyMedian: input.keyword_difficulty_median,
+            seoVisitors: input.organic_sessions,
+            trialStarts: input.trial_starts,
+            paidConversions: input.paid_conversions,
+          })
+          : auditProductFullStackExcellence(productName);
         return {
           protocol: BUSINESS_PROTOCOL,
           action: "product_fullstack_excellence_audit",

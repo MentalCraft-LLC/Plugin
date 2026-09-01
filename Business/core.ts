@@ -20,6 +20,7 @@
 
 export * from "./modules/essay_growth.ts";
 export * from "./modules/plausible.ts";
+export * from "./modules/mentalcraft_growth.ts";
 
 export const BUSINESS_PROTOCOL = "holar.business.v1" as const;
 
@@ -564,6 +565,15 @@ export type BusinessInput = {
   studio_price?: number;
   pro_subscribers?: number;
   studio_subscribers?: number;
+  practitioner_price?: number;
+  practitioner_subscribers?: number;
+  report_price?: number;
+  report_subscribers?: number;
+  indexed_pages?: number;
+  keyword_difficulty_median?: number;
+  organic_sessions?: number;
+  trial_starts?: number;
+  paid_conversions?: number;
   engine_filter?: string;
   min_volume?: number;
   max_kd?: number;
