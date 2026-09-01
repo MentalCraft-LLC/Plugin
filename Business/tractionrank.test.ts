@@ -3,6 +3,7 @@ import {
 	computeTractionRankMrr,
 	auditTractionRankFivePillars
 } from "./modules/tractionrank_growth.ts";
+import { generateProWeeklyDigest } from "./modules/email_digest.ts";
 
 describe("TractionRank Five-Pillar Optimization & $10,000 MRR Engine", () => {
 	test("Five-pillar audit covers SEO, LLMO, EEAT, User Experience, and Conversion Funnel", () => {
@@ -76,5 +77,28 @@ describe("TractionRank Five-Pillar Optimization & $10,000 MRR Engine", () => {
 		});
 		expect(under.totalMrrUsd).toBe(1900 + 990);
 		expect(under.goalAchieved).toBe(false);
+	});
+
+	test("Weekly Pro email digest generates markdown & HTML with watchlist alerts", () => {
+		const digest = generateProWeeklyDigest({
+			subscriberEmail: "alex@venture.com",
+			subscriberName: "Alex",
+			window: "2026-07",
+			watchlist: ["cursor.com", "suno.com"],
+			topMovers: [
+				{ domain: "cursor.com", rank: 13, delta_rank: 4, visits: 72400000, category: "AI Coding" },
+				{ domain: "suno.com", rank: 14, delta_rank: 8, visits: 65600000, category: "AI Audio" },
+				{ domain: "windsurf.com", rank: 21, delta_rank: 12, visits: 44900000, category: "AI Coding" }
+			]
+		});
+
+		expect(digest.subject).toContain("TractionRank Weekly Digest");
+		expect(digest.alertsCount).toBe(2);
+		expect(digest.moversCount).toBe(3);
+		expect(digest.markdown).toContain("Watchlist Alerts");
+		expect(digest.markdown).toContain("cursor.com");
+		expect(digest.markdown).toContain("suno.com");
+		expect(digest.html).toContain("TractionRank Pro Digest");
+		expect(digest.html).toContain("https://tractionrank.com/d/cursor.com");
 	});
 });
