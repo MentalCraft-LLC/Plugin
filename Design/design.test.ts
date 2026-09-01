@@ -359,6 +359,17 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
     expect((showcase.data as any).component.layer).toBe("template");
   });
 
+  test("all components in COMPONENT_CATALOG declare rich visual variants (at least 3 variants)", async () => {
+    const catalogRes = await designOperation({ action: "catalog" });
+    expect(catalogRes.success).toBe(true);
+    const components = (catalogRes.data as any).components as Array<{ id: string; name: string; variants?: string[] }>;
+    
+    for (const comp of components) {
+      expect(comp.variants, `Component '${comp.name}' (${comp.id}) must have variants declared`).toBeDefined();
+      expect(comp.variants!.length, `Component '${comp.name}' (${comp.id}) must have at least 3 variants`).toBeGreaterThanOrEqual(3);
+    }
+  });
+
   test("audit_ui checks code against token usage, A11y labels and touch targets", async () => {
     const badCode = `
       <div style="background-color: #ff0000;">
