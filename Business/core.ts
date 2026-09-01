@@ -19,7 +19,7 @@
  */
 
 export * from "./modules/essay_growth.ts";
-export * from "./modules/umami.ts";
+export * from "./modules/plausible.ts";
 
 export const BUSINESS_PROTOCOL = "holar.business.v1" as const;
 
@@ -105,9 +105,9 @@ export type BusinessAction =
   | "company_expansion_moat"
   | "company_compliance_audit"
   | "company_capital_efficiency"
-  | "umami_list_websites"
-  | "umami_tracker_snippet"
-  | "umami_website_stats"
+  | "plausible_list_sites"
+  | "plausible_tracker_snippet"
+  | "plausible_website_stats"
   | "list_actions";
 
 export type MarketValidationResult = {

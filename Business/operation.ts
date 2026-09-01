@@ -57,10 +57,10 @@ import {
   generateSeoLlmoContentArticle,
 } from "./modules/essay_growth.ts";
 import {
-  umamiListWebsites,
-  umamiTrackerSnippet,
-  umamiWebsiteStats,
-} from "./modules/umami.ts";
+  plausibleListSites,
+  plausibleTrackerSnippet,
+  plausibleWebsiteStats,
+} from "./modules/plausible.ts";
 
 export class TrafficCvClient {
   async getDomainOverview(domain: string) {
@@ -250,9 +250,9 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
               { name: "venture_expansion_moat", stage: 8, scope: "Virality K-factor loop, inventory ROP safety stock, and supply chain moats" },
               { name: "zero_cost_viral_loops", stage: 8, scope: "5 zero-cost growth vectors (GitHub OSS bridge, Itch.io packs, Reddit/HN technical show, Bilibili/YouTube tutorials, free web sandbox) with step-by-step deliverables & KPIs" },
             ],
-            umami: {
+            plausible: {
               host: "https://analytics.mentalcraft.org",
-              actions: ["umami_list_websites", "umami_tracker_snippet", "umami_website_stats"],
+              actions: ["plausible_list_sites", "plausible_tracker_snippet", "plausible_website_stats"],
             },
           },
         };
@@ -2330,11 +2330,11 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
-      case "umami_list_websites": {
-        const data = umamiListWebsites();
+      case "plausible_list_sites": {
+        const data = plausibleListSites();
         return {
           protocol: BUSINESS_PROTOCOL,
-          action: "umami_list_websites",
+          action: "plausible_list_sites",
           success: true,
           timestamp,
           provider: "auto",
@@ -2342,11 +2342,11 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
-      case "umami_tracker_snippet": {
-        const data = umamiTrackerSnippet(input.domain ?? "");
+      case "plausible_tracker_snippet": {
+        const data = plausibleTrackerSnippet(input.domain ?? "");
         return {
           protocol: BUSINESS_PROTOCOL,
-          action: "umami_tracker_snippet",
+          action: "plausible_tracker_snippet",
           success: true,
           timestamp,
           provider: "auto",
@@ -2354,11 +2354,11 @@ export async function businessOperation(input: BusinessInput): Promise<BusinessR
         };
       }
 
-      case "umami_website_stats": {
-        const data = await umamiWebsiteStats(input.domain ?? "");
+      case "plausible_website_stats": {
+        const data = await plausibleWebsiteStats(input.domain ?? "");
         return {
           protocol: BUSINESS_PROTOCOL,
-          action: "umami_website_stats",
+          action: "plausible_website_stats",
           success: true,
           timestamp,
           provider: "auto",

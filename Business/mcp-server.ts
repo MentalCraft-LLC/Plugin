@@ -83,9 +83,9 @@ export const BUSINESS_ACTIONS = [
   "company_expansion_moat",
   "company_compliance_audit",
   "company_capital_efficiency",
-  "umami_list_websites",
-  "umami_tracker_snippet",
-  "umami_website_stats",
+  "plausible_list_sites",
+  "plausible_tracker_snippet",
+  "plausible_website_stats",
   "list_actions",
 ] as const;
 
@@ -133,7 +133,7 @@ export const BUSINESS_INPUT_SCHEMA = {
     },
     domain: {
       type: "string",
-      description: "Domain name for Stripe billing trajectory, TrafficCV analytics, or Umami website lookup (optional).",
+      description: "Domain name for Stripe billing trajectory, TrafficCV analytics, or Plausible site lookup (optional).",
     },
     domains: {
       type: "array",
