@@ -17,7 +17,8 @@ describe("Workflow Autopilot & Autonomous Self-Advancement Engine", () => {
     expect(initial.version).toBe("1.0.0");
     expect(initial.currentPhase).toBe("IDLE");
     expect(initial.goalAchieved).toBe(false);
-    expect(initial.mrrTargetUsd).toBe(10000);
+    expect(initial.liveMrrUsd).toBe(0);
+    expect(initial.mrrGapUsd).toBe(10120);
     expect(initial.tickCount).toBe(0);
     expect(initial.activeObjectiveIndex).toBe(0);
     expect(initial.history).toBeArray();
@@ -32,7 +33,7 @@ describe("Workflow Autopilot & Autonomous Self-Advancement Engine", () => {
     // 1-min cron
     const oneMin = generateScheduleSpec(goal, 1);
     expect(oneMin.CronExpression).toBe("* * * * *");
-    expect(oneMin.Prompt).toContain("1min Tick");
+    expect(oneMin.Prompt).toContain("1-Min Tick");
     expect(oneMin.TimerCondition).toBe("never");
 
     // 3-min cron
@@ -48,62 +49,66 @@ describe("Workflow Autopilot & Autonomous Self-Advancement Engine", () => {
     expect(daily.CronExpression).toBe("0 9 * * *");
   });
 
-  test("advanceAutopilotCycle auto-advances through multi-objective backlog", async () => {
-    const testVenture = "AutoBacklogVenture_" + Date.now();
+  test("advanceAutopilotCycle measures realistic live MRR and tracks Goal-Gap", async () => {
+    const testVenture = "RealTelemetryVenture_" + Date.now();
 
-    // Tick 1: MentalCraft & TractionRank
+    // Default pre-launch state (0 live paying subscribers)
     const t1 = await advanceAutopilotCycle({ ventureName: testVenture });
     expect(t1.success).toBe(true);
     expect(t1.objectiveId).toBe("mentalcraft_tractionrank");
-    expect(t1.mrrCurrentUsd).toBe(10120);
-    expect(t1.goalAchieved).toBe(true);
-    expect(t1.nextObjectiveId).toBe("spriteflow_engine");
+    expect(t1.liveMrrUsd).toBe(0);
+    expect(t1.targetMrrUsd).toBe(10120);
+    expect(t1.mrrGapUsd).toBe(10120);
+    expect(t1.progressPercent).toBe(0);
+    expect(t1.goalAchieved).toBe(false);
+    expect(t1.newPhase).toBe("CONVERSION_OPTIMIZATION");
 
-    // Tick 2: Automatically advances to SpriteFlow
-    const t2 = await advanceAutopilotCycle({ ventureName: testVenture });
+    // When actual paying subscribers are converted
+    const t2 = await advanceAutopilotCycle({
+      ventureName: testVenture,
+      liveProSubs: 350,
+      liveSponsorSubs: 25,
+      liveApiSubs: 5,
+    });
     expect(t2.success).toBe(true);
-    expect(t2.objectiveId).toBe("spriteflow_engine");
-    expect(t2.mrrCurrentUsd).toBe(10480);
-    expect(t2.nextObjectiveId).toBe("essay_dual_engine");
-
-    // Tick 3: Automatically advances to Essay Suite
-    const t3 = await advanceAutopilotCycle({ ventureName: testVenture });
-    expect(t3.success).toBe(true);
-    expect(t3.objectiveId).toBe("essay_dual_engine");
-    expect(t3.mrrCurrentUsd).toBe(20000);
-    expect(t3.nextObjectiveId).toBe("science_academic_flywheel");
+    expect(t2.liveMrrUsd).toBe(10120);
+    expect(t2.mrrGapUsd).toBe(0);
+    expect(t2.progressPercent).toBe(100);
+    expect(t2.goalAchieved).toBe(true);
+    expect(t2.newPhase).toBe("GOAL_STABILIZED");
 
     const formatted = formatAutopilotSummary(t1);
-    expect(formatted).toContain("Active Objective");
-    expect(formatted).toContain("Auto-Advancing to Next Backlog Goal");
+    expect(formatted).toContain("Live MRR (Realized)");
+    expect(formatted).toContain("MRR Gap Remaining");
+    expect(formatted).toContain("$10,120");
   });
 
   test("workflowOperation dispatches autopilot_step, autopilot_status, and autopilot_schedule_spec", async () => {
-    // 1. Step
+    const vName = "WorkflowDispatchTest_" + Date.now();
+    // 1. Step with realistic gap
     const stepRes = await workflowOperation({
       action: "autopilot_step",
       goal: {
-        ventureName: "MentalCraft",
+        ventureName: vName,
         targetMrrUsd: 10000,
       },
     });
     expect(stepRes.success).toBe(true);
-    expect((stepRes.data as any).goalAchieved).toBe(true);
-    expect(formatWorkflowSummary(stepRes)).toContain("Autopilot");
+    expect((stepRes.data as any).liveMrrUsd).toBe(0);
+    expect((stepRes.data as any).mrrGapUsd).toBe(10120);
 
     // 2. Status
     const statusRes = await workflowOperation({
       action: "autopilot_status",
-      venture_name: "MentalCraft",
+      venture_name: vName,
     });
     expect(statusRes.success).toBe(true);
-    expect((statusRes.data as any).ventureName).toBe("MentalCraft");
-    expect(formatWorkflowSummary(statusRes)).toContain("Autopilot Status");
+    expect((statusRes.data as any).ventureName).toBe(vName);
 
     // 3. Schedule Spec (1-min)
     const specRes = await workflowOperation({
       action: "autopilot_schedule_spec",
-      venture_name: "MentalCraft",
+      venture_name: vName,
       interval_minutes: 1,
     });
     expect(specRes.success).toBe(true);
