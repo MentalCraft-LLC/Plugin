@@ -550,6 +550,15 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "diagnose":
+    case "audit":
+    case "governance": {
+      const { runMentalCraftDiagnostics, formatDiagnosticReport } = require("./diagnostics.ts");
+      const report = runMentalCraftDiagnostics();
+      console.log(formatDiagnosticReport(report));
+      break;
+    }
+
     case "autopilot": {
       const sub = args[1] || "step";
       const vName = args.find((a) => a.startsWith("--venture="))?.split("=")[1] || "MentalCraft";
