@@ -41,9 +41,14 @@ import {
   simulateChaosResilience,
   orchestrateBatchTabs,
 } from "./modules/resilience.ts";
+import { interceptNetworkRequests, replayHarWaterfall } from "./modules/network_mock.ts";
+import { diagnoseWebVitalsRadar } from "./modules/web_vitals_radar.ts";
+import { generateStealthProfile } from "./modules/stealth.ts";
+import { predictVisualAttention } from "./modules/saliency.ts";
+import { synthesizeE2eTestSuite } from "./modules/e2e_codegen.ts";
 
 export type BrowserContextInput = {
-  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "set_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "drag_and_drop" | "upload_file" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate" | "emulate" | "lighthouse_audit" | "performance_trace" | "heap_analysis" | "network_waterfall" | "security_audit" | "emulate_profile" | "accessibility_tree" | "smart_selector_heal" | "visual_regression_diff" | "journey_record_and_replay" | "session_isolation_vault" | "inp_interaction_vitals" | "persona_emulation" | "extract_structured_data" | "chaos_resilience_test" | "batch_tab_orchestration";
+  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "set_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "drag_and_drop" | "upload_file" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate" | "emulate" | "lighthouse_audit" | "performance_trace" | "heap_analysis" | "network_waterfall" | "security_audit" | "emulate_profile" | "accessibility_tree" | "smart_selector_heal" | "visual_regression_diff" | "journey_record_and_replay" | "session_isolation_vault" | "inp_interaction_vitals" | "persona_emulation" | "extract_structured_data" | "chaos_resilience_test" | "batch_tab_orchestration" | "network_mock_interceptor" | "har_replay_mock" | "web_vitals_radar" | "stealth_profile_guard" | "attention_heatmap_predict" | "e2e_spec_generator";
   mode?: "start" | "stop" | "list" | "add" | "remove" | "clear";
   url?: string;
   max_sections?: number;
@@ -428,6 +433,23 @@ export function createBrowserContextOperation(options: {
       return simulateChaosResilience(url, params.chaos_scenario);
     } else if (params.action === "batch_tab_orchestration") {
       return orchestrateBatchTabs(params.urls || [url], params.concurrency_pool_size || 4);
+    } else if (params.action === "network_mock_interceptor") {
+      return interceptNetworkRequests(url, { action: params.mode === "clear" ? "clear" : params.mode === "list" ? "list" : "set", rules: params.rules });
+    } else if (params.action === "har_replay_mock") {
+      return replayHarWaterfall(url, { harPath: params.har_path, offlineMode: params.offline_mode, simulateCache: params.simulate_cache });
+    } else if (params.action === "web_vitals_radar") {
+      return diagnoseWebVitalsRadar(url, { sampleWindowMs: params.sample_window_ms, targetInteractionSelector: params.selector });
+    } else if (params.action === "stealth_profile_guard") {
+      return generateStealthProfile(url, params.stealth_preset || "macos_m3_safari", { spoofWebgl: params.spoof_webgl, injectCanvasNoise: params.inject_canvas_noise });
+    } else if (params.action === "attention_heatmap_predict") {
+      return predictVisualAttention(url, { ctaSelector: params.selector, viewport: params.viewport });
+    } else if (params.action === "e2e_spec_generator") {
+      return synthesizeE2eTestSuite(params.suite_name || "Enterprise Web Journey", url, {
+        framework: params.e2e_framework || "playwright_ts",
+        steps: params.steps,
+        includeAxeAccessibility: params.include_axe_accessibility,
+        includeVisualDiff: params.include_visual_diff,
+      });
     } else if (params.action === "annotate") {
       const mode = params.mode ?? "list";
       const note = mode === "add" && params.value ? safePublicMultiline(params.value) : params.value;

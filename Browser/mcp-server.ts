@@ -85,6 +85,12 @@ export const CHROME_ACTIONS = [
   "drag_and_drop",
   "upload_file",
   "close_group",
+  "network_mock_interceptor",
+  "har_replay_mock",
+  "web_vitals_radar",
+  "stealth_profile_guard",
+  "attention_heatmap_predict",
+  "e2e_spec_generator",
 ] as const;
 
 export const BROWSER_ACTIONS = CHROME_ACTIONS;

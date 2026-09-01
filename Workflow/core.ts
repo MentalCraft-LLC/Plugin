@@ -354,6 +354,20 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
       { step: 6, plugin: "message", action: "send", description: "Dispatch launch campaign package and schedule checklist to marketing team.", parameters: { text: "Marketing Launch Campaign Pack Synthesized & Ready for Dispatch." } },
     ],
   },
+  {
+    id: "browser_resilient_e2e_and_saliency_pipeline",
+    name: "Next-Gen Browser Stealth E2E & Visual Saliency Pipeline",
+    description: "Browser quality suite: Anti-bot stealth guard ➔ Network interceptor & mock fixtures ➔ Real-time 60fps & LoAF jank radar ➔ F-shape visual attention heatmaps ➔ Playwright TypeScript E2E codegen ➔ Telegram notification.",
+    requiredPlugins: ["browser", "message"],
+    steps: [
+      { step: 1, plugin: "browser", action: "stealth_profile_guard", description: "Inject CDP anti-bot evasions, WebGL hardware vendor spoofing, and Canvas noise." },
+      { step: 2, plugin: "browser", action: "network_mock_interceptor", description: "Configure mock fixtures and chaos latency injection for unstable third-party APIs." },
+      { step: 3, plugin: "browser", action: "web_vitals_radar", description: "Monitor real-time 60fps frame rate, attribute LoAF animation jank, and trace CLS sources." },
+      { step: 4, plugin: "browser", action: "attention_heatmap_predict", description: "Predict human eye-tracking gaze fixations, visual contrast saliency, and above-the-fold CTA score." },
+      { step: 5, plugin: "browser", action: "e2e_spec_generator", description: "Synthesize production-grade Playwright TypeScript test suite with POM and Axe accessibility." },
+      { step: 6, plugin: "message", action: "send", description: "Dispatch synthesized E2E test suite and visual saliency report to QA engineering channel.", parameters: { text: "Autonomous E2E Suite & Saliency Radar Synthesized." } },
+    ],
+  },
 ];
 
 export type ActionMetric = {

@@ -207,6 +207,17 @@
   5. **[design]** `generate_ui`: Generate high-converting Svelte 5 marketing hero and social preview card with Runes.
   6. **[message]** `send`: Dispatch launch campaign package and schedule checklist to marketing team.
 
+### `browser_resilient_e2e_and_saliency_pipeline` — Next-Gen Browser Stealth E2E & Visual Saliency Pipeline
+- **Description**: Browser quality suite: Anti-bot stealth guard ➔ Network interceptor & mock fixtures ➔ Real-time 60fps & LoAF jank radar ➔ F-shape visual attention heatmaps ➔ Playwright TypeScript E2E codegen ➔ Telegram notification.
+- **Required Plugins**: `browser` ➔ `message`
+- **Execution Steps**:
+  1. **[browser]** `stealth_profile_guard`: Inject CDP anti-bot evasions, WebGL hardware vendor spoofing, and Canvas noise.
+  2. **[browser]** `network_mock_interceptor`: Configure mock fixtures and chaos latency injection for unstable third-party APIs.
+  3. **[browser]** `web_vitals_radar`: Monitor real-time 60fps frame rate, attribute LoAF animation jank, and trace CLS sources.
+  4. **[browser]** `attention_heatmap_predict`: Predict human eye-tracking gaze fixations, visual contrast saliency, and above-the-fold CTA score.
+  5. **[browser]** `e2e_spec_generator`: Synthesize production-grade Playwright TypeScript test suite with POM and Axe accessibility.
+  6. **[message]** `send`: Dispatch synthesized E2E test suite and visual saliency report to QA engineering channel.
+
 ---
 
 ## 🛠️ CLI Quick Reference

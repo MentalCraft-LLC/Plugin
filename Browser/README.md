@@ -21,12 +21,24 @@ Every harness consumes `operation.ts` through the standard MCP server (`mcp-serv
 - 📱 **Multi-Device & Network/CPU Emulation (`emulate_profile`)**: Presets for iPhone 15 Pro, Pixel 8, Galaxy S24, iPad Pro, 4K Desktop; network throttling (Slow 3G, Fast 3G, 4G, WiFi, Offline); CPU throttling (1x, 2x, 4x, 6x); color scheme & reduced motion overrides.
 - 🌲 **LLM-Optimized Accessibility Semantic Tree (`accessibility_tree`)**: Token-efficient hierarchical AXTree with semantic roles, accessible names, interactive states, and bounding rects.
 
-### 2. Intelligence & Resilience Engine (`modules/intelligence.ts`)
+### 2. Intelligence & Resilience Engine (`modules/intelligence.ts` & `modules/resilience.ts`)
 - 🎯 **Intelligent Self-Healing Selectors (`smart_selector_heal`)**: 5-tier fallback synthesis (Data-TestId ➔ ARIA Role & Accessible Name ➔ Fuzzy Text Matching ➔ Landmark Container Paths ➔ Positional Heuristics) with confidence scoring.
 - 👁️ **Visual Regression & Pixel Diff Forensics (`visual_regression_diff`)**: Structural Similarity Index (SSIM) and pixel delta calculation; identifies visual drift bounding boxes (Layout Shift, Color Drift, Critical Regression).
 - 🎬 **User Journey Synthesis & Multi-Framework Replay (`journey_record_and_replay`)**: Records browser interactions and automatically compiles them into executable Playwright TypeScript, Puppeteer TypeScript, and native JSON workflows.
 - 🔐 **Multi-Identity Session Isolation Vault (`session_isolation_vault`)**: Ephemeral and persistent session sandboxes (Snapshot, Restore, Sandbox) across cookies, localStorage, sessionStorage, and IndexedDB.
 - ⏱️ **Interaction to Next Paint (INP) Telemetry (`inp_interaction_vitals`)**: Continuous event latency monitor measuring Input Delay, Processing Time, and Presentation Delay against the Google 200ms INP budget.
+- 🎭 **Persona Emulation (`persona_emulation`)**: Stresses accessibility for screen reader users, motor-impaired keyboard users, and RTL international readers.
+- 🏷️ **Structured Data & Schema Extraction (`extract_structured_data`)**: Autonomous parser for JSON-LD, OpenGraph, Twitter Cards, and Schema.org e-commerce entities.
+- 🌪️ **Chaos & Fault Injection (`chaos_resilience_test`)**: Simulates flaky 500 APIs, 5000ms latency spikes, and offline disconnect recoveries.
+- 📑 **Batch Multi-Tab Orchestration (`batch_tab_orchestration`)**: Concurrent pooled tab driving with automatic recovery.
+
+### 3. Next-Gen Intelligence & Developer Productivity
+- 🛑 **Network Request Interception & Mocking (`network_mock_interceptor`)**: Intercepts REST/GraphQL endpoints, injects deterministic mock JSON fixtures, and simulates random latency/faults.
+- 📼 **Offline HAR Replay Engine (`har_replay_mock`)**: Replays offline HTTP waterfall archives with zero network overhead and 98% fidelity.
+- 📡 **Web Vitals Real-Time Radar & LoAF Jank Tracing (`web_vitals_radar`)**: 60fps tracking, Long Animation Frames (LoAF > 50ms) root-cause script attribution, and CLS layout shift source identification.
+- 🥷 **Stealth Profile Guard & Anti-Bot Evasion (`stealth_profile_guard`)**: Masks `navigator.webdriver`, spoofs WebGL hardware vendors (Apple M3/NVIDIA RTX), and injects Canvas/Audio non-destructive noise.
+- 👁️‍🗨️ **Visual Attention & Saliency Prediction (`attention_heatmap_predict`)**: Models human eye-tracking fixations (F-pattern, golden triangle), computes contrast saliency, and evaluates above-the-fold CTA prominence.
+- 🤖 **Autonomous E2E Spec Synthesizer (`e2e_spec_generator`)**: Synthesizes production-ready Playwright TypeScript and Cypress test suites with Page Object Models (POM), Axe-core WCAG assertions, and visual regression screenshots.
 
 ---
 

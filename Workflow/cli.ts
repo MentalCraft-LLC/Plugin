@@ -64,7 +64,7 @@ export function generateMarkdownCatalog(): string {
     "| `Science` | 23 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, CSS, Grants, Authoring, Peer Review, Journals, Patents, Impact |",
     "| `Content` | 10 | `holar.content.v1` | Creative & Commercial Content: Fiction Worldbuilding, 15 Plot Beats, Character Arcs, PAS Copy, Omnichannel Matrix |",
     "| `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |",
-    "| `Browser` | 54 | `spiral.browser.v1` | DevTools Superset (Lighthouse, Flamechart, Heap, Waterfall), Resilience (Personas, Schemas, Chaos), Background driving |",
+    "| `Browser` | 60 | `spiral.browser.v1` | DevTools Superset, Next-Gen Radar & Saliency, Anti-bot Stealth, Autonomous E2E Codegen, Network Mocking |",
     "| `Message` | 4 | `holar.message.v1` | Multi-channel priority bus (Telegram > iMessage > Email) with mode-0600 isolation |",
     "",
     "---",
@@ -235,12 +235,12 @@ async function mainCommand(cmd: string) {
 ║ Overall Health: ${report.overallStatus === "healthy" ? "🟢 HEALTHY" : "🟡 DEGRADED"} (Score: ${report.healthScore}/100) | Healthy Plugins: ${report.healthyPlugins}/${report.totalPlugins}   ║
 ║ Protocols: MCP Stdio, HTTP/SSE (Port 3999), OpenRPC 1.3, OpenAPI 3.1           ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
-║ ACTIVE CAPABILITY SUBSYSTEMS (7 Modules / 144 Actions)                         ║
+║ ACTIVE CAPABILITY SUBSYSTEMS (7 Modules / 150 Actions)                         ║
 ║  • Business  [${report.plugins.business?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (24 actions) | 8-Stage Venture Lifecycle (Web/App/Game/Shop)║
 ║  • Science   [${report.plugins.science?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (23 actions) | 8-Stage Academic Production Lifecycle       ║
 ║  • Content   [${report.plugins.content?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (10 actions) | Fiction Worldbuilding, 15 Beats, PAS Copy   ║
 ║  • Design    [${report.plugins.design?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (10 actions) | 5-Layer UI, Runes, Tokens, Presets     ║
-║  • Browser   [${(report.plugins.browser || report.plugins.chrome)?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (54 actions) | DevTools Superset, Chaos & Resilience  ║
+║  • Browser   [${(report.plugins.browser || report.plugins.chrome)?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (60 actions) | DevTools Superset, Radar, Stealth & E2E ║
 ║  • Workflow  [${report.plugins.workflow?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (17 actions) | DAG Engine, OTel Spans, Batch, Benchmark  ║
 ║  • Message   [${report.plugins.message?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] ( 4 actions) | Telegram, iMessage, Email Secure Bus  ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
