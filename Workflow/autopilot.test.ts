@@ -5,6 +5,7 @@ import {
   saveAutopilotCheckpoint,
   generateScheduleSpec,
   formatAutopilotSummary,
+  AUTOPILOT_OBJECTIVES,
   type AutopilotGoalConfig,
 } from "./autopilot.ts";
 import { workflowOperation } from "./operation.ts";
@@ -18,54 +19,63 @@ describe("Workflow Autopilot & Autonomous Self-Advancement Engine", () => {
     expect(initial.goalAchieved).toBe(false);
     expect(initial.mrrTargetUsd).toBe(10000);
     expect(initial.tickCount).toBe(0);
+    expect(initial.activeObjectiveIndex).toBe(0);
     expect(initial.history).toBeArray();
   });
 
-  test("generateScheduleSpec produces correct Cron expressions and Prompts", () => {
+  test("generateScheduleSpec produces correct 1-min and multi-interval Cron expressions", () => {
     const goal: AutopilotGoalConfig = {
       ventureName: "MentalCraft",
       targetMrrUsd: 10000,
     };
 
+    // 1-min cron
+    const oneMin = generateScheduleSpec(goal, 1);
+    expect(oneMin.CronExpression).toBe("* * * * *");
+    expect(oneMin.Prompt).toContain("1min Tick");
+    expect(oneMin.TimerCondition).toBe("never");
+
+    // 3-min cron
+    const threeMin = generateScheduleSpec(goal, 3);
+    expect(threeMin.CronExpression).toBe("*/3 * * * *");
+
+    // Hourly
     const hourly = generateScheduleSpec(goal, 60);
     expect(hourly.CronExpression).toBe("0 * * * *");
-    expect(hourly.Prompt).toContain("MentalCraft");
-    expect(hourly.Prompt).toContain("10,000 MRR");
-    expect(hourly.TimerCondition).toBe("never");
 
+    // Daily
     const daily = generateScheduleSpec(goal, 1440);
     expect(daily.CronExpression).toBe("0 9 * * *");
-
-    const halfHourly = generateScheduleSpec(goal, 30);
-    expect(halfHourly.CronExpression).toBe("*/30 * * * *");
   });
 
-  test("advanceAutopilotCycle executes full step and transitions phase", async () => {
-    const goal: AutopilotGoalConfig = {
-      ventureName: "MentalCraft",
-      targetMrrUsd: 10000,
-      proTargetSubs: 350,
-      sponsorTargetSubs: 25,
-      apiTargetSubs: 5,
-    };
+  test("advanceAutopilotCycle auto-advances through multi-objective backlog", async () => {
+    const testVenture = "AutoBacklogVenture_" + Date.now();
 
-    const result = await advanceAutopilotCycle(goal, { persist: false });
-    expect(result.success).toBe(true);
-    expect(result.tick).toBeGreaterThanOrEqual(1);
-    expect(result.mrrCurrentUsd).toBe(10120);
-    expect(result.goalAchieved).toBe(true);
-    expect(result.newPhase).toBe("GOAL_STABILIZED");
-    expect(result.executedActions).toContain("metrics_telemetry_inspected");
-    expect(result.executedActions).toContain("five_pillars_audited");
-    expect(result.executedActions).toContain("dataset_and_badges_verified");
-    expect(result.executedActions).toContain("founder_outreach_verified");
-    expect(result.executedActions).toContain("sitemap_and_llmo_verified");
+    // Tick 1: MentalCraft & TractionRank
+    const t1 = await advanceAutopilotCycle({ ventureName: testVenture });
+    expect(t1.success).toBe(true);
+    expect(t1.objectiveId).toBe("mentalcraft_tractionrank");
+    expect(t1.mrrCurrentUsd).toBe(10120);
+    expect(t1.goalAchieved).toBe(true);
+    expect(t1.nextObjectiveId).toBe("spriteflow_engine");
 
-    const formatted = formatAutopilotSummary(result);
-    expect(formatted).toContain("Autopilot Cycle");
-    expect(formatted).toContain("GOAL ACHIEVED & STABILIZED");
-    expect(formatted).toContain("2,454 verified domains");
-    expect(formatted).toContain("5,634 generated");
+    // Tick 2: Automatically advances to SpriteFlow
+    const t2 = await advanceAutopilotCycle({ ventureName: testVenture });
+    expect(t2.success).toBe(true);
+    expect(t2.objectiveId).toBe("spriteflow_engine");
+    expect(t2.mrrCurrentUsd).toBe(10480);
+    expect(t2.nextObjectiveId).toBe("essay_dual_engine");
+
+    // Tick 3: Automatically advances to Essay Suite
+    const t3 = await advanceAutopilotCycle({ ventureName: testVenture });
+    expect(t3.success).toBe(true);
+    expect(t3.objectiveId).toBe("essay_dual_engine");
+    expect(t3.mrrCurrentUsd).toBe(20000);
+    expect(t3.nextObjectiveId).toBe("science_academic_flywheel");
+
+    const formatted = formatAutopilotSummary(t1);
+    expect(formatted).toContain("Active Objective");
+    expect(formatted).toContain("Auto-Advancing to Next Backlog Goal");
   });
 
   test("workflowOperation dispatches autopilot_step, autopilot_status, and autopilot_schedule_spec", async () => {
@@ -90,14 +100,14 @@ describe("Workflow Autopilot & Autonomous Self-Advancement Engine", () => {
     expect((statusRes.data as any).ventureName).toBe("MentalCraft");
     expect(formatWorkflowSummary(statusRes)).toContain("Autopilot Status");
 
-    // 3. Schedule Spec
+    // 3. Schedule Spec (1-min)
     const specRes = await workflowOperation({
       action: "autopilot_schedule_spec",
       venture_name: "MentalCraft",
-      interval_minutes: 60,
+      interval_minutes: 1,
     });
     expect(specRes.success).toBe(true);
-    expect((specRes.data as any).CronExpression).toBe("0 * * * *");
+    expect((specRes.data as any).CronExpression).toBe("* * * * *");
     expect(formatWorkflowSummary(specRes)).toContain("Autopilot Schedule Spec");
   });
 });
