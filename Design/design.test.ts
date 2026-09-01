@@ -370,6 +370,75 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
     }
   });
 
+  test("components in the same category and family share coherent, unified variant vocabularies", async () => {
+    const catalogRes = await designOperation({ action: "catalog" });
+    expect(catalogRes.success).toBe(true);
+    const components = (catalogRes.data as any).components as Array<{ id: string; name: string; variants?: string[] }>;
+    
+    const byId = Object.fromEntries(components.map(c => [c.id, c]));
+
+    // 1. Scaffold & Container family
+    expect(byId.card.variants).toEqual(["flat", "outline", "elevated", "glass", "interactive"]);
+    expect(byId.accordion.variants).toEqual(byId.card.variants);
+    expect(byId.column.variants).toEqual(byId.card.variants);
+
+    // 2. Input family
+    expect(byId.input.variants).toEqual(["line", "ghost", "plain", "bordered", "filled"]);
+    expect(byId.slider.variants).toEqual(byId.input.variants);
+
+    // 3. Overlay family
+    expect(byId.dialog.variants).toEqual(["standard", "sheet", "fullscreen", "alert", "glass"]);
+    expect(byId.drawer.variants).toEqual(byId.dialog.variants);
+    expect(byId.command.variants).toEqual(byId.dialog.variants);
+
+    // 4. Feedback & Tone family
+    expect(byId.badge.variants).toEqual(["default", "primary", "success", "warning", "destructive", "info", "outline", "pill"]);
+    expect(byId.toast.variants).toEqual(byId.badge.variants);
+    expect(byId.metric.variants).toEqual(byId.badge.variants);
+
+    // 5. Table family (all sub-primitives share structural variants)
+    const tableVariants = ["standard", "compact", "zebra", "bordered", "glass", "matrix"];
+    expect(byId.table.variants).toEqual(tableVariants);
+    expect(byId.head.variants).toEqual(tableVariants);
+    expect(byId.header.variants).toEqual(tableVariants);
+    expect(byId.body.variants).toEqual(tableVariants);
+    expect(byId.row.variants).toEqual(tableVariants);
+    expect(byId.cell.variants).toEqual(tableVariants);
+    expect(byId.footer.variants).toEqual(tableVariants);
+
+    // 6. Chart Stroke & Spline family
+    const strokeVariants = ["solid", "dashed", "gradient", "glow", "minimal"];
+    expect(byId.line.variants).toEqual(strokeVariants);
+    expect(byId.area.variants).toEqual(strokeVariants);
+    expect(byId.axis.variants).toEqual(strokeVariants);
+    expect(byId.grid.variants).toEqual(strokeVariants);
+    expect(byId.rule.variants).toEqual(strokeVariants);
+    expect(byId.sparkline.variants).toEqual(strokeVariants);
+
+    // 7. Shape & Geometry Marker family
+    const shapeVariants = ["circle", "diamond", "square", "ring", "pill"];
+    expect(byId.point.variants).toEqual(shapeVariants);
+    expect(byId.swatch.variants).toEqual(shapeVariants);
+    expect(byId.avatar.variants).toEqual(shapeVariants);
+
+    // 8. Workflow & Sequencing family
+    const workflowVariants = ["standard", "compact", "matrix", "glass", "retro"];
+    expect(byId.kanban.variants).toEqual(workflowVariants);
+    expect(byId.timeline.variants).toEqual(workflowVariants);
+    expect(byId.terminal.variants).toEqual(workflowVariants);
+    expect(byId.prompt.variants).toEqual(workflowVariants);
+    expect(byId.output.variants).toEqual(workflowVariants);
+
+    // 9. Page Archetypes family
+    const pageVariants = ["magazine", "lab", "minimal", "dark_matrix", "editorial"];
+    expect(byId.showcase.variants).toEqual(pageVariants);
+    expect(byId.hero.variants).toEqual(pageVariants);
+    expect(byId.pricing.variants).toEqual(pageVariants);
+    expect(byId.screener.variants).toEqual(pageVariants);
+    expect(byId.questionnaire.variants).toEqual(pageVariants);
+    expect(byId.comparison.variants).toEqual(pageVariants);
+  });
+
   test("audit_ui checks code against token usage, A11y labels and touch targets", async () => {
     const badCode = `
       <div style="background-color: #ff0000;">

@@ -20,39 +20,25 @@ It bridges the headless Svelte 5 component architecture in `Design/Svelte` (`inf
 
 ## 📦 Verified Component Catalog & Compound Suites
 
-### 1. High-Level Components & Composites
+### 1. Universal Component Families & Unified Variant Vocabularies
 
-| Component | Layer | Category | Estimated Size | Full Visual Variants Matrix | Import Subpath |
-|---|---|---|---|---|---|
-| `Button` | `component` | `interaction` | 1.8 KB | `primary`, `secondary`, `ghost`, `line`, `glass`, `plain`, `destructive`, `outline` | `infra-ui-svelte/component/interaction/button` |
-| `Card` | `component` | `scaffold` | 1.2 KB | `flat`, `outline`, `elevated`, `glass`, `interactive` | `infra-ui-svelte/component/scaffold/card` |
-| `Input` | `component` | `input` | 1.5 KB | `line`, `ghost`, `plain`, `bordered`, `filled` | `infra-ui-svelte/component/input/text` |
-| `Badge` | `component` | `status` | 1.1 KB | `default`, `primary`, `success`, `warning`, `destructive`, `outline`, `pill` | `infra-ui-svelte/component/feedback/badge` |
-| `Avatar` | `component` | `display` | 1.3 KB | `circle`, `rounded`, `square`, `ring`, `online_indicator` | `infra-ui-svelte/component/display/avatar` |
-| `Dialog` | `composite` | `overlay` | 3.4 KB | `standard`, `sheet`, `fullscreen`, `alert`, `glass` | `infra-ui-svelte/composite/overlay/dialog` |
-| `Drawer` | `composite` | `overlay` | 3.8 KB | `right`, `left`, `bottom`, `top` | `infra-ui-svelte/composite/overlay/drawer` |
-| `Hero` | `composite` | `marketing` | 3.1 KB | `standard`, `split`, `centered`, `glow`, `magazine` | `infra-ui-svelte/composite/marketing/hero` |
-| `Pricing` | `composite` | `commerce` | 4.5 KB | `tier_cards`, `matrix`, `compact`, `comparison` | `infra-ui-svelte/composite/commerce/pricing` |
-| `Kanban` | `composite` | `interaction` | 8.4 KB | `standard`, `compact`, `matrix`, `glass` | `infra-ui-svelte/composite/interaction/kanban` |
-| `Table` | `composite` | `display` | 4.2 KB | `standard`, `compact`, `zebra`, `bordered`, `glass`, `matrix` | `infra-ui-svelte/composite/data/table` |
-| `Chart` | `composite` | `display` | 5.6 KB | `line`, `area`, `bar`, `donut`, `radar`, `candlestick`, `funnel`, `treemap`, `sparkline` | `infra-ui-svelte/composite/display/chart` |
-| `Screener` | `block` | `tool` | 6.8 KB | `standard`, `compact`, `split`, `embedded` | `infra-ui-svelte/block/tool/screener` |
-| `Questionnaire` | `block` | `tool` | 7.2 KB | `stepped`, `continuous`, `cards`, `minimal` | `infra-ui-svelte/block/tool/questionnaire` |
-| `Terminal` | `composite` | `workflow` | 6.2 KB | `classic`, `glass`, `minimal`, `matrix`, `dracula`, `retro` | `infra-ui-svelte/composite/workflow/terminal` |
-| `Timeline` | `composite` | `workflow` | 3.6 KB | `vertical`, `horizontal`, `compact`, `alternating`, `stepper` | `infra-ui-svelte/composite/workflow/timeline` |
-| `Command` | `composite` | `workflow` | 5.4 KB | `spotlight`, `compact`, `docked`, `dialog`, `inline` | `infra-ui-svelte/composite/workflow/command` |
-| `Accordion` | `composite` | `panel` | 2.8 KB | `bordered`, `separated`, `ghost`, `compact`, `glass` | `infra-ui-svelte/panel/accordion` |
-| `Tabs` | `composite` | `navigation` | 2.4 KB | `pill`, `underline`, `segment`, `vertical`, `bubble`, `bordered` | `infra-ui-svelte/composite/route/tabs` |
-| `Metric` | `component` | `display` | 1.7 KB | `standard`, `compact`, `hero`, `delta_badge`, `sparkline_card` | `infra-ui-svelte/component/display/metric` |
-| `Toast` | `composite` | `feedback` | 3.2 KB | `success`, `warning`, `destructive`, `info`, `ai`, `promise` | `infra-ui-svelte/overlay/toast` |
-| `Blueprint` | `component` | `decoration`| 1.4 KB | `blue`, `cyan`, `pink`, `amber`, `monochrome`, `grid` | `infra-ui-svelte/decoration/blueprint` |
-| `Ruler` | `component` | `decoration`| 0.9 KB | `pink`, `cyan`, `amber`, `blue`, `horizontal`, `vertical` | `infra-ui-svelte/decoration/ruler` |
-| `Swatch` | `component` | `decoration`| 1.1 KB | `chip`, `pill`, `dot`, `bubble`, `palette` | `infra-ui-svelte/decoration/swatch` |
-| `Slider` | `component` | `input` | 1.6 KB | `diamond`, `round`, `minimal`, `stepped`, `spring` | `infra-ui-svelte/component/input/slider` |
-| `Comparison` | `composite` | `display` | 2.2 KB | `split_horizontal`, `split_vertical`, `slider_curtain`, `cards` | `infra-ui-svelte/composite/display/comparison` |
-| `Spotlight` | `component` | `effect` | 1.2 KB | `radial`, `cone`, `linear`, `ambient`, `border_only` | `infra-ui-svelte/effect/spotlight` |
-| `Noise` | `component` | `effect` | 0.8 KB | `subtle`, `film`, `paper`, `heavy`, `grain` | `infra-ui-svelte/effect/noise` |
-| `Showcase` | `template` | `scaffold` | 4.8 KB | `magazine`, `lab`, `minimal`, `dark_matrix`, `editorial` | `infra-ui-svelte/page/showcase` |
+To ensure maximum cognitive ergonomics, interoperability, and predictable composition, **all components in the same functional family share identical visual variant sets**:
+
+| Family / Category | Component Members | Unified Variant Vocabulary | Design Intent & Visual Semantics |
+|---|---|---|---|
+| **Action & Interaction** | `Button` | `primary`, `secondary`, `ghost`, `line`, `glass`, `plain`, `destructive`, `outline` | Universal interactive button triggers and links |
+| **Input & Form** | `Input`, `Slider` | `line`, `ghost`, `plain`, `bordered`, `filled` | High-precision text and range data entry |
+| **Scaffold & Container** | `Card`, `Accordion`, `Column` | `flat`, `outline`, `elevated`, `glass`, `interactive` | Surface boundaries, structural elevation, and hover lift |
+| **Overlay & Modal** | `Dialog`, `Drawer`, `Command` | `standard`, `sheet`, `fullscreen`, `alert`, `glass` | Centered dialogs, edge sheets, ⌘K command spotlight |
+| **Feedback & Tone** | `Badge`, `Toast`, `Metric` | `default`, `primary`, `success`, `warning`, `destructive`, `info`, `outline`, `pill` | Semantic alert tones, status badges, and KPI delta metrics |
+| **Data Grid & Table** | `Table`, `Head`, `Header`, `Body`, `Row`, `Cell`, `Footer` | `standard`, `compact`, `zebra`, `bordered`, `glass`, `matrix` | Tabular financial datasets and monospace alignment |
+| **Chart Spline & Stroke** | `Line`, `Area`, `Axis`, `Grid`, `Rule`, `Sparkline`, `Bar`, `Arc` | `solid`, `dashed`, `gradient`, `glow`, `minimal` | Vector chart lines, threshold markers, and gridlines |
+| **Shape & Geometry** | `Point`, `Swatch`, `Avatar` | `circle`, `diamond`, `square`, `ring`, `pill` | Discrete scatter markers, color tokens, and user avatars |
+| **Workflow & Sequencing** | `Kanban`, `Timeline`, `Terminal`, `Prompt`, `Output` | `standard`, `compact`, `matrix`, `glass`, `retro` | Developer CLI tools, event sequences, and task boards |
+| **Step Execution** | `Item` | `pending`, `active`, `completed`, `failed`, `skipped` | Pipeline progression and async milestone nodes |
+| **Design Engineering** | `Blueprint`, `Ruler`, `Spotlight` | `blue`, `cyan`, `pink`, `amber`, `monochrome`, `grid` | Technical layout inspection boxes and ambient lights |
+| **Texture & Grain** | `Noise` | `subtle`, `film`, `paper`, `heavy`, `grain` | Zero-layout-shift tactile SVG grain overlays |
+| **Page Archetypes** | `Showcase`, `Hero`, `Pricing`, `Screener`, `Questionnaire`, `Comparison` | `magazine`, `lab`, `minimal`, `dark_matrix`, `editorial` | Top-tier publication page templates and interactive sandboxes |
 
 ---
 
