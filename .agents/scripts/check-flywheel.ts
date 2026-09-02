@@ -331,11 +331,11 @@ const channels: FlywheelChannel[] = [
 		to: "Business",
 		name: "极速服务底座 (Edge Microservices)",
 		check: () => {
-			const hasAuth = existsSync(join(rootDir, "Infra", "Auth", "Cargo.toml"));
-			const hasMon = existsSync(join(rootDir, "Infra", "Monetization", "Cargo.toml"));
+			const hasAuth = existsSync(join(rootDir, "Infra", "Auth", "src", "index.ts"));
+			const hasMon = existsSync(join(rootDir, "Infra", "Monetization", "src", "index.ts"));
 			return {
 				passed: hasAuth && hasMon,
-				detail: hasAuth && hasMon ? "Auth & Monetization edge Rust microservices active" : "Missing microservices in Infra",
+				detail: hasAuth && hasMon ? "Auth & Monetization edge Hono microservices active" : "Missing microservices in Infra",
 			};
 		},
 	},

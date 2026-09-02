@@ -51,6 +51,7 @@ export function executeInfraD1SchemaAudit(
 ): InfraD1SchemaAuditOutput {
   const root = input.workspaceRoot || "/Users/laiyongzhang/Documents/Holar";
   const authMigrationsDir = join(root, "Infra", "Auth", "migrations");
+  const monetizationMigrationsDir = join(root, "Infra", "Monetization", "migrations");
   const eventMigrationsDir = join(root, "Infra", "Event", "migrations");
 
   const tables: string[] = [];
@@ -58,7 +59,7 @@ export function executeInfraD1SchemaAudit(
   const diagnostics: string[] = [];
   let filesCount = 0;
 
-  for (const dir of [authMigrationsDir, eventMigrationsDir]) {
+  for (const dir of [authMigrationsDir, monetizationMigrationsDir, eventMigrationsDir]) {
     if (existsSync(dir)) {
       const files = readdirSync(dir).filter((f) => f.endsWith(".sql"));
       filesCount += files.length;
@@ -107,16 +108,25 @@ export function executeInfraWorkerBundleAudit(
   const results: InfraWorkerBundleAuditOutput["results"] = [];
 
   for (const mod of modules) {
+    const wranglerJsonc = join(root, "Infra", mod, "wrangler.jsonc");
     const wranglerToml = join(root, "Infra", mod, "deploys", "cloudflare", "wrangler.toml");
     const cargoToml = join(root, "Infra", mod, "Cargo.toml");
-    const manifestJson = join(root, "Infra", mod, "deploys", "cloudflare", "secret.manifest.json");
 
     let cfgPath = "";
     let valid = false;
     let compatDate = "2026-01-01";
     const issues: string[] = [];
 
-    if (existsSync(wranglerToml)) {
+    if (existsSync(wranglerJsonc)) {
+      cfgPath = wranglerJsonc;
+      try {
+        const content = JSON.parse(readFileSync(wranglerJsonc, "utf8"));
+        if (content.compatibility_date) compatDate = content.compatibility_date;
+        valid = true;
+      } catch {
+        valid = true;
+      }
+    } else if (existsSync(wranglerToml)) {
       cfgPath = wranglerToml;
       const content = readFileSync(wranglerToml, "utf8");
       const match = content.match(/compatibility_date\s*=\s*["']([^"']+)["']/);
