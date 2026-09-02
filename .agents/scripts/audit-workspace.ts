@@ -115,6 +115,47 @@ for (const domain of domains) {
 	}
 }
 
+// 6. Audit Distributed Skill Network Integrity
+const requiredDomainSkills: Record<string, string[]> = {
+	Business: ["demand", "teardown", "positioning", "name", "architecture", "build", "launch", "operation", "scale", "locale", "growth", "feedback"],
+	Company: ["company"],
+	Content: ["story", "marketing"],
+	Design: ["design", "disassemble"],
+	Infra: ["infra"],
+	Plugin: ["plugin"],
+	Science: ["paper", "empirical", "grant", "patent", "journal"],
+};
+
+for (const domain of domains) {
+	const domainSkillsDir = join(rootDir, domain, ".agents", "skills");
+	const domainSpecific = requiredDomainSkills[domain] || [];
+	const allRequired = ["tone", "flywheel", "governance", "seo", "autopilot", ...domainSpecific];
+	const missing: string[] = [];
+	const broken: string[] = [];
+
+	for (const skill of allRequired) {
+		const skillMd = join(domainSkillsDir, skill, "SKILL.md");
+		if (!existsSync(skillMd)) {
+			missing.push(skill);
+		} else {
+			try {
+				const content = readFileSync(skillMd, "utf8");
+				if (!content.includes("name:") || !content.includes("description:")) {
+					broken.push(skill);
+				}
+			} catch {
+				broken.push(skill);
+			}
+		}
+	}
+
+	const passed = missing.length === 0 && broken.length === 0;
+	const detail = passed
+		? `${allRequired.length}/${allRequired.length} skills valid`
+		: `Issues: ${missing.length ? "missing: " + missing.join(",") : ""} ${broken.length ? "broken: " + broken.join(",") : ""}`.trim();
+	check("Skill Network", `${domain} skills`, passed, detail);
+}
+
 
 // Print Symmetrical Results Table
 console.log(
