@@ -21,6 +21,8 @@ import {
   type SystemTelemetryReport,
   type SubsystemBenchmarkResult,
   type BenchmarkSuiteResult,
+  synthesizeDynamicWorkflow,
+  type DynamicWorkflowIntent,
 } from "./core.ts";
 import { designOperation } from "../Design/operation.ts";
 import { businessOperation } from "../Business/operation.ts";
@@ -1494,6 +1496,34 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
   const timestamp = new Date().toISOString();
 
   switch (input.action) {
+    case "plan_dynamic_workflow": {
+      const intent = input.dynamic_intent || { goal: "optimize_conversion", venture: input.venture_name || "MentalCraft" };
+      const plan = synthesizeDynamicWorkflow(intent);
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "plan_dynamic_workflow",
+        success: true,
+        timestamp,
+        data: {
+          intent,
+          synthesizedWorkflow: plan,
+          totalSteps: plan.steps.length,
+          requiredPlugins: plan.requiredPlugins,
+        },
+      };
+    }
+
+    case "run_dynamic_workflow": {
+      const intent = input.dynamic_intent || { goal: "optimize_conversion", venture: input.venture_name || "MentalCraft" };
+      const plan = synthesizeDynamicWorkflow(intent);
+      CUSTOM_REGISTRY.set(plan.id, plan);
+      return await workflowOperation({
+        action: "run_workflow",
+        workflow_id: plan.id,
+        parameters: input.parameters || { venture: intent.venture || "MentalCraft", ...intent.context },
+      });
+    }
+
     case "check_flywheel": {
       const { spawnSync } = require("node:child_process");
       const { resolve } = require("node:path");

@@ -535,7 +535,105 @@ export type BenchmarkSuiteResult = {
   };
 };
 
+export type DynamicWorkflowIntent = {
+  goal: string;
+  venture?: string;
+  context?: Record<string, unknown>;
+  maxSteps?: number;
+};
+
+export function synthesizeDynamicWorkflow(intent: DynamicWorkflowIntent): WorkflowDefinition {
+  const goal = intent.goal.toLowerCase();
+  const venture = intent.venture || "MentalCraft";
+  const id = `dynamic_${venture.toLowerCase()}_${Date.now()}`;
+
+  // 1. Resilience / Remediation / Bug Incident Intent (Top Priority)
+  if (goal.includes("incident") || goal.includes("fix") || goal.includes("error") || goal.includes("heal") || goal.includes("remediation") || goal.includes("bug")) {
+    return {
+      id: id as any,
+      name: `Dynamic Rapid Remediation & Self-Healing Pipeline [${venture}]`,
+      description: `Targeted dynamic workflow for ${venture}: subsystem health check -> chaos fault isolation -> 20-channel flywheel verification -> zero ghost state audit.`,
+      requiredPlugins: ["workflow", "browser"],
+      steps: [
+        { step: 1, plugin: "workflow", action: "health_check", description: `Probe all 6 plugins and endpoints for latency, saturation, and error rates.` },
+        { step: 2, plugin: "browser", action: "chaos_resilience_test", description: `Isolate runtime fault, verify error boundary containment and graceful fallback.` },
+        { step: 3, plugin: "workflow", action: "check_flywheel", description: `Verify pentagonal 20-channel flywheel connectivity and heal any broken channels.` },
+        { step: 4, plugin: "workflow", action: "audit_workspace", description: `Audit workspace compliance, remove ghost state, and assert zero technical debt.` },
+      ],
+    };
+  }
+
+  // 2. Conversion / Pricing / Checkout Intent
+  if (goal.includes("conversion") || goal.includes("checkout") || goal.includes("pricing") || goal.includes("pay") || goal.includes("stripe")) {
+    return {
+      id: id as any,
+      name: `Dynamic JIT Funnel & Conversion Sprint [${venture}]`,
+      description: `Targeted dynamic workflow for ${venture}: conversion leak analysis -> design token spec -> Svelte 5 runes checkout section -> empirical DOM inspection -> Stripe ARR telemetry.`,
+      requiredPlugins: ["business", "design", "browser"],
+      steps: [
+        { step: 1, plugin: "business", action: "venture_market_validation", description: `Analyze ${venture} conversion leaks, TAM/SAM/SOM, and pricing elasticity.` },
+        { step: 2, plugin: "design", action: "audit_ui", description: `Validate ${venture} pricing and checkout cards against Twelve Ecosystem Virtues and single-word law.` },
+        { step: 3, plugin: "design", action: "generate_ui", description: `Synthesize high-converting Svelte 5 runes checkout component with 1-click buy button.` },
+        { step: 4, plugin: "browser", action: "inspect_element", description: `Empirically verify rendered ${venture} checkout DOM and state transition.` },
+        { step: 5, plugin: "business", action: "venture_monetization_telemetry", description: `Track Stripe checkout session initiation, ARR velocity, and churn decay.` },
+      ],
+    };
+  }
+
+  // 3. Clinical / Psychometric / Scale Intent
+  if (goal.includes("scale") || goal.includes("clinical") || goal.includes("assessment") || goal.includes("cutoff") || goal.includes("psychometric")) {
+    return {
+      id: id as any,
+      name: `Dynamic Clinical Evidence & Psychometric Tooling Sprint [${venture}]`,
+      description: `Targeted dynamic workflow for ${venture}: academic psychometric validation -> single-word component spec -> Svelte 5 clinical calculator -> empirical DOM inspection -> B2B referral loop.`,
+      requiredPlugins: ["science", "design", "browser", "business"],
+      steps: [
+        { step: 1, plugin: "science", action: "social_science_peer_review_audit", description: `Audit ${venture} clinical scale validity, DSM-5 cutoff specificity, and psychometrics.` },
+        { step: 2, plugin: "design", action: "audit_ui", description: `Audit clinical interactive tools for Swiss typography and OKLCH color token compliance.` },
+        { step: 3, plugin: "design", action: "generate_ui", description: `Synthesize interactive Svelte 5 runes clinical cutoff and symptom breakdown composite.` },
+        { step: 4, plugin: "browser", action: "inspect_element", description: `Empirically verify 60fps interaction and zero layout shift on clinical tool surface.` },
+        { step: 5, plugin: "business", action: "venture_monetization_telemetry", description: `Wire practitioner Pro referral link and track clinical intake conversion.` },
+      ],
+    };
+  }
+
+  // 4. SEO / Acquisition / Content Traffic Intent
+  if (goal.includes("seo") || goal.includes("traffic") || goal.includes("keyword") || goal.includes("pseo") || goal.includes("content")) {
+    return {
+      id: id as any,
+      name: `Dynamic Inbound Acquisition & pSEO Sprint [${venture}]`,
+      description: `Targeted dynamic workflow for ${venture}: keyword ranking -> PAS conversion copywriting -> attention hook generation -> programmatic landing UI -> Lighthouse audit.`,
+      requiredPlugins: ["business", "content", "design", "browser"],
+      steps: [
+        { step: 1, plugin: "business", action: "seo_batch_keywords", description: `Rank low-KD high-intent organic search keywords for ${venture}.` },
+        { step: 2, plugin: "content", action: "marketing_pas_copywriter", description: `Draft high-converting Problem-Agitate-Solve copy deck targeted at searchers.` },
+        { step: 3, plugin: "content", action: "marketing_viral_hook_generator", description: `Generate 3-second attention hooks, curiosity gaps, and Schema.org metadata.` },
+        { step: 4, plugin: "design", action: "generate_ui", description: `Synthesize responsive Svelte 5 programmatic landing template with canonical tokens.` },
+        { step: 5, plugin: "browser", action: "lighthouse_audit", description: `Audit 5 categories (Performance, A11y, Best Practices, SEO) and ensure 95+ score.` },
+      ],
+    };
+  }
+
+  // 5. Default: Full-Cycle Product Sprint OS
+  return {
+    id: id as any,
+    name: `Dynamic 6-Stage Product Iteration Sprint [${venture}]`,
+    description: `Dynamic product iteration pipeline for ${venture} conditioned on goal: "${intent.goal}".`,
+    requiredPlugins: ["business", "design", "browser", "content", "workflow"],
+    steps: [
+      { step: 1, plugin: "business", action: "venture_market_validation", description: `Analyze ${venture} gap, competitive benchmarks, and strategic focus for goal: "${intent.goal}".` },
+      { step: 2, plugin: "design", action: "audit_ui", description: `Validate single-word parent component naming and Twelve Universal Virtues.` },
+      { step: 3, plugin: "design", action: "generate_ui", description: `Synthesize minimal viable Svelte 5 runes deliverable matching goal: "${intent.goal}".` },
+      { step: 4, plugin: "browser", action: "inspect_element", description: `Execute empirical dual verification via svelte-check and 7 master gates.` },
+      { step: 5, plugin: "business", action: "venture_monetization_telemetry", description: `Sediment telemetry, promote reusable patterns, and feed empirical data to Science.` },
+      { step: 6, plugin: "workflow", action: "autopilot_step", description: `Transition autonomously and dispatch subsequent sprint cycle.` },
+    ],
+  };
+}
+
 export type WorkflowAction =
+  | "plan_dynamic_workflow"
+  | "run_dynamic_workflow"
   | "list_workflows"
   | "run_workflow"
   | "register_workflow"
@@ -563,6 +661,7 @@ export type WorkflowAction =
 export type WorkflowInput = {
   action: WorkflowAction;
   workflow_id?: WorkflowId;
+  dynamic_intent?: DynamicWorkflowIntent;
   target_plugin?: PluginId | "all";
   custom_workflow?: {
     id: string;

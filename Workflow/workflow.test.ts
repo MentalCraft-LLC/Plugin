@@ -825,6 +825,49 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(iterationWf.steps[4].action).toBe("venture_monetization_telemetry");
     expect(iterationWf.steps[5].action).toBe("autopilot_step");
   });
+
+  test("plan_dynamic_workflow synthesizes JIT DAG tailored to target intent", async () => {
+    // 1. Conversion intent
+    const convRes = await workflowOperation({
+      action: "plan_dynamic_workflow",
+      dynamic_intent: { goal: "optimize_stripe_conversion", venture: "MentalCraft" },
+    });
+    expect(convRes.success).toBe(true);
+    const convData = convRes.data as any;
+    expect(convData.synthesizedWorkflow.name).toContain("Dynamic JIT Funnel & Conversion Sprint");
+    expect(convData.totalSteps).toBe(5);
+
+    // 2. Clinical scale intent
+    const clinRes = await workflowOperation({
+      action: "plan_dynamic_workflow",
+      dynamic_intent: { goal: "add_epds_clinical_cutoff_scale", venture: "MentalCraft" },
+    });
+    expect(clinRes.success).toBe(true);
+    const clinData = clinRes.data as any;
+    expect(clinData.synthesizedWorkflow.name).toContain("Dynamic Clinical Evidence");
+    expect(clinData.synthesizedWorkflow.requiredPlugins).toContain("science");
+
+    // 3. Incident remediation intent
+    const incRes = await workflowOperation({
+      action: "plan_dynamic_workflow",
+      dynamic_intent: { goal: "fix_checkout_error_incident", venture: "MentalCraft" },
+    });
+    expect(incRes.success).toBe(true);
+    const incData = incRes.data as any;
+    expect(incData.synthesizedWorkflow.name).toContain("Dynamic Rapid Remediation");
+    expect(incData.synthesizedWorkflow.requiredPlugins).toContain("workflow");
+  });
+
+  test("run_dynamic_workflow compiles and executes dynamic pipeline end-to-end", async () => {
+    const res = await workflowOperation({
+      action: "run_dynamic_workflow",
+      dynamic_intent: { goal: "optimize_conversion", venture: "MentalCraft" },
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.stepsCount).toBe(5);
+    expect(data.stepResults.length).toBe(5);
+  });
 });
 
 

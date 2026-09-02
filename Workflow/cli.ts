@@ -648,6 +648,24 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "dynamic": {
+      const vName = args.find((a) => a.startsWith("--venture="))?.split("=")[1] || "MentalCraft";
+      const goal = args.find((a) => a.startsWith("--goal="))?.split("=")[1] || "optimize_conversion";
+      console.log(`\n⚡ Synthesizing & Executing Dynamic JIT Workflow for [${vName}] (Goal: "${goal}")...\n` + "=".repeat(75));
+      const res = await workflowOperation({
+        action: "run_dynamic_workflow",
+        dynamic_intent: { goal, venture: vName },
+      });
+      const data = res.data as any;
+      console.log(`\n✅ Dynamic Workflow Complete: ${data.workflowName} (${data.durationMs}ms)`);
+      console.log(`Pipeline Status: ${data.success ? "🟢 PASS" : "🔴 FAIL"} | Total Steps: ${data.stepsCount}`);
+      data.stepResults?.forEach((s: any) => {
+        console.log(`  Step ${s.step} [${s.plugin}:${s.action}]: ${s.success ? "🟢 PASS" : "🔴 FAIL"} (${s.durationMs}ms)`);
+      });
+      console.log("=".repeat(75) + "\n");
+      break;
+    }
+
     case "serve": {
       const httpFlag = args.includes("--http");
       const portArg = args.find((a) => a.startsWith("--port="));
