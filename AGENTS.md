@@ -42,15 +42,17 @@ This repository operates strictly within a bidirectional compounding flywheel. *
 ## ⚖️ Non-Negotiable Core Governance Laws
 
 1. **Five Canonical Domains Mutual Flywheel Law (一级目录五维互为飞轮法则)**:
-   All 5 canonical domains form a fully connected $K_5$ directed graph (20 momentum channels). Every domain must continuously consume from and feedback into the other 4 domains. Verified via `bun .agents/scripts/check-flywheel.ts`.
+   All 5 canonical domains form a fully connected $K_5$ directed graph (20 momentum channels). Every domain must continuously consume from and feedback into the other 4 domains. Verified via `bun Plugin/scripts/check-flywheel.ts`.
 2. **Minimalism, Restraint, and Negative Space Law (极简 · 克制 · 留白法则)**:
    Form strictly serves function. Neutral canvas base with single-hue strategic accent, Swiss typographic scale, zero emojis, zero screaming copy, and generous negative space.
 3. **Product Page-Layer Only Law (产品纯 Page 层消费法则)**:
    All product interfaces MUST compose canonical Page-level components from `@mentalcraft/design-svelte` (`<Landing>`, `<Workspace>`, `<Desktop>`, `<Navigation>`, `<Assessment>`, `<Dashboard>`, `<Settings>`). Ad-hoc base components and raw unstyled inputs are strictly prohibited.
 4. **Browser Empirical Visual Grounding Law (浏览器实证视觉验收法则)**:
    Code changes must be verified not just with automated tests, but with visual empirical grounding using the `browser` toolchain (full-page screenshots, viewport emulation, and 60fps interaction recordings).
-5. **Zero Git-Ignore of Domain Agents**:
+5. **Zero Git-Ignore of Domain Agents (零 Git 忽略盲区法则)**:
    The `.agents/` directory inside this repository must remain tracked in git so that cloud agents (Cursor Cloud, Jules, Grok, GitHub Actions) possess full operational skills upon checkout.
+6. **Zero Local Ghost State Law (零本地幽灵状态法则)**:
+   All cognitive rules, skills, governance docs, and audit scripts are 100% self-contained and tracked inside the 5 canonical git repositories. The root aggregator folder has zero local-only `.agents/` state.
 
 ---
 

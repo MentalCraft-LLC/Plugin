@@ -33,7 +33,10 @@
     "bench": "bun ./Workflow/cli.ts bench",
     "health": "bun ./Workflow/cli.ts health",
     "doctor": "bun ./Workflow/cli.ts doctor",
-    "install-mcp": "bun ./Workflow/cli.ts install-mcp"
+    "install-mcp": "bun ./Workflow/cli.ts install-mcp",
+    "check:flywheel": "bun ./scripts/check-flywheel.ts",
+    "audit:workspace": "bun ./scripts/audit-workspace.ts",
+    "sync:domains": "bun ./scripts/sync-domains.ts"
   },
   "devDependencies": {
     "marked": "^18.0.11"
