@@ -240,7 +240,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(initRes.result.serverInfo.name).toBe("mentalcraft-gateway-mcp");
 
     const listRes = await handleGatewayRpc({ jsonrpc: "2.0", id: 2, method: "tools/list" });
-    expect(listRes.result.tools.length).toBe(8);
+    expect(listRes.result.tools.length).toBe(10);
 
     const callRes = await handleGatewayRpc({
       jsonrpc: "2.0",

@@ -93,7 +93,7 @@ const pluginCli = join(rootDir, "Plugin", "Workflow", "cli.ts");
 if (existsSync(pluginCli)) {
 	const healthRes = spawnSync("bun", [pluginCli, "health"], { encoding: "utf8" });
 	const healthy = healthRes.status === 0 && healthRes.stdout.includes("HEALTHY (100/100)");
-	check("MCP Gateway", "Plugin Subsystems Health", healthy, healthy ? "8/8 Subsystems 100/100 Healthy" : "Health check failed");
+	check("MCP Gateway", "Plugin Subsystems Health", healthy, healthy ? "10/10 Subsystems 100/100 Healthy" : "Health check failed");
 }
 
 // 4. Audit Zero Ghost State (Root .agents absence)

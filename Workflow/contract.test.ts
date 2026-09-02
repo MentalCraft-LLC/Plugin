@@ -189,6 +189,8 @@ describe("Golden Protocol & Contract Verification Across All 6 Plugins", () => {
       handleGatewayRpc({ jsonrpc: "2.0", id: 103, method: "tools/call", params: { name: "design", arguments: { action: "list_layers" } } }),
       handleGatewayRpc({ jsonrpc: "2.0", id: 104, method: "tools/call", params: { name: "science", arguments: { action: "list_actions" } } }),
       handleGatewayRpc({ jsonrpc: "2.0", id: 105, method: "tools/call", params: { name: "content", arguments: { action: "marketing_viral_hook_generator", product_name: "SpriteFlow" } } }),
+      handleGatewayRpc({ jsonrpc: "2.0", id: 106, method: "tools/call", params: { name: "infra", arguments: { action: "infra_canary_probe" } } }),
+      handleGatewayRpc({ jsonrpc: "2.0", id: 107, method: "tools/call", params: { name: "company", arguments: { action: "company_entity_audit" } } }),
     ];
 
     const responses = await Promise.all(clientRequests);

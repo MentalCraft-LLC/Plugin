@@ -25,6 +25,8 @@ import { SCIENCE_INPUT_SCHEMA } from "../Science/mcp-server.ts";
 import { CONTENT_INPUT_SCHEMA } from "../Content/mcp-server.ts";
 import { MESSAGE_INPUT_SCHEMA } from "../Message/mcp-server.ts";
 import { SECRET_INPUT_SCHEMA } from "../Secret/mcp-server.ts";
+import { INFRA_INPUT_SCHEMA } from "../Infra/mcp-server.ts";
+import { COMPANY_INPUT_SCHEMA } from "../Company/mcp-server.ts";
 
 export type JsonRpcId = string | number | null;
 
@@ -98,6 +100,16 @@ export const GATEWAY_TOOLS = [
     name: "secret",
     description: "MentalCraft Mode-0600 Local Credential Vault. Write, read, rotate, audit, validate, and mask confidential tokens with atomic POSIX mode-0600 security.",
     inputSchema: SECRET_INPUT_SCHEMA,
+  },
+  {
+    name: "infra",
+    description: "MentalCraft Edge Microservices & Data Infrastructure Engine (Canary Latency Benchmarks, D1 Schema Verification, Worker Bundles, Stripe Webhook Simulation).",
+    inputSchema: INFRA_INPUT_SCHEMA,
+  },
+  {
+    name: "company",
+    description: "MentalCraft Corporate Governance & Entity Compliance Engine (Dual-Jurisdiction LLC/WFOE Verification, Cap Table Dilution Calculator, IP Assignment Audit, Annual Reports).",
+    inputSchema: COMPANY_INPUT_SCHEMA,
   },
 ];
 
@@ -194,6 +206,12 @@ export async function handleGatewayRpc(request: JsonRpcRequest): Promise<JsonRpc
         const { secretOperation } = await import("../Secret/operation.ts");
         const act = (args.action as string) || (args.content !== undefined ? "write" : "read");
         output = secretOperation({ ...args, action: act } as any);
+      } else if (toolName === "infra") {
+        const { infraOperation } = await import("../Infra/operation.ts");
+        output = await infraOperation(args.action as any, (args.params as any) || args);
+      } else if (toolName === "company") {
+        const { companyOperation } = await import("../Company/operation.ts");
+        output = await companyOperation(args.action as any, (args.params as any) || args);
       } else {
         return {
           jsonrpc: "2.0",
