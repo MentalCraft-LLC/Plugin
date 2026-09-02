@@ -65,12 +65,19 @@ if (existsSync(appsDir)) {
 			}
 
 			const hasDesign =
-				combinedConfigs.includes("infra-ui-svelte") ||
 				combinedConfigs.includes("@mentalcraft/design-svelte") ||
 				combinedConfigs.includes("@mentalcraft/design-token");
+			const hasLegacyInfraUi = combinedConfigs.includes("infra-ui-svelte");
 			const hasRelPathFragility = combinedConfigs.includes("file:../../Design/Svelte");
 
-			check("Design System", `${entry.name} binding`, hasDesign, hasDesign ? "Design system bound" : "No design system dependency");
+			const compliant = hasDesign && !hasLegacyInfraUi;
+			const detail = hasLegacyInfraUi
+				? "FATAL: Obsolete infra-ui-svelte detected (Zero Compatibility)"
+				: hasDesign
+					? "Design system bound (@mentalcraft)"
+					: "No design system dependency";
+
+			check("Design System", `${entry.name} binding`, compliant, detail);
 			check("Path Stability", `${entry.name} relative path`, !hasRelPathFragility, !hasRelPathFragility ? "Stable path" : "Fragile ../../ path detected");
 		}
 	}

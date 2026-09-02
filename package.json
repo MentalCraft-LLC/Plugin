@@ -36,7 +36,8 @@
     "install-mcp": "bun ./Workflow/cli.ts install-mcp",
     "check:flywheel": "bun ./scripts/check-flywheel.ts",
     "audit:workspace": "bun ./scripts/audit-workspace.ts",
-    "sync:domains": "bun ./scripts/sync-domains.ts"
+    "sync:domains": "bun ./scripts/sync-domains.ts",
+    "verify": "bun ./scripts/verify-all.ts"
   },
   "devDependencies": {
     "marked": "^18.0.11"
