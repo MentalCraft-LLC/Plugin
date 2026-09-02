@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { readTelegramConfig } from "../Message/channels/telegram.ts";
 
 export async function sendTelegramScreenshot(imagePath: string, caption?: string) {
   if (!existsSync(imagePath)) {
@@ -17,12 +18,10 @@ export async function sendTelegramScreenshot(imagePath: string, caption?: string
     }
   }
 
-  const configPath = join(homedir(), ".pi", "agent", "telegram", "config.json");
-  if (!existsSync(configPath)) {
-    throw new Error(`Telegram config not found at ${configPath}`);
+  const config = readTelegramConfig();
+  if (!config || !config.token || !config.chatId) {
+    throw new Error(`Telegram not configured (checked env and ~/.config/holar/telegram.json)`);
   }
-
-  const config = JSON.parse(readFileSync(configPath, "utf8"));
   const { token, chatId } = config;
 
   const fileBytes = readFileSync(webpPath);
