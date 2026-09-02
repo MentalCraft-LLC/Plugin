@@ -387,12 +387,12 @@ export interface AdaptiveRespirationState {
 }
 
 /**
- * Four-Gear Adaptive Respiration Engine:
- * Replaces fixed mechanical polling with natural biological damping:
- * 1. SURGE (5s): Anomaly or gate violation detected, rapid self-healing
- * 2. GROWTH (15s): Active milestone delivery or pending asset generation
- * 3. CRUISE (30s): All 7 gates 100% green, balanced rhythmic breathing
- * 4. REST (45s): Extended clean streak, restorative negative space
+ * High-Velocity Adaptive Respiration Engine:
+ * Tightened for continuous live autonomous execution:
+ * 1. SURGE (2s): Rapid self-healing on errors
+ * 2. GROWTH (5s): Active milestone delivery & asset generation
+ * 3. CRUISE (8s): Rhythmic steady-state verification
+ * 4. REST (10s): Restorative cadence (capped at 10s max)
  */
 export function computeAdaptiveRespiration(options: {
   hasErrors?: boolean;
@@ -402,16 +402,16 @@ export function computeAdaptiveRespiration(options: {
   if (options.hasErrors) {
     return {
       gear: "SURGE",
-      delaySeconds: 5,
-      reason: "🔴 [SURGE]: Anomaly detected. Executing rapid remediation loop (5s cadence).",
+      delaySeconds: 2,
+      reason: "🔴 [SURGE]: Anomaly detected. Executing rapid remediation loop (2s cadence).",
     };
   }
 
   if (options.hasActiveWork) {
     return {
       gear: "GROWTH",
-      delaySeconds: 15,
-      reason: "🟡 [GROWTH]: Active milestone progression & flywheel sedimentation (15s cadence).",
+      delaySeconds: 5,
+      reason: "🟡 [GROWTH]: Active milestone progression & flywheel sedimentation (5s cadence).",
     };
   }
 
@@ -419,15 +419,15 @@ export function computeAdaptiveRespiration(options: {
   if (streak >= 3) {
     return {
       gear: "REST",
-      delaySeconds: 45,
-      reason: `⚪ [REST]: Ecosystem pristine for ${streak} consecutive ticks. Restorative cadence (45s).`,
+      delaySeconds: 10,
+      reason: `⚪ [REST]: Ecosystem pristine for ${streak} consecutive ticks. Fast rest cadence (10s).`,
     };
   }
 
   return {
     gear: "CRUISE",
-    delaySeconds: 30,
-    reason: "🟢 [CRUISE]: All 7 quality gates green. Balanced cruise cadence (30s).",
+    delaySeconds: 8,
+    reason: "🟢 [CRUISE]: All 7 quality gates green. Cruise cadence (8s).",
   };
 }
 
