@@ -1,41 +1,61 @@
-# AGENTS.md
+# Plugin Domain Repository
 
-Fact standard for Grok command line, Jules, Cloud Agent, agy, and Cursor.
-Chat memory is not the source of truth.
+Private Canonical Domain Repository: **https://github.com/MentalCraft-LLC/Plugin**
+GitHub (`MentalCraft-LLC/Plugin`) is the single source of truth.
 
-Private repo: https://github.com/MentalCraft-LLC/Plugin
+---
 
-## Law
+## 🏛️ Domain Mandate & Role
+**MCP Protocol Engines, Headless Browser Automation (CDP) & Autonomous DAG Workflows**
 
-This file is law for every harness. If a later instruction in chat conflicts with this file, this file wins until a pull request changes it.
+This repository is an autonomous constituent of the **5-Domain Canonical Ecosystem** under MentalCraft-LLC.
 
-## Modules
+### 🌐 The 5 Canonical Domain Repositories
+| Domain | Canonical GitHub Remote | Role in Ecosystem |
+| :--- | :--- | :--- |
+| **`Business`** | https://github.com/MentalCraft-LLC/Business | Commercial Ventures, Applications, Monetization & Billing Services |
+| **`Design`** | https://github.com/MentalCraft-LLC/Design | Single-word Svelte 5 Runes Components & OKLCH Design Token System |
+| **`Content`** | https://github.com/MentalCraft-LLC/Content | Creative Lore, 15-Beat Narratives & Psychological Conversion Copy |
+| **`Plugin`** | https://github.com/MentalCraft-LLC/Plugin | MCP Protocol Engines, CDP Browser Automation & Compound Workflows |
+| **`Science`** | https://github.com/MentalCraft-LLC/Science | Computational Social Science, Empirical Manuscripts, Grants & Patents |
 
-| Directory | Responsibility |
-|---|---|
-| `Browser/` | Manifest V3 extension, native messaging host (`host.mjs`), live DOM disassembly, Clarity/GA4 secret capture |
-| `Design/` | Design system intelligence, Svelte 5 runes UI generation, OKLCH token export, Duotone print renderers |
-| `Business/` | 8-stage commercial venture lifecycle engine, SpriteFlow MRR projection, pSEO matrix, unit economics |
-| `Science/` | 8-stage academic lifecycle engine, CSS empirics (DID, NLP, ABM), LaTeX scaffold, grant MTDC, patent claims |
-| `Workflow/` | Compound multi-plugin pipelines, latency/throughput benchmark suite, OpenRPC/OpenAPI spec exporters |
-| `Message/` | Multi-channel communication engine (Telegram bot webhook/polling, iMessage AppleEvents, Gmail API) |
-| `Secret/` | Atomic 0600 secure file write primitives & multi-vault secret manager |
+---
 
-## Workers
+## 🌀 Pentagonal Interlocking Flywheel Contract (20-Channel Network)
 
-| Worker | Writes | Ship as |
-|---|---|---|
-| Jules | User-facing copy | Own pull request on a free module |
-| Grok command line | All other code | Pull request |
+This repository operates strictly within a bidirectional compounding flywheel. **Unidirectional resource extraction is forbidden.**
 
-| Rule | Value |
-|---|---|
-| Model | Newest per worker |
-| Scope | One worker per module directory (`Browser`, `Design`, `Business`, `Science`, `Workflow`, `Message`, `Secret`) |
-| Isolation | Never Jules and Grok on the same module |
-| Git | Workers open a pull request. Never push to `main`. Merge only after review. |
+### 📥 Inputs Consumed from Other Domains:
+- **Business**:  Repetitive commercial operational flows (SEO audits, Stripe checks, domain health)
+- **Design**:  Component specifications, token ASTs, and layout contract verification criteria
+- **Content**:  Structured copywriting recipes, narrative curve beats, and prompt topologies
+- **Science**:  Psychometric calculation formulas, crisis safety guardrails, and DOI/literature schemas
 
-## Rules
+### 📤 Outputs Delivered to Other Domains:
+- **To Business**:  Autonomous venture lifecycle telemetry, automated SEO keyword discovery, and Stripe monitoring
+- **To Design**:  Automated UI generation, component schema validation, and headless CDP visual regression gates
+- **To Content**:  High-throughput viral hook pipelines, batch keyword matrices, and multi-channel dispatch bots
+- **To Science**:  Automated literature search, BibTeX validation, journal IF matching, and patent novelty checkers
 
-- Work only under this tree.
-- Validate changes locally using `bun test`.
+---
+
+## ⚖️ Non-Negotiable Core Governance Laws
+
+1. **Five Canonical Domains Mutual Flywheel Law (一级目录五维互为飞轮法则)**:
+   All 5 canonical domains form a fully connected $K_5$ directed graph (20 momentum channels). Every domain must continuously consume from and feedback into the other 4 domains. Verified via `bun .agents/scripts/check-flywheel.ts`.
+2. **Minimalism, Restraint, and Negative Space Law (极简 · 克制 · 留白法则)**:
+   Form strictly serves function. Neutral canvas base with single-hue strategic accent, Swiss typographic scale, zero emojis, zero screaming copy, and generous negative space.
+3. **Product Page-Layer Only Law (产品纯 Page 层消费法则)**:
+   All product interfaces MUST compose canonical Page-level components from `@mentalcraft/design-svelte` (`<Landing>`, `<Workspace>`, `<Desktop>`, `<Navigation>`, `<Assessment>`, `<Dashboard>`, `<Settings>`). Ad-hoc base components and raw unstyled inputs are strictly prohibited.
+4. **Browser Empirical Visual Grounding Law (浏览器实证视觉验收法则)**:
+   Code changes must be verified not just with automated tests, but with visual empirical grounding using the `browser` toolchain (full-page screenshots, viewport emulation, and 60fps interaction recordings).
+5. **Zero Git-Ignore of Domain Agents**:
+   The `.agents/` directory inside this repository must remain tracked in git so that cloud agents (Cursor Cloud, Jules, Grok, GitHub Actions) possess full operational skills upon checkout.
+
+---
+
+## 🚀 Execution & Delivery Protocols
+
+- **Local Development**: Push directly to `origin main`.
+- **Cloud Agent**: Open branch + Pull Request (Cloud cannot assume solo main pushes).
+- **Verification**: Run local tests and linters before committing (`bun test`, `bun run check`).
