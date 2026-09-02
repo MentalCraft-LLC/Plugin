@@ -80,18 +80,25 @@ async function callTelegram(
   body: Record<string, unknown>,
   fetchImpl: typeof fetch = fetch,
 ): Promise<{ ok: boolean; result?: unknown; error?: string }> {
-  try {
-    const response = await fetchImpl(`${TELEGRAM_API}/bot${token}/${method}`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (!response.ok) return { ok: false, error: `telegram_http_${response.status}` };
-    const data = (await response.json()) as { ok?: boolean; result?: unknown; description?: string };
-    return data.ok === true ? { ok: true, result: data.result } : { ok: false, error: "telegram_api_rejected" };
-  } catch {
-    return { ok: false, error: "telegram_unavailable" };
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const response = await fetchImpl(`${TELEGRAM_API}/bot${token}/${method}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!response.ok) return { ok: false, error: `telegram_http_${response.status}` };
+      const data = (await response.json()) as { ok?: boolean; result?: unknown; description?: string };
+      return data.ok === true ? { ok: true, result: data.result } : { ok: false, error: "telegram_api_rejected" };
+    } catch {
+      if (attempt === 0) {
+        await new Promise((r) => setTimeout(r, 400));
+        continue;
+      }
+      return { ok: false, error: "telegram_unavailable" };
+    }
   }
+  return { ok: false, error: "telegram_unavailable" };
 }
 
 /** Send message directly to owner without agent or session restrictions */
@@ -155,7 +162,7 @@ export async function telegramPoll(
   const result = await callTelegram(
     config.token,
     "getUpdates",
-    { offset, limit: TELEGRAM_UPDATE_LIMIT, timeout: 5 },
+    { offset, limit: TELEGRAM_UPDATE_LIMIT, timeout: 0 },
     fetchImpl,
   );
   if (!result.ok) return { ok: false, count: 0, replies: [], messages: [], error: result.error };

@@ -546,6 +546,7 @@ export async function advanceAutopilotCycle(
   try {
     const poll = await telegramPoll();
     if (poll.ok && poll.count > 0) {
+      console.log(`\n💬 [Telegram Inbound Received]: ${poll.count} message(s):`, JSON.stringify(poll.replies));
       tgInbounds.push(...poll.replies);
       checkpoint.lastInboundTelegram = tgInbounds;
       for (const msg of tgInbounds) {
@@ -563,7 +564,9 @@ export async function advanceAutopilotCycle(
         }
       }
     }
-  } catch {}
+  } catch (err: any) {
+    console.warn(`[Telegram Inbound Error]:`, err?.message || err);
+  }
 
   let objIdx = checkpoint.activeObjectiveIndex ?? 0;
   if (objIdx >= AUTOPILOT_OBJECTIVES.length) {
