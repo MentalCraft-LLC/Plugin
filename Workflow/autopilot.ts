@@ -389,10 +389,10 @@ export interface AdaptiveRespirationState {
 /**
  * Four-Gear Adaptive Respiration Engine:
  * Replaces fixed mechanical polling with natural biological damping:
- * 1. SURGE (10s): Anomaly or gate violation detected, rapid self-healing
- * 2. GROWTH (30s): Active milestone delivery or pending asset generation
- * 3. CRUISE (60s): All 7 gates 100% green, balanced rhythmic breathing
- * 4. REST (300s): Extended clean streak, restorative negative space
+ * 1. SURGE (5s): Anomaly or gate violation detected, rapid self-healing
+ * 2. GROWTH (15s): Active milestone delivery or pending asset generation
+ * 3. CRUISE (30s): All 7 gates 100% green, balanced rhythmic breathing
+ * 4. REST (45s): Extended clean streak, restorative negative space
  */
 export function computeAdaptiveRespiration(options: {
   hasErrors?: boolean;
