@@ -48,6 +48,7 @@ export type WorkflowId =
   | "zero_cost_bootstrap_engine"
   | "automated_revenue_monitor"
   | "design_system_audit_pipeline"
+  | "product_iteration_lifecycle"
   | (string & {});
 
 export type WorkflowStep = {
@@ -466,6 +467,20 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
       { step: 5, plugin: "browser", action: "responsive_matrix_linter", description: "Lint responsive layout across 8 viewport breakpoints from 375px mobile to 4K ultra-wide." },
       { step: 6, plugin: "browser", action: "web_vitals_radar", description: "Verify sub-50ms Long Animation Frame (LoAF) smoothness and zero cumulative layout shift (CLS)." },
       { step: 7, plugin: "message", action: "send", description: "Dispatch holistic 5-pillar product excellence certification package.", parameters: { text: "Full-Stack Product Excellence Master Pipeline Certified." } },
+    ],
+  },
+  {
+    id: "product_iteration_lifecycle",
+    name: "Standard 6-Stage Product Iteration Lifecycle (Sprint OS)",
+    description: "Holistic 6-stage product iteration pipeline: Gap Discovery (Monica/Manus benchmark) ➔ Single-Word & 12 Virtues Spec ➔ Clean Svelte 5 / Token Build ➔ Empirical Dual Verification (0 warning / 7 gates) ➔ Flywheel Compounding ➔ Autonomous Next Sprint Transition.",
+    requiredPlugins: ["business", "design", "browser", "content", "workflow"],
+    steps: [
+      { step: 1, plugin: "business", action: "venture_market_validation", description: "Stage 1 (Discovery): Analyze conversion leaks, audit benchmark gaps (Monica/Manus), and pinpoint single high-impact focus for current sprint." },
+      { step: 2, plugin: "design", action: "audit_ui", description: "Stage 2 (Spec): Validate Single-Word Parent Component Law and Twelve Universal Ecosystem Virtues, establishing clean input/output contracts." },
+      { step: 3, plugin: "design", action: "generate_ui", description: "Stage 3 (Build): Implement minimal viable deliverable using Svelte 5 runes, OKLCH canonical tokens, and end-to-end business routing." },
+      { step: 4, plugin: "browser", action: "inspect_element", description: "Stage 4 (Verify): Execute empirical dual verification via svelte-check (0 error, 0 warning) and the 7 master quality gates (100% pass)." },
+      { step: 5, plugin: "business", action: "venture_monetization_telemetry", description: "Stage 5 (Compound): Sediment telemetry tracking, promote reusable UI into Design system, and feed empirical evidence to Science." },
+      { step: 6, plugin: "workflow", action: "autopilot_step", description: "Stage 6 (Next Sprint): Autonomously seed completed artifacts as input to immediately trigger and advance the subsequent product sprint." },
     ],
   },
 ];

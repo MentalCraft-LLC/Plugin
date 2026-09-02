@@ -629,6 +629,25 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "sprint":
+    case "iterate": {
+      const vName = args.find((a) => a.startsWith("--venture="))?.split("=")[1] || "MentalCraft";
+      console.log(`\n🚀 Executing Standard 6-Stage Product Iteration Lifecycle for [${vName}]...\n` + "=".repeat(75));
+      const res = await workflowOperation({
+        action: "run_workflow",
+        workflow_id: "product_iteration_lifecycle",
+        parameters: { venture: vName },
+      });
+      const data = res.data as any;
+      console.log(`\n✅ Product Iteration Sprint Complete (Execution Latency: ${data.durationMs}ms)`);
+      console.log(`Pipeline Status: ${data.success ? "🟢 PASS" : "🔴 FAIL"} | Total Steps: ${data.stepsCount}`);
+      data.stepResults?.forEach((s: any) => {
+        console.log(`  Stage ${s.step} [${s.plugin}:${s.action}]: ${s.success ? "🟢 PASS" : "🔴 FAIL"} (${s.durationMs}ms)`);
+      });
+      console.log("=".repeat(75) + "\n");
+      break;
+    }
+
     case "serve": {
       const httpFlag = args.includes("--http");
       const portArg = args.find((a) => a.startsWith("--port="));
@@ -663,6 +682,7 @@ Commands:
   benchmark, bench         Run P50/P90/P99 latency & ops/sec benchmark suite
   metrics, telemetry       Show live telemetry & circuit breaker status
   autopilot [step|status|cron] Run autonomous goal self-advancement cycle
+  sprint, iterate          Execute standard 6-stage product iteration lifecycle
   repl, i                  Launch interactive developer REPL shell
   exec <p> <a> [d]         Execute an action on a plugin directly
   serve [--http] [--port]  Launch master MCP server (Stdio or HTTP/SSE)

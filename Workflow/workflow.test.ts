@@ -809,6 +809,22 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(log).toContain("System Health: 100/100");
     expect(log).toContain("HEALTHY");
   });
+
+  test("product_iteration_lifecycle workflow is registered and adheres to the 6-stage Sprint OS", async () => {
+    const res = await workflowOperation({ action: "list_workflows" });
+    expect(res.success).toBe(true);
+    const workflows = (res.data as any).workflows;
+    const iterationWf = workflows.find((w: any) => w.id === "product_iteration_lifecycle");
+    expect(iterationWf).toBeDefined();
+    expect(iterationWf.name).toContain("Standard 6-Stage Product Iteration Lifecycle");
+    expect(iterationWf.steps.length).toBe(6);
+    expect(iterationWf.steps[0].action).toBe("venture_market_validation");
+    expect(iterationWf.steps[1].action).toBe("audit_ui");
+    expect(iterationWf.steps[2].action).toBe("generate_ui");
+    expect(iterationWf.steps[3].action).toBe("inspect_element");
+    expect(iterationWf.steps[4].action).toBe("venture_monetization_telemetry");
+    expect(iterationWf.steps[5].action).toBe("autopilot_step");
+  });
 });
 
 
