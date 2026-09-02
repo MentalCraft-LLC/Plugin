@@ -134,25 +134,25 @@ describe("MentalCraft $10,000 MRR 5-Pillar Autopilot Engine", () => {
     // 1. SURGE on error
     const surge = computeAdaptiveRespiration({ hasErrors: true });
     expect(surge.gear).toBe("SURGE");
-    expect(surge.delaySeconds).toBe(10);
+    expect(surge.delaySeconds).toBe(5);
     expect(surge.reason).toContain("🔴 [SURGE]");
 
     // 2. GROWTH on active work
     const growth = computeAdaptiveRespiration({ hasActiveWork: true });
     expect(growth.gear).toBe("GROWTH");
-    expect(growth.delaySeconds).toBe(30);
+    expect(growth.delaySeconds).toBe(15);
     expect(growth.reason).toContain("🟡 [GROWTH]");
 
     // 3. CRUISE on initial clean state
     const cruise = computeAdaptiveRespiration({ idleStreak: 0 });
     expect(cruise.gear).toBe("CRUISE");
-    expect(cruise.delaySeconds).toBe(60);
+    expect(cruise.delaySeconds).toBe(30);
     expect(cruise.reason).toContain("🟢 [CRUISE]");
 
     // 4. REST on extended clean streak
     const rest = computeAdaptiveRespiration({ idleStreak: 5 });
     expect(rest.gear).toBe("REST");
-    expect(rest.delaySeconds).toBe(300);
+    expect(rest.delaySeconds).toBe(45);
     expect(rest.reason).toContain("⚪ [REST]");
   });
 });

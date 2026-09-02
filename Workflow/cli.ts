@@ -579,7 +579,7 @@ async function mainCommand(cmd: string) {
       } else if (sub === "daemon" || sub === "loop" || sub === "forever") {
         const { computeAdaptiveRespiration } = require("./autopilot.ts");
         console.log(`\n♾️ Starting Four-Gear Adaptive Autopilot Daemon for [${vName}] (Target: $${targetMrr.toLocaleString()} MRR)...\n` + "=".repeat(70));
-        console.log("Adaptive Respiration: SURGE (10s) | GROWTH (30s) | CRUISE (60s) | REST (300s)\n");
+        console.log("Adaptive Respiration: SURGE (5s) | GROWTH (15s) | CRUISE (30s) | REST (45s)\n");
         let cycle = 1;
         let idleStreak = 0;
         while (true) {

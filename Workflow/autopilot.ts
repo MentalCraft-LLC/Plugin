@@ -402,16 +402,16 @@ export function computeAdaptiveRespiration(options: {
   if (options.hasErrors) {
     return {
       gear: "SURGE",
-      delaySeconds: 10,
-      reason: "🔴 [SURGE]: Anomaly detected. Executing rapid remediation loop (10s cadence).",
+      delaySeconds: 5,
+      reason: "🔴 [SURGE]: Anomaly detected. Executing rapid remediation loop (5s cadence).",
     };
   }
 
   if (options.hasActiveWork) {
     return {
       gear: "GROWTH",
-      delaySeconds: 30,
-      reason: "🟡 [GROWTH]: Active milestone progression & flywheel sedimentation (30s cadence).",
+      delaySeconds: 15,
+      reason: "🟡 [GROWTH]: Active milestone progression & flywheel sedimentation (15s cadence).",
     };
   }
 
@@ -419,15 +419,15 @@ export function computeAdaptiveRespiration(options: {
   if (streak >= 3) {
     return {
       gear: "REST",
-      delaySeconds: 300,
-      reason: `⚪ [REST]: Ecosystem pristine for ${streak} consecutive ticks. Entering restorative breathing (300s cadence).`,
+      delaySeconds: 45,
+      reason: `⚪ [REST]: Ecosystem pristine for ${streak} consecutive ticks. Restorative cadence (45s).`,
     };
   }
 
   return {
     gear: "CRUISE",
-    delaySeconds: 60,
-    reason: "🟢 [CRUISE]: All 7 quality gates green. Maintaining balanced negative space (60s cadence).",
+    delaySeconds: 30,
+    reason: "🟢 [CRUISE]: All 7 quality gates green. Balanced cruise cadence (30s).",
   };
 }
 
