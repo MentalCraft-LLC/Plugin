@@ -99,8 +99,8 @@ export async function telegramSend(
   // OWN bot (assigned_session match in the 0600 bots store) — never a fixed
   // business token — so every bot speaks with its own identity in the group.
   // Fall back to the default private chat when no bot identity resolves.
-  const target = await resolveReplyTarget(fetchImpl);
-  const sessionBot = await resolveSessionBot();
+  const target = await resolveReplyTarget(fetchImpl).catch(() => null);
+  const sessionBot = await resolveSessionBot().catch(() => null);
   // Session's OWN bot speaks first (Owner 2026-08-16: every session uses its
   // own bot identity in the group) — inbound-reply target only fills in when
   // no session bot resolves, so the group never sees a business-bot voice.
