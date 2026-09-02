@@ -19,9 +19,7 @@ const SOCKET_PATH = resolve(LOCAL_DIR, "control.sock");
 const TOKEN_PATH = resolve(LOCAL_DIR, "pairing-token");
 const ANALYTICS_CONFIG = resolve(homedir(), ".config/holar/analytics/config.json");
 const GSC_CONFIG = process.env.GSC_CONFIG_PATH
-  || (existsSync(resolve(homedir(), ".config/holar/gsc.json"))
-      ? resolve(homedir(), ".config/holar/gsc.json")
-      : resolve(homedir(), ".pi/agent/gsc/config.json"));
+  || resolve(homedir(), ".config/holar/gsc.json");
 const WORKSPACE = resolve(process.env.HOLAR_BROWSER_WORKSPACE || process.cwd());
 const ANALYTICS_AUTHORITY = resolve(WORKSPACE, ".governance/contract/analytics.json");
 const SENSITIVE_KEY = /^(?:secret|token|password|credential|private[_-]?key|cookies?|session|authorization|value|access[_-]?token|refresh[_-]?token)$/i;

@@ -32,9 +32,8 @@ const temporary: string[] = [];
 const SESSION_ENV_KEYS = [
   "HOLAR_SESSION_ID",
   "HOLAR_SESSION_NAME",
-  "GROK_SESSION_ID",
-  "PI_SESSION_ID",
-  "PI_SESSION_NAME",
+  "SESSION_ID",
+  "SESSION_NAME",
   "HOLAR_BROWSER_SESSION",
 ] as const;
 
@@ -533,7 +532,7 @@ describe("Browser Context Extension", () => {
     });
     await new Promise<void>((resolvePromise) => server.listen(socketPath, resolvePromise));
     const client = new BrowserClient(socketPath, tokenPath, 2_000);
-    const restore = replaceSessionEnv({ PI_SESSION_ID: "019fbb8b-b830-7c04-8828-3faf44f1cd03" });
+    const restore = replaceSessionEnv({ HOLAR_SESSION_ID: "019fbb8b-b830-7c04-8828-3faf44f1cd03" });
     let result: unknown;
     try {
       result = await client.request(
@@ -560,7 +559,7 @@ describe("Browser Context Extension", () => {
     await new Promise<void>((resolvePromise) => server.close(() => resolvePromise()));
   });
 
-  test("names concurrent Sessions from GROK_SESSION_ID when Pi id is absent", async () => {
+  test("names concurrent Sessions from SESSION_ID when default is absent", async () => {
     const root = temp();
     const socketPath = join(root, "control.sock");
     const tokenPath = join(root, "pairing-token");
@@ -580,7 +579,7 @@ describe("Browser Context Extension", () => {
     });
     await new Promise<void>((resolvePromise) => server.listen(socketPath, resolvePromise));
     const client = new BrowserClient(socketPath, tokenPath, 2_000);
-    const restore = replaceSessionEnv({ GROK_SESSION_ID: "01a013b7-1a0b-7f83-a851-ed6ac3ecde4a" });
+    const restore = replaceSessionEnv({ SESSION_ID: "01a013b7-1a0b-7f83-a851-ed6ac3ecde4a" });
     try {
       await client.request({ protocol: PROTOCOL, action: "status" });
     } finally {

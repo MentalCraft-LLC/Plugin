@@ -699,7 +699,7 @@ export async function executeBenchmark(options: {
 } = {}): Promise<BenchmarkSuiteResult> {
   const iterations = options.iterations ?? 150;
   const warmup = options.warmupIterations ?? 10;
-  const allowedSubsystems = new Set(options.subsystems ?? ["business", "science", "content", "design", "workflow", "browser", "message"]);
+  const allowedSubsystems = new Set(options.subsystems ?? ["business", "science", "content", "design", "workflow", "browser", "message", "secret"]);
 
   const targets: Array<{
     subsystem: PluginId;
@@ -917,6 +917,22 @@ export async function executeBenchmark(options: {
     );
   }
 
+  if (allowedSubsystems.has("secret")) {
+    const { atomicWriteSecret } = await import("../Secret/write.ts");
+    const { join } = await import("node:path");
+    const tmpFile = join(import.meta.dir, "../Secret/.bench-tmp.json");
+    targets.push(
+      {
+        subsystem: "secret",
+        action: "atomic_0600_write",
+        label: "Secret: atomic_0600_write (POSIX 0600 atomicity)",
+        fn: async () => {
+          atomicWriteSecret(tmpFile, `{"bench":${Date.now()}}`);
+        },
+      }
+    );
+  }
+
   const resultsBySubsystem: Record<string, SubsystemBenchmarkResult[]> = {};
   const allResults: SubsystemBenchmarkResult[] = [];
   const suiteT0 = performance.now();
@@ -967,6 +983,12 @@ export async function executeBenchmark(options: {
     resultsBySubsystem[t.subsystem].push(resItem);
     allResults.push(resItem);
   }
+
+  try {
+    const { rmSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    rmSync(join(import.meta.dir, "../Secret/.bench-tmp.json"), { force: true });
+  } catch {}
 
   const suiteDurationMs = Math.round((performance.now() - suiteT0) * 100) / 100;
   const totalIterations = allResults.reduce((sum, r) => sum + r.iterations, 0);

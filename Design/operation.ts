@@ -190,8 +190,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       if (intent === "marketing_hero") {
         requiredImports = ["Hero", "Button", "Card"];
         code = `<script lang="ts">
-  import { Hero, Button, Card } from "infra-ui-svelte";
-  import "infra-ui-svelte/styles.css";
+  import { Hero, Button, Card } from "@mentalcraft/design-svelte";
+  import "@mentalcraft/design-svelte/styles.css";
 
   let { title = "Measure what matters, effortlessly", subtitle = "Send anonymous, clinically-validated screening links to clients in seconds." } = $props();
 </script>
@@ -207,8 +207,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       } else if (intent === "auth_form") {
         requiredImports = ["Card", "Input", "Button"];
         code = `<script lang="ts">
-  import { Card, Input, Button } from "infra-ui-svelte";
-  import "infra-ui-svelte/styles.css";
+  import { Card, Input, Button } from "@mentalcraft/design-svelte";
+  import "@mentalcraft/design-svelte/styles.css";
 
   let email = $state("");
   let busy = $state(false);
@@ -245,8 +245,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       } else if (intent === "screener") {
         requiredImports = ["Screener"];
         code = `<script lang="ts">
-  import { Screener } from "infra-ui-svelte";
-  import "infra-ui-svelte/styles.css";
+  import { Screener } from "@mentalcraft/design-svelte";
+  import "@mentalcraft/design-svelte/styles.css";
 
   let { quotaUsed = 3, quotaTotal = 10, pro = false } = $props();
 </script>
@@ -262,8 +262,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       } else if (intent === "pricing_table") {
         requiredImports = ["Pricing", "Card", "Button"];
         code = `<script lang="ts">
-  import { Pricing } from "infra-ui-svelte";
-  import "infra-ui-svelte/styles.css";
+  import { Pricing } from "@mentalcraft/design-svelte";
+  import "@mentalcraft/design-svelte/styles.css";
 
   const plans = [
     {
@@ -291,8 +291,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       } else if (intent === "ecommerce_pdp") {
         requiredImports = ["Card", "Button", "Badge"];
         code = `<script lang="ts">
-  import { Card, Button, Badge } from "infra-ui-svelte";
-  import "infra-ui-svelte/styles.css";
+  import { Card, Button, Badge } from "@mentalcraft/design-svelte";
+  import "@mentalcraft/design-svelte/styles.css";
 
   // Product specification and variant options
   const product = {
@@ -503,8 +503,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       } else if (intent === "ecommerce_checkout") {
         requiredImports = ["Drawer", "Card", "Button", "Input", "Badge"];
         code = `<script lang="ts">
-  import { Drawer, Card, Button, Input, Badge } from "infra-ui-svelte";
-  import "infra-ui-svelte/styles.css";
+  import { Drawer, Card, Button, Input, Badge } from "@mentalcraft/design-svelte";
+  import "@mentalcraft/design-svelte/styles.css";
 
   // Cart item types and initial state
   type CartItem = {
@@ -720,8 +720,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       } else if (intent === "academic_manuscript_viewer") {
         requiredImports = ["Card", "Badge", "Button", "Chart"];
         code = `<script lang="ts">
-  import { Card, Badge, Button, Chart } from "infra-ui-svelte";
-  import "infra-ui-svelte/styles.css";
+  import { Card, Badge, Button, Chart } from "@mentalcraft/design-svelte";
+  import "@mentalcraft/design-svelte/styles.css";
 
   // Academic Manuscript Metadata
   const manuscript = {
@@ -913,8 +913,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       } else if (intent === "venture_telemetry_dashboard") {
         requiredImports = ["Card", "Chart", "Badge", "Button"];
         code = `<script lang="ts">
-  import { Card, Chart, Badge, Button } from "infra-ui-svelte";
-  import "infra-ui-svelte/styles.css";
+  import { Card, Chart, Badge, Button } from "@mentalcraft/design-svelte";
+  import "@mentalcraft/design-svelte/styles.css";
 
   // Venture SaaS Telemetry Data
   const telemetry = {
@@ -1142,8 +1142,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       } else if (intent === "kanban_board") {
         requiredImports = ["Card", "Badge", "Button"];
         code = `<script lang="ts">
-  import { Card, Badge, Button } from "infra-ui-svelte";
-  import "infra-ui-svelte/styles.css";
+  import { Card, Badge, Button } from "@mentalcraft/design-svelte";
+  import "@mentalcraft/design-svelte/styles.css";
 
   // Task Kanban State with Svelte 5 Runes
   let columns = $state([
@@ -1227,8 +1227,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       } else if (intent === "terminal_cli") {
         requiredImports = ["Card", "Badge", "Button"];
         code = `<script lang="ts">
-  import { Card, Badge, Button } from "infra-ui-svelte";
-  import "infra-ui-svelte/styles.css";
+  import { Card, Badge, Button } from "@mentalcraft/design-svelte";
+  import "@mentalcraft/design-svelte/styles.css";
 
   let lines = $state([
     { text: "$ agy --version", type: "command" },
@@ -1290,8 +1290,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       } else if (intent === "command_palette_modal") {
         requiredImports = ["Dialog", "Input", "Badge", "Kbd"];
         code = `<script lang="ts">
-  import { Dialog, Input, Badge } from "infra-ui-svelte";
-  import "infra-ui-svelte/styles.css";
+  import { Dialog, Input, Badge } from "@mentalcraft/design-svelte";
+  import "@mentalcraft/design-svelte/styles.css";
 
   let open = $state(true);
   let searchQuery = $state("");
@@ -1340,8 +1340,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       } else if (intent === "design_engineering_showcase") {
         requiredImports = ["Blueprint", "Ruler", "Swatch", "Slider", "Comparison", "Button", "Card"];
         code = `<script lang="ts">
-  import { Blueprint, Ruler, Swatch, Slider, Comparison, Button, Card } from "infra-ui-svelte";
-  import "infra-ui-svelte/styles.css";
+  import { Blueprint, Ruler, Swatch, Slider, Comparison, Button, Card } from "@mentalcraft/design-svelte";
+  import "@mentalcraft/design-svelte/styles.css";
 
   let boxWidth = $state(260);
   let liveColor = $state("oklch(0.991 0 0)");
@@ -1419,8 +1419,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       } else if (intent === "essay_humanizer_workbench") {
         requiredImports = ["Card", "Button", "Badge", "Comparison", "Tabs"];
         code = `<script lang="ts">
-  import { Card, Button, Badge, Comparison, Tabs } from "infra-ui-svelte";
-  import "infra-ui-svelte/styles.css";
+  import { Card, Button, Badge, Comparison, Tabs } from "@mentalcraft/design-svelte";
+  import "@mentalcraft/design-svelte/styles.css";
 
   let inputText = $state("Furthermore, this research demonstrates that artificial intelligence algorithms possess substantial capabilities in optimizing complex workflows.");
   let outputText = $state("This study reveals how machine learning systems streamline intricate tasks with remarkable speed and precision.");
@@ -1527,8 +1527,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       } else if (intent === "essay_detector_radar") {
         requiredImports = ["Card", "Button", "Badge"];
         code = `<script lang="ts">
-  import { Card, Button, Badge } from "infra-ui-svelte";
-  import "infra-ui-svelte/styles.css";
+  import { Card, Button, Badge } from "@mentalcraft/design-svelte";
+  import "@mentalcraft/design-svelte/styles.css";
 
   let sampleText = $state("In conclusion, the overarching ramifications of modern digital transformation can be observed across every stratum of society.");
   let overallScore = $state(88);
@@ -1587,8 +1587,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       } else {
         requiredImports = ["Card", "Button"];
         code = `<script lang="ts">
-  import { Card, Button } from "infra-ui-svelte";
-  import "infra-ui-svelte/styles.css";
+  import { Card, Button } from "@mentalcraft/design-svelte";
+  import "@mentalcraft/design-svelte/styles.css";
 </script>
 
 <Card padding="md">
@@ -1605,7 +1605,7 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
         data: {
           intent,
           requiredImports,
-          importStatement: `import { ${requiredImports.join(", ")} } from 'infra-ui-svelte';\nimport 'infra-ui-svelte/styles.css';`,
+          importStatement: `import { ${requiredImports.join(", ")} } from '@mentalcraft/design-svelte';\nimport '@mentalcraft/design-svelte/styles.css';`,
           svelteSnippet: code,
         },
       };
@@ -1626,7 +1626,7 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       // Check for raw HTML button usage (lowercase tag only, not Svelte <Button)
       if (/<button\b(?![^>]*class=["'][^"']*infra)/.test(code)) {
         diagnostics.push("Found raw HTML <button> element without design system variant styling.");
-        suggestions.push("Use <Button variant='primary|secondary|ghost|line'> from 'infra-ui-svelte' for consistent focus rings, tactile press states, and A11y.");
+        suggestions.push("Use <Button variant='primary|secondary|ghost|line'> from '@mentalcraft/design-svelte' for consistent focus rings, tactile press states, and A11y.");
       }
 
       // Check for raw input without label (lowercase tag only, not Svelte <Input)
@@ -1765,7 +1765,7 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
       const monolithicSizeKb = 95.0;
       const savingsPct = Math.round(((monolithicSizeKb - totalSizeKb) / monolithicSizeKb) * 100);
 
-      const barrelStatement = `import { ${matched.map((m) => m.name).join(", ")} } from 'infra-ui-svelte';`;
+      const barrelStatement = `import { ${matched.map((m) => m.name).join(", ")} } from '@mentalcraft/design-svelte';`;
       const subpathStatements = matched
         .map((m) => `import ${m.name} from '${m.subpath}';`)
         .join("\n");
@@ -1846,8 +1846,8 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
         };
       }
 
-      // Check for monolithic import { ... } from "infra-ui-svelte"
-      const barrelRegex = /import\s*\{([^}]+)\}\s*from\s*["']infra-ui-svelte["'];?/;
+      // Check for monolithic import { ... } from "@mentalcraft/design-svelte"
+      const barrelRegex = /import\s*\{([^}]+)\}\s*from\s*["']@mentalcraft\/design-svelte["'];?/;
       const match = code.match(barrelRegex);
 
       if (!match) {
@@ -1858,7 +1858,7 @@ export async function designOperation(input: DesignInput): Promise<DesignResult>
           timestamp,
           data: {
             optimized: false,
-            message: "No monolithic 'infra-ui-svelte' barrel import found to refactor.",
+            message: "No monolithic '@mentalcraft/design-svelte' barrel import found to refactor.",
             code,
           },
         };

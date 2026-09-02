@@ -1,4 +1,3 @@
-#!/usr/bin/env bun
 import { closeSync, existsSync, lstatSync, mkdirSync, openSync, readSync, statSync, unwatchFile, watchFile } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, resolve } from "node:path";
@@ -57,7 +56,10 @@ function drain() {
   for (const line of buffer.toString("utf8").split("\n")) {
     if (!line.trim()) continue;
     const event = ownerMonitorLine(line);
-    if (event) process.stdout.write(event);
+    if (event) {
+      if (typeof Bun !== "undefined") Bun.write(Bun.stdout, event);
+      else process.stdout.write(event);
+    }
   }
 }
 
@@ -79,8 +81,12 @@ function stopWatch() {
 }
 
 function tick() {
-  if (nativeHostOpen()) startWatch();
-  else stopWatch();
+  if (nativeHostOpen()) {
+    startWatch();
+    try { drain(); } catch {}
+  } else {
+    stopWatch();
+  }
 }
 
 tick();

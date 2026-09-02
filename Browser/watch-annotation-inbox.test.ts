@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { appendFileSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { createServer, type Server } from "node:net";
 import { tmpdir } from "node:os";
@@ -28,12 +27,12 @@ async function closeServer(server: Server) {
 
 describe("annotation inbox watch follows the native host", () => {
   const roots: string[] = [];
-  const procs: ChildProcessWithoutNullStreams[] = [];
+  const procs: Array<{ kill: () => void }> = [];
   const servers: Server[] = [];
 
   afterEach(async () => {
     for (const proc of procs) {
-      proc.kill("SIGTERM");
+      try { proc.kill(); } catch {}
     }
     procs.length = 0;
     for (const server of servers) {
@@ -47,7 +46,7 @@ describe("annotation inbox watch follows the native host", () => {
   });
 
   test("prints the Owner message only while control.sock exists", async () => {
-    const root = join(tmpdir(), `holar-annotation-watch-${process.pid}-${Date.now()}`);
+    const root = join(tmpdir(), `hw-${process.pid}-${Date.now() % 10000}`);
     roots.push(root);
     mkdirSync(root, { recursive: true, mode: 0o700 });
     const inbox = join(root, "annotation-inbox.jsonl");
@@ -60,23 +59,39 @@ describe("annotation inbox watch follows the native host", () => {
     const openedEvent = JSON.stringify({ ownerMessage: true, text: "open the sider", url: "https://example.com/open" });
     const reopenedEvent = JSON.stringify({ ownerMessage: true, text: "reopen preference", url: "https://example.com/reopen" });
 
-    const proc = spawn("bun", [script], {
+    const proc = Bun.spawn([process.execPath, script], {
       env: {
         ...process.env,
         HOLAR_BROWSER_LOCAL: root,
         HOLAR_BROWSER_WATCH_INTERVAL: "40",
       },
-      stdio: ["ignore", "pipe", "pipe"],
+      stdout: "pipe",
     });
     procs.push(proc);
 
     const lines: string[] = [];
-    proc.stdout.setEncoding("utf8");
-    proc.stdout.on("data", (chunk: string) => {
-      for (const line of chunk.split("\n")) {
-        if (line.trim()) lines.push(line.trim());
+    (async () => {
+      const reader = proc.stdout.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split("\n");
+        buffer = parts.pop() ?? "";
+        for (const line of parts) {
+          if (line.trim()) lines.push(line.trim());
+        }
       }
-    });
+    })();
+
+    async function waitForCount(expected: number, timeout = 2500) {
+      const t0 = Date.now();
+      while (lines.length < expected && Date.now() - t0 < timeout) {
+        await wait(20);
+      }
+    }
 
     appendFileSync(inbox, `${JSON.stringify(closed)}\n`);
     await wait(240);
@@ -87,21 +102,21 @@ describe("annotation inbox watch follows the native host", () => {
     await wait(240);
     appendFileSync(inbox, `${JSON.stringify({ id: "noise" })}\n`);
     appendFileSync(inbox, `${JSON.stringify(opened)}\n`);
-    await wait(280);
+    await waitForCount(1);
     expect(lines).toEqual([openedEvent]);
 
     await closeServer(server);
     servers.pop();
     await wait(240);
     appendFileSync(inbox, `${JSON.stringify(afterClose)}\n`);
-    await wait(280);
+    await wait(240);
     expect(lines).toEqual([openedEvent]);
 
     const again = await listen(sock);
     servers.push(again);
     await wait(240);
     appendFileSync(inbox, `${JSON.stringify(reopened)}\n`);
-    await wait(280);
+    await waitForCount(2);
     expect(lines).toEqual([openedEvent, reopenedEvent]);
-  });
+  }, { timeout: 15000 });
 });

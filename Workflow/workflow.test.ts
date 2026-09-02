@@ -240,7 +240,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(initRes.result.serverInfo.name).toBe("mentalcraft-gateway-mcp");
 
     const listRes = await handleGatewayRpc({ jsonrpc: "2.0", id: 2, method: "tools/list" });
-    expect(listRes.result.tools.length).toBe(7);
+    expect(listRes.result.tools.length).toBe(8);
 
     const callRes = await handleGatewayRpc({
       jsonrpc: "2.0",
@@ -780,10 +780,10 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.stepResults[6].action).toBe("send");
   }, { timeout: 15000 });
 
-  test("benchmark engine measures latency percentiles and ops/sec across all 7 subsystems", async () => {
+  test("benchmark engine measures latency percentiles and ops/sec across all 8 subsystems", async () => {
     const { executeBenchmark } = require("./operation.ts");
     const bench = await executeBenchmark({ iterations: 50, warmupIterations: 5 });
-    expect(bench.totalSubsystems).toBe(7);
+    expect(bench.totalSubsystems).toBe(8);
     expect(bench.totalActionsTested).toBeGreaterThanOrEqual(22);
     expect(bench.overallOpsPerSec).toBeGreaterThan(0);
     expect(bench.summary.avgP50Ms).toBeGreaterThanOrEqual(0);
@@ -800,7 +800,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     // Also verify via workflowOperation
     const opRes = await workflowOperation({ action: "benchmark", benchmark_options: { iterations: 20 } });
     expect(opRes.success).toBe(true);
-    expect((opRes.data as any).totalSubsystems).toBe(7);
+    expect((opRes.data as any).totalSubsystems).toBe(8);
   });
 
   test("compactWorkflowResult formats readable terminal summary", async () => {

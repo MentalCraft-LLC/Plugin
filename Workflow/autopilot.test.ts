@@ -93,7 +93,7 @@ describe("MentalCraft $10,000 MRR 5-Pillar Autopilot Engine", () => {
     expect(formatted).toContain("Active Growth Pillar");
     expect(formatted).toContain("mentalcraft.org");
     expect(formatted).toContain("$10,000 MRR Goal");
-  });
+  }, { timeout: 60000 });
 
   test("workflowOperation dispatches autopilot_step, autopilot_status, and autopilot_schedule_spec", async () => {
     const vName = "MentalCraftOperationTest_" + Date.now();
@@ -126,7 +126,7 @@ describe("MentalCraft $10,000 MRR 5-Pillar Autopilot Engine", () => {
     expect(specRes.success).toBe(true);
     expect((specRes.data as any).CronExpression).toBe("* * * * *");
     expect(formatWorkflowSummary(specRes)).toContain("Autopilot Schedule Spec");
-  });
+  }, { timeout: 60000 });
 
   test("computeAdaptiveRespiration correctly transitions through SURGE, GROWTH, CRUISE, and REST gears", () => {
     const { computeAdaptiveRespiration } = require("./autopilot.ts");

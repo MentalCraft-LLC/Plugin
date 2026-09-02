@@ -59,7 +59,7 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
     expect(data.component.variants).toContain("primary");
     expect(data.component.variants).toContain("line");
     expect(data.component.a11yRole).toBe("button");
-    expect(data.quickImport).toBe("import { Button } from 'infra-ui-svelte';");
+    expect(data.quickImport).toBe("import { Button } from '@mentalcraft/design-svelte';");
     expect(data.component.example).toContain("<Button");
 
     // Inspect Badge
@@ -139,7 +139,7 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
     const mData = marketing.data as { requiredImports: string[]; svelteSnippet: string };
     expect(mData.requiredImports).toContain("Hero");
     expect(mData.svelteSnippet).toContain('<script lang="ts">');
-    expect(mData.svelteSnippet).toContain("infra-ui-svelte");
+    expect(mData.svelteSnippet).toContain("@mentalcraft/design-svelte");
     expect(mData.svelteSnippet).toContain("<Hero");
 
     const auth = await designOperation({ action: "generate_ui", intent: "auth_form" });
@@ -560,10 +560,10 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
       metrics: { estimatedOnDemandKb: number; treeShakingSavings: string };
     };
     expect(data.matchedComponents.length).toBe(5);
-    expect(data.subpathStatements).toContain("infra-ui-svelte/component/interaction/button");
-    expect(data.subpathStatements).toContain("infra-ui-svelte/component/input/text");
-    expect(data.subpathStatements).toContain("infra-ui-svelte/component/feedback/badge");
-    expect(data.subpathStatements).toContain("infra-ui-svelte/composite/overlay/drawer");
+    expect(data.subpathStatements).toContain("@mentalcraft/design-svelte/component/interaction/button");
+    expect(data.subpathStatements).toContain("@mentalcraft/design-svelte/component/input/text");
+    expect(data.subpathStatements).toContain("@mentalcraft/design-svelte/component/feedback/badge");
+    expect(data.subpathStatements).toContain("@mentalcraft/design-svelte/composite/overlay/drawer");
     expect(data.metrics.estimatedOnDemandKb).toBeLessThan(15);
     expect(data.metrics.treeShakingSavings).toContain("%");
   });
@@ -594,7 +594,7 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
     const pdpData = pdp.data as { preset: { name: string; recommendedComponents: string[] }; subpathImports: string };
     expect(pdpData.preset.name).toContain("PDP");
     expect(pdpData.preset.recommendedComponents).toContain("Badge");
-    expect(pdpData.subpathImports).toContain("infra-ui-svelte/component/feedback/badge");
+    expect(pdpData.subpathImports).toContain("@mentalcraft/design-svelte/component/feedback/badge");
 
     // Get ecommerce_checkout preset
     const chk = await designOperation({ action: "domain_presets", preset_name: "ecommerce_checkout" });
@@ -602,7 +602,7 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
     const chkData = chk.data as { preset: { name: string; recommendedComponents: string[] }; subpathImports: string };
     expect(chkData.preset.name).toContain("Checkout");
     expect(chkData.preset.recommendedComponents).toContain("Drawer");
-    expect(chkData.subpathImports).toContain("infra-ui-svelte/composite/overlay/drawer");
+    expect(chkData.subpathImports).toContain("@mentalcraft/design-svelte/composite/overlay/drawer");
 
     // Get academic_manuscript_viewer preset
     const acad = await designOperation({ action: "domain_presets", preset_name: "academic_manuscript_viewer" });
@@ -620,7 +620,7 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
   test("bundle_optimize prunes unused components and converts to subpaths", async () => {
     const codeWithUnused = `
       <script>
-        import { Button, Dialog, Card, Kanban, Badge } from "infra-ui-svelte";
+        import { Button, Dialog, Card, Kanban, Badge } from "@mentalcraft/design-svelte";
       </script>
       <Card>
         <Badge>Active</Badge>
@@ -641,9 +641,9 @@ describe("MentalCraft Design System & UI Intelligence Engine", () => {
     expect(data.retainedComponents).toContain("Button");
     expect(data.retainedComponents).toContain("Card");
     expect(data.retainedComponents).toContain("Badge");
-    expect(data.optimizedCode).toContain("infra-ui-svelte/component/interaction/button");
-    expect(data.optimizedCode).toContain("infra-ui-svelte/component/scaffold/card");
-    expect(data.optimizedCode).toContain("infra-ui-svelte/component/feedback/badge");
+    expect(data.optimizedCode).toContain("@mentalcraft/design-svelte/component/interaction/button");
+    expect(data.optimizedCode).toContain("@mentalcraft/design-svelte/component/scaffold/card");
+    expect(data.optimizedCode).toContain("@mentalcraft/design-svelte/component/feedback/badge");
   });
 
   test("generate_editorial generates compliant 2-ink Recipe Manifest and production prompt adhering to mono-color rules", async () => {

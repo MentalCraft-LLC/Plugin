@@ -1,12 +1,11 @@
 /**
- * Telegram channel adapter — Agent-Agnostic, 100% decoupled from legacy Pi.
+ * Telegram channel adapter — Agent-Agnostic, 100% decoupled from legacy harnesses.
  * Pure official Bot API implementation.
  *
  * Config resolution priority:
  * 1. Environment variables: TELEGRAM_BOT_TOKEN (or TELEGRAM_TOKEN), TELEGRAM_CHAT_ID
  * 2. TELEGRAM_CONFIG_PATH
  * 3. ~/.config/holar/telegram.json (Standard XDG configuration)
- * 4. ~/.pi/agent/telegram/config.json (Legacy migration fallback)
  */
 
 import { chmodSync, existsSync, lstatSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
@@ -24,11 +23,7 @@ export interface TelegramConfig {
 
 export function telegramConfigPath(): string {
   if (process.env.TELEGRAM_CONFIG_PATH) return process.env.TELEGRAM_CONFIG_PATH;
-  const canonicalPath = join(homedir(), ".config", "holar", "telegram.json");
-  if (existsSync(canonicalPath)) return canonicalPath;
-  const legacyPath = join(homedir(), ".pi", "agent", "telegram", "config.json");
-  if (existsSync(legacyPath)) return legacyPath;
-  return canonicalPath;
+  return join(homedir(), ".config", "holar", "telegram.json");
 }
 
 export function telegramConfigured(): boolean {
