@@ -18,9 +18,9 @@ Every harness consumes `operation.ts` through the standard MCP server (`mcp-serv
 
 | channel | adapter | config |
 |---|---|---|
-| telegram | `channels/telegram.ts` (Bot API) | `TELEGRAM_CONFIG_PATH` or `~/.pi/agent/telegram/config.json` (0600) |
-| imessage | `../imessage/index.ts` | `~/.pi/agent/imessage/config.json` (0600) |
-| email | gmail SMTP path | `~/.pi/agent/gmail/...` (0600) |
+| telegram | `channels/telegram.ts` (Bot API) | `TELEGRAM_CONFIG_PATH` or `~/.config/holar/telegram.json` (0600) |
+| imessage | `channels/imessage.ts` | `SOCIAL_CONFIG_PATH` or `~/.config/holar/imessage.json` (0600) |
+| email | `channels/email.ts` | `GMAIL_CONFIG_PATH` or `~/.config/holar/email.json` (0600) |
 
 ## Invariants
 

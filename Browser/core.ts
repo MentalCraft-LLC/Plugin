@@ -357,15 +357,12 @@ export function safeSessionId(raw: unknown): string {
 
 export function environmentSessionId(): string | undefined {
   return process.env.HOLAR_SESSION_ID
-    || process.env.GROK_SESSION_ID
-    || process.env.PI_SESSION_ID
     || process.env.HOLAR_BROWSER_SESSION
     || undefined;
 }
 
 export function environmentSessionName(): string | undefined {
   return process.env.HOLAR_SESSION_NAME
-    || process.env.PI_SESSION_NAME
     || undefined;
 }
 

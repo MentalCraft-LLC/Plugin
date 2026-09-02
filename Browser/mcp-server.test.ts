@@ -280,11 +280,10 @@ describe("Browser MCP adapter", () => {
   });
 
   test("session name prefers the generic Session environment", () => {
-    const keys = ["HOLAR_SESSION_ID", "HOLAR_SESSION_NAME", "GROK_SESSION_ID", "PI_SESSION_ID", "PI_SESSION_NAME", "HOLAR_BROWSER_SESSION"] as const;
+    const keys = ["HOLAR_SESSION_ID", "HOLAR_SESSION_NAME", "HOLAR_BROWSER_SESSION"] as const;
     const prior = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
     for (const key of keys) delete process.env[key];
     process.env.HOLAR_SESSION_NAME = "Holar Session";
-    process.env.PI_SESSION_NAME = "Pi Session";
     try {
       expect(resolveBrowserSessionName()).toBe("Holar Session");
     } finally {

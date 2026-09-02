@@ -48,7 +48,11 @@ function validRecipient(value: string): boolean {
 
 export function configPath(cwd: string): string {
   if (process.env.SOCIAL_CONFIG_PATH) return process.env.SOCIAL_CONFIG_PATH;
-  return join(homedir(), ".pi", "agent", "imessage", "config.json");
+  const canonical = join(homedir(), ".config", "holar", "imessage.json");
+  if (existsSync(canonical)) return canonical;
+  const legacy = join(homedir(), ".pi", "agent", "imessage", "config.json");
+  if (existsSync(legacy)) return legacy;
+  return canonical;
 }
 
 function parseConfig(path: string): SocialConfig {
@@ -95,7 +99,11 @@ interface ContactChannels {
 
 function contactBookPath(cwd?: string): string {
   if (process.env.CONTACT_CONFIG_PATH) return process.env.CONTACT_CONFIG_PATH;
-  return join(homedir(), ".pi", "agent", "contact", "config.json");
+  const canonical = join(homedir(), ".config", "holar", "contacts.json");
+  if (existsSync(canonical)) return canonical;
+  const legacy = join(homedir(), ".pi", "agent", "contact", "config.json");
+  if (existsSync(legacy)) return legacy;
+  return canonical;
 }
 
 function resolveContactFromBook(cwd: string | undefined, name: string, channel: keyof ContactChannels): string {
@@ -203,7 +211,10 @@ export function sendImessage(recipient: string, text: string, signal?: AbortSign
 }
 
 export const MESSAGES_DB = join(homedir(), "Library", "Messages", "chat.db");
-export const WATCH_STATE = join(homedir(), ".pi", "agent", "imessage", "watch-state.json");
+export const WATCH_STATE = process.env.IMESSAGE_WATCH_STATE
+  || (existsSync(join(homedir(), ".pi", "agent", "imessage", "watch-state.json"))
+      ? join(homedir(), ".pi", "agent", "imessage", "watch-state.json")
+      : join(homedir(), ".config", "holar", "imessage-watch-state.json"));
 
 /** Apple epoch (2001-01-01) offset from Unix epoch, in seconds. */
 // Apple epoch (2001-01-01) precedes Unix epoch by this many seconds.

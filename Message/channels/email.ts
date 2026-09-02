@@ -30,7 +30,11 @@ export interface GmailConfig {
 
 export function configPath(): string {
   if (process.env.GMAIL_CONFIG_PATH) return process.env.GMAIL_CONFIG_PATH;
-  return join(homedir(), ".pi", "agent", "gmail", "config.json");
+  const canonical = join(homedir(), ".config", "holar", "email.json");
+  if (existsSync(canonical)) return canonical;
+  const legacy = join(homedir(), ".pi", "agent", "gmail", "config.json");
+  if (existsSync(legacy)) return legacy;
+  return canonical;
 }
 
 const MAILBOX = /^[^\s<>@\r\n]+@[^\s<>@\r\n]+\.[^\s<>@\r\n]+$/;
