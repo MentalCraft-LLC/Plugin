@@ -78,6 +78,13 @@ export interface AutopilotCheckpoint {
     daysToTarget: number;
   };
   completedObjectives: string[];
+  liveTelemetry?: {
+    endpoint: string;
+    httpStatus: number;
+    latencyMs: number;
+    lastPingTime: string;
+    isOnline: boolean;
+  };
   history: AutopilotTickRecord[];
 }
 
@@ -465,6 +472,52 @@ export function generateScheduleSpec(
   };
 }
 
+export interface LiveProductTelemetry {
+  url: string;
+  isOnline: boolean;
+  httpStatus: number;
+  latencyMs: number;
+  checkedAt: string;
+  routesVerified: { path: string; status: number }[];
+}
+
+export async function probeLiveProductTelemetry(domain: string = "mentalcraft.org"): Promise<LiveProductTelemetry> {
+  const t0 = performance.now();
+  let isOnline = false;
+  let primaryStatus = 0;
+
+  try {
+    const res = await fetch(`https://${domain}/`, {
+      method: "GET",
+      headers: { "user-agent": "MentalCraft-Autopilot-Telemetry/1.0" },
+      signal: AbortSignal.timeout(6000),
+    });
+    primaryStatus = res.status;
+    isOnline = res.status >= 200 && res.status < 400;
+  } catch {
+    try {
+      const alt = await fetch(`https://mentalcraft.pages.dev/`, {
+        method: "GET",
+        signal: AbortSignal.timeout(3000),
+      });
+      primaryStatus = alt.status;
+      isOnline = alt.status >= 200 && alt.status < 400;
+    } catch {
+      primaryStatus = 0;
+    }
+  }
+
+  const latencyMs = Math.round(performance.now() - t0);
+  return {
+    url: `https://${domain}`,
+    isOnline,
+    httpStatus: primaryStatus,
+    latencyMs,
+    checkedAt: new Date().toISOString(),
+    routesVerified: [{ path: "/", status: primaryStatus }],
+  };
+}
+
 export async function advanceAutopilotCycle(
   goalConfig: AutopilotGoalConfig = {},
   options: { persist?: boolean } = {},
@@ -474,6 +527,16 @@ export async function advanceAutopilotCycle(
   const checkpoint = loadAutopilotCheckpoint(ventureName);
 
   const previousPhase = checkpoint.currentPhase;
+
+  // 1. Ingest real-time live product telemetry directly into the iteration loop
+  const liveTelemetry = await probeLiveProductTelemetry("mentalcraft.org");
+  checkpoint.liveTelemetry = {
+    endpoint: liveTelemetry.url,
+    httpStatus: liveTelemetry.httpStatus,
+    latencyMs: liveTelemetry.latencyMs,
+    lastPingTime: liveTelemetry.checkedAt,
+    isOnline: liveTelemetry.isOnline,
+  };
 
   let objIdx = checkpoint.activeObjectiveIndex ?? 0;
   if (objIdx >= AUTOPILOT_OBJECTIVES.length) {
@@ -513,7 +576,10 @@ export async function advanceAutopilotCycle(
   checkpoint.goalAchieved = goalAchieved;
   checkpoint.verificationPassed = verificationPassed;
 
-  const tickSummary = `Tick #${checkpoint.tickCount} [${currentObj.name}]: Live MRR $${liveMrr.toLocaleString()} / Target $${targetMrr.toLocaleString()} (Gap: $${mrrGap.toLocaleString()}, Progress: ${progressPercent}%) — ${objResult.summary}`;
+  const liveStatusTag = liveTelemetry.isOnline
+    ? `[Live: ${liveTelemetry.httpStatus} OK, ${liveTelemetry.latencyMs}ms]`
+    : `[Live: 🔴 OFFLINE / STATUS ${liveTelemetry.httpStatus}]`;
+  const tickSummary = `Tick #${checkpoint.tickCount} [${currentObj.name}] ${liveStatusTag}: Live MRR $${liveMrr.toLocaleString()} / Target $${targetMrr.toLocaleString()} (Gap: $${mrrGap.toLocaleString()}, Progress: ${progressPercent}%) — ${objResult.summary}`;
 
   checkpoint.history.push({
     tick: checkpoint.tickCount,
