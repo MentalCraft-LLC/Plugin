@@ -129,7 +129,7 @@ export function createMessageOperation() {
     if (params.action === "send_photo") {
       const photoPath = params.photoPath || params.text;
       if (!photoPath) throw new Error("message send_photo requires photoPath");
-      const { sendTelegramScreenshot } = await import("../scripts/send-telegram-screenshot.ts");
+      const { sendTelegramScreenshot } = await import("../.agents/scripts/send-telegram-screenshot.ts");
       const res = await sendTelegramScreenshot(photoPath, params.caption || undefined);
       return { ok: true, channel: "telegram", messageId: res.messageId, webpPath: res.webpPath };
     }

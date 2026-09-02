@@ -11,7 +11,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
-const rootDir = resolve(import.meta.dirname, "../..");
+const rootDir = resolve(import.meta.dirname, "../../..");
 const domains = ["Business", "Design", "Content", "Plugin", "Science", "Infra", "Company"] as const;
 
 interface CheckResult {
@@ -95,6 +95,25 @@ if (existsSync(pluginCli)) {
 const rootAgentsPath = join(rootDir, ".agents");
 const hasRootAgents = existsSync(rootAgentsPath);
 check("Ghost State", "Root .agents absence", !hasRootAgents, !hasRootAgents ? "Clean: 0 local ghost state" : "Legacy .agents still present at root");
+
+// 5. Audit Meta-State Consolidation (scripts, docs, skills inside .agents)
+for (const domain of domains) {
+	const domainPath = join(rootDir, domain);
+	if (existsSync(domainPath)) {
+		const bareScripts = existsSync(join(domainPath, "scripts"));
+		const bareDocs = existsSync(join(domainPath, "docs"));
+		const bareSkills = existsSync(join(domainPath, "skills"));
+		const hasBare = bareScripts || bareDocs || bareSkills;
+		check(
+			"Meta-State",
+			`${domain} .agents`,
+			!hasBare,
+			!hasBare
+				? "scripts/docs/skills in .agents"
+				: `Bare: ${[bareScripts && "scripts", bareDocs && "docs", bareSkills && "skills"].filter(Boolean).join(", ")}`
+		);
+	}
+}
 
 
 // Print Symmetrical Results Table

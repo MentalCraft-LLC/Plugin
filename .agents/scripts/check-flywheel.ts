@@ -10,7 +10,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-const rootDir = resolve(import.meta.dirname, "../..");
+const rootDir = resolve(import.meta.dirname, "../../..");
 
 interface FlywheelChannel {
 	id: string;
@@ -410,7 +410,7 @@ const channels: FlywheelChannel[] = [
 		to: "Design",
 		name: "边缘性能度量 (Latency Benchmarks)",
 		check: () => {
-			const infraCheck = join(rootDir, "Infra", "scripts", "check-infra.ts");
+			const infraCheck = join(rootDir, "Infra", ".agents", "scripts", "check-infra.ts");
 			const exists = existsSync(infraCheck);
 			return {
 				passed: exists,
@@ -594,7 +594,7 @@ const channels: FlywheelChannel[] = [
 		to: "Company",
 		name: "合规自动审计 (Automated Governance)",
 		check: () => {
-			const checkComp = join(rootDir, "Company", "scripts", "check-company.ts");
+			const checkComp = join(rootDir, "Company", ".agents", "scripts", "check-company.ts");
 			const exists = existsSync(checkComp);
 			return {
 				passed: exists,

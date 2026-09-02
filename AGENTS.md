@@ -54,7 +54,7 @@ This repository operates strictly within a bidirectional compounding flywheel. *
 2. **Single-Word Parent Component Law (父组件单一英文单词命名法则)**:
    Every exported parent component/root container in `@mentalcraft/design-svelte` and products must be a single, concise English noun (e.g. `Hero`, `Pricing`, `Aside`, `Thinking`, `Terminal`, `Source`, `Menu`, `Scroll`, `Attachment`). Compound multi-word parent names (`ThinkingBlock`, `CliTerminal`, etc.) are strictly prohibited. Sub-parts must use dot notation (`<Menu.Item>`, `<Scroll.Viewport>`, `<Hero.Proof>`).
 3. **Seven Canonical Domains Mutual Flywheel Law (一级目录七维互为飞轮法则)**:
-   All 7 canonical domains form a fully connected $K_7$ directed graph (42 momentum channels). Every domain must continuously consume from and feedback into the other 6 domains. Verified via `bun Plugin/scripts/check-flywheel.ts`.
+   All 7 canonical domains form a fully connected $K_7$ directed graph (42 momentum channels). Every domain must continuously consume from and feedback into the other 6 domains. Verified via `bun Plugin/.agents/scripts/check-flywheel.ts`.
 4. **Minimalism, Restraint, and Negative Space Law (极简 · 克制 · 留白法则)**:
    Form strictly serves function. Neutral canvas base with single-hue strategic accent, Swiss typographic scale, zero emojis, zero screaming copy, and generous negative space.
 5. **Product Page-Layer Only Law (产品纯 Page 层消费法则)**:
@@ -69,6 +69,8 @@ This repository operates strictly within a bidirectional compounding flywheel. *
    All products introducing user systems MUST support Google OAuth 2.0 and Google One Tap (GIS SDK with FedCM) through the canonical `<Google>` compound component.
 10. **Canonical Infra Backend & Design Frontend Law (通用后端统一走 Infra 与通用前端统一走 Design 法则)**:
     All shared backend microservices (Auth, Monetization, Event, KV/D1) MUST be unified under `Infra/`. Business products consume them via standardized HTTP/RPC clients. All shared frontend UI components, tokens, and page structures MUST be unified under `Design/` (`@mentalcraft/design-svelte`, `@mentalcraft/design-token`). Ad-hoc duplicate servers or un-tokenized private CSS are strictly prohibited.
+11. **The .agents Meta-State Consolidation Law (.agents 元状态收敛法则)**:
+    All operational scripts, architecture docs, and decision skills in each domain MUST be strictly consolidated inside `<Domain>/.agents/` (`scripts/`, `docs/`, `skills/`). Bare scripts, docs, or skills at repo roots are strictly prohibited.
 
 ---
 

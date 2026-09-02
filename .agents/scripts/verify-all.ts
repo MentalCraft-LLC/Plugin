@@ -16,7 +16,7 @@
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 
-const rootDir = resolve(import.meta.dirname, "../..");
+const rootDir = resolve(import.meta.dirname, "../../..");
 
 interface VerificationStep {
 	name: string;
@@ -29,13 +29,13 @@ const steps: VerificationStep[] = [
 	{
 		name: "42-Channel Heptagonal Flywheel Connectivity",
 		domain: "Cross-Domain",
-		command: ["bun", resolve(rootDir, "Plugin/scripts/check-flywheel.ts")],
+		command: ["bun", resolve(rootDir, "Plugin/.agents/scripts/check-flywheel.ts")],
 		cwd: rootDir,
 	},
 	{
 		name: "Workspace Compliance & Zero Ghost State",
 		domain: "Governance",
-		command: ["bun", resolve(rootDir, "Plugin/scripts/audit-workspace.ts")],
+		command: ["bun", resolve(rootDir, "Plugin/.agents/scripts/audit-workspace.ts")],
 		cwd: rootDir,
 	},
 	{

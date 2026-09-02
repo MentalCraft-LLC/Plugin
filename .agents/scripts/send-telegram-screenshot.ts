@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import { readTelegramConfig } from "../Message/channels/telegram.ts";
+import { readTelegramConfig } from "../../Message/channels/telegram.ts";
 
 export async function sendTelegramScreenshot(imagePath: string, caption?: string) {
   if (!existsSync(imagePath)) {
