@@ -6,6 +6,12 @@ description: "Stateful autonomous goal-gap advancement and execution engine: Man
 # Autopilot & Autonomous Self-Advancement Engine (`autopilot-engine`)
 
 > **Core Doctrine**: Models are reactive; autonomous advancement requires state machines, goal-gap telemetry, and scheduled chronos.
+> 
+> **Master Governance Axiom (治理宪章)**: 
+> 1. **减少熵增 (Anti-Entropy)**: 绝不容忍孤岛、过时别名与隐蔽技术债，时时刻刻维护系统最高秩序度。
+> 2. **制造复利 (Compounding Returns)**: 每一个产出均需沉淀为可被五维飞轮复利的资产，拒绝消耗型劳动。
+> 3. **复杂系统治理 (System Governance)**: 构建有序、可控、健康自演进的完备生态。
+> 4. **原则驱动自愈 (Autonomous Remediation)**: 持续比对现状与原则，主动形成新任务并反哺全域；凡违背原则，立即实施优化。
 
 This skill equips agents with the systematic methodology to run long-running commercial ventures, manage goal checkpoints, schedule recurring chronos via Antigravity `schedule`, and execute multi-phase feedback loops until commercial goals ($10,000 MRR) are achieved and stabilized.
 
