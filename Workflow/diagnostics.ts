@@ -70,7 +70,7 @@ export interface DiagnosticReport {
 
 export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyongzhang/Documents/Holar"): DiagnosticReport {
   const issues: DiagnosticIssue[] = [];
-  const mcAppPath = join(workspaceRoot, "Business/Application/MentalCraft");
+  const mcAppPath = join(workspaceRoot, "Business/Health/MentalCraft");
 
   // =========================================================================
   // 1. Traffic & Acquisition Channels (pSEO, Sitemap, IndexNow)
@@ -87,7 +87,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
       severity: "HIGH",
       title: "Missing Dynamic sitemap.xml Route",
       description: "Sitemap route not found at src/routes/sitemap.xml/+server.ts.",
-      targetPath: "Business/Application/MentalCraft/src/routes/sitemap.xml/+server.ts",
+      targetPath: "Business/Health/MentalCraft/src/routes/sitemap.xml/+server.ts",
       status: "DETECTED",
       remediationSuggestion: "Create sitemap generator covering all 4 locales (en, es, pt, zh).",
     });
@@ -108,7 +108,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
       severity: "CRITICAL",
       title: "Missing static/llms.txt",
       description: "static/llms.txt missing from static root.",
-      targetPath: "Business/Application/MentalCraft/static/llms.txt",
+      targetPath: "Business/Health/MentalCraft/static/llms.txt",
       status: "DETECTED",
       remediationSuggestion: "Create static/llms.txt with authoritative scale definitions.",
     });
@@ -123,7 +123,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
         severity: "HIGH",
         title: "llms.txt Incomplete Pricing Disclosure ($19 Pro / $200 Clinic)",
         description: "AI search engines cannot accurately quote the $19 Pro or $200 Clinic tiers.",
-        targetPath: "Business/Application/MentalCraft/static/llms.txt",
+        targetPath: "Business/Health/MentalCraft/static/llms.txt",
         status: "DETECTED",
         remediationSuggestion: "Explicitly declare both $19 Pro and $200 Clinic pricing in static/llms.txt.",
       });
@@ -147,7 +147,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
         severity: "HIGH",
         title: "Missing $200/mo Clinic Workspace Tier in Landing Copy",
         description: "Clinic monetization tier ($200/mo) missing from landing-copy.ts.",
-        targetPath: "Business/Application/MentalCraft/src/lib/portal/landing-copy.ts",
+        targetPath: "Business/Health/MentalCraft/src/lib/portal/landing-copy.ts",
         status: "DETECTED",
         remediationSuggestion: "Add clinic tier across en, es, pt, and zh in landing-copy.ts.",
       });
@@ -171,7 +171,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
         severity: "HIGH",
         title: "Stripe Monetization Client Hardcoded to Single Plan",
         description: "createMonetizationCheckout did not support dynamic tier plan keys.",
-        targetPath: "Business/Application/MentalCraft/src/lib/server/monetization-client.ts",
+        targetPath: "Business/Health/MentalCraft/src/lib/server/monetization-client.ts",
         status: "DETECTED",
         remediationSuggestion: "Support dynamic plan_key resolution.",
       });
@@ -195,7 +195,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
         severity: "MEDIUM",
         title: "Missing Psychometric Author Citations on About Surface",
         description: "Spitzer or Kroenke foundational literature missing from about page.",
-        targetPath: "Business/Application/MentalCraft/src/routes/(en)/about/+page.svelte",
+        targetPath: "Business/Health/MentalCraft/src/routes/(en)/about/+page.svelte",
         status: "DETECTED",
         remediationSuggestion: "Include Spitzer et al. (2006) and Kroenke et al. (2001) on About page.",
       });
@@ -219,7 +219,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
         severity: "HIGH",
         title: "Legacy Paused Guide Purchase CTA Found on Conversation Brief",
         description: "Conversation brief links to paused guide purchase instead of $19 Pro screening workbench.",
-        targetPath: "Business/Application/MentalCraft/src/lib/components/ConversationBrief.svelte",
+        targetPath: "Business/Health/MentalCraft/src/lib/components/ConversationBrief.svelte",
         status: "DETECTED",
         remediationSuggestion: "Redirect all conversion CTAs to /pro workbench.",
       });
@@ -243,7 +243,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
         severity: "MEDIUM",
         title: "Homepage Hero CTA Lacks Direct Value & Pricing Clarity",
         description: "Homepage hero does not highlight $19 Pro screening links for therapists.",
-        targetPath: "Business/Application/MentalCraft/src/lib/components/HomePage.svelte",
+        targetPath: "Business/Health/MentalCraft/src/lib/components/HomePage.svelte",
         status: "DETECTED",
         remediationSuggestion: "Add high-visibility Practitioner Pro ($19/mo) hero link.",
       });
@@ -265,7 +265,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
       severity: "CRITICAL",
       title: "Missing i18n Router Configuration",
       description: "i18n router index not found in src/lib/i18n/.",
-      targetPath: "Business/Application/MentalCraft/src/lib/i18n/index.ts",
+      targetPath: "Business/Health/MentalCraft/src/lib/i18n/index.ts",
       status: "DETECTED",
       remediationSuggestion: "Verify i18n routing support for en, es, pt, zh.",
     });
@@ -288,7 +288,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
         severity: "HIGH",
         title: "Workbench onUpgrade Does Not Support Tier Parameter",
         description: "Workbench upgrade handler cannot trigger Clinic tier checkout.",
-        targetPath: "Business/Application/MentalCraft/src/lib/portal/Workbench.svelte",
+        targetPath: "Business/Health/MentalCraft/src/lib/portal/Workbench.svelte",
         status: "DETECTED",
         remediationSuggestion: "Add tier parameter to onUpgrade function in Workbench.svelte.",
       });
@@ -310,7 +310,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
       severity: "CRITICAL",
       title: "Missing src/app.html Shell",
       description: "Root HTML template missing.",
-      targetPath: "Business/Application/MentalCraft/src/app.html",
+      targetPath: "Business/Health/MentalCraft/src/app.html",
       status: "DETECTED",
       remediationSuggestion: "Ensure src/app.html is intact.",
     });

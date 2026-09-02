@@ -45,40 +45,45 @@ for (const domain of domains) {
 	}
 }
 
-// 2. Audit Business Applications Design System Bindings
-const appsDir = join(rootDir, "Business", "Application");
-if (existsSync(appsDir)) {
-	const entries = readdirSync(appsDir, { withFileTypes: true });
-	for (const entry of entries) {
-		if (entry.isDirectory() && !entry.name.startsWith(".") && entry.name !== "archive") {
-			const appDir = join(appsDir, entry.name);
-			const appPkgPath = join(appDir, "package.json");
-			const sveltekitPkgPath = join(appDir, "sveltekit", "package.json");
-			const svelteConfigPath = join(appDir, "svelte.config.js");
-			const viteConfigPath = join(appDir, "vite.config.ts");
+// 2. Audit Business Ventures Design System Bindings (Health, Education, Utility)
+const bizDir = join(rootDir, "Business");
+const categories = ["Health", "Education", "Utility"] as const;
+for (const cat of categories) {
+	const catDir = join(bizDir, cat);
+	if (existsSync(catDir)) {
+		const entries = readdirSync(catDir, { withFileTypes: true });
+		for (const entry of entries) {
+			if (entry.isDirectory() && !entry.name.startsWith(".") && existsSync(join(catDir, entry.name, "package.json"))) {
+				const appDir = join(catDir, entry.name);
+				const appPkgPath = join(appDir, "package.json");
+				const sveltekitPkgPath = join(appDir, "sveltekit", "package.json");
+				const svelteConfigPath = join(appDir, "svelte.config.js");
+				const viteConfigPath = join(appDir, "vite.config.ts");
 
-			let combinedConfigs = "";
-			for (const p of [appPkgPath, sveltekitPkgPath, svelteConfigPath, viteConfigPath]) {
-				if (existsSync(p)) {
-					combinedConfigs += readFileSync(p, "utf8");
+				let combinedConfigs = "";
+				for (const p of [appPkgPath, sveltekitPkgPath, svelteConfigPath, viteConfigPath]) {
+					if (existsSync(p)) {
+						combinedConfigs += readFileSync(p, "utf8");
+					}
 				}
+
+				const hasDesign =
+					combinedConfigs.includes("@mentalcraft/design-svelte") ||
+					combinedConfigs.includes("@mentalcraft/design-token");
+				const hasLegacyInfraUi = combinedConfigs.includes("infra-ui-svelte");
+				const mainPkg = existsSync(appPkgPath) ? readFileSync(appPkgPath, "utf8") : "";
+				const hasRelPathFragility = mainPkg.includes("file:../../Design/Svelte");
+
+				const compliant = hasDesign && !hasLegacyInfraUi;
+				const detail = hasLegacyInfraUi
+					? "FATAL: Obsolete infra-ui-svelte detected (Zero Compatibility)"
+					: hasDesign
+						? "Design system bound (@mentalcraft)"
+						: "No design system dependency";
+
+				check("Design System", `${cat}/${entry.name}`, compliant, detail);
+				check("Path Stability", `${cat}/${entry.name}`, !hasRelPathFragility, !hasRelPathFragility ? "Stable path" : "Fragile ../../ path detected");
 			}
-
-			const hasDesign =
-				combinedConfigs.includes("@mentalcraft/design-svelte") ||
-				combinedConfigs.includes("@mentalcraft/design-token");
-			const hasLegacyInfraUi = combinedConfigs.includes("infra-ui-svelte");
-			const hasRelPathFragility = combinedConfigs.includes("file:../../Design/Svelte");
-
-			const compliant = hasDesign && !hasLegacyInfraUi;
-			const detail = hasLegacyInfraUi
-				? "FATAL: Obsolete infra-ui-svelte detected (Zero Compatibility)"
-				: hasDesign
-					? "Design system bound (@mentalcraft)"
-					: "No design system dependency";
-
-			check("Design System", `${entry.name} binding`, compliant, detail);
-			check("Path Stability", `${entry.name} relative path`, !hasRelPathFragility, !hasRelPathFragility ? "Stable path" : "Fragile ../../ path detected");
 		}
 	}
 }

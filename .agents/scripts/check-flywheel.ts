@@ -43,15 +43,20 @@ const channels: FlywheelChannel[] = [
 		to: "Design",
 		name: "真实场景淬炼 (Pattern Discovery)",
 		check: () => {
-			const appDir = join(rootDir, "Business", "Application");
-			const count = existsSync(appDir)
-				? readdirSync(appDir).filter(
-						(d) => !d.startsWith(".") && d !== "archive" && existsSync(join(appDir, d, "package.json"))
-				  ).length
-				: 0;
+			const bizDir = join(rootDir, "Business");
+			const categories = ["Health", "Education", "Utility"];
+			let count = 0;
+			for (const c of categories) {
+				const cDir = join(bizDir, c);
+				if (existsSync(cDir)) {
+					count += readdirSync(cDir).filter(
+						(d) => !d.startsWith(".") && existsSync(join(cDir, d, "package.json"))
+					).length;
+				}
+			}
 			return {
 				passed: count >= 8,
-				detail: `${count} applications providing real-world UX pressure & edge cases`,
+				detail: `${count} business ventures across Health, Education & Utility providing UX pressure`,
 			};
 		},
 	},
@@ -91,7 +96,7 @@ const channels: FlywheelChannel[] = [
 		to: "Business",
 		name: "权威信任背书 (Unassailable Trust)",
 		check: () => {
-			const mcShare = join(rootDir, "Business", "Application", "MentalCraft", "src", "lib", "components", "Accreditation.svelte");
+			const mcShare = join(rootDir, "Business", "Health", "MentalCraft", "src", "lib", "components", "Accreditation.svelte");
 			const exists = existsSync(mcShare);
 			return {
 				passed: exists,
@@ -340,7 +345,7 @@ const channels: FlywheelChannel[] = [
 		to: "Infra",
 		name: "生产流量注入 (Production Traffic)",
 		check: () => {
-			const clientPath = join(rootDir, "Business", "Application", "MentalCraft", "src", "lib", "server", "monetization-client.ts");
+			const clientPath = join(rootDir, "Business", "Health", "MentalCraft", "src", "lib", "server", "monetization-client.ts");
 			const exists = existsSync(clientPath) && readFileSync(clientPath, "utf8").includes("Monetization");
 			return {
 				passed: exists,
@@ -482,7 +487,7 @@ const channels: FlywheelChannel[] = [
 		to: "Company",
 		name: "商业价值反哺 (Revenue & Valuation)",
 		check: () => {
-			const pricing = join(rootDir, "Business", "Application", "MentalCraft", "src", "lib", "components", "Pricing.svelte");
+			const pricing = join(rootDir, "Business", "Health", "MentalCraft", "src", "lib", "components", "Pricing.svelte");
 			const exists = existsSync(pricing);
 			return {
 				passed: exists,
