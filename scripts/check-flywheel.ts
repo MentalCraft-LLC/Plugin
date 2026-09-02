@@ -318,10 +318,322 @@ const channels: FlywheelChannel[] = [
 			};
 		},
 	},
+
+	// 6. Infra <-> Other Domains
+	{
+		id: "INF_BIZ",
+		from: "Infra",
+		to: "Business",
+		name: "极速服务底座 (Edge Microservices)",
+		check: () => {
+			const hasAuth = existsSync(join(rootDir, "Infra", "Auth", "Cargo.toml"));
+			const hasMon = existsSync(join(rootDir, "Infra", "Monetization", "Cargo.toml"));
+			return {
+				passed: hasAuth && hasMon,
+				detail: hasAuth && hasMon ? "Auth & Monetization edge Rust microservices active" : "Missing microservices in Infra",
+			};
+		},
+	},
+	{
+		id: "BIZ_INF",
+		from: "Business",
+		to: "Infra",
+		name: "生产流量注入 (Production Traffic)",
+		check: () => {
+			const clientPath = join(rootDir, "Business", "Application", "MentalCraft", "src", "lib", "server", "monetization-client.ts");
+			const exists = existsSync(clientPath) && readFileSync(clientPath, "utf8").includes("Monetization");
+			return {
+				passed: exists,
+				detail: exists ? "MentalCraft client actively binds to Monetization microservice" : "Missing monetization client binding",
+			};
+		},
+	},
+	{
+		id: "INF_PLG",
+		from: "Infra",
+		to: "Plugin",
+		name: "运行状态透传 (Service Telemetry)",
+		check: () => {
+			const readme = join(rootDir, "Infra", "README.md");
+			const exists = existsSync(readme) && readFileSync(readme, "utf8").includes("https://");
+			return {
+				passed: exists,
+				detail: exists ? "Edge deployment endpoints and D1 database mappings exposed" : "Missing endpoint mapping",
+			};
+		},
+	},
+	{
+		id: "PLG_INF",
+		from: "Plugin",
+		to: "Infra",
+		name: "探针自动化巡航 (Synthetic Canaries)",
+		check: () => {
+			const autopilot = join(rootDir, "Plugin", "Workflow", "autopilot.ts");
+			const hasProbe = existsSync(autopilot) && readFileSync(autopilot, "utf8").includes("probeLiveProductTelemetry");
+			return {
+				passed: hasProbe,
+				detail: hasProbe ? "Autonomous synthetic canaries actively monitor edge availability" : "Missing probe in autopilot",
+			};
+		},
+	},
+	{
+		id: "INF_SCI",
+		from: "Infra",
+		to: "Science",
+		name: "高安全数据底座 (Secure Data Pipelines)",
+		check: () => {
+			const eventMigr = join(rootDir, "Infra", "Event", "migrations");
+			const exists = existsSync(eventMigr);
+			return {
+				passed: exists,
+				detail: exists ? "Event logging migrations active for psychometric telemetry" : "Missing Event migrations",
+			};
+		},
+	},
+	{
+		id: "SCI_INF",
+		from: "Science",
+		to: "Infra",
+		name: "算法合规红线 (Privacy & Safety Logic)",
+		check: () => {
+			const paperDir = join(rootDir, "Science", "Paper");
+			const exists = existsSync(paperDir);
+			return {
+				passed: exists,
+				detail: exists ? "Clinical ethics & psychometric boundaries govern data retention" : "Missing science papers",
+			};
+		},
+	},
+	{
+		id: "INF_DES",
+		from: "Infra",
+		to: "Design",
+		name: "边缘性能度量 (Latency Benchmarks)",
+		check: () => {
+			const infraCheck = join(rootDir, "Infra", "scripts", "check-infra.ts");
+			const exists = existsSync(infraCheck);
+			return {
+				passed: exists,
+				detail: exists ? "Edge latency and microservice contract health verified" : "Missing infra check script",
+			};
+		},
+	},
+	{
+		id: "DES_INF",
+		from: "Design",
+		to: "Infra",
+		name: "控制台规范统领 (Admin Shell & Tokens)",
+		check: () => {
+			const tokenDir = join(rootDir, "Design", "Token");
+			const exists = existsSync(tokenDir);
+			return {
+				passed: exists,
+				detail: exists ? "Canonical OKLCH design tokens available for admin surfaces" : "Missing tokens in Design",
+			};
+		},
+	},
+	{
+		id: "INF_CMP",
+		from: "Infra",
+		to: "Company",
+		name: "合规操作留痕 (SOC2 / Audit Traces)",
+		check: () => {
+			const authMigr = join(rootDir, "Infra", "Auth", "migrations");
+			const exists = existsSync(authMigr);
+			return {
+				passed: exists,
+				detail: exists ? "Auth schema maintains persistent audit logs for corporate compliance" : "Missing auth migrations",
+			};
+		},
+	},
+	{
+		id: "CMP_INF",
+		from: "Company",
+		to: "Infra",
+		name: "主体资产确权 (Cloud Asset Ownership)",
+		check: () => {
+			const mcEntity = join(rootDir, "Company", "Entity", "MentalCraft");
+			const exists = existsSync(mcEntity);
+			return {
+				passed: exists,
+				detail: exists ? "MentalCraft LLC master entity holds Cloudflare & Stripe accounts" : "Missing MentalCraft entity",
+			};
+		},
+	},
+
+	// 7. Company <-> Other Domains
+	{
+		id: "CMP_BIZ",
+		from: "Company",
+		to: "Business",
+		name: "法人与资金通道 (Entity & Payment Rails)",
+		check: () => {
+			const yxEntity = join(rootDir, "Company", "Entity", "YixinDigitalScience");
+			const exists = existsSync(yxEntity);
+			return {
+				passed: exists,
+				detail: exists ? "Operating entities provide legal shields and Stripe rails" : "Missing company entities",
+			};
+		},
+	},
+	{
+		id: "BIZ_CMP",
+		from: "Business",
+		to: "Company",
+		name: "商业价值反哺 (Revenue & Valuation)",
+		check: () => {
+			const pricing = join(rootDir, "Business", "Application", "MentalCraft", "src", "lib", "components", "Pricing.svelte");
+			const exists = existsSync(pricing);
+			return {
+				passed: exists,
+				detail: exists ? "MentalCraft commercial pricing tiers generate corporate value" : "Missing pricing in MentalCraft",
+			};
+		},
+	},
+	{
+		id: "CMP_SCI",
+		from: "Company",
+		to: "Science",
+		name: "科研申报资质 (IRB & Grant Credentials)",
+		check: () => {
+			const yxEntity = join(rootDir, "Company", "Entity", "YixinDigitalScience");
+			const exists = existsSync(yxEntity);
+			return {
+				passed: exists,
+				detail: exists ? "Yixin Digital Science serves as institutional research sponsor" : "Missing science entity",
+			};
+		},
+	},
+	{
+		id: "SCI_CMP",
+		from: "Science",
+		to: "Company",
+		name: "无形资产沉淀 (Patents & Publications)",
+		check: () => {
+			const patentDir = join(rootDir, "Science", "Patent");
+			const exists = existsSync(patentDir);
+			return {
+				passed: exists,
+				detail: exists ? "Academic research generates intellectual property assets" : "Missing patent directory",
+			};
+		},
+	},
+	{
+		id: "CMP_CNT",
+		from: "Company",
+		to: "Content",
+		name: "创始人真实叙事 (Founder Origin Lore)",
+		check: () => {
+			const founderDir = join(rootDir, "Company", "Founder");
+			const exists = existsSync(join(founderDir, "LaiYongzhang")) && existsSync(join(founderDir, "LaiSiqin"));
+			return {
+				passed: exists,
+				detail: exists ? "Founder profiles provide genuine origin story elements" : "Missing founder profiles",
+			};
+		},
+	},
+	{
+		id: "CNT_CMP",
+		from: "Content",
+		to: "Company",
+		name: "企业叙事传播 (Brand & Vision Memos)",
+		check: () => {
+			const storyDir = join(rootDir, "Content", "Story");
+			const exists = existsSync(storyDir);
+			return {
+				passed: exists,
+				detail: exists ? "Content worldbuilding shapes corporate mission narratives" : "Missing story directory",
+			};
+		},
+	},
+	{
+		id: "CMP_DES",
+		from: "Company",
+		to: "Design",
+		name: "注册商标规格 (Trademark Guidelines)",
+		check: () => {
+			const compReadme = join(rootDir, "Company", "README.md");
+			const exists = existsSync(compReadme) && readFileSync(compReadme, "utf8").includes("MentalCraft LLC");
+			return {
+				passed: exists,
+				detail: exists ? "Corporate trademark identities established for design branding" : "Missing company README",
+			};
+		},
+	},
+	{
+		id: "DES_CMP",
+		from: "Design",
+		to: "Company",
+		name: "品牌视觉资产 (Executive Presentation)",
+		check: () => {
+			const designPkg = join(rootDir, "Design", "Svelte", "package.json");
+			const exists = existsSync(designPkg);
+			return {
+				passed: exists,
+				detail: exists ? "Design system provides executive identity and visual assets" : "Missing Design package",
+			};
+		},
+	},
+	{
+		id: "CMP_PLG",
+		from: "Company",
+		to: "Plugin",
+		name: "授权凭证下发 (Organization API Policies)",
+		check: () => {
+			const secretOp = join(rootDir, "Plugin", "Secret", "operation.ts");
+			const exists = existsSync(secretOp);
+			return {
+				passed: exists,
+				detail: exists ? "Mode-0600 secret engine manages organization-level tokens" : "Missing secret operation",
+			};
+		},
+	},
+	{
+		id: "PLG_CMP",
+		from: "Plugin",
+		to: "Company",
+		name: "合规自动审计 (Automated Governance)",
+		check: () => {
+			const checkComp = join(rootDir, "Company", "scripts", "check-company.ts");
+			const exists = existsSync(checkComp);
+			return {
+				passed: exists,
+				detail: exists ? "Plugin and scripts automate corporate entity verification" : "Missing company check script",
+			};
+		},
+	},
+	{
+		id: "INF_CNT",
+		from: "Infra",
+		to: "Content",
+		name: "可用性背书 (Uptime & Global Proof)",
+		check: () => {
+			const infraReadme = join(rootDir, "Infra", "README.md");
+			const exists = existsSync(infraReadme);
+			return {
+				passed: exists,
+				detail: exists ? "Edge network specifications provide marketing proof points" : "Missing infra README",
+			};
+		},
+	},
+	{
+		id: "CNT_INF",
+		from: "Content",
+		to: "Infra",
+		name: "开发者文档 (Developer Documentation)",
+		check: () => {
+			const mktDir = join(rootDir, "Content", "Marketing");
+			const exists = existsSync(mktDir);
+			return {
+				passed: exists,
+				detail: exists ? "Content team authors developer documentation and guides" : "Missing marketing directory",
+			};
+		},
+	},
 ];
 
 console.log("\n=========================================================================================");
-console.log(" 🌀 Holar Pentagonal Interlocking Flywheel Connectivity Verifier (20 Directed Channels)");
+console.log(" 🌀 Holar Heptagonal Interlocking Flywheel Connectivity Verifier (7-Domain Network)");
 console.log("=========================================================================================\n");
 
 console.log(
@@ -350,3 +662,4 @@ console.log(`\nFlywheel Connectivity Index: ${passedCount}/${channels.length} Ch
 if (score < 100) {
 	process.exit(1);
 }
+

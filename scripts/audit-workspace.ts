@@ -12,7 +12,7 @@ import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
 const rootDir = resolve(import.meta.dirname, "../..");
-const domains = ["Business", "Design", "Content", "Plugin", "Science"] as const;
+const domains = ["Business", "Design", "Content", "Plugin", "Science", "Infra", "Company"] as const;
 
 interface CheckResult {
 	category: string;

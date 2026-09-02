@@ -27,7 +27,7 @@ interface VerificationStep {
 
 const steps: VerificationStep[] = [
 	{
-		name: "20-Channel Pentagonal Flywheel Connectivity",
+		name: "42-Channel Heptagonal Flywheel Connectivity",
 		domain: "Cross-Domain",
 		command: ["bun", resolve(rootDir, "Plugin/scripts/check-flywheel.ts")],
 		cwd: rootDir,
@@ -68,10 +68,22 @@ const steps: VerificationStep[] = [
 		command: ["bun", resolve(rootDir, "Plugin/Workflow/cli.ts"), "health"],
 		cwd: resolve(rootDir, "Plugin"),
 	},
+	{
+		name: "Infra Domain Microservices & Edge Contracts",
+		domain: "Infra",
+		command: ["bun", "run", "check"],
+		cwd: resolve(rootDir, "Infra"),
+	},
+	{
+		name: "Company Domain Entities & Legal Governance",
+		domain: "Company",
+		command: ["bun", "run", "check"],
+		cwd: resolve(rootDir, "Company"),
+	},
 ];
 
 console.log("\n=========================================================================================");
-console.log(" 🚀 Holar Unified 5-Domain Master Verification Pipeline");
+console.log(" 🚀 Holar Unified 7-Domain Master Verification Pipeline (9 Master Gates)");
 console.log("=========================================================================================\n");
 
 console.log("Domain       | Gate / Verification Name                 | Status  | Execution Latency");
@@ -101,7 +113,7 @@ for (const step of steps) {
 }
 
 console.log("-------------+------------------------------------------+---------+------------------");
-console.log(`\nOverall Result: ${allPassed ? "🟢 ALL 7 GATES PASSED (100%)" : "🔴 VERIFICATION FAILED"} | Total Latency: ${totalMs}ms\n`);
+console.log(`\nOverall Result: ${allPassed ? `🟢 ALL ${steps.length} GATES PASSED (100%)` : "🔴 VERIFICATION FAILED"} | Total Latency: ${totalMs}ms\n`);
 
 if (!allPassed) {
 	process.exit(1);
