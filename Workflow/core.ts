@@ -538,6 +538,8 @@ export type WorkflowAction =
   | "batch_run"
   | "health_check"
   | "dry_run"
+  | "check_flywheel"
+  | "audit_workspace"
   | "autopilot_step"
   | "autopilot_status"
   | "autopilot_schedule_spec"

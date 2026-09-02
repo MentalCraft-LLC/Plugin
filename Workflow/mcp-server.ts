@@ -25,6 +25,8 @@ export const WORKFLOW_ACTIONS = [
   "batch_run",
   "health_check",
   "dry_run",
+  "check_flywheel",
+  "audit_workspace",
 ] as const;
 
 export const WORKFLOW_INPUT_SCHEMA = {

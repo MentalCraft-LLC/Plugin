@@ -1494,6 +1494,42 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
   const timestamp = new Date().toISOString();
 
   switch (input.action) {
+    case "check_flywheel": {
+      const { spawnSync } = require("node:child_process");
+      const { resolve } = require("node:path");
+      const script = resolve(__dirname, "../scripts/check-flywheel.ts");
+      const res = spawnSync("bun", [script], { encoding: "utf8" });
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "check_flywheel",
+        success: res.status === 0,
+        timestamp,
+        data: {
+          output: res.stdout,
+          error: res.stderr,
+          exitCode: res.status,
+        },
+      };
+    }
+
+    case "audit_workspace": {
+      const { spawnSync } = require("node:child_process");
+      const { resolve } = require("node:path");
+      const script = resolve(__dirname, "../scripts/audit-workspace.ts");
+      const res = spawnSync("bun", [script], { encoding: "utf8" });
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "audit_workspace",
+        success: res.status === 0,
+        timestamp,
+        data: {
+          output: res.stdout,
+          error: res.stderr,
+          exitCode: res.status,
+        },
+      };
+    }
+
     case "list_workflows": {
       const all = getAllWorkflows();
       return {
