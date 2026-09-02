@@ -351,7 +351,7 @@ export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyon
     timestamp: new Date().toISOString(),
     productName: "MentalCraft",
     domain: "mentalcraft.org",
-    targetMrrUsd: 10050,
+    targetMrrUsd: 10000,
     overallHealthScore: overallScore,
     totalIssuesCount: totalCount,
     criticalCount,

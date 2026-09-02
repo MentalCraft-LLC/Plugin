@@ -124,7 +124,7 @@ export interface AutopilotObjectiveDef {
   }>;
 }
 
-export const TARGET_MENTALCRAFT_MRR = 10050; // 350 × $19 + 17 × $200
+export const TARGET_MENTALCRAFT_MRR = 10000; // $10,000 USD Target
 
 export const AUTOPILOT_OBJECTIVES: AutopilotObjectiveDef[] = [
   {
@@ -148,7 +148,7 @@ export const AUTOPILOT_OBJECTIVES: AutopilotObjectiveDef[] = [
 
       return {
         liveMrrUsd: mrrData.totalMrrUsd,
-        targetMrrUsd: targetModel.totalMrrUsd,
+        targetMrrUsd: TARGET_MENTALCRAFT_MRR,
         executedActions: [
           "mentalcraft_sitemap_and_routes_verified",
           "mentalcraft_llms_txt_structure_checked",
@@ -160,7 +160,7 @@ export const AUTOPILOT_OBJECTIVES: AutopilotObjectiveDef[] = [
           mrrData,
           targetModel,
         },
-        summary: `MentalCraft SEO/LLMO: Live MRR $${mrrData.totalMrrUsd} / Target $${targetModel.totalMrrUsd.toLocaleString()} (Gap: $${(targetModel.totalMrrUsd - mrrData.totalMrrUsd).toLocaleString()}). 4-locale sitemap and llms.txt active.`,
+        summary: `MentalCraft SEO/LLMO: Live MRR $${mrrData.totalMrrUsd} / Target $${TARGET_MENTALCRAFT_MRR.toLocaleString()} (Gap: $${(TARGET_MENTALCRAFT_MRR - mrrData.totalMrrUsd).toLocaleString()}). 4-locale sitemap and llms.txt active.`,
       };
     },
   },

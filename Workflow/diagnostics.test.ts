@@ -6,7 +6,7 @@ describe("MentalCraft 10-Dimensional Full-Spectrum Diagnostic Engine", () => {
     const report = runMentalCraftDiagnostics();
     expect(report.productName).toBe("MentalCraft");
     expect(report.domain).toBe("mentalcraft.org");
-    expect(report.targetMrrUsd).toBe(10050);
+    expect(report.targetMrrUsd).toBe(10000);
     expect(report.overallHealthScore).toBe(100);
     expect(report.issues).toBeArray();
 
@@ -26,6 +26,6 @@ describe("MentalCraft 10-Dimensional Full-Spectrum Diagnostic Engine", () => {
     const formatted = formatDiagnosticReport(report);
     expect(formatted).toContain("10-Dimensional Full-Spectrum Diagnostic Report");
     expect(formatted).toContain("10 Full-Spectrum Audit Dimensions");
-    expect(formatted).toContain("$10,050 MRR");
+    expect(formatted).toContain("$10,000 MRR");
   });
 });
