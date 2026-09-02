@@ -80,7 +80,7 @@ const channels: FlywheelChannel[] = [
 		to: "Plugin",
 		name: "业务需求抽象 (Venture Operations)",
 		check: () => {
-			const opPath = join(rootDir, "Plugin", "Business", "operation.ts");
+			const opPath = join(rootDir, "Plugin", "Domain", "Business", "operation.ts");
 			const exists = existsSync(opPath);
 			return {
 				passed: exists,
@@ -139,7 +139,7 @@ const channels: FlywheelChannel[] = [
 		to: "Plugin",
 		name: "严谨算法红线 (Safety & Evaluation)",
 		check: () => {
-			const sciOp = join(rootDir, "Plugin", "Science", "operation.ts");
+			const sciOp = join(rootDir, "Plugin", "Domain", "Science", "operation.ts");
 			const hasDid = existsSync(sciOp) && readFileSync(sciOp, "utf8").includes("css_digital_trace_audit");
 			return {
 				passed: hasDid,
@@ -198,7 +198,7 @@ const channels: FlywheelChannel[] = [
 		to: "Plugin",
 		name: "文案配方固化 (Copywriting Models)",
 		check: () => {
-			const cntOp = join(rootDir, "Plugin", "Content", "operation.ts");
+			const cntOp = join(rootDir, "Plugin", "Domain", "Content", "operation.ts");
 			const hasPas = existsSync(cntOp) && readFileSync(cntOp, "utf8").includes("marketing_pas_copywriter");
 			return {
 				passed: hasPas,
@@ -257,7 +257,7 @@ const channels: FlywheelChannel[] = [
 		to: "Plugin",
 		name: "机器可读元数据 (Design Knowledge Base)",
 		check: () => {
-			const desOp = join(rootDir, "Plugin", "Design", "operation.ts");
+			const desOp = join(rootDir, "Plugin", "Domain", "Design", "operation.ts");
 			const hasCatalog = existsSync(desOp) && readFileSync(desOp, "utf8").includes("catalog");
 			return {
 				passed: hasCatalog,
@@ -273,7 +273,7 @@ const channels: FlywheelChannel[] = [
 		to: "Business",
 		name: "无人自主巡航 (Autonomous Telemetry)",
 		check: () => {
-			const bizOp = join(rootDir, "Plugin", "Business", "operation.ts");
+			const bizOp = join(rootDir, "Plugin", "Domain", "Business", "operation.ts");
 			const hasStripe = existsSync(bizOp) && readFileSync(bizOp, "utf8").includes("stripe_radar");
 			return {
 				passed: hasStripe,
@@ -287,7 +287,7 @@ const channels: FlywheelChannel[] = [
 		to: "Design",
 		name: "设计守卫演进 (Automated UI Gates)",
 		check: () => {
-			const desOp = join(rootDir, "Plugin", "Design", "operation.ts");
+			const desOp = join(rootDir, "Plugin", "Domain", "Design", "operation.ts");
 			const hasGen = existsSync(desOp) && readFileSync(desOp, "utf8").includes("generate_ui");
 			return {
 				passed: hasGen,
@@ -301,7 +301,7 @@ const channels: FlywheelChannel[] = [
 		to: "Content",
 		name: "智能内容流水线 (Automated Copy Engine)",
 		check: () => {
-			const cntOp = join(rootDir, "Plugin", "Content", "operation.ts");
+			const cntOp = join(rootDir, "Plugin", "Domain", "Content", "operation.ts");
 			const hasViral = existsSync(cntOp) && readFileSync(cntOp, "utf8").includes("marketing_viral_hook");
 			return {
 				passed: hasViral,
@@ -315,7 +315,7 @@ const channels: FlywheelChannel[] = [
 		to: "Science",
 		name: "科研全流程加速 (Automated Research)",
 		check: () => {
-			const sciOp = join(rootDir, "Plugin", "Science", "operation.ts");
+			const sciOp = join(rootDir, "Plugin", "Domain", "Science", "operation.ts");
 			const hasPaper = existsSync(sciOp) && readFileSync(sciOp, "utf8").includes("paper_literature_search");
 			return {
 				passed: hasPaper,
@@ -373,7 +373,7 @@ const channels: FlywheelChannel[] = [
 		to: "Infra",
 		name: "探针自动化巡航 (Synthetic Canaries)",
 		check: () => {
-			const autopilot = join(rootDir, "Plugin", "Workflow", "autopilot.ts");
+			const autopilot = join(rootDir, "Plugin", "Capability", "Workflow", "autopilot.ts");
 			const hasProbe = existsSync(autopilot) && readFileSync(autopilot, "utf8").includes("probeLiveProductTelemetry");
 			return {
 				passed: hasProbe,
@@ -585,7 +585,7 @@ const channels: FlywheelChannel[] = [
 		to: "Plugin",
 		name: "授权凭证下发 (Organization API Policies)",
 		check: () => {
-			const secretOp = join(rootDir, "Plugin", "Secret", "operation.ts");
+			const secretOp = join(rootDir, "Plugin", "Tool", "Secret", "operation.ts");
 			const exists = existsSync(secretOp);
 			return {
 				passed: exists,

@@ -21,11 +21,11 @@ import {
   MENTALCRAFT_PRACTITIONER_SUBSCRIBERS,
   MENTALCRAFT_CLINIC_PRICE_USD,
   MENTALCRAFT_CLINIC_SUBSCRIBERS,
-} from "../Business/modules/mentalcraft_growth.ts";
-import { calculateMrrSnapshot, formatMrrReport } from "../Business/modules/mrr_monitor.ts";
-import { businessOperation } from "../Business/operation.ts";
-import { telegramPoll, telegramSend } from "../Message/channels/telegram.ts";
-import { sendTelegramScreenshot } from "../.agents/scripts/send-telegram-screenshot.ts";
+} from "../../Domain/Business/modules/mentalcraft_growth.ts";
+import { calculateMrrSnapshot, formatMrrReport } from "../../Domain/Business/modules/mrr_monitor.ts";
+import { businessOperation } from "../../Domain/Business/operation.ts";
+import { telegramPoll, telegramSend } from "../../Tool/Message/channels/telegram.ts";
+import { sendTelegramScreenshot } from "../../.agents/scripts/send-telegram-screenshot.ts";
 
 export type AutopilotPhase =
   | "IDLE"
@@ -308,7 +308,7 @@ export const AUTOPILOT_OBJECTIVES: AutopilotObjectiveDef[] = [
     execute: async (cfg) => {
       const { spawnSync } = require("node:child_process");
       const { resolve } = require("node:path");
-      const verifyScript = resolve(__dirname, "../.agents/scripts/verify-all.ts");
+      const verifyScript = resolve(__dirname, "../../.agents/scripts/verify-all.ts");
       const res = spawnSync("bun", [verifyScript], { encoding: "utf8" });
       const passed = res.status === 0;
 

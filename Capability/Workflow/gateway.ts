@@ -11,22 +11,22 @@
  */
 
 import { workflowOperation } from "./operation.ts";
-import { designOperation } from "../Design/operation.ts";
-import { businessOperation } from "../Business/operation.ts";
-import { scienceOperation } from "../Science/operation.ts";
-import { contentOperation } from "../Content/operation.ts";
-import { createBrowserContextOperation } from "../Browser/operation.ts";
-import { createMessageOperation } from "../Message/operation.ts";
+import { designOperation } from "../../Domain/Design/operation.ts";
+import { businessOperation } from "../../Domain/Business/operation.ts";
+import { scienceOperation } from "../../Domain/Science/operation.ts";
+import { contentOperation } from "../../Domain/Content/operation.ts";
+import { createBrowserContextOperation } from "../../Tool/Browser/operation.ts";
+import { createMessageOperation } from "../../Tool/Message/operation.ts";
 
 import { WORKFLOW_INPUT_SCHEMA } from "./mcp-server.ts";
-import { DESIGN_INPUT_SCHEMA } from "../Design/mcp-server.ts";
-import { BUSINESS_INPUT_SCHEMA } from "../Business/mcp-server.ts";
-import { SCIENCE_INPUT_SCHEMA } from "../Science/mcp-server.ts";
-import { CONTENT_INPUT_SCHEMA } from "../Content/mcp-server.ts";
-import { MESSAGE_INPUT_SCHEMA } from "../Message/mcp-server.ts";
-import { SECRET_INPUT_SCHEMA } from "../Secret/mcp-server.ts";
-import { INFRA_INPUT_SCHEMA } from "../Infra/mcp-server.ts";
-import { COMPANY_INPUT_SCHEMA } from "../Company/mcp-server.ts";
+import { DESIGN_INPUT_SCHEMA } from "../../Domain/Design/mcp-server.ts";
+import { BUSINESS_INPUT_SCHEMA } from "../../Domain/Business/mcp-server.ts";
+import { SCIENCE_INPUT_SCHEMA } from "../../Domain/Science/mcp-server.ts";
+import { CONTENT_INPUT_SCHEMA } from "../../Domain/Content/mcp-server.ts";
+import { MESSAGE_INPUT_SCHEMA } from "../../Tool/Message/mcp-server.ts";
+import { SECRET_INPUT_SCHEMA } from "../../Tool/Secret/mcp-server.ts";
+import { INFRA_INPUT_SCHEMA } from "../../Domain/Infra/mcp-server.ts";
+import { COMPANY_INPUT_SCHEMA } from "../../Domain/Company/mcp-server.ts";
 
 export type JsonRpcId = string | number | null;
 
@@ -203,14 +203,14 @@ export async function handleGatewayRpc(request: JsonRpcRequest): Promise<JsonRpc
       } else if (toolName === "message") {
         output = await executeMessage(args as any);
       } else if (toolName === "secret") {
-        const { secretOperation } = await import("../Secret/operation.ts");
+        const { secretOperation } = await import("../../Tool/Secret/operation.ts");
         const act = (args.action as string) || (args.content !== undefined ? "write" : "read");
         output = secretOperation({ ...args, action: act } as any);
       } else if (toolName === "infra") {
-        const { infraOperation } = await import("../Infra/operation.ts");
+        const { infraOperation } = await import("../../Domain/Infra/operation.ts");
         output = await infraOperation(args.action as any, (args.params as any) || args);
       } else if (toolName === "company") {
-        const { companyOperation } = await import("../Company/operation.ts");
+        const { companyOperation } = await import("../../Domain/Company/operation.ts");
         output = await companyOperation(args.action as any, (args.params as any) || args);
       } else {
         return {

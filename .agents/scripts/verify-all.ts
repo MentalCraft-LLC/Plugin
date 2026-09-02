@@ -65,7 +65,7 @@ const steps: VerificationStep[] = [
 	{
 		name: "Plugin Subsystems FastMCP Health (8/8)",
 		domain: "Plugin",
-		command: ["bun", resolve(rootDir, "Plugin/Workflow/cli.ts"), "health"],
+		command: ["bun", resolve(rootDir, "Plugin/Capability/Workflow/cli.ts"), "health"],
 		cwd: resolve(rootDir, "Plugin"),
 	},
 	{

@@ -89,7 +89,7 @@ for (const cat of categories) {
 }
 
 // 3. Audit Plugin MCP Health
-const pluginCli = join(rootDir, "Plugin", "Workflow", "cli.ts");
+const pluginCli = join(rootDir, "Plugin", "Capability", "Workflow", "cli.ts");
 if (existsSync(pluginCli)) {
 	const healthRes = spawnSync("bun", [pluginCli, "health"], { encoding: "utf8" });
 	const healthy = healthRes.status === 0 && healthRes.stdout.includes("HEALTHY (100/100)");

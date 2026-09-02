@@ -7,6 +7,8 @@
 export * from "./modules/story.ts";
 export * from "./modules/marketing.ts";
 
+export const CONTENT_PROTOCOL = "holar.content.v1" as const;
+
 import type {
   WorldbuildingGenre,
   WorldRuleResult,

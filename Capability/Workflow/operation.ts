@@ -24,13 +24,13 @@ import {
   synthesizeDynamicWorkflow,
   type DynamicWorkflowIntent,
 } from "./core.ts";
-import { designOperation } from "../Design/operation.ts";
-import { businessOperation } from "../Business/operation.ts";
-import { scienceOperation } from "../Science/operation.ts";
-import { contentOperation } from "../Content/operation.ts";
-import { createBrowserContextOperation } from "../Browser/operation.ts";
-import { createMessageOperation, channelConfigured } from "../Message/operation.ts";
-import { COMPONENT_CATALOG, DESIGN_TOKENS, DOMAIN_PRESETS } from "../Design/core.ts";
+import { designOperation } from "../../Domain/Design/operation.ts";
+import { businessOperation } from "../../Domain/Business/operation.ts";
+import { scienceOperation } from "../../Domain/Science/operation.ts";
+import { contentOperation } from "../../Domain/Content/operation.ts";
+import { createBrowserContextOperation } from "../../Tool/Browser/operation.ts";
+import { createMessageOperation, channelConfigured } from "../../Tool/Message/operation.ts";
+import { COMPONENT_CATALOG, DESIGN_TOKENS, DOMAIN_PRESETS } from "../../Domain/Design/core.ts";
 import {
   advanceAutopilotCycle,
   loadAutopilotCheckpoint,
@@ -371,11 +371,11 @@ export function exportMermaidDag(wf: any): { mermaidCode: string; nodesCount: nu
 }
 
 export function exportOpenRpcSpec(): Record<string, unknown> {
-  const { BUSINESS_INPUT_SCHEMA } = require("../Business/mcp-server.ts");
-  const { SCIENCE_INPUT_SCHEMA } = require("../Science/mcp-server.ts");
-  const { DESIGN_INPUT_SCHEMA } = require("../Design/mcp-server.ts");
+  const { BUSINESS_INPUT_SCHEMA } = require("../../Domain/Business/mcp-server.ts");
+  const { SCIENCE_INPUT_SCHEMA } = require("../../Domain/Science/mcp-server.ts");
+  const { DESIGN_INPUT_SCHEMA } = require("../../Domain/Design/mcp-server.ts");
   const { WORKFLOW_INPUT_SCHEMA } = require("./mcp-server.ts");
-  const { MESSAGE_INPUT_SCHEMA } = require("../Message/mcp-server.ts");
+  const { MESSAGE_INPUT_SCHEMA } = require("../../Tool/Message/mcp-server.ts");
 
   return {
     openrpc: "1.3.2",
@@ -541,11 +541,11 @@ export function exportOpenRpcSpec(): Record<string, unknown> {
 }
 
 export function exportOpenApiSpec(): Record<string, unknown> {
-  const { BUSINESS_INPUT_SCHEMA } = require("../Business/mcp-server.ts");
-  const { SCIENCE_INPUT_SCHEMA } = require("../Science/mcp-server.ts");
-  const { DESIGN_INPUT_SCHEMA } = require("../Design/mcp-server.ts");
+  const { BUSINESS_INPUT_SCHEMA } = require("../../Domain/Business/mcp-server.ts");
+  const { SCIENCE_INPUT_SCHEMA } = require("../../Domain/Science/mcp-server.ts");
+  const { DESIGN_INPUT_SCHEMA } = require("../../Domain/Design/mcp-server.ts");
   const { WORKFLOW_INPUT_SCHEMA } = require("./mcp-server.ts");
-  const { MESSAGE_INPUT_SCHEMA } = require("../Message/mcp-server.ts");
+  const { MESSAGE_INPUT_SCHEMA } = require("../../Tool/Message/mcp-server.ts");
 
   return {
     openapi: "3.1.0",
@@ -918,9 +918,9 @@ export async function executeBenchmark(options: {
   }
 
   if (allowedSubsystems.has("secret")) {
-    const { atomicWriteSecret } = await import("../Secret/write.ts");
+    const { atomicWriteSecret } = await import("../../Tool/Secret/write.ts");
     const { join } = await import("node:path");
-    const tmpFile = join(import.meta.dir, "../Secret/.bench-tmp.json");
+    const tmpFile = join(import.meta.dir, "../../Tool/Secret/.bench-tmp.json");
     targets.push(
       {
         subsystem: "secret",
@@ -987,7 +987,7 @@ export async function executeBenchmark(options: {
   try {
     const { rmSync } = await import("node:fs");
     const { join } = await import("node:path");
-    rmSync(join(import.meta.dir, "../Secret/.bench-tmp.json"), { force: true });
+    rmSync(join(import.meta.dir, "../../Tool/Secret/.bench-tmp.json"), { force: true });
   } catch {}
 
   const suiteDurationMs = Math.round((performance.now() - suiteT0) * 100) / 100;
@@ -1412,31 +1412,31 @@ export function generateExportConfigs(target: string): ExportConfigResult {
       },
       "mentalcraft-business": {
         command: "bun",
-        args: [`${pluginRoot}/Business/mcp-server.ts`],
+        args: [`${pluginRoot}/Domain/Business/mcp-server.ts`],
       },
       "mentalcraft-design": {
         command: "bun",
-        args: [`${pluginRoot}/Design/mcp-server.ts`],
+        args: [`${pluginRoot}/Domain/Design/mcp-server.ts`],
       },
       "mentalcraft-science": {
         command: "bun",
-        args: [`${pluginRoot}/Science/mcp-server.ts`],
+        args: [`${pluginRoot}/Domain/Science/mcp-server.ts`],
       },
       "mentalcraft-content": {
         command: "bun",
-        args: [`${pluginRoot}/Content/mcp-server.ts`],
+        args: [`${pluginRoot}/Domain/Content/mcp-server.ts`],
       },
       "mentalcraft-workflow": {
         command: "bun",
-        args: [`${pluginRoot}/Workflow/mcp-server.ts`],
+        args: [`${pluginRoot}/Capability/Workflow/mcp-server.ts`],
       },
       "mentalcraft-infra": {
         command: "bun",
-        args: [`${pluginRoot}/Infra/mcp-server.ts`],
+        args: [`${pluginRoot}/Domain/Infra/mcp-server.ts`],
       },
       "mentalcraft-company": {
         command: "bun",
-        args: [`${pluginRoot}/Company/mcp-server.ts`],
+        args: [`${pluginRoot}/Domain/Company/mcp-server.ts`],
       },
     },
   };
@@ -1458,13 +1458,13 @@ export function installMcpSchemasToAgy(customDir?: string): { installedCount: nu
   const { mkdirSync, writeFileSync } = require("node:fs");
 
   const baseDir = customDir ?? join(homedir(), ".gemini/antigravity-cli/mcp");
-  const { BUSINESS_INPUT_SCHEMA } = require("../Business/mcp-server.ts");
-  const { SCIENCE_INPUT_SCHEMA } = require("../Science/mcp-server.ts");
-  const { CONTENT_INPUT_SCHEMA } = require("../Content/mcp-server.ts");
-  const { DESIGN_INPUT_SCHEMA } = require("../Design/mcp-server.ts");
+  const { BUSINESS_INPUT_SCHEMA } = require("../../Domain/Business/mcp-server.ts");
+  const { SCIENCE_INPUT_SCHEMA } = require("../../Domain/Science/mcp-server.ts");
+  const { CONTENT_INPUT_SCHEMA } = require("../../Domain/Content/mcp-server.ts");
+  const { DESIGN_INPUT_SCHEMA } = require("../../Domain/Design/mcp-server.ts");
   const { WORKFLOW_INPUT_SCHEMA } = require("./mcp-server.ts");
-  const { MESSAGE_INPUT_SCHEMA } = require("../Message/mcp-server.ts");
-  const { BROWSER_INPUT_SCHEMA } = require("../Browser/mcp-server.ts");
+  const { MESSAGE_INPUT_SCHEMA } = require("../../Tool/Message/mcp-server.ts");
+  const { BROWSER_INPUT_SCHEMA } = require("../../Tool/Browser/mcp-server.ts");
 
   const toolsToInstall = [
     {
@@ -1583,7 +1583,7 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
     case "check_flywheel": {
       const { spawnSync } = require("node:child_process");
       const { resolve } = require("node:path");
-      const script = resolve(__dirname, "../.agents/scripts/check-flywheel.ts");
+      const script = resolve(__dirname, "../../.agents/scripts/check-flywheel.ts");
       const res = spawnSync("bun", [script], { encoding: "utf8" });
       return {
         protocol: WORKFLOW_PROTOCOL,
@@ -1601,7 +1601,7 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
     case "audit_workspace": {
       const { spawnSync } = require("node:child_process");
       const { resolve } = require("node:path");
-      const script = resolve(__dirname, "../.agents/scripts/audit-workspace.ts");
+      const script = resolve(__dirname, "../../.agents/scripts/audit-workspace.ts");
       const res = spawnSync("bun", [script], { encoding: "utf8" });
       return {
         protocol: WORKFLOW_PROTOCOL,

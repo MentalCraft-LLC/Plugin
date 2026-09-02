@@ -2,7 +2,7 @@
  * MentalCraft Plugin Ecosystem - Unified Workflow & Core Engine SDK
  */
 
-// Business Subsystem
+// Business Subsystem (Domain)
 export {
   BUSINESS_PROTOCOL,
   formatBusinessSummary,
@@ -30,10 +30,10 @@ export {
   type SpriteFlowPseoMatrixResult,
   type ZeroCostViralLoopsResult,
   type PseoKeywordEntry,
-} from "../Business/core.ts";
-export { businessOperation, TrafficCvClient } from "../Business/operation.ts";
+} from "../../Domain/Business/core.ts";
+export { businessOperation, TrafficCvClient } from "../../Domain/Business/operation.ts";
 
-// Science Subsystem
+// Science Subsystem (Domain)
 export {
   SCIENCE_PROTOCOL,
   formatScienceSummary,
@@ -71,7 +71,7 @@ export {
   type PatentClaimStructureResult,
   type PatentSpecScaffoldResult,
   type ScholarlyImpactForecastResult,
-} from "../Science/core.ts";
+} from "../../Domain/Science/core.ts";
 export {
   scienceOperation,
   parseBibtexToAst,
@@ -82,9 +82,9 @@ export {
   performSocialScienceReviewAudit,
   formatChineseAcademicPaper,
   matchSsciTopJournals,
-} from "../Science/operation.ts";
+} from "../../Domain/Science/operation.ts";
 
-// Design Subsystem
+// Design Subsystem (Domain)
 export {
   DESIGN_PROTOCOL,
   COMPONENT_CATALOG,
@@ -103,10 +103,37 @@ export {
   type DuotonePaletteId,
   type SubstrateId,
   type EditorialManifest,
-} from "../Design/core.ts";
-export { designOperation } from "../Design/operation.ts";
+} from "../../Domain/Design/core.ts";
+export { designOperation } from "../../Domain/Design/operation.ts";
 
-// Workflow Subsystem
+// Content Subsystem (Domain)
+export {
+  CONTENT_PROTOCOL,
+  type ContentAction,
+  type ContentInput,
+  type ContentResult,
+} from "../../Domain/Content/core.ts";
+export { contentOperation } from "../../Domain/Content/operation.ts";
+
+// Infra Subsystem (Domain)
+export {
+  INFRA_PROTOCOL,
+  type InfraAction,
+  type InfraInput,
+  type InfraResult,
+} from "../../Domain/Infra/core.ts";
+export { infraOperation } from "../../Domain/Infra/operation.ts";
+
+// Company Subsystem (Domain)
+export {
+  COMPANY_PROTOCOL,
+  type CompanyAction,
+  type CompanyInput,
+  type CompanyResult,
+} from "../../Domain/Company/core.ts";
+export { companyOperation } from "../../Domain/Company/operation.ts";
+
+// Workflow Subsystem (Capability)
 export {
   WORKFLOW_PROTOCOL,
   BUILTIN_WORKFLOWS,
@@ -136,25 +163,30 @@ export {
   redactSensitiveData,
 } from "./operation.ts";
 
-// Browser Subsystem
+// Browser Subsystem (Tool)
 export {
   PROTOCOL as BROWSER_PROTOCOL,
   PROTOCOL as CHROME_PROTOCOL,
   compactBrowserResult,
   formatBrowserSummary,
-} from "../Browser/core.ts";
+} from "../../Tool/Browser/core.ts";
 export {
   createBrowserContextOperation,
   type BrowserContextInput,
   type BrowserContextOperation,
-} from "../Browser/operation.ts";
+} from "../../Tool/Browser/operation.ts";
 
-// Message Subsystem
+// Message Subsystem (Tool)
 export {
   createMessageOperation,
   type MessageInput,
   type MessageResult,
-} from "../Message/operation.ts";
+} from "../../Tool/Message/operation.ts";
+
+// Secret Subsystem (Tool)
+export {
+  secretOperation,
+} from "../../Tool/Secret/operation.ts";
 
 // Gateway
 export {

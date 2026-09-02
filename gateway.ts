@@ -1,12 +1,5 @@
-#!/usr/bin/env bun
 /**
- * Plugin/gateway.ts - Root Entrypoint for MentalCraft Master MCP Gateway Server
+ * MentalCraft Master Gateway MCP Server Entrypoint (Root Proxy)
  */
 
-import { startGatewayMcpStdio } from "./Workflow/gateway.ts";
-
-if (import.meta.main) {
-  startGatewayMcpStdio();
-}
-
-export * from "./Workflow/gateway.ts";
+export * from "./Capability/Workflow/gateway.ts";
