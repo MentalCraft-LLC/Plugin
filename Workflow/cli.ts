@@ -577,12 +577,15 @@ async function mainCommand(cmd: string) {
         });
         console.log(JSON.stringify(res.data, null, 2));
       } else if (sub === "daemon" || sub === "loop" || sub === "forever") {
-        console.log(`\n♾️ Starting Perpetual Autopilot Daemon for [${vName}] (Target: $${targetMrr.toLocaleString()} MRR)...\n` + "=".repeat(70));
-        console.log("Press Ctrl+C or kill task to interrupt at any time.\n");
-        const delaySec = parseInt(args.find((a) => a.startsWith("--delay="))?.split("=")[1] || "30", 10);
+        const { computeAdaptiveRespiration } = require("./autopilot.ts");
+        console.log(`\n♾️ Starting Four-Gear Adaptive Autopilot Daemon for [${vName}] (Target: $${targetMrr.toLocaleString()} MRR)...\n` + "=".repeat(70));
+        console.log("Adaptive Respiration: SURGE (10s) | GROWTH (30s) | CRUISE (60s) | REST (300s)\n");
         let cycle = 1;
+        let idleStreak = 0;
         while (true) {
           console.log(`\n--- [Autopilot Perpetual Cycle #${cycle} | ${new Date().toISOString()}] ---`);
+          let hasErrors = false;
+          let hasActiveWork = false;
           try {
             const res = await workflowOperation({
               action: "autopilot_step",
@@ -590,12 +593,28 @@ async function mainCommand(cmd: string) {
             });
             const data = res.data as any;
             console.log(formatAutopilotSummary(data));
+            if (!data?.success) {
+              hasErrors = true;
+              idleStreak = 0;
+            } else {
+              idleStreak++;
+            }
           } catch (err: any) {
+            hasErrors = true;
+            idleStreak = 0;
             console.error(`Cycle #${cycle} execution notice:`, err?.message || err);
           }
+
+          const respiration = computeAdaptiveRespiration({
+            hasErrors,
+            hasActiveWork,
+            idleStreak,
+          });
+
+          console.log(`\n🫁 Respiration: ${respiration.reason}`);
+          console.log(`⏳ Next autonomous cycle in ${respiration.delaySeconds}s...`);
           cycle++;
-          console.log(`\n⏳ Cycle complete. Next autonomous evaluation in ${delaySec}s (perpetual)...`);
-          await new Promise((resolve) => setTimeout(resolve, delaySec * 1000));
+          await new Promise((resolve) => setTimeout(resolve, respiration.delaySeconds * 1000));
         }
       } else {
         console.log(`\n🧭 Running Autopilot Step for [${vName}] (Target: $${targetMrr.toLocaleString()} MRR)...\n` + "=".repeat(70));

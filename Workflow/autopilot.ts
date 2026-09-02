@@ -376,7 +376,59 @@ export function saveAutopilotCheckpoint(checkpoint: AutopilotCheckpoint): string
   } catch (err) {
     console.error(`[Autopilot] Failed to save checkpoint to ${path}:`, err);
   }
-  return path;
+}
+
+export type AdaptiveRespirationGear = "SURGE" | "GROWTH" | "CRUISE" | "REST";
+
+export interface AdaptiveRespirationState {
+  gear: AdaptiveRespirationGear;
+  delaySeconds: number;
+  reason: string;
+}
+
+/**
+ * Four-Gear Adaptive Respiration Engine:
+ * Replaces fixed mechanical polling with natural biological damping:
+ * 1. SURGE (10s): Anomaly or gate violation detected, rapid self-healing
+ * 2. GROWTH (30s): Active milestone delivery or pending asset generation
+ * 3. CRUISE (60s): All 7 gates 100% green, balanced rhythmic breathing
+ * 4. REST (300s): Extended clean streak, restorative negative space
+ */
+export function computeAdaptiveRespiration(options: {
+  hasErrors?: boolean;
+  hasActiveWork?: boolean;
+  idleStreak?: number;
+}): AdaptiveRespirationState {
+  if (options.hasErrors) {
+    return {
+      gear: "SURGE",
+      delaySeconds: 10,
+      reason: "🔴 [SURGE]: Anomaly detected. Executing rapid remediation loop (10s cadence).",
+    };
+  }
+
+  if (options.hasActiveWork) {
+    return {
+      gear: "GROWTH",
+      delaySeconds: 30,
+      reason: "🟡 [GROWTH]: Active milestone progression & flywheel sedimentation (30s cadence).",
+    };
+  }
+
+  const streak = options.idleStreak ?? 0;
+  if (streak >= 3) {
+    return {
+      gear: "REST",
+      delaySeconds: 300,
+      reason: `⚪ [REST]: Ecosystem pristine for ${streak} consecutive ticks. Entering restorative breathing (300s cadence).`,
+    };
+  }
+
+  return {
+    gear: "CRUISE",
+    delaySeconds: 60,
+    reason: "🟢 [CRUISE]: All 7 quality gates green. Maintaining balanced negative space (60s cadence).",
+  };
 }
 
 export function generateScheduleSpec(
