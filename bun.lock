@@ -8,51 +8,63 @@
         "marked": "^18.0.11",
       },
     },
-    "Browser": {
-      "name": "chrome",
+    "Capability/Workflow": {
+      "name": "@mentalcraft/workflow",
+    },
+    "Domain/Business": {
+      "name": "@mentalcraft/business",
+    },
+    "Domain/Company": {
+      "name": "@mentalcraft/plugin-company",
+      "version": "1.0.0",
+    },
+    "Domain/Content": {
+      "name": "@mentalcraft/content",
+    },
+    "Domain/Design": {
+      "name": "@mentalcraft/design",
+    },
+    "Domain/Infra": {
+      "name": "@mentalcraft/plugin-infra",
+      "version": "1.0.0",
+    },
+    "Domain/Science": {
+      "name": "@mentalcraft/science",
+    },
+    "Tool/Browser": {
+      "name": "browser",
       "devDependencies": {
         "marked": "^18.0.11",
       },
     },
-    "Business": {
-      "name": "@mentalcraft/business",
-    },
-    "Content": {
-      "name": "@mentalcraft/content",
-    },
-    "Design": {
-      "name": "@mentalcraft/design",
-    },
-    "Message": {
+    "Tool/Message": {
       "name": "message",
     },
-    "Science": {
-      "name": "@mentalcraft/science",
-    },
-    "Secret": {
+    "Tool/Secret": {
       "name": "secret",
-    },
-    "Workflow": {
-      "name": "@mentalcraft/workflow",
     },
   },
   "packages": {
-    "@mentalcraft/business": ["@mentalcraft/business@workspace:Business"],
+    "@mentalcraft/business": ["@mentalcraft/business@workspace:Domain/Business"],
 
-    "@mentalcraft/content": ["@mentalcraft/content@workspace:Content"],
+    "@mentalcraft/content": ["@mentalcraft/content@workspace:Domain/Content"],
 
-    "@mentalcraft/design": ["@mentalcraft/design@workspace:Design"],
+    "@mentalcraft/design": ["@mentalcraft/design@workspace:Domain/Design"],
 
-    "@mentalcraft/science": ["@mentalcraft/science@workspace:Science"],
+    "@mentalcraft/plugin-company": ["@mentalcraft/plugin-company@workspace:Domain/Company"],
 
-    "@mentalcraft/workflow": ["@mentalcraft/workflow@workspace:Workflow"],
+    "@mentalcraft/plugin-infra": ["@mentalcraft/plugin-infra@workspace:Domain/Infra"],
 
-    "chrome": ["chrome@workspace:Browser"],
+    "@mentalcraft/science": ["@mentalcraft/science@workspace:Domain/Science"],
+
+    "@mentalcraft/workflow": ["@mentalcraft/workflow@workspace:Capability/Workflow"],
+
+    "browser": ["browser@workspace:Tool/Browser"],
 
     "marked": ["marked@18.0.11", "", { "bin": { "marked": "bin/marked.js" } }, "sha512-HnslJfsZkRPBDJRHvVtAaWlZHEpSu7u8LgQuJCELjRKuWR+hpq4A7sLq3p8HaI9ypVoXDXxV34CsQJEe1+J5Aw=="],
 
-    "message": ["message@workspace:Message"],
+    "message": ["message@workspace:Tool/Message"],
 
-    "secret": ["secret@workspace:Secret"],
+    "secret": ["secret@workspace:Tool/Secret"],
   }
 }
