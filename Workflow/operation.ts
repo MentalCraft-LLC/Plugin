@@ -2211,7 +2211,7 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
             r = { success: true, data: { status: "executed", plugin: s.plugin, action: s.action } };
           }
           const dur = Math.round(performance.now() - sT0);
-          stepResults.push({ step: s.step, plugin: s.plugin, action: s.action, success: r.success ?? true, durationMs: dur, data: r.data ?? r });
+          stepResults.push({ step: s.step, plugin: s.plugin, action: s.action, skill: s.skill, success: r.success ?? true, durationMs: dur, data: r.data ?? r });
           stepContext[`step${s.step}`] = { data: r.data ?? r, success: r.success ?? true };
         }
       }

@@ -660,7 +660,8 @@ async function mainCommand(cmd: string) {
       console.log(`\n✅ Dynamic Workflow Complete: ${data.workflowName} (${data.durationMs}ms)`);
       console.log(`Pipeline Status: ${data.success ? "🟢 PASS" : "🔴 FAIL"} | Total Steps: ${data.stepsCount}`);
       data.stepResults?.forEach((s: any) => {
-        console.log(`  Step ${s.step} [${s.plugin}:${s.action}]: ${s.success ? "🟢 PASS" : "🔴 FAIL"} (${s.durationMs}ms)`);
+        const skillTag = s.skill ? ` [🧠 ${s.skill}]` : "";
+        console.log(`  Step ${s.step} [${s.plugin}:${s.action}]${skillTag}: ${s.success ? "🟢 PASS" : "🔴 FAIL"} (${s.durationMs}ms)`);
       });
       console.log("=".repeat(75) + "\n");
       break;

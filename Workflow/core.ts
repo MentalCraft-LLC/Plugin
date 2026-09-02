@@ -55,6 +55,7 @@ export type WorkflowStep = {
   step: number;
   plugin: PluginId;
   action: string;
+  skill?: string;
   description: string;
   dependsOn?: number[];
   parameters?: Record<string, unknown>;
@@ -555,10 +556,10 @@ export function synthesizeDynamicWorkflow(intent: DynamicWorkflowIntent): Workfl
       description: `Targeted dynamic workflow for ${venture}: subsystem health check -> chaos fault isolation -> 20-channel flywheel verification -> zero ghost state audit.`,
       requiredPlugins: ["workflow", "browser"],
       steps: [
-        { step: 1, plugin: "workflow", action: "health_check", description: `Probe all 6 plugins and endpoints for latency, saturation, and error rates.` },
-        { step: 2, plugin: "browser", action: "chaos_resilience_test", description: `Isolate runtime fault, verify error boundary containment and graceful fallback.` },
-        { step: 3, plugin: "workflow", action: "check_flywheel", description: `Verify pentagonal 20-channel flywheel connectivity and heal any broken channels.` },
-        { step: 4, plugin: "workflow", action: "audit_workspace", description: `Audit workspace compliance, remove ghost state, and assert zero technical debt.` },
+        { step: 1, plugin: "workflow", action: "health_check", skill: "governance", description: `Probe all 6 plugins and endpoints for latency, saturation, and error rates.` },
+        { step: 2, plugin: "browser", action: "chaos_resilience_test", skill: "disassemble", description: `Isolate runtime fault, verify error boundary containment and graceful fallback.` },
+        { step: 3, plugin: "workflow", action: "check_flywheel", skill: "flywheel", description: `Verify pentagonal 20-channel flywheel connectivity and heal any broken channels.` },
+        { step: 4, plugin: "workflow", action: "audit_workspace", skill: "governance", description: `Audit workspace compliance, remove ghost state, and assert zero technical debt.` },
       ],
     };
   }
@@ -571,11 +572,11 @@ export function synthesizeDynamicWorkflow(intent: DynamicWorkflowIntent): Workfl
       description: `Targeted dynamic workflow for ${venture}: conversion leak analysis -> design token spec -> Svelte 5 runes checkout section -> empirical DOM inspection -> Stripe ARR telemetry.`,
       requiredPlugins: ["business", "design", "browser"],
       steps: [
-        { step: 1, plugin: "business", action: "venture_market_validation", description: `Analyze ${venture} conversion leaks, TAM/SAM/SOM, and pricing elasticity.` },
-        { step: 2, plugin: "design", action: "audit_ui", description: `Validate ${venture} pricing and checkout cards against Twelve Ecosystem Virtues and single-word law.` },
-        { step: 3, plugin: "design", action: "generate_ui", description: `Synthesize high-converting Svelte 5 runes checkout component with 1-click buy button.` },
-        { step: 4, plugin: "browser", action: "inspect_element", description: `Empirically verify rendered ${venture} checkout DOM and state transition.` },
-        { step: 5, plugin: "business", action: "venture_monetization_telemetry", description: `Track Stripe checkout session initiation, ARR velocity, and churn decay.` },
+        { step: 1, plugin: "business", action: "venture_market_validation", skill: "demand", description: `Analyze ${venture} conversion leaks, TAM/SAM/SOM, and pricing elasticity.` },
+        { step: 2, plugin: "design", action: "audit_ui", skill: "positioning", description: `Validate ${venture} pricing and checkout cards against Twelve Ecosystem Virtues and single-word law.` },
+        { step: 3, plugin: "design", action: "generate_ui", skill: "build", description: `Synthesize high-converting Svelte 5 runes checkout component with 1-click buy button.` },
+        { step: 4, plugin: "browser", action: "inspect_element", skill: "disassemble", description: `Empirically verify rendered ${venture} checkout DOM and state transition.` },
+        { step: 5, plugin: "business", action: "venture_monetization_telemetry", skill: "growth", description: `Track Stripe checkout session initiation, ARR velocity, and churn decay.` },
       ],
     };
   }
@@ -588,11 +589,11 @@ export function synthesizeDynamicWorkflow(intent: DynamicWorkflowIntent): Workfl
       description: `Targeted dynamic workflow for ${venture}: academic psychometric validation -> single-word component spec -> Svelte 5 clinical calculator -> empirical DOM inspection -> B2B referral loop.`,
       requiredPlugins: ["science", "design", "browser", "business"],
       steps: [
-        { step: 1, plugin: "science", action: "social_science_peer_review_audit", description: `Audit ${venture} clinical scale validity, DSM-5 cutoff specificity, and psychometrics.` },
-        { step: 2, plugin: "design", action: "audit_ui", description: `Audit clinical interactive tools for Swiss typography and OKLCH color token compliance.` },
-        { step: 3, plugin: "design", action: "generate_ui", description: `Synthesize interactive Svelte 5 runes clinical cutoff and symptom breakdown composite.` },
-        { step: 4, plugin: "browser", action: "inspect_element", description: `Empirically verify 60fps interaction and zero layout shift on clinical tool surface.` },
-        { step: 5, plugin: "business", action: "venture_monetization_telemetry", description: `Wire practitioner Pro referral link and track clinical intake conversion.` },
+        { step: 1, plugin: "science", action: "social_science_peer_review_audit", skill: "paper", description: `Audit ${venture} clinical scale validity, DSM-5 cutoff specificity, and psychometrics.` },
+        { step: 2, plugin: "design", action: "audit_ui", skill: "design", description: `Audit clinical interactive tools for Swiss typography and OKLCH color token compliance.` },
+        { step: 3, plugin: "design", action: "generate_ui", skill: "build", description: `Synthesize interactive Svelte 5 runes clinical cutoff and symptom breakdown composite.` },
+        { step: 4, plugin: "browser", action: "inspect_element", skill: "empirical", description: `Empirically verify 60fps interaction and zero layout shift on clinical tool surface.` },
+        { step: 5, plugin: "business", action: "venture_monetization_telemetry", skill: "scale", description: `Wire practitioner Pro referral link and track clinical intake conversion.` },
       ],
     };
   }
@@ -605,11 +606,11 @@ export function synthesizeDynamicWorkflow(intent: DynamicWorkflowIntent): Workfl
       description: `Targeted dynamic workflow for ${venture}: keyword ranking -> PAS conversion copywriting -> attention hook generation -> programmatic landing UI -> Lighthouse audit.`,
       requiredPlugins: ["business", "content", "design", "browser"],
       steps: [
-        { step: 1, plugin: "business", action: "seo_batch_keywords", description: `Rank low-KD high-intent organic search keywords for ${venture}.` },
-        { step: 2, plugin: "content", action: "marketing_pas_copywriter", description: `Draft high-converting Problem-Agitate-Solve copy deck targeted at searchers.` },
-        { step: 3, plugin: "content", action: "marketing_viral_hook_generator", description: `Generate 3-second attention hooks, curiosity gaps, and Schema.org metadata.` },
-        { step: 4, plugin: "design", action: "generate_ui", description: `Synthesize responsive Svelte 5 programmatic landing template with canonical tokens.` },
-        { step: 5, plugin: "browser", action: "lighthouse_audit", description: `Audit 5 categories (Performance, A11y, Best Practices, SEO) and ensure 95+ score.` },
+        { step: 1, plugin: "business", action: "seo_batch_keywords", skill: "seo", description: `Rank low-KD high-intent organic search keywords for ${venture}.` },
+        { step: 2, plugin: "content", action: "marketing_pas_copywriter", skill: "marketing", description: `Draft high-converting Problem-Agitate-Solve copy deck targeted at searchers.` },
+        { step: 3, plugin: "content", action: "marketing_viral_hook_generator", skill: "story", description: `Generate 3-second attention hooks, curiosity gaps, and Schema.org metadata.` },
+        { step: 4, plugin: "design", action: "generate_ui", skill: "design", description: `Synthesize responsive Svelte 5 programmatic landing template with canonical tokens.` },
+        { step: 5, plugin: "browser", action: "lighthouse_audit", skill: "governance", description: `Audit 5 categories (Performance, A11y, Best Practices, SEO) and ensure 95+ score.` },
       ],
     };
   }
@@ -621,12 +622,12 @@ export function synthesizeDynamicWorkflow(intent: DynamicWorkflowIntent): Workfl
     description: `Dynamic product iteration pipeline for ${venture} conditioned on goal: "${intent.goal}".`,
     requiredPlugins: ["business", "design", "browser", "content", "workflow"],
     steps: [
-      { step: 1, plugin: "business", action: "venture_market_validation", description: `Analyze ${venture} gap, competitive benchmarks, and strategic focus for goal: "${intent.goal}".` },
-      { step: 2, plugin: "design", action: "audit_ui", description: `Validate single-word parent component naming and Twelve Universal Virtues.` },
-      { step: 3, plugin: "design", action: "generate_ui", description: `Synthesize minimal viable Svelte 5 runes deliverable matching goal: "${intent.goal}".` },
-      { step: 4, plugin: "browser", action: "inspect_element", description: `Execute empirical dual verification via svelte-check and 7 master gates.` },
-      { step: 5, plugin: "business", action: "venture_monetization_telemetry", description: `Sediment telemetry, promote reusable patterns, and feed empirical data to Science.` },
-      { step: 6, plugin: "workflow", action: "autopilot_step", description: `Transition autonomously and dispatch subsequent sprint cycle.` },
+      { step: 1, plugin: "business", action: "venture_market_validation", skill: "demand", description: `Analyze ${venture} gap, competitive benchmarks, and strategic focus for goal: "${intent.goal}".` },
+      { step: 2, plugin: "design", action: "audit_ui", skill: "architecture", description: `Validate single-word parent component naming and Twelve Universal Virtues.` },
+      { step: 3, plugin: "design", action: "generate_ui", skill: "build", description: `Synthesize minimal viable Svelte 5 runes deliverable matching goal: "${intent.goal}".` },
+      { step: 4, plugin: "browser", action: "inspect_element", skill: "governance", description: `Execute empirical dual verification via svelte-check and 7 master gates.` },
+      { step: 5, plugin: "business", action: "venture_monetization_telemetry", skill: "growth", description: `Sediment telemetry, promote reusable patterns, and feed empirical data to Science.` },
+      { step: 6, plugin: "workflow", action: "autopilot_step", skill: "autopilot", description: `Transition autonomously and dispatch subsequent sprint cycle.` },
     ],
   };
 }
