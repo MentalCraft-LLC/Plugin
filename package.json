@@ -14,7 +14,8 @@
     "./content": "./Content/operation.ts",
     "./workflow": "./Workflow/operation.ts",
     "./browser": "./Browser/operation.ts",
-    "./message": "./Message/operation.ts"
+    "./message": "./Message/operation.ts",
+    "./secret": "./Secret/write.ts"
   },
   "workspaces": [
     "Browser",

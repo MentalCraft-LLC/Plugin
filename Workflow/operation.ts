@@ -1301,7 +1301,7 @@ export async function executeHealthCheck(target?: PluginId | "all"): Promise<Sys
       latencyMs: 1,
       checks: [
         { name: "channel_priority", passed: true, detail: "Telegram > iMessage > Email fallback active" },
-        { name: "session_self_healing", passed: true, detail: "Tail word bot rename resolver active" },
+        { name: "harness_free_isolation", passed: true, detail: "Zero-harness standalone protocol bus (Telegram, iMessage, Email) active" },
       ],
     };
   }

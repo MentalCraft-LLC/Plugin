@@ -3,11 +3,13 @@ import { sendImessage, resolveRecipient, loadConfig as loadImessageConfig, watch
 import { loadConfig as loadSmtpConfig, sendEmail } from "./channels/email.ts";
 
 export type ChannelId = "telegram" | "imessage" | "email";
-export type MessageAction = "send" | "poll" | "status" | "bootstrap";
+export type MessageAction = "send" | "send_photo" | "poll" | "status" | "bootstrap";
 
 export type MessageInput = {
   action: MessageAction;
   text?: string;
+  photoPath?: string;
+  caption?: string;
   channel?: ChannelId;
   chatId?: number | string;
 };
@@ -122,6 +124,14 @@ export function createMessageOperation() {
       const replies = results.flatMap((result) => result.replies ?? []);
       const reply_contexts = results.flatMap((result) => result.reply_contexts ?? []);
       return { ok: true, results, replies, reply_contexts };
+    }
+
+    if (params.action === "send_photo") {
+      const photoPath = params.photoPath || params.text;
+      if (!photoPath) throw new Error("message send_photo requires photoPath");
+      const { sendTelegramScreenshot } = await import("../scripts/send-telegram-screenshot.ts");
+      const res = await sendTelegramScreenshot(photoPath, params.caption || undefined);
+      return { ok: true, channel: "telegram", messageId: res.messageId, webpPath: res.webpPath };
     }
 
     if (!params.text) throw new Error("message send requires text");

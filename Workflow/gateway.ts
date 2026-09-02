@@ -93,6 +93,18 @@ export const GATEWAY_TOOLS = [
     description: "MentalCraft Agent Message Bus. Unified messaging across Telegram, iMessage, and Email with local 0600 security.",
     inputSchema: MESSAGE_INPUT_SCHEMA,
   },
+  {
+    name: "secret",
+    description: "MentalCraft Mode-0600 Local Credential Vault. Write confidential configuration files and API tokens with POSIX 0600 mode and atomic swap.",
+    inputSchema: {
+      type: "object",
+      required: ["path", "content"],
+      properties: {
+        path: { type: "string", description: "Target absolute path for the 0600 secret file." },
+        content: { type: "string", description: "Content of the secret." },
+      },
+    },
+  },
 ];
 
 export async function handleGatewayRpc(request: JsonRpcRequest): Promise<JsonRpcResponse | null> {
@@ -184,6 +196,13 @@ export async function handleGatewayRpc(request: JsonRpcRequest): Promise<JsonRpc
         output = await executeChrome(args as any);
       } else if (toolName === "message") {
         output = await executeMessage(args as any);
+      } else if (toolName === "secret") {
+        const { atomicWriteSecret } = await import("../Secret/write.ts");
+        const path = String(args.path ?? "");
+        const content = String(args.content ?? "");
+        if (!path || !content) throw new Error("secret requires path and content");
+        atomicWriteSecret(path, content);
+        output = { ok: true, path, mode: "0600" };
       } else {
         return {
           jsonrpc: "2.0",

@@ -10,7 +10,7 @@ export const SUPPORTED_PROTOCOL_VERSIONS = new Set([
 export const SERVER_NAME = "message";
 export const SERVER_VERSION = "1.0.0";
 
-export const MESSAGE_ACTIONS = ["send", "poll", "status", "bootstrap"] as const;
+export const MESSAGE_ACTIONS = ["send", "send_photo", "poll", "status", "bootstrap"] as const;
 
 export const MESSAGE_INPUT_SCHEMA = {
   type: "object",
@@ -18,7 +18,9 @@ export const MESSAGE_INPUT_SCHEMA = {
   required: ["action"],
   properties: {
     action: { type: "string", enum: [...MESSAGE_ACTIONS] },
-    text: { type: "string", minLength: 1, maxLength: 2000 },
+    text: { type: "string", minLength: 1, maxLength: 4000 },
+    photoPath: { type: "string", description: "Path to image or screenshot to deliver as WebP" },
+    caption: { type: "string", description: "Optional caption for the photo" },
     channel: { type: "string", enum: ["telegram", "imessage", "email"] },
     chatId: { type: ["number", "string"] },
   },
