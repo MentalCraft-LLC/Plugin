@@ -19,7 +19,7 @@ function pruneVideos(directory) {
   const now = Date.now();
   try {
     const files = readdirSync(directory)
-      .filter((name) => /^(?:\d+)-[a-f0-9]{16}\.(?:webm|mp4|json)$/.test(name))
+      .filter((name) => /^(?:\d+)-[a-f0-9]{16}\.(?:webm|mp4|webp|json)$/.test(name))
       .map((name) => {
         const path = resolve(directory, name);
         return { path, mtime: statSync(path).mtimeMs };
@@ -44,13 +44,16 @@ export function storeVideoRecording(payload, directory = VIDEO_DIR) {
   let width = 1280;
   let height = 720;
 
-  if (typeof payload === "string" && payload.startsWith("data:video/")) {
+  if (typeof payload === "string" && (payload.startsWith("data:video/") || payload.startsWith("data:image/webp"))) {
     const comma = payload.indexOf(",");
     if (comma < 0) throw new Error("video_format_invalid");
-    format = payload.includes("mp4") ? "mp4" : "webm";
+    format = payload.includes("webp") ? "webp" : payload.includes("mp4") ? "mp4" : "webm";
     bytes = Buffer.from(payload.slice(comma + 1), "base64");
   } else if (Buffer.isBuffer(payload)) {
     bytes = payload;
+    if (bytes.length >= 12 && bytes.toString("ascii", 0, 4) === "RIFF" && bytes.toString("ascii", 8, 12) === "WEBP") {
+      format = "webp";
+    }
   } else if (payload && typeof payload === "object" && Array.isArray(payload.frames)) {
     format = "json";
     frameCount = payload.frames.length;

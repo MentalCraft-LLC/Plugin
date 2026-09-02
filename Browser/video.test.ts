@@ -56,4 +56,18 @@ describe("Local Video Recording & Screen Capture Atom", () => {
     const empty = Buffer.alloc(0);
     expect(() => storeVideoRecording(empty, dir)).toThrow("video_size_invalid");
   });
+
+  test("stores animated WebP video recording buffer with correct format and private permissions", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrome-webp-video-"));
+    temporary.push(dir);
+
+    // Create a mock RIFF...WEBP buffer
+    const webpHeader = Buffer.from("RIFF\x20\x00\x00\x00WEBPVP8X\x0a\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00", "binary");
+    const receipt = storeVideoRecording(webpHeader, dir);
+
+    expect(receipt.status).toBe("stored");
+    expect(receipt.format).toBe("webp");
+    expect(receipt.path.endsWith(".webp")).toBe(true);
+    expect(statSync(receipt.path).mode & 0o077).toBe(0);
+  });
 });

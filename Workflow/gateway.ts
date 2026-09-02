@@ -24,6 +24,7 @@ import { BUSINESS_INPUT_SCHEMA } from "../Business/mcp-server.ts";
 import { SCIENCE_INPUT_SCHEMA } from "../Science/mcp-server.ts";
 import { CONTENT_INPUT_SCHEMA } from "../Content/mcp-server.ts";
 import { MESSAGE_INPUT_SCHEMA } from "../Message/mcp-server.ts";
+import { SECRET_INPUT_SCHEMA } from "../Secret/mcp-server.ts";
 
 export type JsonRpcId = string | number | null;
 
@@ -95,15 +96,8 @@ export const GATEWAY_TOOLS = [
   },
   {
     name: "secret",
-    description: "MentalCraft Mode-0600 Local Credential Vault. Write confidential configuration files and API tokens with POSIX 0600 mode and atomic swap.",
-    inputSchema: {
-      type: "object",
-      required: ["path", "content"],
-      properties: {
-        path: { type: "string", description: "Target absolute path for the 0600 secret file." },
-        content: { type: "string", description: "Content of the secret." },
-      },
-    },
+    description: "MentalCraft Mode-0600 Local Credential Vault. Write, read, rotate, audit, validate, and mask confidential tokens with atomic POSIX mode-0600 security.",
+    inputSchema: SECRET_INPUT_SCHEMA,
   },
 ];
 
@@ -197,12 +191,9 @@ export async function handleGatewayRpc(request: JsonRpcRequest): Promise<JsonRpc
       } else if (toolName === "message") {
         output = await executeMessage(args as any);
       } else if (toolName === "secret") {
-        const { atomicWriteSecret } = await import("../Secret/write.ts");
-        const path = String(args.path ?? "");
-        const content = String(args.content ?? "");
-        if (!path || !content) throw new Error("secret requires path and content");
-        atomicWriteSecret(path, content);
-        output = { ok: true, path, mode: "0600" };
+        const { secretOperation } = await import("../Secret/operation.ts");
+        const act = (args.action as string) || (args.content !== undefined ? "write" : "read");
+        output = secretOperation({ ...args, action: act } as any);
       } else {
         return {
           jsonrpc: "2.0",
