@@ -2,7 +2,7 @@
  * Plugin/Company Core - Corporate Governance, Legal Entities, Equity & Compliance Protocol
  *
  * FastMCP protocol engine managing MentalCraft LLC and subsidiary corporate structures:
- * - Module 1: Legal Operating Entities & Jurisdictional Verification (Wyoming LLC, Hangzhou R&D)
+ * - Module 1: Legal Operating Entities & Jurisdictional Verification (Wyoming LLC, Shanghai R&D)
  * - Module 2: Cap Table, Founder Equity & ESOP Dilution (Vesting schedules, Option Pools)
  * - Module 3: Intellectual Property & Software Assignment (Patents, Copyrights, Trademarks)
  * - Module 4: Corporate Secretarial & Annual Compliance (Registered Agent, Annual Reports)

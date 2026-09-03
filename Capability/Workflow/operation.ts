@@ -1375,7 +1375,7 @@ export async function executeHealthCheck(target?: PluginId | "all"): Promise<Sys
       status: "healthy",
       latencyMs: 1,
       checks: [
-        { name: "dual_jurisdiction", passed: true, detail: "Wyoming LLC & Hangzhou entities verified active" },
+        { name: "dual_jurisdiction", passed: true, detail: "Wyoming LLC & Shanghai entities verified active" },
         { name: "cap_table_compliance", passed: true, detail: "Equity splits, ESOP pools & annual reports compliant" },
       ],
     };

@@ -43,7 +43,7 @@ Plugin/
 | **Domain** | [`Domain/Science/`](./Domain/Science) | 学术研究与心理测量协议 | 临床量表计分 (GAD-7/PHQ-9)、自杀危机红线、LaTeX 生成、专利新颖性审查 |
 | **Domain** | [`Domain/Content/`](./Domain/Content) | 创意与商业文案协议 | 15 步救猫咪故事大纲、PAS 营销文案库、多平台适配矩阵 |
 | **Domain** | [`Domain/Infra/`](./Domain/Infra) | 边缘微服务与数据底座协议 | 边缘金丝雀探针、D1 迁移审计、Worker bundle 验证、Stripe Webhook 模拟 |
-| **Domain** | [`Domain/Company/`](./Domain/Company) | 法人治理与合规运营协议 | 双主体法人审计 (怀俄明/杭州)、股权稀释模型、知识产权链条确权 |
+| **Domain** | [`Domain/Company/`](./Domain/Company) | 法人治理与合规运营协议 | 双主体法人审计 (怀俄明/上海)、股权稀释模型、知识产权链条确权 |
 
 ---
 
