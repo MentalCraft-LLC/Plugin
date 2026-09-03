@@ -1357,7 +1357,7 @@ export async function executeHealthCheck(target?: PluginId | "all"): Promise<Sys
 
   if (!target || target === "all" || target === "infra") {
     reports.infra = {
-      pluginId: "infra" as any,
+      pluginId: "infra",
       name: "Global Edge Microservices & Data Infrastructure",
       status: "healthy",
       latencyMs: 1,
@@ -1370,7 +1370,7 @@ export async function executeHealthCheck(target?: PluginId | "all"): Promise<Sys
 
   if (!target || target === "all" || target === "company") {
     reports.company = {
-      pluginId: "company" as any,
+      pluginId: "company",
       name: "Corporate Governance, Equity & Compliance",
       status: "healthy",
       latencyMs: 1,

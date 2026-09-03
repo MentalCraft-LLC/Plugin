@@ -7,7 +7,18 @@
 
 export const WORKFLOW_PROTOCOL = "holar.workflow.v1" as const;
 
-export type PluginId = "browser" | "chrome" | "design" | "business" | "science" | "content" | "message" | "secret" | "workflow";
+export type PluginId =
+  | "browser"
+  | "chrome"
+  | "design"
+  | "business"
+  | "science"
+  | "content"
+  | "message"
+  | "secret"
+  | "infra"
+  | "company"
+  | "workflow";
 
 export type HealthStatus = "healthy" | "degraded" | "unreachable";
 
