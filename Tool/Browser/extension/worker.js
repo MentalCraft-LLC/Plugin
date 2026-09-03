@@ -470,7 +470,7 @@ async function ensureTab(rawUrl, navigate = false, session, allowActive = false)
     clearStripeFrames(tab.id);
     await retainManagedTab(session, tab.id);
     navigationStarted = true;
-  } else if (navigate && tab.url !== target.toString()) {
+  } else if ((navigate || tab.url !== target.toString()) && tab.id) {
     clearStripeFrames(tab.id);
     tab = await chrome.tabs.update(tab.id, { url: target.toString() });
     navigationStarted = true;
@@ -574,8 +574,16 @@ async function sendToContent(tabId, message, frameId = 0, attempts = 5, timeoutM
       if (!reloaded && (lost || hung)) {
         reloaded = true;
         try {
-          await chrome.tabs.reload(tabId, { bypassCache: false });
-          await new Promise((resolve) => setTimeout(resolve, 600));
+          if (chrome.scripting?.executeScript) {
+            await chrome.scripting.executeScript({
+              target: { tabId },
+              files: ["text.js", "long-capture.js", "annotation.js", "content.js"],
+            });
+            await new Promise((resolve) => setTimeout(resolve, 150));
+          } else {
+            await chrome.tabs.reload(tabId, { bypassCache: false });
+            await new Promise((resolve) => setTimeout(resolve, 600));
+          }
         } catch { /* tab closed meanwhile; continue retry loop */ }
       }
       if (attempt + 1 < maxAttempts) await new Promise((resolve) => setTimeout(resolve, 250));
@@ -1173,7 +1181,7 @@ async function handle(command) {
     return await captureSession(command.url, session);
   }
   if (command.action === "capture_screenshot") {
-    const state = await ensureTab(command.url, false, session, true);
+    const state = await ensureTab(command.url, command.navigate ?? true, session, true);
     if (state.status !== "ready") {
       return { status: state.status, human_boundary: state.human_boundary ?? null, resumable: state.resumable === true, focus_changed: false, popup_opened: false };
     }

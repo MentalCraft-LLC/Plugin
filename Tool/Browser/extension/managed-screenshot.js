@@ -167,7 +167,20 @@
     try {
       response = await chrome.tabs.sendMessage(tabId, { protocol: PROTOCOL, action, ...values }, { frameId: 0 });
     } catch {
-      throw new Error("screenshot_content_unavailable");
+      try {
+        if (chrome.scripting?.executeScript) {
+          await chrome.scripting.executeScript({
+            target: { tabId },
+            files: ["text.js", "long-capture.js", "annotation.js", "content.js"],
+          });
+          await new Promise((r) => setTimeout(r, 120));
+          response = await chrome.tabs.sendMessage(tabId, { protocol: PROTOCOL, action, ...values }, { frameId: 0 });
+        } else {
+          throw new Error("screenshot_content_unavailable");
+        }
+      } catch {
+        throw new Error("screenshot_content_unavailable");
+      }
     }
     if (!response?.ok) throw new Error(response?.error || "screenshot_content_failure");
     return response.result;
