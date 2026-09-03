@@ -45,8 +45,18 @@ export async function executePluginAction(plugin: string, action: string, jsonAr
     return await executeChrome({ action: action as any, ...jsonArgs });
   } else if (plugin === "message") {
     return await executeMessage({ action: action as any, ...jsonArgs });
+  } else if (plugin === "secret") {
+    const { secretOperation } = await import("../../Tool/Secret/operation.ts");
+    const act = (action as string) || (jsonArgs.content !== undefined ? "write" : "read");
+    return secretOperation({ ...jsonArgs, action: act } as any);
+  } else if (plugin === "infra") {
+    const { infraOperation } = await import("../../Domain/Infra/operation.ts");
+    return await infraOperation(action as any, (jsonArgs.params as any) || jsonArgs);
+  } else if (plugin === "company") {
+    const { companyOperation } = await import("../../Domain/Company/operation.ts");
+    return await companyOperation(action as any, (jsonArgs.params as any) || jsonArgs);
   } else {
-    throw new Error(`Unknown plugin '${plugin}'. Available: business, science, content, design, workflow, browser, message`);
+    throw new Error(`Unknown plugin '${plugin}'. Available: business, science, content, design, workflow, browser, message, secret, infra, company`);
   }
 }
 

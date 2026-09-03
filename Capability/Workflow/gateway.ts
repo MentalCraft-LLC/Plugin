@@ -23,6 +23,7 @@ import { DESIGN_INPUT_SCHEMA } from "../../Domain/Design/mcp-server.ts";
 import { BUSINESS_INPUT_SCHEMA } from "../../Domain/Business/mcp-server.ts";
 import { SCIENCE_INPUT_SCHEMA } from "../../Domain/Science/mcp-server.ts";
 import { CONTENT_INPUT_SCHEMA } from "../../Domain/Content/mcp-server.ts";
+import { BROWSER_INPUT_SCHEMA } from "../../Tool/Browser/mcp-server.ts";
 import { MESSAGE_INPUT_SCHEMA } from "../../Tool/Message/mcp-server.ts";
 import { SECRET_INPUT_SCHEMA } from "../../Tool/Secret/mcp-server.ts";
 import { INFRA_INPUT_SCHEMA } from "../../Domain/Infra/mcp-server.ts";
@@ -80,16 +81,7 @@ export const GATEWAY_TOOLS = [
   {
     name: "browser",
     description: "MentalCraft Browser Automation & Native Bridge. Inactive tab driving, screencasts, visual HUD, storage mutation, and CDP inspection.",
-    inputSchema: {
-      type: "object",
-      required: ["action"],
-      properties: {
-        action: { type: "string", description: "Browser action to execute." },
-        url: { type: "string", description: "Target URL." },
-        selector: { type: "string", description: "DOM selector." },
-        text: { type: "string", description: "Text to fill or match." },
-      },
-    },
+    inputSchema: BROWSER_INPUT_SCHEMA,
   },
   {
     name: "message",
