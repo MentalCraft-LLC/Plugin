@@ -14,17 +14,23 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.workflows.map((w) => w.id)).toContain("academic_paper_to_journal_submission");
   });
 
-  test("health_check evaluates all 6 plugins with 100/100 score", async () => {
+  test("health_check evaluates all 10 plugins with 100/100 score", async () => {
     const res = await workflowOperation({ action: "health_check" });
     expect(res.success).toBe(true);
     const data = res.data as any;
     expect(data.healthScore).toBe(100);
-    expect(data.healthyPlugins).toBeGreaterThanOrEqual(6);
+    expect(data.totalPlugins).toBe(10);
+    expect(data.healthyPlugins).toBe(10);
     expect(data.plugins.browser.status).toBe("healthy");
     expect(data.plugins.design.status).toBe("healthy");
     expect(data.plugins.business.status).toBe("healthy");
     expect(data.plugins.science.status).toBe("healthy");
+    expect(data.plugins.content.status).toBe("healthy");
     expect(data.plugins.workflow.status).toBe("healthy");
+    expect(data.plugins.message.status).toBe("healthy");
+    expect(data.plugins.secret.status).toBe("healthy");
+    expect(data.plugins.infra.status).toBe("healthy");
+    expect(data.plugins.company.status).toBe("healthy");
   });
 
   test("dry_run generates execution plan and checks pre-flight health", async () => {
