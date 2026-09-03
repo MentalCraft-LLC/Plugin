@@ -358,4 +358,46 @@ describe("Plugin Master Gateway MCP Server", () => {
     const content = (res?.result as any)?.content?.[0]?.text;
     expect(content).toContain("Shanghai");
   });
+
+  it("handles workflow health alias via tools/call with nested params", async () => {
+    const res = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 19,
+      method: "tools/call",
+      params: {
+        name: "workflow",
+        arguments: {
+          action: "health",
+          params: {},
+        },
+      },
+    });
+
+    expect(res?.error).toBeUndefined();
+    expect(res?.result).toBeDefined();
+    const content = (res?.result as any)?.content?.[0]?.text;
+    expect(content).toContain("healthy");
+  });
+
+  it("handles secret mask via tools/call with nested params", async () => {
+    const res = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 20,
+      method: "tools/call",
+      params: {
+        name: "secret",
+        arguments: {
+          action: "mask",
+          params: {
+            secret: "dummy_vault_token_12345678",
+          },
+        },
+      },
+    });
+
+    expect(res?.error).toBeUndefined();
+    expect(res?.result).toBeDefined();
+    const content = (res?.result as any)?.content?.[0]?.text;
+    expect(content).toContain("masked");
+  });
 });

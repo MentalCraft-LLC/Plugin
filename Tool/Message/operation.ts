@@ -14,6 +14,8 @@ export type MessageInput = {
   chatId?: number | string;
 };
 
+export type MessageOperationInput = MessageInput;
+
 export type MessagePollResult = {
   channel: ChannelId;
   ok: boolean;

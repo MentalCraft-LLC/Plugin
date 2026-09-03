@@ -1705,8 +1705,47 @@ export function syncMcpEcosystem(): SyncMcpResult {
   };
 }
 
-export async function workflowOperation(input: WorkflowInput): Promise<WorkflowResult> {
+function normalizeWorkflowAction(action: string): string {
+  switch (action) {
+    case "health":
+      return "health_check";
+    case "flywheel":
+      return "check_flywheel";
+    case "audit":
+      return "audit_workspace";
+    case "workflows":
+    case "list":
+      return "list_workflows";
+    case "history":
+      return "get_workflow_history";
+    case "metrics":
+      return "get_metrics";
+    case "trace":
+      return "export_trace";
+    case "dag":
+    case "mermaid":
+      return "export_mermaid_dag";
+    case "autopilot":
+    case "tick":
+      return "autopilot_step";
+    case "autopilot_info":
+      return "autopilot_status";
+    case "openrpc":
+    case "rpc_spec":
+      return "export_openrpc_spec";
+    case "openapi":
+    case "api_spec":
+      return "export_openapi_spec";
+    default:
+      return action;
+  }
+}
+
+export async function workflowOperation(origInput: WorkflowInput): Promise<WorkflowResult> {
   const timestamp = new Date().toISOString();
+  const raw: any = (origInput as any).params ? { ...origInput, ...(origInput as any).params } : origInput;
+  raw.action = normalizeWorkflowAction(raw.action);
+  const input = raw as WorkflowInput;
 
   switch (input.action) {
     case "plan_dynamic_workflow": {

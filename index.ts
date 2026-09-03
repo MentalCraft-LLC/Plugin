@@ -22,7 +22,7 @@ export { companyOperation, type CompanyAction } from "./Domain/Company/operation
 
 // Canonical Tool Operations
 export { createBrowserContextOperation, type BrowserContextInput } from "./Tool/Browser/operation.ts";
-export { createMessageOperation, type MessageOperationInput } from "./Tool/Message/operation.ts";
+export { createMessageOperation, type MessageInput, type MessageOperationInput } from "./Tool/Message/operation.ts";
 export { secretOperation, type SecretInput } from "./Tool/Secret/operation.ts";
 
 // Capability Workflow Orchestration

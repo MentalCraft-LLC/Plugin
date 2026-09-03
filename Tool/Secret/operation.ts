@@ -167,7 +167,9 @@ export function rotateSecret(targetPath: string, newContent: string): { ok: bool
 /**
  * Unified Functional Operation Entry Point for Secret Subsystem
  */
-export function secretOperation(input: SecretInput): Record<string, unknown> {
+export function secretOperation(origInput: SecretInput): Record<string, unknown> {
+  const raw: any = (origInput as any).params ? { ...origInput, ...(origInput as any).params } : origInput;
+  const input = raw as SecretInput;
   const action = input.action;
 
   if (action === "mask") {
