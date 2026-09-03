@@ -1591,6 +1591,120 @@ export function installMcpSchemasToAgy(customDir?: string): { installedCount: nu
   };
 }
 
+export interface SyncMcpResult {
+  configPath: string;
+  serversCount: number;
+  servers: string[];
+  installedCount: number;
+  installedPaths: string[];
+  purgedRogueCount: number;
+}
+
+export function syncMcpEcosystem(): SyncMcpResult {
+  const { homedir } = require("node:os");
+  const { join, resolve } = require("node:path");
+  const { existsSync, mkdirSync, rmSync, symlinkSync, writeFileSync } = require("node:fs");
+
+  const pluginRoot = resolve(import.meta.dir, "../..");
+  const workspaceRoot = resolve(pluginRoot, "..");
+  const geminiConfigDir = join(homedir(), ".gemini/config");
+  const mcpConfigPath = join(geminiConfigDir, "mcp_config.json");
+  const agyMcpDir = join(homedir(), ".gemini/antigravity-cli/mcp");
+
+  // 1. Maintain backward-compatible symlinks
+  const symlinks = [
+    { link: join(pluginRoot, "Browser"), target: "Tool/Browser" },
+    { link: join(pluginRoot, "Message"), target: "Tool/Message" },
+    { link: join(pluginRoot, "Secret"), target: "Tool/Secret" },
+    { link: join(pluginRoot, "Workflow"), target: "Capability/Workflow" },
+  ];
+
+  for (const s of symlinks) {
+    if (!existsSync(s.link)) {
+      try {
+        symlinkSync(s.target, s.link);
+      } catch {}
+    }
+  }
+
+  // 2. Purge rogue chrome-devtools-mcp
+  let purgedCount = 0;
+  const rogueDir = join(agyMcpDir, "chrome-devtools-mcp");
+  if (existsSync(rogueDir)) {
+    try {
+      rmSync(rogueDir, { recursive: true, force: true });
+      purgedCount++;
+    } catch {}
+  }
+
+  // 3. Construct canonical 11 FastMCP config
+  const canonicalMcpConfig = {
+    mcpServers: {
+      gateway: {
+        command: "bun",
+        args: [join(pluginRoot, "gateway.ts")],
+        env: { NODE_ENV: "production", HOLAR_WORKSPACE: workspaceRoot },
+      },
+      browser: {
+        command: "bun",
+        args: [join(pluginRoot, "Tool/Browser/serve.mjs")],
+        env: { HOLAR_BROWSER_WORKSPACE: workspaceRoot },
+      },
+      message: {
+        command: "bun",
+        args: [join(pluginRoot, "Tool/Message/serve.mjs")],
+      },
+      secret: {
+        command: "bun",
+        args: [join(pluginRoot, "Tool/Secret/mcp-server.ts")],
+      },
+      workflow: {
+        command: "bun",
+        args: [join(pluginRoot, "Capability/Workflow/mcp-server.ts")],
+      },
+      business: {
+        command: "bun",
+        args: [join(pluginRoot, "Domain/Business/mcp-server.ts")],
+      },
+      design: {
+        command: "bun",
+        args: [join(pluginRoot, "Domain/Design/mcp-server.ts")],
+      },
+      science: {
+        command: "bun",
+        args: [join(pluginRoot, "Domain/Science/mcp-server.ts")],
+      },
+      content: {
+        command: "bun",
+        args: [join(pluginRoot, "Domain/Content/mcp-server.ts")],
+      },
+      infra: {
+        command: "bun",
+        args: [join(pluginRoot, "Domain/Infra/mcp-server.ts")],
+      },
+      company: {
+        command: "bun",
+        args: [join(pluginRoot, "Domain/Company/mcp-server.ts")],
+      },
+    },
+  };
+
+  mkdirSync(geminiConfigDir, { recursive: true });
+  writeFileSync(mcpConfigPath, JSON.stringify(canonicalMcpConfig, null, 2), "utf-8");
+
+  // 4. Install tool schemas to Antigravity CLI directory
+  const installRes = installMcpSchemasToAgy(agyMcpDir);
+
+  return {
+    configPath: mcpConfigPath,
+    serversCount: Object.keys(canonicalMcpConfig.mcpServers).length,
+    servers: Object.keys(canonicalMcpConfig.mcpServers),
+    installedCount: installRes.installedCount,
+    installedPaths: installRes.installedPaths,
+    purgedRogueCount: purgedCount,
+  };
+}
+
 export async function workflowOperation(input: WorkflowInput): Promise<WorkflowResult> {
   const timestamp = new Date().toISOString();
 
@@ -1738,6 +1852,17 @@ export async function workflowOperation(input: WorkflowInput): Promise<WorkflowR
         success: true,
         timestamp,
         data: installRes,
+      };
+    }
+
+    case "sync_mcp": {
+      const syncRes = syncMcpEcosystem();
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "sync_mcp",
+        success: true,
+        timestamp,
+        data: syncRes,
       };
     }
 

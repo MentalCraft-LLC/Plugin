@@ -641,6 +641,7 @@ export type WorkflowAction =
   | "get_workflow_history"
   | "export_config"
   | "install_mcp_schemas"
+  | "sync_mcp"
   | "export_schema_catalog"
   | "export_openapi_catalog"
   | "export_openrpc_spec"
@@ -740,6 +741,10 @@ export function formatWorkflowSummary(result: WorkflowResult): string {
     case "install_mcp_schemas": {
       const data = result.data as any;
       return `✓ Installed ${data.installedCount} MCP schemas to Antigravity directory (${data.installedPaths.length} tools registered)`;
+    }
+    case "sync_mcp": {
+      const data = result.data as any;
+      return `✓ Synchronized 11 FastMCP servers and injected ${data.installedCount} schemas`;
     }
     case "export_schema_catalog":
     case "export_openrpc_spec": {

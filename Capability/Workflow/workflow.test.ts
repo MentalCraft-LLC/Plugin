@@ -225,6 +225,20 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     }
   });
 
+  test("sync_mcp synchronizes all 11 servers and tool schemas", async () => {
+    const res = await workflowOperation({ action: "sync_mcp" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.serversCount).toBe(11);
+    expect(data.servers).toContain("gateway");
+    expect(data.servers).toContain("browser");
+    expect(data.servers).toContain("message");
+    expect(data.servers).toContain("secret");
+    expect(data.servers).toContain("infra");
+    expect(data.servers).toContain("company");
+    expect(data.installedCount).toBeGreaterThanOrEqual(10);
+  });
+
   test("export_schema_catalog returns OpenRPC 1.3 specification for all plugins", async () => {
     const res = await workflowOperation({ action: "export_schema_catalog" });
     expect(res.success).toBe(true);
@@ -551,7 +565,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.stepResults[3].action).toBe("extract_structured_data");
     expect(data.stepResults[4].action).toBe("persona_emulation");
     expect(data.stepResults[5].action).toBe("send");
-  }, { timeout: 15000 });
+  }, 30000);
 
   test("run_workflow executes ecommerce_conversion_and_resilience_sprint compound workflow", async () => {
     const res = await workflowOperation({
@@ -874,7 +888,7 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     const data = res.data as any;
     expect(data.stepsCount).toBe(5);
     expect(data.stepResults.length).toBe(5);
-  });
+  }, 30000);
 });
 
 

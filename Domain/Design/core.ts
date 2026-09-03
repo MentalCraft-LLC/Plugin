@@ -10,9 +10,11 @@ export const DESIGN_PROTOCOL = "holar.design.v1" as const;
 
 export type DesignLayer =
   | "foundation"
+  | "behavior"
   | "component"
   | "composite"
   | "block"
+  | "page"
   | "template";
 
 export type ComponentCategory =
@@ -1096,6 +1098,83 @@ export const COMPONENT_CATALOG: ComponentSpec[] = [
   },
 
   // --- 12. PAGE ARCHETYPES & COMPOSITE SANDBOXES FAMILY ---
+  {
+    id: "landing",
+    name: "Landing",
+    layer: "page",
+    category: "scaffold",
+    description: "Canonical full-surface landing page archetype featuring Hero, 30s low-friction action, 3-step workflow, and outcome proof.",
+    importPath: "@mentalcraft/design-svelte",
+    subpath: "@mentalcraft/design-svelte/page/landing",
+    estimatedSizeKb: 5.2,
+    variants: ["editorial", "minimal", "magazine", "lab"],
+    props: [
+      { name: "variant", type: "'editorial' | 'minimal' | 'magazine' | 'lab'", required: false, default: "'editorial'", description: "Visual mood variant" },
+    ],
+    slots: ["hero", "action", "workflow", "proof", "pricing", "faq"],
+    example: `<Landing variant="editorial">...</Landing>`,
+  },
+  {
+    id: "template",
+    name: "Template",
+    layer: "page",
+    category: "scaffold",
+    description: "Unified Triad Template (Navigation + Main + Artifact) powering high-velocity workbenches and playground.",
+    importPath: "@mentalcraft/design-svelte",
+    subpath: "@mentalcraft/design-svelte/page/template",
+    estimatedSizeKb: 6.0,
+    variants: ["playground", "workbench", "cockpit"],
+    props: [
+      { name: "variant", type: "'playground' | 'workbench' | 'cockpit'", required: false, default: "'playground'", description: "Template layout mode" },
+    ],
+    slots: ["navigation", "main", "artifact"],
+    example: `<Template.Playground>...</Template.Playground>`,
+  },
+  {
+    id: "desktop",
+    name: "Desktop",
+    layer: "page",
+    category: "scaffold",
+    description: "Multi-pane responsive desktop cockpit with collapsible sidebars and fluid drag handles.",
+    importPath: "@mentalcraft/design-svelte",
+    subpath: "@mentalcraft/design-svelte/page/desktop",
+    estimatedSizeKb: 5.5,
+    variants: ["triad", "dual", "focus"],
+    props: [
+      { name: "mode", type: "'triad' | 'dual' | 'focus'", required: false, default: "'triad'", description: "Desktop view mode" },
+    ],
+    example: `<Desktop mode="triad">...</Desktop>`,
+  },
+  {
+    id: "main",
+    name: "Main",
+    layer: "page",
+    category: "scaffold",
+    description: "Central interaction stream and reasoning cockpit surface in the Triad page architecture.",
+    importPath: "@mentalcraft/design-svelte",
+    subpath: "@mentalcraft/design-svelte/page/main",
+    estimatedSizeKb: 4.2,
+    variants: ["stream", "document", "chat"],
+    props: [
+      { name: "variant", type: "'stream' | 'document' | 'chat'", required: false, default: "'stream'", description: "Main viewport mode" },
+    ],
+    example: `<Main variant="stream">...</Main>`,
+  },
+  {
+    id: "artifact",
+    name: "Artifact",
+    layer: "page",
+    category: "scaffold",
+    description: "Right-hand responsive artifact stage displaying live browser, code diffs, documents, and interactive runners.",
+    importPath: "@mentalcraft/design-svelte",
+    subpath: "@mentalcraft/design-svelte/page/artifact",
+    estimatedSizeKb: 4.5,
+    variants: ["browser", "code", "preview", "empty"],
+    props: [
+      { name: "kind", type: "'browser' | 'code' | 'preview' | 'empty'", required: false, default: "'preview'", description: "Artifact view kind" },
+    ],
+    example: `<Artifact kind="browser">...</Artifact>`,
+  },
   {
     id: "showcase",
     name: "Showcase",

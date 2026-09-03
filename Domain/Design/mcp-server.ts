@@ -34,7 +34,7 @@ export const DESIGN_INPUT_SCHEMA = {
     },
     layer: {
       type: "string",
-      enum: ["foundation", "component", "composite", "block", "template"],
+      enum: ["foundation", "behavior", "component", "composite", "block", "page", "template"],
       description: "Filter catalog by architectural layer.",
     },
     category: {
