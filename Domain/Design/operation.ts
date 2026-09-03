@@ -22,8 +22,35 @@ import {
   type SubstrateId,
 } from "./core.ts";
 
-export async function designOperation(input: DesignInput): Promise<DesignResult> {
+function normalizeDesignAction(action: string): string {
+  switch (action) {
+    case "tokens":
+    case "token_system":
+    case "export_tokens":
+      return "theme_tokens";
+    case "components":
+    case "list_components":
+    case "catalog_components":
+      return "catalog";
+    case "generate_component":
+    case "generate_svelte":
+      return "generate_ui";
+    case "audit_a11y":
+    case "a11y_audit":
+      return "audit_ui";
+    case "presets":
+    case "list_presets":
+      return "domain_presets";
+    default:
+      return action;
+  }
+}
+
+export async function designOperation(origInput: DesignInput): Promise<DesignResult> {
   const timestamp = new Date().toISOString();
+  const raw: any = (origInput as any).params ? { ...origInput, ...(origInput as any).params } : origInput;
+  raw.action = normalizeDesignAction(raw.action);
+  const input = raw as DesignInput;
 
   switch (input.action) {
     case "list_layers": {

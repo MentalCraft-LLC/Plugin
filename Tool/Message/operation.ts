@@ -96,52 +96,59 @@ export async function pollViaChannel(channel: ChannelId): Promise<Omit<MessagePo
 }
 
 export function createMessageOperation() {
-  return async (params: MessageInput) => {
-    if (params.action === "status") {
-      const channels = channelOrder().map((channel) => ({
-        channel,
-        configured: channelConfigured(channel),
+  return async (rawInput: MessageInput) => {
+    const raw: any = (rawInput as any).params ? { ...rawInput, ...(rawInput as any).params } : rawInput;
+    const action = raw.action || "status";
+    const channel = raw.channel;
+    const text = raw.text;
+    const photoPath = raw.photoPath || raw.photo_path || text;
+    const caption = raw.caption;
+    const chatId = raw.chatId || raw.chat_id;
+
+    if (action === "status") {
+      const channels = channelOrder().map((ch) => ({
+        channel: ch,
+        configured: channelConfigured(ch),
       }));
       return { ok: true, channels };
     }
 
-    if (params.action === "bootstrap") {
+    if (action === "bootstrap") {
       return {
         ok: false,
         error: "bootstrap_local_only",
-        channel: params.channel ?? "telegram",
+        channel: channel ?? "telegram",
       };
     }
 
-    if (params.action === "poll") {
-      const requested = requestedChannel(params.channel);
-      const channels = requested ? [requested] : channelOrder().filter((channel) => channelConfigured(channel));
+    if (action === "poll") {
+      const requested = requestedChannel(channel);
+      const channels = requested ? [requested] : channelOrder().filter((ch) => channelConfigured(ch));
       const results: MessagePollResult[] = [];
-      for (const channel of channels) {
-        const result = await pollViaChannel(channel);
-        results.push({ channel, ...result });
+      for (const ch of channels) {
+        const result = await pollViaChannel(ch);
+        results.push({ channel: ch, ...result });
       }
       const replies = results.flatMap((result) => result.replies ?? []);
       const reply_contexts = results.flatMap((result) => result.reply_contexts ?? []);
       return { ok: true, results, replies, reply_contexts };
     }
 
-    if (params.action === "send_photo") {
-      const photoPath = params.photoPath || params.text;
+    if (action === "send_photo") {
       if (!photoPath) throw new Error("message send_photo requires photoPath");
       const { sendTelegramScreenshot } = await import("../../.agents/scripts/send-telegram-screenshot.ts");
-      const res = await sendTelegramScreenshot(photoPath, params.caption || undefined);
+      const res = await sendTelegramScreenshot(photoPath, caption || undefined);
       return { ok: true, channel: "telegram", messageId: res.messageId, webpPath: res.webpPath };
     }
 
-    if (!params.text) throw new Error("message send requires text");
-    const requested = requestedChannel(params.channel);
-    const channels = requested ? [requested] : channelOrder().filter((channel) => channelConfigured(channel));
+    if (!text) throw new Error("message send requires text");
+    const requested = requestedChannel(channel);
+    const channels = requested ? [requested] : channelOrder().filter((ch) => channelConfigured(ch));
     if (channels.length === 0) throw new Error("message send: no channel configured");
     let lastError = "no_channel";
-    for (const channel of channels) {
-      const result = await sendViaChannel(channel, params.text);
-      if (result.ok) return { ok: true, channel };
+    for (const ch of channels) {
+      const result = await sendViaChannel(ch, text);
+      if (result.ok) return { ok: true, channel: ch };
       lastError = result.error ?? lastError;
     }
     return { ok: false, channels, error: lastError };

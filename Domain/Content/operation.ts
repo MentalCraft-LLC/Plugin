@@ -19,80 +19,137 @@ import {
   generateCampaignSprint,
 } from "./core.ts";
 
+function normalizeContentAction(action: string): string {
+  switch (action) {
+    case "forge_world_rules":
+    case "worldbuilding":
+    case "world_rules":
+    case "story_worldbuilding":
+      return "story_worldbuilding_forge";
+    case "character_arc":
+    case "character_profile":
+    case "architect_character":
+      return "story_character_arc_architect";
+    case "plot_beats":
+    case "plot_beat_composer":
+    case "compose_plot":
+      return "story_plot_beat_composer";
+    case "sensory_prose":
+    case "sensory_render":
+      return "story_sensory_prose_render";
+    case "lore_consistency":
+    case "lore_linter":
+    case "lint_lore":
+      return "story_lore_consistency_linter";
+    case "interactive_ink":
+    case "ink_script":
+    case "export_ink":
+      return "story_interactive_ink_exporter";
+    case "pas_copy":
+    case "pas_copywriter":
+    case "generate_pas":
+      return "marketing_pas_copywriter";
+    case "omnichannel":
+    case "omnichannel_adapter":
+    case "adapt_content":
+      return "marketing_omnichannel_adapter";
+    case "viral_hooks":
+    case "viral_hook_generator":
+      return "marketing_viral_hook_generator";
+    case "campaign_playbook":
+    case "campaign_sprint":
+      return "marketing_campaign_playbook";
+    default:
+      return action;
+  }
+}
+
 export async function contentOperation(input: ContentCommand): Promise<ContentResult> {
   try {
-    switch (input.action) {
+    const raw: any = (input as any).params ? { ...input, ...(input as any).params } : input;
+    const action = normalizeContentAction(raw.action);
+
+    switch (action) {
       case "story_worldbuilding_forge": {
-        const data = forgeWorldRules(input.title, {
-          genre: input.genre,
-          coreThemes: input.core_themes,
+        const title = raw.title || raw.story_title || raw.name || "Default World";
+        const data = forgeWorldRules(title, {
+          genre: raw.genre,
+          coreThemes: raw.core_themes || raw.coreThemes,
         });
-        return { success: true, action: input.action, data };
+        return { success: true, action, data };
       }
 
       case "story_character_arc_architect": {
-        const data = architectCharacterProfile(input.name, {
-          archetype: input.archetype,
-          arcType: input.arc_type,
-          ghostWound: input.ghost_wound,
+        const name = raw.name || raw.character_name || "Protagonist";
+        const data = architectCharacterProfile(name, {
+          archetype: raw.archetype,
+          arcType: raw.arc_type || raw.arcType,
+          ghostWound: raw.ghost_wound || raw.ghostWound,
         });
-        return { success: true, action: input.action, data };
+        return { success: true, action, data };
       }
 
       case "story_plot_beat_composer": {
-        const data = composePlotBeats(input.story_title, {
-          framework: input.framework,
-          premise: input.premise,
+        const storyTitle = raw.story_title || raw.title || "Untitled Story";
+        const data = composePlotBeats(storyTitle, {
+          framework: raw.framework,
+          premise: raw.premise,
         });
-        return { success: true, action: input.action, data };
+        return { success: true, action, data };
       }
 
       case "story_sensory_prose_render": {
-        const data = renderSensoryProse(input.excerpt, {
-          focusSense: input.focus_sense,
-          atmosphere: input.atmosphere,
+        const data = renderSensoryProse(raw.excerpt || raw.text || "", {
+          focusSense: raw.focus_sense || raw.focusSense,
+          atmosphere: raw.atmosphere,
         });
-        return { success: true, action: input.action, data };
+        return { success: true, action, data };
       }
 
       case "story_lore_consistency_linter": {
-        const data = lintLoreConsistency(input.manuscript_text, input.world_rules);
-        return { success: true, action: input.action, data };
+        const data = lintLoreConsistency(raw.manuscript_text || raw.text || "", raw.world_rules || raw.worldRules || []);
+        return { success: true, action, data };
       }
 
       case "story_interactive_ink_exporter": {
-        const data = exportInteractiveInkScript(input.story_title, input.branches);
-        return { success: true, action: input.action, data };
+        const storyTitle = raw.story_title || raw.title || "Interactive Script";
+        const data = exportInteractiveInkScript(storyTitle, raw.branches || []);
+        return { success: true, action, data };
       }
 
       case "marketing_pas_copywriter": {
-        const data = generatePasCopy(input.product_name, {
-          targetAudience: input.target_audience,
-          keyFeature: input.key_feature,
-          metricProof: input.metric_proof,
+        const productName = raw.product_name || raw.product || "Product";
+        const data = generatePasCopy(productName, {
+          targetAudience: raw.target_audience || raw.targetAudience,
+          keyFeature: raw.key_feature || raw.keyFeature,
+          metricProof: raw.metric_proof || raw.metricProof,
         });
-        return { success: true, action: input.action, data };
+        return { success: true, action, data };
       }
 
       case "marketing_omnichannel_adapter": {
-        const data = adaptOmnichannelContent(input.product_name, input.source_topic);
-        return { success: true, action: input.action, data };
+        const productName = raw.product_name || raw.product || "Product";
+        const data = adaptOmnichannelContent(productName, raw.source_topic || raw.sourceTopic || "Announcement");
+        return { success: true, action, data };
       }
 
       case "marketing_viral_hook_generator": {
-        const data = generateViralHooks(input.product_name, {
-          category: input.hook_category,
+        const productName = raw.product_name || raw.product || "Product";
+        const data = generateViralHooks(productName, {
+          category: raw.hook_category || raw.hookCategory,
         });
-        return { success: true, action: input.action, data };
+        return { success: true, action, data };
       }
 
       case "marketing_campaign_playbook": {
-        const data = generateCampaignSprint(input.product_name, input.campaign_name);
-        return { success: true, action: input.action, data };
+        const productName = raw.product_name || raw.product || "Product";
+        const campaignName = raw.campaign_name || raw.campaign || "Sprint Campaign";
+        const data = generateCampaignSprint(productName, campaignName);
+        return { success: true, action, data };
       }
 
       default: {
-        return { success: false, action: (input as any).action || "unknown", error: `Unknown action: ${(input as any).action}` };
+        return { success: false, action: raw.action || "unknown", error: `Unknown action: ${raw.action}` };
       }
     }
   } catch (err: any) {

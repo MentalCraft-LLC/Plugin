@@ -223,7 +223,8 @@ export function createBrowserContextOperation(options: {
   const acquireTrustedForeground = options.acquireTrustedForeground ?? acquireTrustedForegroundLease;
   const platform = options.platform ?? process.platform;
 
-  return async (params, signal, context = { isProjectTrusted: () => true }, sessionName = "browser_session", ownerRoute) => {
+  return async (rawParams, signal, context = { isProjectTrusted: () => true }, sessionName = "browser_session", ownerRoute) => {
+    const params: any = (rawParams as any).params ? { ...rawParams, ...(rawParams as any).params } : rawParams;
     requireTrusted(context?.isProjectTrusted ? context.isProjectTrusted() : true);
     if (params.action === "status" || params.action === "repair") {
       if (params.action === "repair") installBrowserBridge();

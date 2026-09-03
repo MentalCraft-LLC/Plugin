@@ -246,8 +246,70 @@ describe("Plugin Master Gateway MCP Server", () => {
         arguments: {
           action: "forge_world_rules",
           params: {
+            title: "Solaris World",
             genre: "solarpunk",
-            coreLaw: "Clean energy equilibrium",
+            core_themes: ["clean energy", "symbiosis"],
+          },
+        },
+      },
+    });
+
+    expect(res?.error).toBeUndefined();
+    expect(res?.result).toBeDefined();
+    const content = (res?.result as any)?.content?.[0]?.text;
+    expect(content).toContain("Solaris World");
+  });
+
+  it("handles message status via tools/call with nested params", async () => {
+    const res = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 14,
+      method: "tools/call",
+      params: {
+        name: "message",
+        arguments: {
+          action: "status",
+          params: {},
+        },
+      },
+    });
+
+    expect(res?.error).toBeUndefined();
+    expect(res?.result).toBeDefined();
+  });
+
+  it("handles science literature_search alias via tools/call with nested params", async () => {
+    const res = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 15,
+      method: "tools/call",
+      params: {
+        name: "science",
+        arguments: {
+          action: "literature_search",
+          params: {
+            query: "agent",
+            limit: 3,
+          },
+        },
+      },
+    });
+
+    expect(res?.error).toBeUndefined();
+    expect(res?.result).toBeDefined();
+  });
+
+  it("handles business market_validation alias via tools/call with nested params", async () => {
+    const res = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 16,
+      method: "tools/call",
+      params: {
+        name: "business",
+        arguments: {
+          action: "market_validation",
+          params: {
+            modality: "website",
           },
         },
       },

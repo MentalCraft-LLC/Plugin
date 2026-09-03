@@ -1958,11 +1958,50 @@ export function runAbmSimulation(input: ScienceInput): AbmSimulationResult {
   };
 }
 
+function normalizeScienceAction(action: string): string {
+  switch (action) {
+    case "literature_search":
+    case "search_literature":
+    case "search_papers":
+      return "paper_literature_search";
+    case "citation_verify":
+    case "verify_citation":
+      return "paper_citation_verify";
+    case "methodology_audit":
+      return "paper_methodology_audit";
+    case "structure_audit":
+      return "paper_structure_audit";
+    case "latex_scaffold":
+      return "paper_latex_scaffold";
+    case "chinese_formatter":
+      return "chinese_academic_formatter";
+    case "peer_review":
+    case "peer_review_simulate":
+      return "paper_peer_review_simulate";
+    case "journal_match":
+      return "journal_matcher";
+    case "submission_checklist":
+      return "journal_submission_checklist";
+    case "patent_check":
+    case "patent_novelty":
+      return "patent_novelty_check";
+    case "patent_claims":
+      return "patent_claim_structure";
+    case "impact_forecast":
+      return "scholarly_impact_forecast";
+    default:
+      return action;
+  }
+}
+
 /**
  * Main scienceOperation entry point
  */
-export async function scienceOperation(input: ScienceInput): Promise<ScienceResult> {
+export async function scienceOperation(origInput: ScienceInput): Promise<ScienceResult> {
   const timestamp = new Date().toISOString();
+  const raw: any = (origInput as any).params ? { ...origInput, ...(origInput as any).params } : origInput;
+  raw.action = normalizeScienceAction(raw.action);
+  const input = raw as ScienceInput;
 
   try {
     switch (input.action) {

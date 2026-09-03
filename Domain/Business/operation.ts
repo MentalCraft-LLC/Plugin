@@ -132,8 +132,40 @@ export class TrafficCvClient {
   }
 }
 
-export async function businessOperation(input: BusinessInput): Promise<BusinessResult> {
+function normalizeBusinessAction(action: string): string {
+  switch (action) {
+    case "market_validation":
+      return "application_market_validation";
+    case "pmf_validation":
+      return "application_pmf_validation";
+    case "acquisition_audit":
+      return "application_acquisition_audit";
+    case "activation_funnel":
+      return "application_activation_funnel";
+    case "retention_curves":
+      return "application_retention_curves";
+    case "unit_economics":
+      return "application_unit_economics";
+    case "pricing_experiment":
+      return "application_pricing_experiment";
+    case "growth_playbook":
+      return "application_growth_playbook";
+    case "expansion_moat":
+      return "application_expansion_moat";
+    case "pseo_matrix":
+      return "application_pseo_matrix";
+    case "seo_keywords":
+      return "application_seo_keywords";
+    default:
+      return action;
+  }
+}
+
+export async function businessOperation(origInput: BusinessInput): Promise<BusinessResult> {
   const timestamp = new Date().toISOString();
+  const raw: any = (origInput as any).params ? { ...origInput, ...(origInput as any).params } : origInput;
+  raw.action = normalizeBusinessAction(raw.action);
+  const input = raw as BusinessInput;
   const gefei = new GefeiClient();
   const trafficcv = new TrafficCvClient();
   const provider = input.provider ?? "auto";
