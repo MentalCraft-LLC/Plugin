@@ -8,6 +8,8 @@ import { workflowOperation } from "./operation.ts";
 import { type WorkflowInput } from "./core.ts";
 
 export const WORKFLOW_ACTIONS = [
+  "plan_dynamic_workflow",
+  "run_dynamic_workflow",
   "list_workflows",
   "run_workflow",
   "register_workflow",
@@ -28,6 +30,11 @@ export const WORKFLOW_ACTIONS = [
   "dry_run",
   "check_flywheel",
   "audit_workspace",
+  "run_diagnostics",
+  "autopilot_step",
+  "autopilot_status",
+  "autopilot_schedule_spec",
+  "autopilot_run",
 ] as const;
 
 export const WORKFLOW_INPUT_SCHEMA = {
@@ -38,7 +45,7 @@ export const WORKFLOW_INPUT_SCHEMA = {
     action: {
       type: "string",
       enum: WORKFLOW_ACTIONS,
-      description: "Workflow action: 'list_workflows' (catalog of pipelines), 'run_workflow' (live execution), 'register_workflow' (define custom DAG), 'get_workflow_history' (past execution receipts), 'export_config' (generate MCP client JSON configs), 'install_mcp_schemas' (install to Antigravity), 'sync_mcp' (auto-heal & sync all 11 FastMCP servers and schemas), 'export_schema_catalog' / 'export_openrpc_spec' (OpenRPC 1.3.2 specification), 'export_openapi_catalog' / 'export_openapi_spec' (OpenAPI 3.1.0 specification), 'benchmark' (P50/P90/P99 latency & ops/sec suite across all 6 subsystems), 'get_metrics' (live telemetry and circuit breaker state), 'export_trace' (OTel spans export), 'export_mermaid_dag' (Mermaid diagram), 'batch_run' (pooled parallel execution), 'health_check' (system diagnostics), 'dry_run' (plan graph inspection).",
+      description: "Workflow action: 'list_workflows' (catalog of pipelines), 'run_workflow' (live execution), 'register_workflow' (define custom DAG), 'get_workflow_history' (past execution receipts), 'export_config' (generate MCP client JSON configs), 'install_mcp_schemas' (install to Antigravity), 'sync_mcp' (auto-heal & sync all 11 FastMCP servers and schemas), 'export_schema_catalog' / 'export_openrpc_spec' (OpenRPC 1.3.2 specification), 'export_openapi_catalog' / 'export_openapi_spec' (OpenAPI 3.1.0 specification), 'benchmark' (P50/P90/P99 latency & ops/sec suite across all 10 subsystems), 'get_metrics' (live telemetry and circuit breaker state), 'export_trace' (OTel spans export), 'export_mermaid_dag' (Mermaid diagram), 'batch_run' (pooled parallel execution), 'health_check' (system diagnostics), 'dry_run' (plan graph inspection), 'run_diagnostics' (10-dimensional product health audit), 'autopilot_step' (autonomous sprint cycle).",
     },
     workflow_id: {
       type: "string",
@@ -46,12 +53,12 @@ export const WORKFLOW_INPUT_SCHEMA = {
     },
     target_plugin: {
       type: "string",
-      enum: ["browser", "chrome", "design", "business", "science", "message", "secret", "workflow", "all"],
+      enum: ["browser", "chrome", "design", "business", "science", "content", "message", "secret", "infra", "company", "workflow", "all"],
       description: "Target plugin for health check.",
     },
     client_target: {
       type: "string",
-      enum: ["claude_desktop", "cursor", "antigravity", "pi", "all"],
+      enum: ["claude_desktop", "cursor", "antigravity", "all"],
       description: "Target IDE or agent client for export_config.",
     },
     custom_workflow: {

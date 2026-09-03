@@ -666,6 +666,7 @@ export type WorkflowAction =
   | "dry_run"
   | "check_flywheel"
   | "audit_workspace"
+  | "run_diagnostics"
   | "autopilot_step"
   | "autopilot_status"
   | "autopilot_schedule_spec"

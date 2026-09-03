@@ -32,6 +32,9 @@ import { contentOperation } from "../../Domain/Content/operation.ts";
 import { createBrowserContextOperation } from "../../Tool/Browser/operation.ts";
 import { createMessageOperation, channelConfigured } from "../../Tool/Message/operation.ts";
 import { COMPONENT_CATALOG, DESIGN_TOKENS, DOMAIN_PRESETS } from "../../Domain/Design/core.ts";
+import { infraOperation } from "../../Domain/Infra/operation.ts";
+import { companyOperation } from "../../Domain/Company/operation.ts";
+import { secretOperation } from "../../Tool/Secret/operation.ts";
 import {
   advanceAutopilotCycle,
   loadAutopilotCheckpoint,
@@ -374,16 +377,21 @@ export function exportMermaidDag(wf: any): { mermaidCode: string; nodesCount: nu
 export function exportOpenRpcSpec(): Record<string, unknown> {
   const { BUSINESS_INPUT_SCHEMA } = require("../../Domain/Business/mcp-server.ts");
   const { SCIENCE_INPUT_SCHEMA } = require("../../Domain/Science/mcp-server.ts");
+  const { CONTENT_INPUT_SCHEMA } = require("../../Domain/Content/mcp-server.ts");
   const { DESIGN_INPUT_SCHEMA } = require("../../Domain/Design/mcp-server.ts");
   const { WORKFLOW_INPUT_SCHEMA } = require("./mcp-server.ts");
   const { MESSAGE_INPUT_SCHEMA } = require("../../Tool/Message/mcp-server.ts");
+  const { BROWSER_INPUT_SCHEMA } = require("../../Tool/Browser/mcp-server.ts");
+  const { SECRET_INPUT_SCHEMA } = require("../../Tool/Secret/mcp-server.ts");
+  const { INFRA_INPUT_SCHEMA } = require("../../Domain/Infra/mcp-server.ts");
+  const { COMPANY_INPUT_SCHEMA } = require("../../Domain/Company/mcp-server.ts");
 
   return {
     openrpc: "1.3.2",
     info: {
       title: "MentalCraft Unified Plugin & Capability Architecture",
       version: "1.0.0",
-      description: "Universal Agent-Less Capability & Domain Intelligence Architecture across 6 Core Subsystems (Workflow, Business, Science, Design, Chrome, Message)",
+      description: "Universal Agent-Less Capability & Domain Intelligence Architecture across 10 Canonical Subsystems (Workflow, Business, Science, Content, Design, Browser, Message, Secret, Infra, Company)",
       contact: {
         name: "MentalCraft Core Architecture Team",
         url: "https://mentalcraft.org",
@@ -451,6 +459,22 @@ export function exportOpenRpcSpec(): Record<string, unknown> {
         },
       },
       {
+        name: "content",
+        summary: "Story Worldbuilding & Omnichannel Marketing Engine",
+        description: "Fictional world laws, character arc psychology, 15-beat Save the Cat outlines, sensory prose rendering, lore consistency linting, interactive Ink exporter, PAS copy decks, and viral hooks.",
+        params: [
+          {
+            name: "input",
+            required: true,
+            schema: CONTENT_INPUT_SCHEMA,
+          },
+        ],
+        result: {
+          name: "ContentResult",
+          schema: { type: "object", description: "Creative or marketing content production result" },
+        },
+      },
+      {
         name: "design",
         summary: "5-Layer Design System, Runes UI Synthesis & On-Demand Subpaths",
         description: "Component catalog inspection, OKLCH design tokens, Svelte 5 runes UI generation (Hero, PDP, Screener, Pricing), A11y & token linter, and AST subpath tree-shaking.",
@@ -474,16 +498,7 @@ export function exportOpenRpcSpec(): Record<string, unknown> {
           {
             name: "input",
             required: true,
-            schema: {
-              type: "object",
-              required: ["action"],
-              properties: {
-                action: { type: "string", description: "Browser action" },
-                url: { type: "string", description: "Target URL" },
-                selector: { type: "string", description: "CSS Selector" },
-                text: { type: "string", description: "Input text" },
-              },
-            },
+            schema: BROWSER_INPUT_SCHEMA,
           },
         ],
         result: {
@@ -507,53 +522,105 @@ export function exportOpenRpcSpec(): Record<string, unknown> {
           schema: { type: "object", description: "Message delivery confirmation receipt" },
         },
       },
+      {
+        name: "secret",
+        summary: "Mode-0600 Local Credential Vault",
+        description: "Atomic file storage with strict POSIX 0600 permissions, secret masking, rotation, and token format validation.",
+        params: [
+          {
+            name: "input",
+            required: true,
+            schema: SECRET_INPUT_SCHEMA,
+          },
+        ],
+        result: {
+          name: "SecretResult",
+          schema: { type: "object", description: "Credential vault operation receipt" },
+        },
+      },
+      {
+        name: "infra",
+        summary: "Global Edge Microservices & Data Infrastructure Engine",
+        description: "Edge canary health probes (Auth, Monetization, Event), D1 database schema invariants, and Cloudflare Worker bundle verification.",
+        params: [
+          {
+            name: "input",
+            required: true,
+            schema: INFRA_INPUT_SCHEMA,
+          },
+        ],
+        result: {
+          name: "InfraResult",
+          schema: { type: "object", description: "Edge microservices audit result" },
+        },
+      },
+      {
+        name: "company",
+        summary: "Corporate Governance & Legal Entity Compliance Engine",
+        description: "Dual-jurisdiction entity audit (Wyoming LLC & Shanghai R&D), cap table dilution modeling, intellectual property chain verification, and annual report compliance.",
+        params: [
+          {
+            name: "input",
+            required: true,
+            schema: COMPANY_INPUT_SCHEMA,
+          },
+        ],
+        result: {
+          name: "CompanyResult",
+          schema: { type: "object", description: "Corporate governance audit result" },
+        },
+      },
     ],
     components: {
       schemas: {
         WorkflowInput: WORKFLOW_INPUT_SCHEMA,
         BusinessInput: BUSINESS_INPUT_SCHEMA,
         ScienceInput: SCIENCE_INPUT_SCHEMA,
+        ContentInput: CONTENT_INPUT_SCHEMA,
         DesignInput: DESIGN_INPUT_SCHEMA,
+        BrowserInput: BROWSER_INPUT_SCHEMA,
         MessageInput: MESSAGE_INPUT_SCHEMA,
-        BrowserInput: {
-          type: "object",
-          required: ["action"],
-          properties: {
-            action: { type: "string" },
-            url: { type: "string" },
-            selector: { type: "string" },
-            text: { type: "string" },
-          },
-        },
+        SecretInput: SECRET_INPUT_SCHEMA,
+        InfraInput: INFRA_INPUT_SCHEMA,
+        CompanyInput: COMPANY_INPUT_SCHEMA,
       },
     },
     plugins: {
-      business: { title: "Commercial & Market Intelligence", actions: 21, schema: BUSINESS_INPUT_SCHEMA },
-      science: { title: "Science & Research Intelligence", actions: 16, schema: SCIENCE_INPUT_SCHEMA },
-      design: { title: "Design System & UI Intelligence", actions: 10, schema: DESIGN_INPUT_SCHEMA },
-      workflow: { title: "Cross-Plugin Orchestrator & Health Diagnostics", actions: 17, schema: WORKFLOW_INPUT_SCHEMA },
-      browser: { title: "Browser Automation & Native Bridge", actions: 38 },
-      message: { title: "Agent Message Bus", actions: 4, schema: MESSAGE_INPUT_SCHEMA },
+      business: { title: "8-Stage Venture Lifecycle & Commercial Intelligence", actions: 24, schema: BUSINESS_INPUT_SCHEMA },
+      science: { title: "8-Stage Academic Production Lifecycle & Research Intelligence", actions: 16, schema: SCIENCE_INPUT_SCHEMA },
+      content: { title: "Story & Marketing Content Engine", actions: 10, schema: CONTENT_INPUT_SCHEMA },
+      design: { title: "5-Layer Design System & UI Intelligence", actions: 10, schema: DESIGN_INPUT_SCHEMA },
+      workflow: { title: "Cross-Plugin Orchestrator & Health Diagnostics", actions: 27, schema: WORKFLOW_INPUT_SCHEMA },
+      browser: { title: "Browser Automation & Native Bridge", actions: 38, schema: BROWSER_INPUT_SCHEMA },
+      message: { title: "Agent Message Bus", actions: 5, schema: MESSAGE_INPUT_SCHEMA },
+      secret: { title: "Mode-0600 Local Credential Vault", actions: 6, schema: SECRET_INPUT_SCHEMA },
+      infra: { title: "Global Edge Microservices & Data Infrastructure", actions: 4, schema: INFRA_INPUT_SCHEMA },
+      company: { title: "Corporate Governance & Legal Entity Compliance", actions: 4, schema: COMPANY_INPUT_SCHEMA },
     },
-    totalPlugins: 6,
-    totalTools: 6,
-    totalMethods: 106,
+    totalPlugins: 10,
+    totalTools: 10,
+    totalMethods: 144,
   };
 }
 
 export function exportOpenApiSpec(): Record<string, unknown> {
   const { BUSINESS_INPUT_SCHEMA } = require("../../Domain/Business/mcp-server.ts");
   const { SCIENCE_INPUT_SCHEMA } = require("../../Domain/Science/mcp-server.ts");
+  const { CONTENT_INPUT_SCHEMA } = require("../../Domain/Content/mcp-server.ts");
   const { DESIGN_INPUT_SCHEMA } = require("../../Domain/Design/mcp-server.ts");
   const { WORKFLOW_INPUT_SCHEMA } = require("./mcp-server.ts");
   const { MESSAGE_INPUT_SCHEMA } = require("../../Tool/Message/mcp-server.ts");
+  const { BROWSER_INPUT_SCHEMA } = require("../../Tool/Browser/mcp-server.ts");
+  const { SECRET_INPUT_SCHEMA } = require("../../Tool/Secret/mcp-server.ts");
+  const { INFRA_INPUT_SCHEMA } = require("../../Domain/Infra/mcp-server.ts");
+  const { COMPANY_INPUT_SCHEMA } = require("../../Domain/Company/mcp-server.ts");
 
   return {
     openapi: "3.1.0",
     info: {
       title: "MentalCraft Unified Plugin API",
       version: "1.0.0",
-      description: "Universal Agent-Less Capability & Domain Intelligence Architecture across 6 Core Subsystems",
+      description: "Universal Agent-Less Capability & Domain Intelligence Architecture across 10 Canonical Subsystems",
     },
     servers: [
       {
@@ -601,6 +668,19 @@ export function exportOpenApiSpec(): Record<string, unknown> {
           },
         },
       },
+      "/api/content": {
+        post: {
+          summary: "Execute Story Worldbuilding & Marketing Engine",
+          operationId: "executeContent",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: { $ref: "#/components/schemas/ContentInput" } } },
+          },
+          responses: {
+            "200": { description: "Content production or marketing result" },
+          },
+        },
+      },
       "/api/design": {
         post: {
           summary: "Execute Design System & UI Intelligence",
@@ -640,6 +720,45 @@ export function exportOpenApiSpec(): Record<string, unknown> {
           },
         },
       },
+      "/api/secret": {
+        post: {
+          summary: "Execute Mode-0600 Credential Vault Operations",
+          operationId: "executeSecret",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: { $ref: "#/components/schemas/SecretInput" } } },
+          },
+          responses: {
+            "200": { description: "Credential vault operation receipt" },
+          },
+        },
+      },
+      "/api/infra": {
+        post: {
+          summary: "Execute Edge Infrastructure & Microservices Diagnostics",
+          operationId: "executeInfra",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: { $ref: "#/components/schemas/InfraInput" } } },
+          },
+          responses: {
+            "200": { description: "Edge microservice audit result" },
+          },
+        },
+      },
+      "/api/company": {
+        post: {
+          summary: "Execute Corporate Governance & Entity Compliance Audit",
+          operationId: "executeCompany",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: { $ref: "#/components/schemas/CompanyInput" } } },
+          },
+          responses: {
+            "200": { description: "Corporate governance audit result" },
+          },
+        },
+      },
       "/health": {
         get: {
           summary: "System Health & Integrity Diagnostics",
@@ -660,7 +779,7 @@ export function exportOpenApiSpec(): Record<string, unknown> {
       },
       "/benchmark": {
         get: {
-          summary: "Execute Latency Benchmark Across All 6 Subsystems",
+          summary: "Execute Latency Benchmark Across All 10 Subsystems",
           operationId: "getBenchmark",
           responses: {
             "200": { description: "Latency percentile benchmark report (P50/P90/P99)" },
@@ -673,18 +792,13 @@ export function exportOpenApiSpec(): Record<string, unknown> {
         WorkflowInput: WORKFLOW_INPUT_SCHEMA,
         BusinessInput: BUSINESS_INPUT_SCHEMA,
         ScienceInput: SCIENCE_INPUT_SCHEMA,
+        ContentInput: CONTENT_INPUT_SCHEMA,
         DesignInput: DESIGN_INPUT_SCHEMA,
+        BrowserInput: BROWSER_INPUT_SCHEMA,
         MessageInput: MESSAGE_INPUT_SCHEMA,
-        BrowserInput: {
-          type: "object",
-          required: ["action"],
-          properties: {
-            action: { type: "string", description: "Browser action" },
-            url: { type: "string", description: "Target URL" },
-            selector: { type: "string", description: "DOM selector" },
-            text: { type: "string", description: "Text input" },
-          },
-        },
+        SecretInput: SECRET_INPUT_SCHEMA,
+        InfraInput: INFRA_INPUT_SCHEMA,
+        CompanyInput: COMPANY_INPUT_SCHEMA,
       },
     },
   };
@@ -700,7 +814,7 @@ export async function executeBenchmark(options: {
 } = {}): Promise<BenchmarkSuiteResult> {
   const iterations = options.iterations ?? 150;
   const warmup = options.warmupIterations ?? 10;
-  const allowedSubsystems = new Set(options.subsystems ?? ["business", "science", "content", "design", "workflow", "browser", "message", "secret"]);
+  const allowedSubsystems = new Set(options.subsystems ?? ["business", "science", "content", "design", "workflow", "browser", "message", "secret", "infra", "company"]);
 
   const targets: Array<{
     subsystem: PluginId;
@@ -930,6 +1044,40 @@ export async function executeBenchmark(options: {
         fn: async () => {
           atomicWriteSecret(tmpFile, `{"bench":${Date.now()}}`);
         },
+      }
+    );
+  }
+
+  if (allowedSubsystems.has("infra")) {
+    targets.push(
+      {
+        subsystem: "infra",
+        action: "infra_canary_probe",
+        label: "Infra: infra_canary_probe (Edge canary probe)",
+        fn: () => infraOperation({ action: "infra_canary_probe" }),
+      },
+      {
+        subsystem: "infra",
+        action: "infra_d1_schema_audit",
+        label: "Infra: infra_d1_schema_audit (D1 schema verification)",
+        fn: () => infraOperation({ action: "infra_d1_schema_audit" }),
+      }
+    );
+  }
+
+  if (allowedSubsystems.has("company")) {
+    targets.push(
+      {
+        subsystem: "company",
+        action: "company_entity_audit",
+        label: "Company: company_entity_audit (Dual-jurisdiction entity audit)",
+        fn: () => companyOperation({ action: "company_entity_audit" }),
+      },
+      {
+        subsystem: "company",
+        action: "company_compliance_check",
+        label: "Company: company_compliance_check (Good standing verification)",
+        fn: () => companyOperation({ action: "company_compliance_check" }),
       }
     );
   }
@@ -1736,6 +1884,10 @@ function normalizeWorkflowAction(action: string): string {
     case "openapi":
     case "api_spec":
       return "export_openapi_spec";
+    case "diagnostics":
+    case "audit_product":
+    case "product_diagnostics":
+      return "run_diagnostics";
     default:
       return action;
   }
@@ -1809,6 +1961,20 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
           error: res.stderr,
           exitCode: res.status,
         },
+      };
+    }
+
+    case "run_diagnostics": {
+      const { runMentalCraftDiagnostics } = require("./diagnostics.ts");
+      const { resolve } = require("node:path");
+      const root = (input as any).workspaceRoot || (input as any).workspace_root || resolve(__dirname, "../../..");
+      const report = runMentalCraftDiagnostics(root);
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "run_diagnostics",
+        success: report.allIssuesResolved,
+        timestamp,
+        data: report,
       };
     }
 

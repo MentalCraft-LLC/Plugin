@@ -372,7 +372,7 @@ async function mainCommand(cmd: string) {
       for (const p of data.installedPaths) {
         console.log(`  - ${p}`);
       }
-      console.log("\nAll subagents and AGY prompts now have native access to all 5 plugin servers!");
+      console.log(`\nAll subagents and AGY prompts now have native access to all ${data.installedCount} plugin servers!`);
       console.log("=".repeat(60) + "\n");
       break;
     }

@@ -466,15 +466,19 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     const data = res.data as any;
     expect(data.openrpc).toBe("1.3.2");
     expect(data.info.title).toContain("MentalCraft Unified Plugin");
-    expect(data.methods.length).toBeGreaterThanOrEqual(6);
-    expect(data.totalPlugins).toBe(6);
-    expect(data.totalMethods).toBe(106);
+    expect(data.methods.length).toBeGreaterThanOrEqual(10);
+    expect(data.totalPlugins).toBe(10);
+    expect(data.totalMethods).toBe(144);
     expect(data.methods.map((m: any) => m.name)).toContain("workflow");
     expect(data.methods.map((m: any) => m.name)).toContain("business");
     expect(data.methods.map((m: any) => m.name)).toContain("science");
+    expect(data.methods.map((m: any) => m.name)).toContain("content");
     expect(data.methods.map((m: any) => m.name)).toContain("design");
     expect(data.methods.map((m: any) => m.name)).toContain("browser");
     expect(data.methods.map((m: any) => m.name)).toContain("message");
+    expect(data.methods.map((m: any) => m.name)).toContain("secret");
+    expect(data.methods.map((m: any) => m.name)).toContain("infra");
+    expect(data.methods.map((m: any) => m.name)).toContain("company");
   });
 
   test("run_workflow executes ecommerce_full_launch_pipeline compound workflow", async () => {
@@ -801,11 +805,11 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.stepResults[6].action).toBe("send");
   }, { timeout: 15000 });
 
-  test("benchmark engine measures latency percentiles and ops/sec across all 8 subsystems", async () => {
+  test("benchmark engine measures latency percentiles and ops/sec across all 10 subsystems", async () => {
     const { executeBenchmark } = require("./operation.ts");
     const bench = await executeBenchmark({ iterations: 50, warmupIterations: 5 });
-    expect(bench.totalSubsystems).toBe(8);
-    expect(bench.totalActionsTested).toBeGreaterThanOrEqual(22);
+    expect(bench.totalSubsystems).toBe(10);
+    expect(bench.totalActionsTested).toBeGreaterThanOrEqual(26);
     expect(bench.overallOpsPerSec).toBeGreaterThan(0);
     expect(bench.summary.avgP50Ms).toBeGreaterThanOrEqual(0);
     expect(bench.summary.avgP90Ms).toBeGreaterThanOrEqual(0);
@@ -817,11 +821,14 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(bench.subsystems.workflow.length).toBeGreaterThanOrEqual(4);
     expect((bench.subsystems.browser || bench.subsystems.chrome).length).toBeGreaterThanOrEqual(1);
     expect(bench.subsystems.message.length).toBeGreaterThanOrEqual(2);
+    expect(bench.subsystems.secret.length).toBeGreaterThanOrEqual(1);
+    expect(bench.subsystems.infra.length).toBeGreaterThanOrEqual(2);
+    expect(bench.subsystems.company.length).toBeGreaterThanOrEqual(2);
 
     // Also verify via workflowOperation
     const opRes = await workflowOperation({ action: "benchmark", benchmark_options: { iterations: 20 } });
     expect(opRes.success).toBe(true);
-    expect((opRes.data as any).totalSubsystems).toBe(8);
+    expect((opRes.data as any).totalSubsystems).toBe(10);
   });
 
   test("compactWorkflowResult formats readable terminal summary", async () => {

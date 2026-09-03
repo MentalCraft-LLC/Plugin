@@ -28,4 +28,16 @@ describe("MentalCraft 10-Dimensional Full-Spectrum Diagnostic Engine", () => {
     expect(formatted).toContain("10 Full-Spectrum Audit Dimensions");
     expect(formatted).toContain("$10,000 MRR");
   });
+
+  test("workflowOperation executes run_diagnostics and diagnostics alias", async () => {
+    const { workflowOperation } = await import("./operation.ts");
+    const res = await workflowOperation({ action: "run_diagnostics" as any });
+    expect(res.success).toBe(true);
+    expect(res.action).toBe("run_diagnostics");
+    expect((res.data as any).productName).toBe("MentalCraft");
+
+    const aliasRes = await workflowOperation({ action: "diagnostics" as any, params: {} });
+    expect(aliasRes.success).toBe(true);
+    expect(aliasRes.action).toBe("run_diagnostics");
+  });
 });

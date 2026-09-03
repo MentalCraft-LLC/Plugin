@@ -162,6 +162,13 @@ export {
   withRetry,
   redactSensitiveData,
 } from "./operation.ts";
+export {
+  runMentalCraftDiagnostics,
+  type DiagnosticReport,
+  type DiagnosticIssue,
+  type DimensionAuditResult,
+  type DiagnosticDimensionKey,
+} from "./diagnostics.ts";
 
 // Browser Subsystem (Tool)
 export {

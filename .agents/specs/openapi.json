@@ -1,0 +1,1991 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MentalCraft Unified Plugin API",
+    "version": "1.0.0",
+    "description": "Universal Agent-Less Capability & Domain Intelligence Architecture across 10 Canonical Subsystems"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3890",
+      "description": "MentalCraft Master HTTP Gateway"
+    }
+  ],
+  "paths": {
+    "/api/workflow": {
+      "post": {
+        "summary": "Execute Workflow Orchestrator & Health Diagnostics",
+        "operationId": "executeWorkflow",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Workflow execution receipt or diagnostic result"
+          }
+        }
+      }
+    },
+    "/api/business": {
+      "post": {
+        "summary": "Execute Venture Lifecycle & Commercial Intelligence",
+        "operationId": "executeBusiness",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BusinessInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Commercial intelligence result"
+          }
+        }
+      }
+    },
+    "/api/science": {
+      "post": {
+        "summary": "Execute Science & Academic Production Intelligence",
+        "operationId": "executeScience",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScienceInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Academic lifecycle intelligence result"
+          }
+        }
+      }
+    },
+    "/api/content": {
+      "post": {
+        "summary": "Execute Story Worldbuilding & Marketing Engine",
+        "operationId": "executeContent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Content production or marketing result"
+          }
+        }
+      }
+    },
+    "/api/design": {
+      "post": {
+        "summary": "Execute Design System & UI Intelligence",
+        "operationId": "executeDesign",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DesignInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Design tokens or Svelte 5 runes component"
+          }
+        }
+      }
+    },
+    "/api/browser": {
+      "post": {
+        "summary": "Execute Browser Automation & Inactive Tab Driving",
+        "operationId": "executeBrowser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BrowserInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Browser action receipt or screenshot"
+          }
+        }
+      }
+    },
+    "/api/message": {
+      "post": {
+        "summary": "Dispatch Priority Agent Message",
+        "operationId": "dispatchMessage",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message delivery confirmation receipt"
+          }
+        }
+      }
+    },
+    "/api/secret": {
+      "post": {
+        "summary": "Execute Mode-0600 Credential Vault Operations",
+        "operationId": "executeSecret",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecretInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Credential vault operation receipt"
+          }
+        }
+      }
+    },
+    "/api/infra": {
+      "post": {
+        "summary": "Execute Edge Infrastructure & Microservices Diagnostics",
+        "operationId": "executeInfra",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InfraInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Edge microservice audit result"
+          }
+        }
+      }
+    },
+    "/api/company": {
+      "post": {
+        "summary": "Execute Corporate Governance & Entity Compliance Audit",
+        "operationId": "executeCompany",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Corporate governance audit result"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "System Health & Integrity Diagnostics",
+        "operationId": "getHealth",
+        "responses": {
+          "200": {
+            "description": "System health report"
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "summary": "System Telemetry & Circuit Breaker Dashboard",
+        "operationId": "getMetrics",
+        "responses": {
+          "200": {
+            "description": "Live telemetry metrics report"
+          }
+        }
+      }
+    },
+    "/benchmark": {
+      "get": {
+        "summary": "Execute Latency Benchmark Across All 10 Subsystems",
+        "operationId": "getBenchmark",
+        "responses": {
+          "200": {
+            "description": "Latency percentile benchmark report (P50/P90/P99)"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "WorkflowInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "plan_dynamic_workflow",
+              "run_dynamic_workflow",
+              "list_workflows",
+              "run_workflow",
+              "register_workflow",
+              "get_workflow_history",
+              "export_config",
+              "install_mcp_schemas",
+              "sync_mcp",
+              "export_schema_catalog",
+              "export_openapi_catalog",
+              "export_openrpc_spec",
+              "export_openapi_spec",
+              "benchmark",
+              "get_metrics",
+              "export_trace",
+              "export_mermaid_dag",
+              "batch_run",
+              "health_check",
+              "dry_run",
+              "check_flywheel",
+              "audit_workspace",
+              "run_diagnostics",
+              "autopilot_step",
+              "autopilot_status",
+              "autopilot_schedule_spec",
+              "autopilot_run"
+            ],
+            "description": "Workflow action: 'list_workflows' (catalog of pipelines), 'run_workflow' (live execution), 'register_workflow' (define custom DAG), 'get_workflow_history' (past execution receipts), 'export_config' (generate MCP client JSON configs), 'install_mcp_schemas' (install to Antigravity), 'sync_mcp' (auto-heal & sync all 11 FastMCP servers and schemas), 'export_schema_catalog' / 'export_openrpc_spec' (OpenRPC 1.3.2 specification), 'export_openapi_catalog' / 'export_openapi_spec' (OpenAPI 3.1.0 specification), 'benchmark' (P50/P90/P99 latency & ops/sec suite across all 10 subsystems), 'get_metrics' (live telemetry and circuit breaker state), 'export_trace' (OTel spans export), 'export_mermaid_dag' (Mermaid diagram), 'batch_run' (pooled parallel execution), 'health_check' (system diagnostics), 'dry_run' (plan graph inspection), 'run_diagnostics' (10-dimensional product health audit), 'autopilot_step' (autonomous sprint cycle)."
+          },
+          "workflow_id": {
+            "type": "string",
+            "description": "Target workflow identifier."
+          },
+          "target_plugin": {
+            "type": "string",
+            "enum": [
+              "browser",
+              "chrome",
+              "design",
+              "business",
+              "science",
+              "content",
+              "message",
+              "secret",
+              "infra",
+              "company",
+              "workflow",
+              "all"
+            ],
+            "description": "Target plugin for health check."
+          },
+          "client_target": {
+            "type": "string",
+            "enum": [
+              "claude_desktop",
+              "cursor",
+              "antigravity",
+              "all"
+            ],
+            "description": "Target IDE or agent client for export_config."
+          },
+          "custom_workflow": {
+            "type": "object",
+            "description": "Custom workflow definition object containing id, name, description, requiredPlugins, and steps."
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "plugin",
+                "action"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "plugin": {
+                  "type": "string"
+                },
+                "action": {
+                  "type": "string"
+                },
+                "parameters": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "List of concurrent tasks for batch_run action."
+          },
+          "concurrency": {
+            "type": "integer",
+            "description": "Maximum concurrency pool limit for batch_run."
+          },
+          "parameters": {
+            "type": "object",
+            "description": "Optional custom parameters passed to workflow pipeline steps."
+          },
+          "benchmark_options": {
+            "type": "object",
+            "description": "Options for benchmark execution (iterations, warmupIterations, subsystems).",
+            "properties": {
+              "iterations": {
+                "type": "integer",
+                "description": "Number of benchmark iterations per target."
+              },
+              "warmupIterations": {
+                "type": "integer",
+                "description": "Number of warmup iterations."
+              },
+              "subsystems": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Subsystems to include in benchmark."
+              }
+            }
+          }
+        }
+      },
+      "BusinessInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "venture_market_validation",
+              "market_niche_discovery",
+              "venture_pmf_validation",
+              "venture_acquisition_audit",
+              "seo_keyword_difficulty",
+              "seo_batch_keywords",
+              "seo_link_budget",
+              "traffic_domain_overview",
+              "traffic_channel_breakdown",
+              "traffic_geo_distribution",
+              "traffic_competitor_comparison",
+              "venture_activation_funnel",
+              "venture_retention_curves",
+              "venture_unit_economics",
+              "venture_monetization_telemetry",
+              "market_stripe_radar",
+              "market_site_trajectory",
+              "product_traction_score",
+              "venture_pricing_experiment",
+              "venture_growth_playbook",
+              "venture_expansion_moat",
+              "spriteflow_mrr_engine",
+              "spriteflow_pseo_matrix",
+              "zero_cost_viral_loops",
+              "essay_dual_mrr_engine",
+              "essay_dual_pseo_matrix",
+              "essay_cross_sell_loop",
+              "essay_telemetry_event_tracker",
+              "essay_conversion_leak_auditor",
+              "essay_detector_mrr_engine",
+              "essay_dual_independent_10k_mrr",
+              "essay_llmo_engine",
+              "essay_live_telemetry_monitor",
+              "essay_multilingual_pseo_matrix",
+              "essay_campus_ambassador_loop",
+              "essay_dynamic_ppp_pricing",
+              "essay_lifecycle_email_drip",
+              "essay_extension_ecosystem_spec",
+              "product_eeat_audit",
+              "product_fullstack_excellence_audit",
+              "essay_seo_llmo_content_generator",
+              "application_market_validation",
+              "application_niche_discovery",
+              "application_pmf_validation",
+              "application_product_traction",
+              "application_acquisition_audit",
+              "application_pseo_matrix",
+              "application_seo_keywords",
+              "application_zero_cost_viral_loops",
+              "application_activation_funnel",
+              "application_retention_curves",
+              "application_paywall_trigger",
+              "application_i18n_matrix",
+              "application_compliance_audit",
+              "application_release_checklist",
+              "service_contract_validate",
+              "service_auth_verify",
+              "service_monetization_checkout",
+              "service_event_dispatch",
+              "service_storage_presign",
+              "service_notification_deliver",
+              "service_d1_migrate",
+              "service_health_telemetry",
+              "service_resilience_circuit_breaker",
+              "service_practitioner_workbench",
+              "service_scale_battery_config",
+              "service_referral_dispatch",
+              "company_unit_economics",
+              "company_mrr_engine",
+              "company_pricing_experiment",
+              "company_monetization_telemetry",
+              "company_growth_playbook",
+              "company_expansion_moat",
+              "company_compliance_audit",
+              "company_capital_efficiency",
+              "plausible_list_sites",
+              "plausible_tracker_snippet",
+              "plausible_website_stats",
+              "list_actions"
+            ],
+            "description": "Business action across the 8 venture lifecycle stages: Stage 1 Ideation ('venture_market_validation', 'market_niche_discovery'), Stage 2 PMF ('venture_pmf_validation'), Stage 3 Acquisition ('venture_acquisition_audit', SEO/TrafficCV actions), Stage 4 Activation ('venture_activation_funnel'), Stage 5 Retention ('venture_retention_curves'), Stage 6 Unit Economics ('venture_unit_economics', 'venture_monetization_telemetry', 'market_stripe_radar', 'market_site_trajectory', 'product_traction_score'), Stage 7 Pricing ('venture_pricing_experiment'), Stage 8 Scale & Moats ('venture_growth_playbook', 'venture_expansion_moat'), SpriteFlow & Indie SaaS Growth Engines ('spriteflow_mrr_engine', 'spriteflow_pseo_matrix', 'zero_cost_viral_loops'), and 'list_actions'."
+          },
+          "modality": {
+            "type": "string",
+            "enum": [
+              "website",
+              "app",
+              "game",
+              "shop"
+            ],
+            "description": "Commercial modality of the venture: 'website' (SaaS/Web App), 'app' (iOS/Android mobile/desktop app), 'game' (Steam/mobile/console game), 'shop' (E-Commerce D2C / TikTok Shop / Amazon FBA). Default is 'website'."
+          },
+          "venture_name": {
+            "type": "string",
+            "description": "Name of the business venture or product."
+          },
+          "target_audience": {
+            "type": "string",
+            "description": "Target demographic or customer persona."
+          },
+          "monetization_model": {
+            "type": "string",
+            "enum": [
+              "subscription",
+              "freemium",
+              "iap",
+              "ads",
+              "one_time",
+              "battle_pass",
+              "ecommerce_cogs",
+              "digital_download"
+            ],
+            "description": "Business monetization model."
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "gefei",
+              "trafficcv",
+              "store_radar",
+              "auto"
+            ],
+            "description": "Data provider selection."
+          },
+          "keyword": {
+            "type": "string",
+            "description": "Search keyword to analyze (e.g. 'anxiety test online', 'deckbuilder roguelike')."
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of keywords for batch evaluation."
+          },
+          "domain": {
+            "type": "string",
+            "description": "Domain name for Stripe billing trajectory, TrafficCV analytics, or Plausible site lookup (optional)."
+          },
+          "domains": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of domain names for TrafficCV competitor comparison."
+          },
+          "competitors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of competitor names or domains."
+          },
+          "cac": {
+            "type": "number",
+            "description": "Customer Acquisition Cost in USD."
+          },
+          "arpu": {
+            "type": "number",
+            "description": "Average Revenue Per User in USD."
+          },
+          "dau": {
+            "type": "integer",
+            "description": "Daily Active Users count."
+          },
+          "mau": {
+            "type": "integer",
+            "description": "Monthly Active Users count."
+          },
+          "d1_retention": {
+            "type": "number",
+            "description": "Day 1 retention percentage."
+          },
+          "d7_retention": {
+            "type": "number",
+            "description": "Day 7 retention percentage."
+          },
+          "d30_retention": {
+            "type": "number",
+            "description": "Day 30 retention percentage."
+          },
+          "d90_retention": {
+            "type": "number",
+            "description": "Day 90 retention / repurchase percentage."
+          },
+          "price_points": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "Array of price points to test in pricing elasticity experiment."
+          },
+          "cogs": {
+            "type": "number",
+            "description": "Cost of Goods Sold in USD (for e-commerce/shop ventures)."
+          },
+          "shipping_cost": {
+            "type": "number",
+            "description": "3PL Warehousing & Shipping cost per unit in USD."
+          },
+          "lead_time_days": {
+            "type": "number",
+            "description": "Supplier / factory reorder lead time in days."
+          },
+          "daily_demand_units": {
+            "type": "number",
+            "description": "Average daily demand / sales velocity in units."
+          },
+          "demand_std_dev": {
+            "type": "number",
+            "description": "Standard deviation of daily demand for safety stock calculation."
+          },
+          "service_level_percent": {
+            "type": "number",
+            "description": "Target inventory cycle service level percentage (e.g. 95 or 99)."
+          },
+          "pmf_score": {
+            "type": "number",
+            "description": "Sean Ellis PMF score percentage (% very disappointed without product)."
+          },
+          "smoke_test_ctr": {
+            "type": "number",
+            "description": "Smoke test conversion rate percentage."
+          },
+          "ttv_minutes": {
+            "type": "number",
+            "description": "Time-to-Value in minutes."
+          },
+          "month": {
+            "type": "string",
+            "description": "Month in YYYYMM format (e.g. '202607')."
+          },
+          "query": {
+            "type": "string",
+            "description": "Niche idea search query."
+          },
+          "product_name": {
+            "type": "string",
+            "description": "Product name for traction scoring."
+          },
+          "gl": {
+            "type": "string",
+            "description": "Google country code (default 'us')."
+          },
+          "hl": {
+            "type": "string",
+            "description": "Google language code (default 'en')."
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Bypass cache and force fresh SERP evaluation."
+          },
+          "target_mrr": {
+            "type": "number",
+            "description": "Target MRR in USD for SpriteFlow MRR engine (e.g. 10000)."
+          },
+          "pro_price": {
+            "type": "number",
+            "description": "Pro tier monthly subscription price in USD (e.g. 19)."
+          },
+          "studio_price": {
+            "type": "number",
+            "description": "Studio tier monthly subscription price in USD (e.g. 79)."
+          },
+          "pro_subscribers": {
+            "type": "integer",
+            "description": "Target Pro subscriber count (e.g. 420)."
+          },
+          "studio_subscribers": {
+            "type": "integer",
+            "description": "Target Studio subscriber count (e.g. 25)."
+          },
+          "practitioner_price": {
+            "type": "number",
+            "description": "MentalCraft Practitioner Pro monthly price in USD (default 29)."
+          },
+          "practitioner_subscribers": {
+            "type": "integer",
+            "description": "MentalCraft Practitioner Pro subscriber count (default 250)."
+          },
+          "report_price": {
+            "type": "number",
+            "description": "MentalCraft in-depth report monthly price in USD (default 9.9)."
+          },
+          "report_subscribers": {
+            "type": "integer",
+            "description": "MentalCraft in-depth report subscriber count (default 300)."
+          },
+          "indexed_pages": {
+            "type": "integer",
+            "description": "Indexed page count used by the MentalCraft SEO pillar."
+          },
+          "keyword_difficulty_median": {
+            "type": "number",
+            "description": "Median keyword difficulty used by the MentalCraft SEO pillar."
+          },
+          "organic_sessions": {
+            "type": "integer",
+            "description": "SEO organic sessions feeding the MentalCraft conversion funnel."
+          },
+          "trial_starts": {
+            "type": "integer",
+            "description": "Workbench trial starts in the MentalCraft conversion funnel."
+          },
+          "paid_conversions": {
+            "type": "integer",
+            "description": "Paid conversions in the MentalCraft conversion funnel."
+          },
+          "engine_filter": {
+            "type": "string",
+            "description": "Game engine or ecosystem filter for pSEO matrix (e.g. 'Godot 4', 'Unity', 'Aseprite')."
+          },
+          "min_volume": {
+            "type": "integer",
+            "description": "Minimum monthly search volume filter for pSEO keywords."
+          },
+          "max_kd": {
+            "type": "integer",
+            "description": "Maximum keyword difficulty (KD) filter for pSEO matrix."
+          }
+        }
+      },
+      "ScienceInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "paper_literature_search",
+              "paper_citation_verify",
+              "paper_methodology_audit",
+              "paper_structure_audit",
+              "paper_latex_scaffold",
+              "paper_peer_review_simulate",
+              "paper_chinese_formatter",
+              "paper_social_science_audit",
+              "paper_css_digital_trace_audit",
+              "paper_css_nlp_sentiment_trajectory",
+              "paper_css_causal_inference_did",
+              "paper_css_abm_simulation",
+              "paper_css_telemetry_preprocess",
+              "paper_css_nlp_sentiment_score",
+              "paper_css_topic_bertopic_cluster",
+              "paper_css_did_regression",
+              "paper_css_parallel_trends_test",
+              "paper_css_abm_step",
+              "grant_criteria_audit",
+              "grant_aims_alignment",
+              "grant_budget_calculator",
+              "journal_matcher",
+              "journal_submission_checklist",
+              "journal_ssci_matcher",
+              "patent_novelty_check",
+              "patent_claim_structure",
+              "patent_spec_scaffold",
+              "patent_scholarly_impact_forecast",
+              "scholarly_impact_forecast",
+              "social_science_peer_review_audit",
+              "chinese_academic_formatter",
+              "ssci_top_journal_matcher",
+              "css_digital_trace_audit",
+              "css_nlp_sentiment_trajectory",
+              "css_causal_inference_did",
+              "css_abm_simulation",
+              "css_telemetry_preprocess",
+              "css_nlp_sentiment_score",
+              "css_topic_bertopic_cluster",
+              "css_did_regression",
+              "css_parallel_trends_test",
+              "css_abm_step",
+              "list_actions"
+            ],
+            "description": "Science intelligence action across the 8 academic production lifecycle stages and Computational Social Science (CSS) modules: Stage 1 Literature ('paper_literature_search', 'paper_citation_verify'), Stage 2 Methodology ('paper_methodology_audit', 'css_digital_trace_audit', 'css_nlp_sentiment_trajectory', 'css_causal_inference_did', 'css_abm_simulation', 'css_telemetry_preprocess', 'css_nlp_sentiment_score', 'css_topic_bertopic_cluster', 'css_did_regression', 'css_parallel_trends_test', 'css_abm_step'), Stage 3 Grants ('grant_criteria_audit', 'grant_aims_alignment', 'grant_budget_calculator'), Stage 4 Authoring ('paper_structure_audit', 'paper_latex_scaffold', 'chinese_academic_formatter'), Stage 5 Peer Review ('paper_peer_review_simulate', 'social_science_peer_review_audit'), Stage 6 Journal Submission ('journal_matcher', 'journal_submission_checklist', 'ssci_top_journal_matcher'), Stage 7 Intellectual Property ('patent_novelty_check', 'patent_claim_structure', 'patent_spec_scaffold'), Stage 8 Scholarly Impact ('scholarly_impact_forecast'), and 'list_actions'."
+          },
+          "query": {
+            "type": "string",
+            "description": "Academic literature search query."
+          },
+          "doi": {
+            "type": "string",
+            "description": "Digital Object Identifier (DOI) for citation verification."
+          },
+          "bibtex": {
+            "type": "string",
+            "description": "Raw BibTeX entry string to validate and parse."
+          },
+          "citation_style": {
+            "type": "string",
+            "enum": [
+              "apa",
+              "ieee",
+              "nature",
+              "acm",
+              "chicago"
+            ],
+            "description": "Citation formatting style."
+          },
+          "manuscript_title": {
+            "type": "string",
+            "description": "Title of manuscript for audit, review simulation, LaTeX scaffolding, or impact forecast."
+          },
+          "manuscript_text": {
+            "type": "string",
+            "description": "Full manuscript text or markdown."
+          },
+          "sections": {
+            "type": "object",
+            "description": "Key-value dictionary mapping section names to text."
+          },
+          "latex_template": {
+            "type": "string",
+            "enum": [
+              "acm",
+              "ieee",
+              "nature"
+            ],
+            "description": "LaTeX template type to generate ('acm' for SIGCONF, 'ieee' for Transactions/Journals)."
+          },
+          "methodology_data": {
+            "type": "object",
+            "description": "Methodology parameters (sample_size, treatment_mean, control_mean, pooled_std, baselines)."
+          },
+          "grant_abstract": {
+            "type": "string",
+            "description": "Grant proposal abstract."
+          },
+          "funding_agency": {
+            "type": "string",
+            "enum": [
+              "NIH",
+              "NSF",
+              "ERC",
+              "DARPA",
+              "DOE"
+            ],
+            "description": "Target funding agency."
+          },
+          "direct_costs": {
+            "type": "object",
+            "description": "Direct costs breakdown (personnel, equipment, supplies, travel, subawards_over_25k, participant_support, other)."
+          },
+          "fringe_rate_percent": {
+            "type": "number",
+            "description": "Personnel fringe benefits rate percentage (default: 28%)."
+          },
+          "indirect_rate_percent": {
+            "type": "number",
+            "description": "F&A indirect cost rate percentage (default: 52%)."
+          },
+          "duration_years": {
+            "type": "integer",
+            "description": "Project duration in years."
+          },
+          "annual_escalation_percent": {
+            "type": "number",
+            "description": "Annual cost-of-living and merit escalation rate percentage (default: 3%)."
+          },
+          "aims": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Specific Aims statements."
+          },
+          "field_of_study": {
+            "type": "string",
+            "description": "Scientific field of study."
+          },
+          "desired_impact_factor_min": {
+            "type": "number",
+            "description": "Minimum target journal Impact Factor."
+          },
+          "target_review_weeks_max": {
+            "type": "number",
+            "description": "Maximum acceptable average review turnaround time in weeks."
+          },
+          "open_access_preference": {
+            "type": "string",
+            "enum": [
+              "Gold",
+              "Green",
+              "Hybrid",
+              "Closed",
+              "Diamond",
+              "Any"
+            ],
+            "description": "Open Access publication model preference."
+          },
+          "invention_title": {
+            "type": "string",
+            "description": "Title of invention for patent novelty audit or spec scaffolding."
+          },
+          "invention_summary": {
+            "type": "string",
+            "description": "Invention summary or patent claim narrative."
+          },
+          "claims_text": {
+            "type": "string",
+            "description": "Draft patent claims text."
+          },
+          "claims_list": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "claimNumber": {
+                  "type": "integer"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "independent",
+                    "dependent"
+                  ]
+                },
+                "dependsOnClaim": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "List of structured patent claims for antecedent basis verification."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max results to return."
+          },
+          "target_cssci_journal": {
+            "type": "string",
+            "description": "Target Chinese CSSCI journal name (e.g., '《中国社会科学》', '《社会学研究》', '《心理学报》', '《管理世界》', '《新闻与传播研究》')."
+          },
+          "target_ssci_journal": {
+            "type": "string",
+            "description": "Target SSCI Q1 journal name (e.g., 'Nature Human Behaviour', 'Computers in Human Behavior', 'New Media & Society')."
+          },
+          "social_science_field": {
+            "type": "string",
+            "description": "Social science field of study ('Sociology', 'Psychology', 'Communication', 'Management', 'Interdisciplinary')."
+          },
+          "empirical_data": {
+            "type": "object",
+            "description": "Empirical triangulation metadata (survey_sample_size, interview_count, fieldwork_duration_months, mixed_methods, common_method_bias_checked, theoretical_saturation)."
+          },
+          "chinese_paper": {
+            "type": "object",
+            "description": "Chinese academic manuscript structure (title, english_title, clc_code, document_code, fund_project, author_bio, headings, chinese_abstract, chinese_keywords, references)."
+          },
+          "word_count_limit_max": {
+            "type": "integer",
+            "description": "Maximum allowable manuscript word count for SSCI matching."
+          },
+          "css_telemetry_events": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Digital telemetry event traces for preprocessing or digital trace audit (eventId, userId, timestamp, eventType, durationSeconds)."
+          },
+          "css_nlp_corpus": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Conversational corpus for BERTopic dynamic topic modeling & sentiment valence trajectory."
+          },
+          "css_snippets": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Text snippets for atomic NLP sentiment scoring or BERTopic topic clustering."
+          },
+          "css_did_data": {
+            "type": "object",
+            "description": "Difference-in-Differences panel and estimation data (treated_post_mean, treated_pre_mean, control_post_mean, control_pre_mean, sample_size, panels)."
+          },
+          "css_event_study_leads": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Event-study lead and lag coefficients for pre-treatment parallel trends testing."
+          },
+          "css_abm_params": {
+            "type": "object",
+            "description": "Agent-Based Modeling parameters (agent_count, steps, feedback_strength, intervention_rate, decay_lambda, baseline_intimacy)."
+          },
+          "css_abm_agents": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Current agent population states for discrete ABM simulation step."
+          },
+          "css_step_number": {
+            "type": "integer",
+            "description": "Discrete step number for ABM simulation step."
+          }
+        }
+      },
+      "ContentInput": {
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "story_worldbuilding_forge",
+              "story_character_arc_architect",
+              "story_plot_beat_composer",
+              "story_sensory_prose_render",
+              "story_lore_consistency_linter",
+              "story_interactive_ink_exporter",
+              "marketing_pas_copywriter",
+              "marketing_omnichannel_adapter",
+              "marketing_viral_hook_generator",
+              "marketing_campaign_playbook"
+            ],
+            "description": "Content Story & Marketing action to execute"
+          },
+          "title": {
+            "type": "string",
+            "description": "World or story title"
+          },
+          "story_title": {
+            "type": "string",
+            "description": "Story title for outline or script"
+          },
+          "genre": {
+            "type": "string",
+            "enum": [
+              "hard_scifi",
+              "cyberpunk",
+              "dark_fantasy",
+              "mystery_thriller",
+              "realism",
+              "mythological"
+            ]
+          },
+          "core_themes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "Character name"
+          },
+          "archetype": {
+            "type": "string",
+            "description": "Character archetype"
+          },
+          "arc_type": {
+            "type": "string",
+            "enum": [
+              "positive_change",
+              "tragic_corruption",
+              "steadfast_flat",
+              "disillusionment"
+            ]
+          },
+          "ghost_wound": {
+            "type": "string",
+            "description": "Past trauma or ghost wound"
+          },
+          "framework": {
+            "type": "string",
+            "enum": [
+              "save_the_cat_15",
+              "heros_journey_12",
+              "dan_harmon_circle",
+              "three_act_mystery"
+            ]
+          },
+          "premise": {
+            "type": "string",
+            "description": "Core story premise"
+          },
+          "excerpt": {
+            "type": "string",
+            "description": "Draft text excerpt to enhance with sensory details"
+          },
+          "focus_sense": {
+            "type": "string",
+            "enum": [
+              "visual",
+              "tactile",
+              "auditory",
+              "olfactory",
+              "all"
+            ]
+          },
+          "atmosphere": {
+            "type": "string",
+            "enum": [
+              "noir_gritty",
+              "lyrical_melancholy",
+              "kinetic_tension"
+            ]
+          },
+          "manuscript_text": {
+            "type": "string",
+            "description": "Manuscript text to check for lore contradictions"
+          },
+          "world_rules": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "branches": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "product_name": {
+            "type": "string",
+            "description": "Target product or service name"
+          },
+          "target_audience": {
+            "type": "string",
+            "enum": [
+              "indie_game_dev",
+              "saas_founder",
+              "academic_researcher",
+              "creative_writer",
+              "indie_hacker"
+            ]
+          },
+          "key_feature": {
+            "type": "string"
+          },
+          "metric_proof": {
+            "type": "string"
+          },
+          "source_topic": {
+            "type": "string",
+            "description": "Core topic or insight to adapt into multi-channel posts"
+          },
+          "hook_category": {
+            "type": "string",
+            "enum": [
+              "curiosity_gap",
+              "contrarian_truth",
+              "pain_relief",
+              "stat_shock",
+              "founder_confession"
+            ]
+          },
+          "campaign_name": {
+            "type": "string",
+            "description": "Product launch campaign name"
+          }
+        }
+      },
+      "DesignInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "catalog",
+              "inspect_component",
+              "theme_tokens",
+              "generate_ui",
+              "audit_ui",
+              "bridge_chrome",
+              "list_layers",
+              "resolve_imports",
+              "domain_presets",
+              "bundle_optimize",
+              "generate_editorial"
+            ],
+            "description": "Design action: 'catalog' (list components), 'inspect_component' (deep schema/props/example), 'theme_tokens' (colors, spacing, radius), 'generate_ui' (Svelte 5 runes recipe), 'audit_ui' (A11y/Token linter), 'bridge_chrome' (DOM to component mapper), 'list_layers' (5-layer architecture), 'resolve_imports' (calculate on-demand subpaths & savings), 'domain_presets' (clinical, chat_ai, analytics, commerce, auth, ecommerce_pdp, ecommerce_checkout, academic_manuscript_viewer, venture_telemetry_dashboard), 'bundle_optimize' (refactor monolithic imports), 'generate_editorial' (single-ink and controlled duotone print visual generation with Recipe Manifest)."
+          },
+          "layer": {
+            "type": "string",
+            "enum": [
+              "foundation",
+              "behavior",
+              "component",
+              "composite",
+              "block",
+              "page",
+              "template"
+            ],
+            "description": "Filter catalog by architectural layer."
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "interaction",
+              "input",
+              "display",
+              "feedback",
+              "overlay",
+              "navigation",
+              "layout",
+              "scaffold",
+              "status",
+              "media",
+              "conversation",
+              "commerce",
+              "document",
+              "marketing",
+              "tool"
+            ],
+            "description": "Filter catalog by component category."
+          },
+          "component_id": {
+            "type": "string",
+            "description": "Target component ID (e.g. 'button', 'card', 'dialog', 'screener', 'kanban', 'hero')."
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of component names for on-demand subpath resolution."
+          },
+          "preset_name": {
+            "type": "string",
+            "enum": [
+              "clinical",
+              "chat_ai",
+              "analytics",
+              "commerce",
+              "auth",
+              "ecommerce_pdp",
+              "ecommerce_checkout",
+              "academic_manuscript_viewer",
+              "venture_telemetry_dashboard"
+            ],
+            "description": "Target domain preset pack."
+          },
+          "token_category": {
+            "type": "string",
+            "enum": [
+              "color",
+              "typography",
+              "spacing",
+              "radius",
+              "shadow",
+              "elevation",
+              "motion",
+              "breakpoint"
+            ],
+            "description": "Filter design tokens by category."
+          },
+          "intent": {
+            "type": "string",
+            "enum": [
+              "marketing_hero",
+              "auth_form",
+              "screener",
+              "chat_stream",
+              "settings_panel",
+              "pricing_table",
+              "ecommerce_pdp",
+              "ecommerce_checkout",
+              "academic_manuscript_viewer",
+              "venture_telemetry_dashboard",
+              "custom"
+            ],
+            "description": "Intent for UI generation recipe."
+          },
+          "prompt": {
+            "type": "string",
+            "description": "Free-form search term, component name, or UI generation description."
+          },
+          "template_code": {
+            "type": "string",
+            "description": "Svelte or HTML code snippet to audit against design system standards or optimize imports."
+          },
+          "chrome_element": {
+            "type": "object",
+            "description": "DOM element metadata from Chrome inspector for design system bridging.",
+            "properties": {
+              "tag": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "className": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              },
+              "rect": {
+                "type": "object",
+                "properties": {
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "required": [
+              "tag"
+            ]
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of catalog items to return."
+          },
+          "theme": {
+            "type": "string",
+            "description": "Subject theme for editorial visual generation (e.g. 'Late Night Convenience Store', 'Nature Research Figure')."
+          },
+          "palette": {
+            "type": "string",
+            "enum": [
+              "cobalt_terracotta",
+              "powder_signal",
+              "botanical_oxblood",
+              "charcoal_signal",
+              "electric_carbon",
+              "mint_charcoal",
+              "ultramarine_safety",
+              "cyan_brick",
+              "tangerine_slate"
+            ],
+            "description": "Duotone ink palette recipe for editorial print generation."
+          },
+          "substrate": {
+            "type": "string",
+            "enum": [
+              "neutral_white",
+              "cool_gray",
+              "pale_beige"
+            ],
+            "description": "Paper substrate background tone."
+          },
+          "ratio": {
+            "type": "string",
+            "description": "Aspect ratio for editorial visual (e.g. '3:4', '1:1', '16:9', '4:3')."
+          },
+          "exact_text": {
+            "type": "string",
+            "description": "Preserved display text phrase (2-8 words)."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "controlled_two_ink",
+              "pure_one_ink",
+              "overprint_duotone"
+            ],
+            "description": "Print reproduction mode."
+          }
+        }
+      },
+      "BrowserInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "status",
+              "repair",
+              "hot_reload",
+              "reload_page",
+              "open",
+              "controls",
+              "read_text",
+              "read_markdown",
+              "read_styles",
+              "read_scripts",
+              "disassemble",
+              "read_console",
+              "read_network",
+              "read_storage",
+              "set_storage",
+              "clear_storage",
+              "read_cookies",
+              "clear_cookies",
+              "performance_metrics",
+              "wait_for",
+              "inspect_element",
+              "evaluate_script",
+              "click",
+              "hover",
+              "scroll",
+              "press_key",
+              "fill_public",
+              "fill_form",
+              "fill_local",
+              "press_enter",
+              "select_combobox",
+              "cdp_click",
+              "cdp_scroll",
+              "cdp_hover",
+              "cdp_key",
+              "capture_ga4_measurement_id",
+              "capture_clarity_token",
+              "capture_session",
+              "capture_screenshot",
+              "capture_video",
+              "record_video",
+              "capture_pdf",
+              "semantic_snapshot",
+              "annotate",
+              "emulate",
+              "lighthouse_audit",
+              "performance_trace",
+              "heap_analysis",
+              "network_waterfall",
+              "security_audit",
+              "emulate_profile",
+              "accessibility_tree",
+              "smart_selector_heal",
+              "visual_regression_diff",
+              "journey_record_and_replay",
+              "session_isolation_vault",
+              "inp_interaction_vitals",
+              "persona_emulation",
+              "extract_structured_data",
+              "chaos_resilience_test",
+              "batch_tab_orchestration",
+              "drag_and_drop",
+              "upload_file",
+              "close_group",
+              "network_mock_interceptor",
+              "har_replay_mock",
+              "web_vitals_radar",
+              "stealth_profile_guard",
+              "attention_heatmap_predict",
+              "e2e_spec_generator",
+              "memory_leak_tracer",
+              "responsive_matrix_linter",
+              "security_sandbox_audit",
+              "dom_race_profiler",
+              "lighthouse_ci_budget"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "minLength": 6,
+            "maxLength": 2000
+          },
+          "max_sections": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "button",
+              "link",
+              "menuitem",
+              "option",
+              "tab",
+              "combobox",
+              "textbox",
+              "checkbox",
+              "radio",
+              "switch"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "screen_x": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000
+          },
+          "screen_y": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000
+          },
+          "client_x": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000
+          },
+          "client_y": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000
+          },
+          "delta_x": {
+            "type": "integer",
+            "minimum": -100000,
+            "maximum": 100000
+          },
+          "delta_y": {
+            "type": "integer",
+            "minimum": -100000,
+            "maximum": 100000
+          },
+          "from_x": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000
+          },
+          "from_y": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000
+          },
+          "to_x": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000
+          },
+          "to_y": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000
+          },
+          "source_selector": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "target_selector": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "file_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "file_content": {
+            "type": "string",
+            "maxLength": 500000
+          },
+          "file_type": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "base64": {
+            "type": "string",
+            "maxLength": 5000000
+          },
+          "key": {
+            "type": "string",
+            "enum": [
+              "Tab",
+              "Enter",
+              "Escape",
+              "ArrowDown",
+              "ArrowUp",
+              "ArrowLeft",
+              "ArrowRight",
+              "Home",
+              "End"
+            ]
+          },
+          "max_chars": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000
+          },
+          "max_elements": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200
+          },
+          "context": {
+            "type": "string",
+            "enum": [
+              "dialog",
+              "form",
+              "main",
+              "header",
+              "navigation",
+              "page"
+            ]
+          },
+          "field": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "entries": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "script": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50000
+          },
+          "selector": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 60000
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "info",
+              "warn",
+              "error"
+            ]
+          },
+          "bypass_cache": {
+            "type": "boolean"
+          },
+          "route": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 200,
+            "pattern": "^(?:Application|Business|Service|Design)/[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*$"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "ga4_service_account",
+              "clarity_domain",
+              "clarity_project_name",
+              "gsc_service_account"
+            ]
+          },
+          "foregroundConfirmed": {
+            "type": "boolean"
+          },
+          "ownerConfirmed": {
+            "type": "boolean"
+          },
+          "long": {
+            "type": "boolean"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 30000
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "color_scheme": {
+            "type": "string",
+            "enum": [
+              "dark",
+              "light",
+              "no-preference"
+            ]
+          },
+          "mobile": {
+            "type": "boolean"
+          },
+          "device_scale_factor": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 10
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "condition": {
+            "type": "string",
+            "enum": [
+              "visible",
+              "hidden",
+              "text",
+              "network_idle",
+              "attached"
+            ]
+          },
+          "position": {
+            "type": "string",
+            "enum": [
+              "top",
+              "bottom",
+              "page_down",
+              "page_up",
+              "start",
+              "end"
+            ]
+          },
+          "modifiers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Shift",
+                "Alt",
+                "Control",
+                "Meta"
+              ]
+            }
+          },
+          "storage_type": {
+            "type": "string",
+            "enum": [
+              "local",
+              "session",
+              "all"
+            ]
+          },
+          "fps": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 60
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "start",
+              "stop",
+              "list",
+              "add",
+              "remove",
+              "clear"
+            ]
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "performance",
+                "accessibility",
+                "best_practices",
+                "seo",
+                "pwa"
+              ]
+            }
+          },
+          "form_factor": {
+            "type": "string",
+            "enum": [
+              "mobile",
+              "desktop"
+            ]
+          },
+          "device_preset": {
+            "type": "string",
+            "enum": [
+              "iphone_15_pro",
+              "pixel_8",
+              "ipad_pro",
+              "desktop_4k",
+              "laptop_1080p",
+              "galaxy_s24"
+            ]
+          },
+          "network_throttle": {
+            "type": "string",
+            "enum": [
+              "offline",
+              "slow_3g",
+              "fast_3g",
+              "4g",
+              "wifi",
+              "custom"
+            ]
+          },
+          "cpu_throttling_rate": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              4,
+              6
+            ]
+          },
+          "reduced_motion": {
+            "type": "string",
+            "enum": [
+              "reduce",
+              "no-preference"
+            ]
+          },
+          "geolocation": {
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number"
+              },
+              "longitude": {
+                "type": "number"
+              },
+              "accuracy": {
+                "type": "number"
+              }
+            }
+          },
+          "timezone_id": {
+            "type": "string"
+          },
+          "locale": {
+            "type": "string"
+          }
+        }
+      },
+      "MessageInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "send",
+              "send_photo",
+              "poll",
+              "status",
+              "bootstrap"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "photoPath": {
+            "type": "string",
+            "description": "Path to image or screenshot to deliver as WebP"
+          },
+          "caption": {
+            "type": "string",
+            "description": "Optional caption for the photo"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "telegram",
+              "imessage",
+              "email"
+            ]
+          },
+          "chatId": {
+            "type": [
+              "number",
+              "string"
+            ]
+          }
+        }
+      },
+      "SecretInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "write",
+              "read",
+              "mask",
+              "rotate",
+              "audit",
+              "validate"
+            ],
+            "description": "Secret operation to perform."
+          },
+          "path": {
+            "type": "string",
+            "description": "Target absolute path for secret file operations."
+          },
+          "content": {
+            "type": "string",
+            "description": "Secret content to write or rotate."
+          },
+          "secret": {
+            "type": "string",
+            "description": "Raw secret string to mask or validate."
+          },
+          "tokenType": {
+            "type": "string",
+            "enum": [
+              "stripe",
+              "telegram",
+              "github",
+              "openai",
+              "anthropic",
+              "cloudflare",
+              "generic"
+            ],
+            "description": "Optional token format type to validate."
+          },
+          "unmasked": {
+            "type": "boolean",
+            "description": "Whether to return unmasked content on read (default false for safety)."
+          }
+        }
+      },
+      "InfraInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "infra_canary_probe",
+              "infra_d1_schema_audit",
+              "infra_worker_bundle_audit",
+              "infra_stripe_webhook_simulate"
+            ],
+            "description": "Infra action to perform"
+          },
+          "params": {
+            "type": "object",
+            "description": "Action-specific parameters"
+          }
+        }
+      },
+      "CompanyInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "company_entity_audit",
+              "company_cap_table_calc",
+              "company_ip_assignment_audit",
+              "company_compliance_check"
+            ],
+            "description": "Company action to perform"
+          },
+          "params": {
+            "type": "object",
+            "description": "Action-specific parameters"
+          }
+        }
+      }
+    }
+  }
+}
