@@ -162,4 +162,98 @@ describe("Plugin Master Gateway MCP Server", () => {
     expect(res?.error).toBeUndefined();
     expect(res?.result).toBeDefined();
   });
+
+  it("handles browser status action via tools/call", async () => {
+    const res = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 9,
+      method: "tools/call",
+      params: {
+        name: "browser",
+        arguments: {
+          action: "status",
+        },
+      },
+    });
+
+    expect(res?.error).toBeUndefined();
+    expect(res?.result).toBeDefined();
+  });
+
+  it("handles design catalog action via tools/call", async () => {
+    const res = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 10,
+      method: "tools/call",
+      params: {
+        name: "design",
+        arguments: {
+          action: "get_component_catalog",
+        },
+      },
+    });
+
+    expect(res?.error).toBeUndefined();
+    expect(res?.result).toBeDefined();
+  });
+
+  it("handles business market validation via tools/call", async () => {
+    const res = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 11,
+      method: "tools/call",
+      params: {
+        name: "business",
+        arguments: {
+          action: "venture_market_validation",
+          params: { modality: "website" },
+        },
+      },
+    });
+
+    expect(res?.error).toBeUndefined();
+    expect(res?.result).toBeDefined();
+  });
+
+  it("handles science patent check via tools/call", async () => {
+    const res = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 12,
+      method: "tools/call",
+      params: {
+        name: "science",
+        arguments: {
+          action: "patent_novelty_check",
+          params: {
+            title: "Multi-Modal Sensor Synthesis",
+            independent_claims: ["A method comprising..."],
+          },
+        },
+      },
+    });
+
+    expect(res?.error).toBeUndefined();
+    expect(res?.result).toBeDefined();
+  });
+
+  it("handles content worldbuilding via tools/call", async () => {
+    const res = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 13,
+      method: "tools/call",
+      params: {
+        name: "content",
+        arguments: {
+          action: "forge_world_rules",
+          params: {
+            genre: "solarpunk",
+            coreLaw: "Clean energy equilibrium",
+          },
+        },
+      },
+    });
+
+    expect(res?.error).toBeUndefined();
+    expect(res?.result).toBeDefined();
+  });
 });

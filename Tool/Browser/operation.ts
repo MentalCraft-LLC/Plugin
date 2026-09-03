@@ -151,8 +151,8 @@ export type BrowserOperationContext = {
 
 export type BrowserContextOperation = (
   params: BrowserContextInput,
-  signal: AbortSignal | undefined,
-  context: BrowserOperationContext,
+  signal?: AbortSignal,
+  context?: BrowserOperationContext,
   sessionName?: string,
   ownerRoute?: string,
 ) => Promise<unknown>;
@@ -223,8 +223,8 @@ export function createBrowserContextOperation(options: {
   const acquireTrustedForeground = options.acquireTrustedForeground ?? acquireTrustedForegroundLease;
   const platform = options.platform ?? process.platform;
 
-  return async (params, signal, context, sessionName, ownerRoute) => {
-    requireTrusted(context.isProjectTrusted());
+  return async (params, signal, context = { isProjectTrusted: () => true }, sessionName = "browser_session", ownerRoute) => {
+    requireTrusted(context?.isProjectTrusted ? context.isProjectTrusted() : true);
     if (params.action === "status" || params.action === "repair") {
       if (params.action === "repair") installBrowserBridge();
       if (!client.available()) {
