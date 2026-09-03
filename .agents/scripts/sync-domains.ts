@@ -223,6 +223,10 @@ ${manifest.produces.map((p) => `- **${p.split(":")[0]}**: ${p.split(":")[1]}`).j
 
 ## ⚖️ Non-Negotiable Core Governance Laws
 
+**Standing Filter** — 无论何时、无论何人、面对本仓库，先过此门再写。
+目标：减少熵增 · 增加复利。原则：自由 · 组合 · 分层 · 渐进 · 优雅 · 自洽 · 克制 · 留白 · 流畅 · 简单 · 鲜活 · 溯源。
+无消费者的新实体、第二真理源、跨层跳跃、第一面摊开深能力、备用未用变体、叠装饰：一律不写。十二条缺一即停，先收再写。
+
 1. **The 12 Universal Ecosystem Virtues Law (全域生态十二美德法则)**:
    All activities across Business, Design, Science, Plugin, Content, Infra, and Company are strictly governed by the Twelve Virtues:
    **自由 · 组合 · 分层 · 渐进 · 优雅 · 自洽 · 克制 · 留白 · 流畅 · 简单 · 鲜活 · 溯源**

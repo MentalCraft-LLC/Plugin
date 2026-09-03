@@ -5,6 +5,7 @@
  * run history telemetry, pre-flight health diagnostics, and client MCP config exports.
  */
 
+import { resolve } from "node:path";
 import {
   WORKFLOW_PROTOCOL,
   BUILTIN_WORKFLOWS,
@@ -1400,7 +1401,7 @@ export function getAllWorkflows(): WorkflowDefinition[] {
 }
 
 export function generateExportConfigs(target: string): ExportConfigResult {
-  const pluginRoot = "/Users/laiyongzhang/Documents/Holar/Plugin";
+  const pluginRoot = resolve(import.meta.dir, "../..");
   const mcpConfig = {
     mcpServers: {
       "mentalcraft-gateway": {
@@ -1409,6 +1410,18 @@ export function generateExportConfigs(target: string): ExportConfigResult {
         env: {
           NODE_ENV: "production",
         },
+      },
+      "mentalcraft-browser": {
+        command: "bun",
+        args: [`${pluginRoot}/Tool/Browser/serve.mjs`],
+      },
+      "mentalcraft-message": {
+        command: "bun",
+        args: [`${pluginRoot}/Tool/Message/serve.mjs`],
+      },
+      "mentalcraft-secret": {
+        command: "bun",
+        args: [`${pluginRoot}/Tool/Secret/mcp-server.ts`],
       },
       "mentalcraft-business": {
         command: "bun",
@@ -1465,6 +1478,9 @@ export function installMcpSchemasToAgy(customDir?: string): { installedCount: nu
   const { WORKFLOW_INPUT_SCHEMA } = require("./mcp-server.ts");
   const { MESSAGE_INPUT_SCHEMA } = require("../../Tool/Message/mcp-server.ts");
   const { BROWSER_INPUT_SCHEMA } = require("../../Tool/Browser/mcp-server.ts");
+  const { SECRET_INPUT_SCHEMA } = require("../../Tool/Secret/mcp-server.ts");
+  const { INFRA_INPUT_SCHEMA } = require("../../Domain/Infra/mcp-server.ts");
+  const { COMPANY_INPUT_SCHEMA } = require("../../Domain/Company/mcp-server.ts");
 
   const toolsToInstall = [
     {
@@ -1528,6 +1544,33 @@ export function installMcpSchemasToAgy(customDir?: string): { installedCount: nu
         name: "message",
         description: "MentalCraft Agent Message Bus. Unified messaging across Telegram, iMessage, and Email with local 0600 security.",
         parameters: MESSAGE_INPUT_SCHEMA,
+      },
+    },
+    {
+      server: "secret",
+      tool: "secret",
+      schema: {
+        name: "secret",
+        description: "MentalCraft 0600 Zero-Leak Secret Vault. Cryptographic key rotation, API key redaction, and bounded credential storage.",
+        parameters: SECRET_INPUT_SCHEMA,
+      },
+    },
+    {
+      server: "infra",
+      tool: "infra",
+      schema: {
+        name: "infra",
+        description: "MentalCraft Cloudflare Edge Microservices Engine. D1 database migrations, KV caching, auth token sessions, and edge deployments.",
+        parameters: INFRA_INPUT_SCHEMA,
+      },
+    },
+    {
+      server: "company",
+      tool: "company",
+      schema: {
+        name: "company",
+        description: "MentalCraft Corporate Governance & Legal Operations Engine. Founder equity, capitalization tables, entity charters, and compliance logs.",
+        parameters: COMPANY_INPUT_SCHEMA,
       },
     },
   ];

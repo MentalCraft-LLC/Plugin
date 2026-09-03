@@ -162,6 +162,51 @@ for (const domain of domains) {
 }
 
 
+// 7. Standing Filter — anyone, any time, any repo
+const FILTER_MARKERS = [
+	"无论何时",
+	"减少熵增",
+	"增加复利",
+	"自由 · 组合 · 分层 · 渐进 · 优雅 · 自洽 · 克制 · 留白 · 流畅 · 简单 · 鲜活 · 溯源",
+	"十二条缺一即停",
+] as const;
+
+for (const domain of domains) {
+	const agentsPath = join(rootDir, domain, "AGENTS.md");
+	if (!existsSync(agentsPath)) {
+		check("Standing Filter", `${domain} AGENTS.md`, false, "MISSING");
+		continue;
+	}
+	const agents = readFileSync(agentsPath, "utf8");
+	const missing = FILTER_MARKERS.filter((marker) => !agents.includes(marker));
+	check(
+		"Standing Filter",
+		`${domain} AGENTS.md`,
+		missing.length === 0,
+		missing.length === 0 ? "2 goals + 12 virtues" : `missing: ${missing.join(",")}`,
+	);
+}
+
+// 8. Audit Canonical MCP Configuration & Zero Devtools Encroachment
+const { homedir } = await import("node:os");
+const mcpConfigPath = join(homedir(), ".gemini/config/mcp_config.json");
+if (existsSync(mcpConfigPath)) {
+	try {
+		const mcpConfigContent = readFileSync(mcpConfigPath, "utf8");
+		const hasDevTools = mcpConfigContent.includes("chrome-devtools-mcp");
+		const hasCanonicalBrowser = mcpConfigContent.includes("Plugin/Tool/Browser/serve.mjs");
+		const hasGateway = mcpConfigContent.includes("Plugin/gateway.ts");
+
+		check("MCP Governance", "Zero DevTools Encroachment", !hasDevTools, !hasDevTools ? "Clean: zero chrome-devtools-mcp" : "FATAL: chrome-devtools-mcp present");
+		check("MCP Governance", "Canonical Browser Plugin", hasCanonicalBrowser, hasCanonicalBrowser ? "Plugin/Tool/Browser/serve.mjs bound" : "Broken browser path");
+		check("MCP Governance", "Master Gateway Plugin", hasGateway, hasGateway ? "Plugin/gateway.ts bound" : "Missing gateway");
+	} catch (e) {
+		check("MCP Governance", "MCP Config Valid", false, "Failed to parse mcp_config.json");
+	}
+} else {
+	check("MCP Governance", "MCP Config Existence", false, "mcp_config.json not found");
+}
+
 // Print Symmetrical Results Table
 console.log(
 	"Category        | Check Target                   | Status  | Detail"

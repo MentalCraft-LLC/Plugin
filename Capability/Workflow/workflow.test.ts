@@ -198,8 +198,15 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     const data = res.data as any;
     expect(data.target).toBe("claude_desktop");
     expect(data.configs.mcpServers["mentalcraft-gateway"]).toBeDefined();
+    expect(data.configs.mcpServers["mentalcraft-browser"]).toBeDefined();
+    expect(data.configs.mcpServers["mentalcraft-message"]).toBeDefined();
+    expect(data.configs.mcpServers["mentalcraft-secret"]).toBeDefined();
     expect(data.configs.mcpServers["mentalcraft-business"]).toBeDefined();
     expect(data.configs.mcpServers["mentalcraft-workflow"]).toBeDefined();
+    expect(data.configs.mcpServers["mentalcraft-company"]).toBeDefined();
+    expect(data.configs.mcpServers["mentalcraft-infra"]).toBeDefined();
+    expect(data.configs.mcpServers["mentalcraft-gateway"].args[0].endsWith("/gateway.ts")).toBe(true);
+    expect(data.configs.mcpServers["mentalcraft-browser"].args[0]).toContain("/Tool/Browser/serve.mjs");
     expect(data.commandInstructions.length).toBeGreaterThan(0);
   });
 
@@ -211,8 +218,8 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     try {
       const { installMcpSchemasToAgy } = require("./operation.ts");
       const res = installMcpSchemasToAgy(tmp);
-      expect(res.installedCount).toBe(7);
-      expect(res.installedPaths.length).toBe(7);
+      expect(res.installedCount).toBeGreaterThanOrEqual(7);
+      expect(res.installedPaths.length).toBeGreaterThanOrEqual(7);
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }

@@ -14,6 +14,14 @@ This root folder is not a git repository. Do not use Origin or any other remote 
 | **`Infra`** | https://github.com/MentalCraft-LLC/Infra | Global Edge Microservices, Cloudflare Workers (Auth, Event, Monetization, KV, D1) |
 | **`Company`** | https://github.com/MentalCraft-LLC/Company | Corporate Governance, Legal Entities, Equity, Compliance, and Capital Operations |
 
+### 面对仓库的站立法则 (Standing Filter)
+无论何时、无论何人、面对任一仓库，先过此门再写。
+
+- **目标**：减少熵增 · 增加复利
+- **原则**：自由 · 组合 · 分层 · 渐进 · 优雅 · 自洽 · 克制 · 留白 · 流畅 · 简单 · 鲜活 · 溯源
+
+无消费者的新实体、第二真理源、跨层跳跃、第一面摊开深能力、备用未用变体、叠装饰：一律不写。十二条缺一即停，先收再写。
+
 ### 🌌 核心治理公理：复杂系统生态法则 (Core Ecosystem Governance Axioms)
 1. **减少熵增法则 (Law of Anti-Entropy)**: 工作本质是对复杂系统的持续治理。坚决剔除一切孤岛状态、非必要装饰、过时命名与隐蔽技术债。每一个模块、依赖与配置文件都必须具备单一真理源，时刻保持系统处于最高秩序度。
 2. **制造复利法则 (Law of Compounding Returns)**: 拒绝一次性消耗型劳动。每一行代码、每一个组件、每一份文案、每一个实验都必须成为可被全域复用的生产要素，注入 $K_7$ 互为飞轮网络，在时间维度上持续产生加速度与复利。

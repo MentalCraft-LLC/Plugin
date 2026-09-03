@@ -7,11 +7,13 @@ description: "Stateful autonomous goal-gap advancement and execution engine: Man
 
 > **Core Doctrine**: Models are reactive; autonomous advancement requires state machines, goal-gap telemetry, and scheduled chronos.
 > 
-> **Master Governance Axiom (治理宪章)**: 
-> 1. **减少熵增 (Anti-Entropy)**: 绝不容忍孤岛、过时别名与隐蔽技术债，时时刻刻维护系统最高秩序度。
-> 2. **制造复利 (Compounding Returns)**: 每一个产出均需沉淀为可被五维飞轮复利的资产，拒绝消耗型劳动。
-> 3. **复杂系统治理 (System Governance)**: 构建有序、可控、健康自演进的完备生态。
-> 4. **原则驱动自愈 (Autonomous Remediation)**: 持续比对现状与原则，主动形成新任务并反哺全域；凡违背原则，立即实施优化。
+> **面对仓库的站立法则**: 无论何时、无论何人，先过此门再写。目标：减少熵增 · 增加复利。原则：自由 · 组合 · 分层 · 渐进 · 优雅 · 自洽 · 克制 · 留白 · 流畅 · 简单 · 鲜活 · 溯源。十二条缺一即停，先收再写。
+>
+> **Master Governance Axiom (治理宪章)**:
+> 1. **减少熵增 (Anti-Entropy)**: 绝不容忍孤岛、过时别名、无消费者的新实体与隐蔽技术债。
+> 2. **增加复利 (Compounding Returns)**: 每一个产出均需沉淀为可被飞轮复用的资产，拒绝一次性复制。
+> 3. **十二美德**: 自由 · 组合 · 分层 · 渐进 · 优雅 · 自洽 · 克制 · 留白 · 流畅 · 简单 · 鲜活 · 溯源。Ln 只依赖 Ln-1；第一面只给最小完整路径；不写备用未用变体；形式只服务功能。
+> 4. **原则驱动自愈 (Autonomous Remediation)**: 持续比对现状与站立法则，主动形成新任务并反哺全域；凡违背，立即收束。
 
 This skill equips agents with the systematic methodology to run long-running commercial ventures, manage goal checkpoints, schedule recurring chronos via Antigravity `schedule`, and execute multi-phase feedback loops until commercial goals ($10,000 MRR) are achieved and stabilized.
 
