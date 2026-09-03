@@ -128,10 +128,47 @@ export function executeCompanyComplianceCheck(
   };
 }
 
+function normalizeCompanyAction(action: string): CompanyAction {
+  switch (action) {
+    case "entity_audit":
+    case "entities":
+    case "audit_entities":
+      return "company_entity_audit";
+    case "cap_table":
+    case "equity":
+    case "dilution":
+      return "company_cap_table_calc";
+    case "ip":
+    case "ip_assignment":
+    case "ip_audit":
+      return "company_ip_assignment_audit";
+    case "compliance":
+    case "good_standing":
+    case "annual_report":
+      return "company_compliance_check";
+    default:
+      return action as CompanyAction;
+  }
+}
+
 export async function companyOperation(
-  action: CompanyAction,
-  params: Record<string, unknown> = {}
+  actionOrInput: CompanyAction | { action: string; params?: Record<string, unknown>; [key: string]: unknown },
+  rawParams: Record<string, unknown> = {}
 ): Promise<{ protocol: string; action: string; result: unknown }> {
+  let actionStr: string;
+  let params: Record<string, unknown>;
+
+  if (typeof actionOrInput === "object" && actionOrInput !== null) {
+    actionStr = actionOrInput.action;
+    const innerParams = (actionOrInput.params as Record<string, unknown>) || {};
+    const { action: _a, params: _p, ...rest } = actionOrInput;
+    params = { ...rest, ...innerParams, ...rawParams };
+  } else {
+    actionStr = actionOrInput;
+    params = rawParams;
+  }
+
+  const action = normalizeCompanyAction(actionStr);
   let result: unknown;
 
   switch (action) {
@@ -148,7 +185,7 @@ export async function companyOperation(
       result = executeCompanyComplianceCheck(params as CompanyComplianceCheckInput);
       break;
     default:
-      throw new Error(`Unknown Company action: ${action}`);
+      throw new Error(`Unknown Company action: ${actionStr}`);
   }
 
   return {

@@ -49,4 +49,25 @@ describe("Plugin/Company FastMCP Protocol Engine", () => {
     expect(res.protocol).toBe(COMPANY_PROTOCOL);
     expect(res.action).toBe("company_entity_audit");
   });
+
+  test("companyOperation supports action aliases and nested parameter objects", async () => {
+    const res = await companyOperation({
+      action: "entities",
+      params: {},
+    });
+    expect(res.action).toBe("company_entity_audit");
+    expect((res.result as any).status).toBe("COMPLIANT");
+
+    const cap = await companyOperation({
+      action: "cap_table",
+      params: {
+        founderShares: 8500000,
+        esopPoolPercentage: 15,
+        newInvestmentUsd: 1000000,
+        preMoneyValuationUsd: 4000000,
+      },
+    });
+    expect(cap.action).toBe("company_cap_table_calc");
+    expect((cap.result as any).postMoneyValuationUsd).toBe(5000000);
+  });
 });

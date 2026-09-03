@@ -43,4 +43,20 @@ describe("Plugin/Infra FastMCP Protocol Engine", () => {
     expect(res.protocol).toBe(INFRA_PROTOCOL);
     expect(res.action).toBe("infra_canary_probe");
   });
+
+  test("infraOperation supports action aliases and nested parameter objects", async () => {
+    const res = await infraOperation({
+      action: "canary",
+      params: {},
+    });
+    expect(res.action).toBe("infra_canary_probe");
+    expect((res.result as any).status).toBe("HEALTHY");
+
+    const d1 = await infraOperation({
+      action: "d1",
+      params: {},
+    });
+    expect(d1.action).toBe("infra_d1_schema_audit");
+    expect((d1.result as any).status).toBe("COMPLIANT");
+  });
 });

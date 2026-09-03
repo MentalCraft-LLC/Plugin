@@ -176,10 +176,50 @@ export function executeInfraStripeWebhookSimulate(
   };
 }
 
+function normalizeInfraAction(action: string): InfraAction {
+  switch (action) {
+    case "canary":
+    case "probe":
+    case "canary_probe":
+    case "health":
+      return "infra_canary_probe";
+    case "d1":
+    case "d1_schema":
+    case "schema":
+    case "migrations":
+      return "infra_d1_schema_audit";
+    case "bundle":
+    case "worker":
+    case "workers":
+    case "worker_bundle":
+      return "infra_worker_bundle_audit";
+    case "webhook":
+    case "stripe":
+    case "stripe_webhook":
+      return "infra_stripe_webhook_simulate";
+    default:
+      return action as InfraAction;
+  }
+}
+
 export async function infraOperation(
-  action: InfraAction,
-  params: Record<string, unknown> = {}
+  actionOrInput: InfraAction | { action: string; params?: Record<string, unknown>; [key: string]: unknown },
+  rawParams: Record<string, unknown> = {}
 ): Promise<{ protocol: string; action: string; result: unknown }> {
+  let actionStr: string;
+  let params: Record<string, unknown>;
+
+  if (typeof actionOrInput === "object" && actionOrInput !== null) {
+    actionStr = actionOrInput.action;
+    const innerParams = (actionOrInput.params as Record<string, unknown>) || {};
+    const { action: _a, params: _p, ...rest } = actionOrInput;
+    params = { ...rest, ...innerParams, ...rawParams };
+  } else {
+    actionStr = actionOrInput;
+    params = rawParams;
+  }
+
+  const action = normalizeInfraAction(actionStr);
   let result: unknown;
 
   switch (action) {
@@ -196,7 +236,7 @@ export async function infraOperation(
       result = executeInfraStripeWebhookSimulate(params as InfraStripeWebhookSimulateInput);
       break;
     default:
-      throw new Error(`Unknown Infra action: ${action}`);
+      throw new Error(`Unknown Infra action: ${actionStr}`);
   }
 
   return {

@@ -318,4 +318,44 @@ describe("Plugin Master Gateway MCP Server", () => {
     expect(res?.error).toBeUndefined();
     expect(res?.result).toBeDefined();
   });
+
+  it("handles infra canary alias via tools/call with nested params", async () => {
+    const res = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 17,
+      method: "tools/call",
+      params: {
+        name: "infra",
+        arguments: {
+          action: "canary",
+          params: {},
+        },
+      },
+    });
+
+    expect(res?.error).toBeUndefined();
+    expect(res?.result).toBeDefined();
+    const content = (res?.result as any)?.content?.[0]?.text;
+    expect(content).toContain("HEALTHY");
+  });
+
+  it("handles company entities alias via tools/call with nested params", async () => {
+    const res = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 18,
+      method: "tools/call",
+      params: {
+        name: "company",
+        arguments: {
+          action: "entities",
+          params: {},
+        },
+      },
+    });
+
+    expect(res?.error).toBeUndefined();
+    expect(res?.result).toBeDefined();
+    const content = (res?.result as any)?.content?.[0]?.text;
+    expect(content).toContain("Shanghai");
+  });
 });
