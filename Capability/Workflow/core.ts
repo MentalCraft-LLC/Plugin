@@ -553,12 +553,12 @@ export function synthesizeDynamicWorkflow(intent: DynamicWorkflowIntent): Workfl
     return {
       id: id as any,
       name: `Dynamic Rapid Remediation & Self-Healing Pipeline [${venture}]`,
-      description: `Targeted dynamic workflow for ${venture}: subsystem health check -> chaos fault isolation -> 20-channel flywheel verification -> zero ghost state audit.`,
+      description: `Targeted dynamic workflow for ${venture}: subsystem health check -> chaos fault isolation -> 42-channel flywheel verification -> zero ghost state audit.`,
       requiredPlugins: ["workflow", "browser"],
       steps: [
-        { step: 1, plugin: "workflow", action: "health_check", skill: "governance", description: `Probe all 6 plugins and endpoints for latency, saturation, and error rates.` },
+        { step: 1, plugin: "workflow", action: "health_check", skill: "governance", description: `Probe all 10 plugins and endpoints for latency, saturation, and error rates.` },
         { step: 2, plugin: "browser", action: "chaos_resilience_test", skill: "disassemble", description: `Isolate runtime fault, verify error boundary containment and graceful fallback.` },
-        { step: 3, plugin: "workflow", action: "check_flywheel", skill: "flywheel", description: `Verify pentagonal 20-channel flywheel connectivity and heal any broken channels.` },
+        { step: 3, plugin: "workflow", action: "check_flywheel", skill: "flywheel", description: `Verify heptagonal 42-channel flywheel connectivity ($K_7$) and heal any broken channels.` },
         { step: 4, plugin: "workflow", action: "audit_workspace", skill: "governance", description: `Audit workspace compliance, remove ghost state, and assert zero technical debt.` },
       ],
     };

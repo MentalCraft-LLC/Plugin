@@ -301,9 +301,9 @@ export const AUTOPILOT_OBJECTIVES: AutopilotObjectiveDef[] = [
   },
   {
     id: "governance_anti_entropy_and_flywheel",
-    name: "Autopilot Principle Governance: Anti-Entropy, Compounding & $K_5$ Flywheel",
+    name: "Autopilot Principle Governance: Anti-Entropy, Compounding & $K_7$ Flywheel",
     pillar: "EEAT",
-    description: "Evaluates the 7 master quality gates, audits 20-channel flywheel momentum, checks for zero ghost state, and triggers autonomous remediation.",
+    description: "Evaluates the 9 master quality gates, audits 42-channel flywheel momentum, checks for zero ghost state, and triggers autonomous remediation.",
     targetMrrUsd: TARGET_MENTALCRAFT_MRR,
     execute: async (cfg) => {
       const { spawnSync } = require("node:child_process");
@@ -318,14 +318,14 @@ export const AUTOPILOT_OBJECTIVES: AutopilotObjectiveDef[] = [
         executedActions: [
           "anti_entropy_principles_evaluated",
           "compounding_returns_flywheel_verified",
-          "design_ten_virtues_audited",
-          passed ? "seven_master_gates_passed" : "entropy_remediation_required",
+          "design_twelve_virtues_audited",
+          passed ? "nine_master_gates_passed" : "entropy_remediation_required",
         ],
         deliverables: {
           gatesPassed: passed,
           stdoutSummary: res.stdout.slice(0, 300),
         },
-        summary: `Ecosystem Governance: 7 Master Gates ${passed ? "100% PASS (Zero Entropy)" : "FAIL (Remediation Triggered)"}. 20-Channel Flywheel Active.`,
+        summary: `Ecosystem Governance: 9 Master Gates ${passed ? "100% PASS (Zero Entropy)" : "FAIL (Remediation Triggered)"}. 42-Channel Flywheel Active.`,
       };
     },
   },
