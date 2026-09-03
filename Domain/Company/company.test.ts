@@ -15,6 +15,8 @@ describe("Plugin/Company FastMCP Protocol Engine", () => {
     expect(audit.auditedCount).toBe(3);
     expect(audit.entities.some((e) => e.jurisdiction.includes("Wyoming"))).toBe(true);
     expect(audit.entities.some((e) => e.jurisdiction.includes("Shanghai"))).toBe(true);
+    const infoTech = audit.entities.find((e) => e.entityName.includes("Information Tech"));
+    expect(infoTech?.status).toBe("DISSOLVED");
   });
 
   test("executeCompanyCapTableCalc models founder equity and ESOP dilution", () => {

@@ -41,9 +41,9 @@ export function executeCompanyEntityAudit(
     {
       entityName: "Yixin Information Tech (Shanghai) Co., Ltd.",
       jurisdiction: "China (Shanghai)",
-      role: "Operational Services & Domestic Operations",
-      status: "ACTIVE" as const,
-      details: "Domestic operational compliance, regional data pipelines, and local payment rails",
+      role: "Operational Services & Domestic Operations (Historical)",
+      status: "DISSOLVED" as const,
+      details: "Formally dissolved / deregistered (已注销); operational activities and domestic functions consolidated into Yixin Digital Science",
     },
   ];
 

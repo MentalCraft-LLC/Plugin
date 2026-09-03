@@ -29,7 +29,7 @@ export interface CompanyEntityAuditOutput {
     entityName: string;
     jurisdiction: string;
     role: string;
-    status: "ACTIVE" | "PENDING" | "INACTIVE";
+    status: "ACTIVE" | "PENDING" | "INACTIVE" | "DISSOLVED";
     details: string;
   }[];
 }
