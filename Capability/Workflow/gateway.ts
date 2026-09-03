@@ -17,6 +17,9 @@ import { scienceOperation } from "../../Domain/Science/operation.ts";
 import { contentOperation } from "../../Domain/Content/operation.ts";
 import { createBrowserContextOperation } from "../../Tool/Browser/operation.ts";
 import { createMessageOperation } from "../../Tool/Message/operation.ts";
+import { secretOperation } from "../../Tool/Secret/operation.ts";
+import { infraOperation } from "../../Domain/Infra/operation.ts";
+import { companyOperation } from "../../Domain/Company/operation.ts";
 
 import { WORKFLOW_INPUT_SCHEMA } from "./mcp-server.ts";
 import { DESIGN_INPUT_SCHEMA } from "../../Domain/Design/mcp-server.ts";
@@ -195,14 +198,11 @@ export async function handleGatewayRpc(request: JsonRpcRequest): Promise<JsonRpc
       } else if (toolName === "message") {
         output = await executeMessage(args as any);
       } else if (toolName === "secret") {
-        const { secretOperation } = await import("../../Tool/Secret/operation.ts");
         const act = (args.action as string) || (args.content !== undefined ? "write" : "read");
         output = secretOperation({ ...args, action: act } as any);
       } else if (toolName === "infra") {
-        const { infraOperation } = await import("../../Domain/Infra/operation.ts");
         output = await infraOperation(args.action as any, (args.params as any) || args);
       } else if (toolName === "company") {
-        const { companyOperation } = await import("../../Domain/Company/operation.ts");
         output = await companyOperation(args.action as any, (args.params as any) || args);
       } else {
         return {
