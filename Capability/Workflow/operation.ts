@@ -27,9 +27,11 @@ import {
   type DynamicWorkflowIntent,
   scheduleDagWaves,
   evaluateStepCondition,
+  evaluateStepAssertions,
   getNestedProperty,
   type WorkflowEvent,
   type WorkflowStepCondition,
+  type WorkflowStepAssertion,
 } from "./core.ts";
 import { designOperation } from "../../Domain/Design/operation.ts";
 import { businessOperation } from "../../Domain/Business/operation.ts";
@@ -51,7 +53,8 @@ import {
 
 const rawExecuteBrowser = createBrowserContextOperation();
 const executeBrowser = async (input: any) => {
-  return await rawExecuteBrowser(input, undefined, { isProjectTrusted: () => true }, "workflow_session", undefined);
+  const session = input?.session_name ?? input?.tab_group_name ?? "workflow_session";
+  return await rawExecuteBrowser(input, undefined, { isProjectTrusted: () => true }, session, undefined);
 };
 const executeChrome = executeBrowser;
 const executeMessage = createMessageOperation();
@@ -266,6 +269,71 @@ export function getWorkflowEvents(filter?: { runId?: string; workflowId?: string
     events = events.slice(-filter.limit);
   }
   return events;
+}
+
+type WorkflowCacheEntry = {
+  timestamp: number;
+  expiresAt: number;
+  data: unknown;
+};
+
+const WORKFLOW_RESULT_CACHE: Map<string, WorkflowCacheEntry> = new Map();
+
+export function getCachedWorkflowResult(key: string): { hit: boolean; data?: unknown; ageMs?: number } {
+  const entry = WORKFLOW_RESULT_CACHE.get(key);
+  if (!entry) return { hit: false };
+  if (Date.now() > entry.expiresAt) {
+    WORKFLOW_RESULT_CACHE.delete(key);
+    return { hit: false };
+  }
+  return { hit: true, data: entry.data, ageMs: Date.now() - entry.timestamp };
+}
+
+export function setCachedWorkflowResult(key: string, data: unknown, ttlMs: number): void {
+  WORKFLOW_RESULT_CACHE.set(key, {
+    timestamp: Date.now(),
+    expiresAt: Date.now() + Math.max(100, ttlMs),
+    data,
+  });
+}
+
+export function clearWorkflowCache(prefix?: string): number {
+  if (!prefix) {
+    const size = WORKFLOW_RESULT_CACHE.size;
+    WORKFLOW_RESULT_CACHE.clear();
+    return size;
+  }
+  let count = 0;
+  for (const k of WORKFLOW_RESULT_CACHE.keys()) {
+    if (k.startsWith(prefix)) {
+      WORKFLOW_RESULT_CACHE.delete(k);
+      count++;
+    }
+  }
+  return count;
+}
+
+/**
+ * Concurrency limiter pool that executes tasks with bounded parallelism.
+ */
+export async function runWithConcurrencyLimit<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T, idx: number) => Promise<R>,
+): Promise<R[]> {
+  if (limit <= 0 || items.length <= limit) {
+    return Promise.all(items.map((item, idx) => fn(item, idx)));
+  }
+  const results: R[] = new Array(items.length);
+  let nextIdx = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (nextIdx < items.length) {
+      const currentIdx = nextIdx++;
+      results[currentIdx] = await fn(items[currentIdx], currentIdx);
+    }
+  });
+  await Promise.all(workers);
+  return results;
 }
 
 function getStoragePaths() {
@@ -2901,7 +2969,32 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
         };
       }
 
-      const stepResults: Array<{ step: number; plugin: PluginId; action: string; skill?: string; success: boolean; skipped?: boolean; durationMs: number; data: unknown }> = [];
+      // Check Workflow-Level Idempotency / Cache
+      const wfCacheKey = input.idempotency_key
+        ? `wf_idem:${targetId}:${input.idempotency_key}`
+        : input.cache_ttl_seconds && input.cache_ttl_seconds > 0
+        ? `wf_ttl:${targetId}:${JSON.stringify(input.parameters ?? {})}`
+        : null;
+
+      if (wfCacheKey) {
+        const cached = getCachedWorkflowResult(wfCacheKey);
+        if (cached.hit && cached.data) {
+          const cachedReceipt: WorkflowRunReceipt = {
+            ...(cached.data as WorkflowRunReceipt),
+            cached: true,
+            cacheAgeMs: cached.ageMs,
+          };
+          return {
+            protocol: WORKFLOW_PROTOCOL,
+            action: "run_workflow",
+            success: cachedReceipt.success,
+            timestamp: new Date().toISOString(),
+            data: cachedReceipt,
+          };
+        }
+      }
+
+      const stepResults: Array<{ step: number; plugin: PluginId; action: string; skill?: string; success: boolean; skipped?: boolean; cached?: boolean; durationMs: number; data: unknown }> = [];
       const stepContext: Record<string, any> = { input: input.parameters ?? {} };
       const runId = `run_wf_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 
@@ -3260,6 +3353,7 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
 
         if (mode === "concurrent_dag" && wf.steps && wf.steps.length > 0) {
           const waves = scheduleDagWaves(wf.steps);
+          const maxWaveConcurrency = input.max_concurrency ?? (input.parameters as any)?.max_concurrency ?? 10;
           for (let waveIdx = 0; waveIdx < waves.length; waveIdx++) {
             const wave = waves[waveIdx];
             emitWorkflowEvent({
@@ -3270,7 +3364,7 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
               wave: waveIdx + 1,
             }, input.on_event);
 
-            const wavePromises = wave.map(async (s) => {
+            const waveResults = await runWithConcurrencyLimit(wave, maxWaveConcurrency, async (s) => {
               const sT0 = performance.now();
               if (s.condition && !evaluateStepCondition(s.condition, stepContext)) {
                 emitWorkflowEvent({
@@ -3308,12 +3402,41 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
                 const interpolated = { ...(input.parameters ?? {}), ...interpolateParams(s.parameters ?? {}, stepContext) };
                 const stepRetries = Number((s as any).maxRetries ?? (s as any).retries ?? defaultRetries);
                 const stepTimeout = s.timeoutMs ?? input.timeout_ms ?? (input.parameters as any)?.timeout_ms;
-                const r = await dispatchPluginAction(s.plugin, s.action, interpolated as Record<string, unknown>, {
-                  enforceCircuit,
-                  retries: stepRetries,
-                  timeoutMs: stepTimeout,
-                });
-                const dur = Math.round(performance.now() - sT0);
+
+                let r: any;
+                let isCached = false;
+                const stepCacheKey = (s.cacheTtlMs && s.cacheTtlMs > 0)
+                  ? `step:${s.plugin}:${s.action}:${JSON.stringify(interpolated)}`
+                  : null;
+
+                if (stepCacheKey) {
+                  const cachedStep = getCachedWorkflowResult(stepCacheKey);
+                  if (cachedStep.hit) {
+                    r = cachedStep.data;
+                    isCached = true;
+                  }
+                }
+
+                if (!isCached) {
+                  r = await dispatchPluginAction(s.plugin, s.action, interpolated as Record<string, unknown>, {
+                    enforceCircuit,
+                    retries: stepRetries,
+                    timeoutMs: stepTimeout,
+                  });
+                  if (stepCacheKey && (r.success ?? true)) {
+                    setCachedWorkflowResult(stepCacheKey, r, s.cacheTtlMs!);
+                  }
+                }
+
+                // Evaluate runtime step assertions
+                if (s.assertions && s.assertions.length > 0) {
+                  const assertRes = evaluateStepAssertions(s.assertions, r.data ?? r);
+                  if (!assertRes.valid) {
+                    throw new Error(assertRes.failureReason);
+                  }
+                }
+
+                const dur = isCached ? 0 : Math.round(performance.now() - sT0);
                 const isOk = r.success ?? true;
                 emitWorkflowEvent({
                   type: isOk ? "step_complete" : "step_error",
@@ -3332,6 +3455,7 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
                   action: s.action,
                   skill: s.skill,
                   success: isOk,
+                  cached: isCached,
                   durationMs: dur,
                   data: r.data ?? r,
                 };
@@ -3360,7 +3484,6 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
                 };
               }
             });
-            const waveResults = await Promise.all(wavePromises);
             for (const res of waveResults) {
               stepResults.push(res);
               stepContext[`step${res.step}`] = { data: res.data, success: res.success, skipped: res.skipped };
@@ -3417,12 +3540,41 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
               const interpolated = { ...(input.parameters ?? {}), ...interpolateParams(s.parameters ?? {}, stepContext) };
               const stepRetries = Number((s as any).maxRetries ?? (s as any).retries ?? defaultRetries);
               const stepTimeout = s.timeoutMs ?? input.timeout_ms ?? (input.parameters as any)?.timeout_ms;
-              const r = await dispatchPluginAction(s.plugin, s.action, interpolated as Record<string, unknown>, {
-                enforceCircuit,
-                retries: stepRetries,
-                timeoutMs: stepTimeout,
-              });
-              const dur = Math.round(performance.now() - sT0);
+
+              let r: any;
+              let isCached = false;
+              const stepCacheKey = (s.cacheTtlMs && s.cacheTtlMs > 0)
+                ? `step:${s.plugin}:${s.action}:${JSON.stringify(interpolated)}`
+                : null;
+
+              if (stepCacheKey) {
+                const cachedStep = getCachedWorkflowResult(stepCacheKey);
+                if (cachedStep.hit) {
+                  r = cachedStep.data;
+                  isCached = true;
+                }
+              }
+
+              if (!isCached) {
+                r = await dispatchPluginAction(s.plugin, s.action, interpolated as Record<string, unknown>, {
+                  enforceCircuit,
+                  retries: stepRetries,
+                  timeoutMs: stepTimeout,
+                });
+                if (stepCacheKey && (r.success ?? true)) {
+                  setCachedWorkflowResult(stepCacheKey, r, s.cacheTtlMs!);
+                }
+              }
+
+              // Evaluate runtime step assertions
+              if (s.assertions && s.assertions.length > 0) {
+                const assertRes = evaluateStepAssertions(s.assertions, r.data ?? r);
+                if (!assertRes.valid) {
+                  throw new Error(assertRes.failureReason);
+                }
+              }
+
+              const dur = isCached ? 0 : Math.round(performance.now() - sT0);
               const success = r.success ?? true;
               emitWorkflowEvent({
                 type: success ? "step_complete" : "step_error",
@@ -3435,7 +3587,7 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
                 durationMs: dur,
                 success,
               }, input.on_event);
-              stepResults.push({ step: s.step, plugin: s.plugin, action: s.action, skill: s.skill, success, durationMs: dur, data: r.data ?? r });
+              stepResults.push({ step: s.step, plugin: s.plugin, action: s.action, skill: s.skill, success, cached: isCached, durationMs: dur, data: r.data ?? r });
               stepContext[`step${s.step}`] = { data: r.data ?? r, success };
               if (!success) {
                 break;
@@ -3480,6 +3632,7 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
         startOffsetMs: idx * 2,
         durationMs: s.durationMs,
         status: s.skipped ? "SKIPPED" : s.success ? "OK" : "ERROR",
+        cached: s.cached,
       }));
 
       // Execute Saga Rollback if workflow failed and rollback_on_failure is enabled
@@ -3526,6 +3679,11 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
       };
 
       RUN_HISTORY.push(receipt);
+
+      if (wfCacheKey && isSuccess) {
+        const ttlMs = (input.cache_ttl_seconds ?? 300) * 1000;
+        setCachedWorkflowResult(wfCacheKey, receipt, ttlMs);
+      }
 
       emitWorkflowEvent({
         type: "workflow_complete",
@@ -3927,6 +4085,21 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
         data: {
           total: events.length,
           events,
+        },
+      };
+    }
+
+    case "clear_cache": {
+      const prefix = (input.parameters as any)?.prefix ?? input.workflow_id;
+      const clearedCount = clearWorkflowCache(prefix);
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "clear_cache",
+        success: true,
+        timestamp,
+        data: {
+          clearedCount,
+          prefix: prefix ?? "all",
         },
       };
     }

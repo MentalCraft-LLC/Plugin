@@ -280,6 +280,52 @@ describe("Browser MCP adapter", () => {
     expect((response?.result as { content: Array<{ text: string }> }).content[0].text).toContain("group_closed");
   });
 
+  test("MCP dispatcher passes session_name and tab_group_name to execute and closeGroup", async () => {
+    const executedSessions: string[] = [];
+    const closedSessions: string[] = [];
+    const dispatch = createChromeMcpDispatcher({
+      execute: async (_params, _signal, _context, sessionName) => {
+        executedSessions.push(sessionName ?? "none");
+        return { status: "ready" };
+      },
+      setup: () => {
+        throw new Error("setup should not run");
+      },
+      closeGroup: async (sessionName) => {
+        closedSessions.push(sessionName ?? "default");
+        return { status: "group_closed", session_name: sessionName };
+      },
+      sessionName: "default-session",
+    });
+
+    // 1. session_name passed to execute
+    await dispatch({
+      jsonrpc: "2.0",
+      id: 10,
+      method: "tools/call",
+      params: { name: "browser", arguments: { action: "status", session_name: "custom-session" } },
+    });
+    expect(executedSessions.at(-1)).toBe("custom-session");
+
+    // 2. tab_group_name passed to execute (equivalent)
+    await dispatch({
+      jsonrpc: "2.0",
+      id: 11,
+      method: "tools/call",
+      params: { name: "browser", arguments: { action: "status", tab_group_name: "tab-group-session" } },
+    });
+    expect(executedSessions.at(-1)).toBe("tab-group-session");
+
+    // 3. session_name passed to close_group
+    await dispatch({
+      jsonrpc: "2.0",
+      id: 12,
+      method: "tools/call",
+      params: { name: "browser", arguments: { action: "close_group", session_name: "custom-session" } },
+    });
+    expect(closedSessions.at(-1)).toBe("custom-session");
+  });
+
   test("session name prefers the generic Session environment", () => {
     const keys = ["HOLAR_SESSION_ID", "HOLAR_SESSION_NAME", "HOLAR_BROWSER_SESSION"] as const;
     const prior = Object.fromEntries(keys.map((key) => [key, process.env[key]]));

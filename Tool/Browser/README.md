@@ -57,6 +57,7 @@ The Browser Extension operates under strict principle of least privilege:
 2. **Zero-Leak Authenticated Sessions**: Seamlessly inherits existing Google, GitHub, Stripe, and AWS logins without exposing raw credentials.
 3. **Background Tab Driving**: Executes in dedicated background tab groups (`active: false`) without stealing window focus from the user.
 4. **Bi-directional HUD Annotation**: Renders real-time interactive visual overlays and annotations via Unix domain socket bridge.
+5. **Session-Group Equivalence (会话与标签组单一真理源)**: Under Governance Law (`/name Governance`), `tab-group-name` is strictly equivalent to `session-name` (`tab_group_name === session_name`). Chrome tab groups visually display the exact session name, ensuring multi-agent parallel execution without tab collision or residue. Both `session_name` and `tab_group_name` parameters are supported.
 
 ---
 

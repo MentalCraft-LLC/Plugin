@@ -128,6 +128,7 @@ function managedSession(command) {
   return { id, name, workspace };
 }
 
+// Governance Law: In Browser, tab-group-name strictly is session-name (Single Source of Truth).
 function groupTitle(session) {
   return session.name;
 }
@@ -460,7 +461,36 @@ async function waitComplete(tabId, timeoutMs = 30_000) {
   });
 }
 
+async function activeOrLatestManagedTab(session) {
+  await hydrateManagedTabs(session);
+  const ids = await managedTabIds(session);
+  const tabs = [];
+  for (const id of ids) {
+    try {
+      const tab = await chrome.tabs.get(id);
+      if (tab?.id && tab.url && NORMAL_WEB_PROTOCOLS.has(new URL(tab.url).protocol)) {
+        tabs.push(tab);
+      }
+    } catch { /* closed tab */ }
+  }
+  if (tabs.length === 0) return null;
+  const activeTab = tabs.find((t) => t.active);
+  return activeTab ?? tabs.at(-1) ?? null;
+}
+
 async function ensureTab(rawUrl, navigate = false, session, allowActive = false) {
+  if (!rawUrl) {
+    const existing = await activeOrLatestManagedTab(session);
+    if (!existing) throw new Error("url_required");
+    const tab = await ensureManagedGroup(existing, session, allowActive);
+    if (!tab.url) throw new Error("background_tab_url_missing");
+    let current;
+    try { current = new URL(tab.url); } catch { throw new Error("background_tab_url_invalid"); }
+    if (!NORMAL_WEB_PROTOCOLS.has(current.protocol)) {
+      return { tab, status: "interactive_login_required", origin: null, path: null };
+    }
+    return { tab, status: "ready", origin: current.origin, path: current.pathname };
+  }
   const target = safeUrl(rawUrl);
   let tab = await existingManagedTab(target.origin, session);
   let navigationStarted = false;

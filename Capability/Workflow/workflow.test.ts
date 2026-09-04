@@ -1,7 +1,20 @@
 import { describe, expect, test } from "bun:test";
-import { workflowOperation, executeHealthCheck, dispatchPluginAction, exportMermaidDag } from "./operation.ts";
+import {
+  workflowOperation,
+  executeHealthCheck,
+  dispatchPluginAction,
+  exportMermaidDag,
+  runWithConcurrencyLimit,
+  clearWorkflowCache,
+} from "./operation.ts";
 import { handleWorkflowRpc } from "./mcp-server.ts";
-import { WORKFLOW_PROTOCOL, BUILTIN_WORKFLOWS, compactWorkflowResult, evaluateStepCondition } from "./core.ts";
+import {
+  WORKFLOW_PROTOCOL,
+  BUILTIN_WORKFLOWS,
+  compactWorkflowResult,
+  evaluateStepCondition,
+  evaluateStepAssertions,
+} from "./core.ts";
 
 describe("Plugin/Workflow Orchestrator & Health Engine", () => {
   test("list_workflows returns all multi-plugin compound pipelines", async () => {
@@ -1582,6 +1595,184 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(result.mermaidCode).toContain("Compensate:");
     expect(result.mermaidCode).toContain("-. \"rollback\" .->");
     expect(result.nodesCount).toBe(2); // 1 normal step + 1 rollback node
+  });
+
+  test("evaluateStepAssertions validates output data against contract assertions", () => {
+    const outputData = {
+      score: 92,
+      tier: "pro",
+      active: true,
+      features: ["audit", "export", "telemetry"],
+    };
+
+    // Valid assertions
+    const passResult = evaluateStepAssertions(
+      [
+        { path: "score", operator: "greater_equal", value: 90 },
+        { path: "tier", operator: "equals", value: "pro" },
+        { path: "active", operator: "truthy" },
+        { path: "features", operator: "contains", value: "telemetry" },
+      ],
+      outputData
+    );
+    expect(passResult.valid).toBe(true);
+    expect(passResult.failureReason).toBeUndefined();
+
+    // Failing assertion
+    const failResult = evaluateStepAssertions(
+      [
+        { path: "score", operator: "less_than", value: 80, message: "Score below required threshold" },
+      ],
+      outputData
+    );
+    expect(failResult.valid).toBe(false);
+    expect(failResult.failureReason).toContain("Score below required threshold");
+  });
+
+  test("run_workflow enforces step-level assertions and fails when assertion is violated", async () => {
+    const customWf = {
+      id: "test_step_assertions_flow",
+      name: "Test Step Assertions Flow",
+      description: "Tests runtime step contract assertions",
+      requiredPlugins: ["science"],
+      steps: [
+        {
+          step: 1,
+          plugin: "science" as const,
+          action: "journal_submission_checklist",
+          assertions: [
+            {
+              path: "non_existent_impossible_property",
+              operator: "truthy" as const,
+              message: "Missing required camera-ready certification",
+            },
+          ],
+        },
+      ],
+    };
+
+    const res = await workflowOperation({
+      action: "run_workflow",
+      custom_workflow: customWf,
+    });
+
+    expect(res.success).toBe(false);
+    const receipt = res.data as any;
+    expect(receipt.stepResults[0].success).toBe(false);
+    expect(receipt.stepResults[0].data.error).toContain("Missing required camera-ready certification");
+  });
+
+  test("run_workflow supports workflow-level idempotency_key and cache_ttl_seconds", async () => {
+    clearWorkflowCache();
+    const testIdemKey = `idem_test_${Date.now()}`;
+    const customWf = {
+      id: "test_caching_flow",
+      name: "Test Caching Flow",
+      description: "Tests workflow-level idempotency caching",
+      requiredPlugins: ["infra"],
+      steps: [
+        {
+          step: 1,
+          plugin: "infra" as const,
+          action: "infra_canary_probe",
+        },
+      ],
+    };
+
+    // First run: executes and populates cache
+    const res1 = await workflowOperation({
+      action: "run_workflow",
+      custom_workflow: customWf,
+      idempotency_key: testIdemKey,
+      cache_ttl_seconds: 60,
+    });
+
+    expect(res1.success).toBe(true);
+    const receipt1 = res1.data as any;
+    expect(receipt1.cached).toBeUndefined();
+
+    // Second run: served from cache immediately
+    const res2 = await workflowOperation({
+      action: "run_workflow",
+      custom_workflow: customWf,
+      idempotency_key: testIdemKey,
+      cache_ttl_seconds: 60,
+    });
+
+    expect(res2.success).toBe(true);
+    const receipt2 = res2.data as any;
+    expect(receipt2.cached).toBe(true);
+    expect(receipt2.runId).toBe(receipt1.runId);
+
+    // Clear cache action invalidates entry
+    const clearRes = await workflowOperation({
+      action: "clear_cache",
+    });
+    expect(clearRes.success).toBe(true);
+    expect((clearRes.data as any).clearedCount).toBeGreaterThanOrEqual(1);
+
+    // Third run after cache cleared: executes fresh
+    const res3 = await workflowOperation({
+      action: "run_workflow",
+      custom_workflow: customWf,
+      idempotency_key: testIdemKey,
+      cache_ttl_seconds: 60,
+    });
+    expect((res3.data as any).cached).toBeUndefined();
+  });
+
+  test("run_workflow supports step-level cacheTtlMs", async () => {
+    clearWorkflowCache();
+    const customWf = {
+      id: "test_step_cache_flow",
+      name: "Test Step Cache Flow",
+      description: "Tests step-level cache caching",
+      requiredPlugins: ["infra"],
+      steps: [
+        {
+          step: 1,
+          plugin: "infra" as const,
+          action: "infra_canary_probe",
+          cacheTtlMs: 30000,
+        },
+      ],
+    };
+
+    // First run
+    const res1 = await workflowOperation({
+      action: "run_workflow",
+      custom_workflow: customWf,
+    });
+    expect(res1.success).toBe(true);
+    const step1Run1 = (res1.data as any).stepResults[0];
+    expect(step1Run1.cached).toBe(false);
+
+    // Second run with same step params should serve from step cache
+    const res2 = await workflowOperation({
+      action: "run_workflow",
+      custom_workflow: customWf,
+    });
+    expect(res2.success).toBe(true);
+    const step1Run2 = (res2.data as any).stepResults[0];
+    expect(step1Run2.cached).toBe(true);
+    expect(step1Run2.durationMs).toBe(0);
+  });
+
+  test("runWithConcurrencyLimit executes tasks with bounded concurrency pool", async () => {
+    let currentConcurrent = 0;
+    let maxObservedConcurrent = 0;
+    const taskIds = [1, 2, 3, 4, 5];
+
+    const results = await runWithConcurrencyLimit(taskIds, 2, async (id) => {
+      currentConcurrent++;
+      maxObservedConcurrent = Math.max(maxObservedConcurrent, currentConcurrent);
+      await new Promise((r) => setTimeout(r, 20));
+      currentConcurrent--;
+      return id * 10;
+    });
+
+    expect(results).toEqual([10, 20, 30, 40, 50]);
+    expect(maxObservedConcurrent).toBeLessThanOrEqual(2);
   });
 });
 

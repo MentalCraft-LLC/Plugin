@@ -71,6 +71,13 @@ export type WorkflowStepCondition = {
   value?: unknown;
 };
 
+export type WorkflowStepAssertion = {
+  path: string;
+  operator: "equals" | "not_equals" | "truthy" | "falsy" | "greater_than" | "less_than" | "greater_equal" | "less_equal" | "contains";
+  value?: unknown;
+  message?: string;
+};
+
 export type WorkflowStepRollback = {
   plugin?: PluginId;
   action: string;
@@ -91,6 +98,8 @@ export type WorkflowStep = {
   timeoutMs?: number;
   condition?: WorkflowStepCondition | string;
   rollback?: WorkflowStepRollback;
+  assertions?: WorkflowStepAssertion[];
+  cacheTtlMs?: number;
 };
 
 export type WorkflowEventType =
@@ -139,6 +148,7 @@ export type WorkflowSpan = {
   startOffsetMs: number;
   durationMs: number;
   status: "OK" | "ERROR" | "SKIPPED";
+  cached?: boolean;
 };
 
 export type WorkflowRunReceipt = {
@@ -158,6 +168,7 @@ export type WorkflowRunReceipt = {
     skill?: string;
     success: boolean;
     skipped?: boolean;
+    cached?: boolean;
     durationMs: number;
     data: unknown;
   }>;
@@ -184,6 +195,8 @@ export type WorkflowRunReceipt = {
     timestamp: string;
     error?: string;
   };
+  cached?: boolean;
+  cacheAgeMs?: number;
 };
 
 export type ClientTargetConfig = "claude_desktop" | "cursor" | "antigravity" | "pi" | "all";
@@ -811,6 +824,7 @@ export const WORKFLOW_ACTIONS = [
   "autopilot_run",
   "resume_workflow",
   "get_events",
+  "clear_cache",
   "list_actions",
 ] as const;
 
@@ -822,8 +836,11 @@ export type WorkflowInput = {
   dynamic_intent?: DynamicWorkflowIntent;
   run_id?: string;
   concurrency_mode?: "sequential" | "concurrent_dag";
+  max_concurrency?: number;
   timeout_ms?: number;
   rollback_on_failure?: boolean;
+  idempotency_key?: string;
+  cache_ttl_seconds?: number;
   notify?: {
     channel?: "telegram" | "imessage" | "email";
     on?: "always" | "failure" | "success";
@@ -969,6 +986,10 @@ export function formatWorkflowSummary(result: WorkflowResult): string {
       const data = result.data as any;
       return `Workflow Events (${data.total ?? 0}): ${data.events?.length ?? 0} events retrieved`;
     }
+    case "clear_cache": {
+      const data = result.data as any;
+      return `Cleared Workflow Cache: ${data.clearedCount ?? 0} entry(s) invalidated`;
+    }
   }
 }
 
@@ -1094,6 +1115,36 @@ export function evaluateStepCondition(
   }
 
   return true;
+}
+
+/**
+ * Evaluates runtime contract assertions against step output data.
+ */
+export function evaluateStepAssertions(
+  assertions: WorkflowStepAssertion[] | undefined,
+  data: unknown,
+): { valid: boolean; failedAssertion?: WorkflowStepAssertion; failureReason?: string } {
+  if (!assertions || assertions.length === 0) return { valid: true };
+  const context = {
+    data,
+    result: data,
+    ...(typeof data === "object" && data !== null && !Array.isArray(data) ? (data as Record<string, any>) : {}),
+  };
+  for (const ast of assertions) {
+    const passed = evaluateStepCondition(
+      {
+        path: ast.path,
+        operator: ast.operator,
+        value: ast.value,
+      },
+      context,
+    );
+    if (!passed) {
+      const reason = ast.message || `Step assertion failed: expected '${ast.path}' ${ast.operator} ${ast.value !== undefined ? JSON.stringify(ast.value) : ""}`.trim();
+      return { valid: false, failedAssertion: ast, failureReason: reason };
+    }
+  }
+  return { valid: true };
 }
 
 /**

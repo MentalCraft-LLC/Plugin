@@ -161,6 +161,92 @@ describe("Browser Context Extension", () => {
     )).rejects.toThrow("trusted project");
   });
 
+  test("enforces session-group equivalence: tab-group-name strictly is session-name", async () => {
+    const requests: Array<{ command: Record<string, unknown>; sessionName?: string }> = [];
+    let closedSession: string | undefined;
+    const operation = createBrowserContextOperation({
+      client: {
+        available: () => true,
+        async request(command, _signal, sessionName) {
+          requests.push({ command: command as unknown as Record<string, unknown>, sessionName });
+          return { status: "ready" };
+        },
+        async closeGroup(_signal, sessionName) {
+          closedSession = sessionName;
+          return { status: "group_closed", session_name: sessionName };
+        },
+      },
+    });
+
+    // 1. session_name parameter sets the session name directly
+    await operation(
+      { action: "open", url: "https://example.com", session_name: "Research Alpha" },
+      undefined,
+      { isProjectTrusted: () => true },
+    );
+    expect(requests.at(-1)?.sessionName).toBe("Research Alpha");
+
+    // 2. tab_group_name parameter is strictly equivalent to session_name
+    await operation(
+      { action: "open", url: "https://example.com", tab_group_name: "Audit Gamma" },
+      undefined,
+      { isProjectTrusted: () => true },
+    );
+    expect(requests.at(-1)?.sessionName).toBe("Audit Gamma");
+
+    // 3. close_group action closes the specific session's tab group
+    await operation(
+      { action: "close_group", session_name: "Research Alpha" },
+      undefined,
+      { isProjectTrusted: () => true },
+    );
+    expect(closedSession).toBe("Research Alpha");
+
+    // 4. close_session alias routes to closeGroup with tab_group_name
+    await operation(
+      { action: "close_session", tab_group_name: "Audit Gamma" },
+      undefined,
+      { isProjectTrusted: () => true },
+    );
+    expect(closedSession).toBe("Audit Gamma");
+  });
+
+  test("strictly prevents unprompted example.com fallback and validates URL requirements", async () => {
+    const requests: Array<Record<string, unknown>> = [];
+    const operation = createBrowserContextOperation({
+      client: {
+        available: () => true,
+        async request(command) {
+          requests.push(command as unknown as Record<string, unknown>);
+          return { status: "ready" };
+        },
+      },
+    });
+
+    // 1. open action requires explicit URL and never defaults to example.com
+    await expect(operation(
+      { action: "open" },
+      undefined,
+      { isProjectTrusted: () => true },
+    )).rejects.toThrow("Browser URL is required for 'open' action");
+
+    // 2. read_text without URL leaves url undefined (does NOT inject example.com)
+    await operation(
+      { action: "read_text" },
+      undefined,
+      { isProjectTrusted: () => true },
+    );
+    expect(requests.at(-1)?.url).toBeUndefined();
+
+    // 3. controls without URL leaves url undefined (does NOT inject example.com)
+    await operation(
+      { action: "controls" },
+      undefined,
+      { isProjectTrusted: () => true },
+    );
+    expect(requests.at(-1)?.url).toBeUndefined();
+  });
+
   test("authorizes every non-financial action without Owner confirmation", async () => {
     const requests: Array<Record<string, unknown>> = [];
     const operation = createBrowserContextOperation({
@@ -379,7 +465,7 @@ describe("Browser Context Extension", () => {
     expect(identity.id).toBe("jfmmobajkjgocbpbbfopblikdjoaeogo");
     expect(identity.manifest.manifest_version).toBe(3);
     expect(identity.manifest.name).toBe("Holar Browser Context");
-    expect(identity.manifest.version).toBe("1.2.63");
+    expect(identity.manifest.version).toBe("1.2.64");
     expect(identity.manifest.action).toEqual({ default_title: "Grant foreground screenshot" });
     expect(identity.manifest.permissions).toEqual(["nativeMessaging", "storage", "activeTab", "cookies", "tabs", "tabGroups", "debugger", "scripting"]);
     expect(identity.manifest.permissions).not.toContain("history");
@@ -431,6 +517,11 @@ describe("Browser Context Extension", () => {
     expect(() => safePublicMultiline("Contact someone@example.com")).toThrow("invalid");
     expect(safeSessionId("019fbb8b-b830-7c04-8828-3faf44f1cd03")).toBe("019fbb8b-b830-7c04-8828-3faf44f1cd03");
     expect(safeSessionId("bad")).toBe("holar-default");
+    const idA = safeSessionId(undefined, "Research Alpha");
+    const idB = safeSessionId(undefined, "Audit Gamma");
+    expect(idA).toMatch(/^[a-z0-9][a-z0-9_-]{7,79}$/i);
+    expect(idB).toMatch(/^[a-z0-9][a-z0-9_-]{7,79}$/i);
+    expect(idA).not.toBe(idB);
     expect(safeSessionName("  Example Session   browser  ")).toBe("Example Session browser");
     expect(safeSessionName("someone@example.com")).toBe("[identity]");
     expect(safeSessionName(undefined)).toBe("Holar Session");

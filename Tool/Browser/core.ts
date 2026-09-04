@@ -350,9 +350,21 @@ export function safePublicMultiline(raw: string): string {
   return value;
 }
 
-export function safeSessionId(raw: unknown): string {
+export function safeSessionId(raw: unknown, sessionName?: string): string {
   const value = String(raw ?? "").trim();
-  return /^[a-z0-9][a-z0-9_-]{7,79}$/i.test(value) ? value : "holar-default";
+  if (/^[a-z0-9][a-z0-9_-]{7,79}$/i.test(value)) {
+    return value;
+  }
+  if (sessionName && typeof sessionName === "string" && sessionName.trim()) {
+    const slug = sessionName.trim().toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "");
+    if (slug.length >= 8 && slug.length <= 79) {
+      return slug;
+    }
+    const hash = createHash("sha256").update(sessionName.trim()).digest("hex").slice(0, 16);
+    const candidate = slug ? `${slug.slice(0, 20)}-${hash}` : `session-${hash}`;
+    return candidate.slice(0, 79);
+  }
+  return "holar-default";
 }
 
 export function environmentSessionId(): string | undefined {
@@ -433,22 +445,23 @@ export class BrowserClient {
     return existsSync(this.socketPath) && existsSync(this.tokenPath);
   }
 
-  /** Close this Session's managed tab-group: every managed tab + group storage. */
-  closeGroup(signal?: AbortSignal): Promise<unknown> {
-    return this.request({ protocol: PROTOCOL, action: "close_group" }, signal);
+  /** Close this Session's managed tab-group: every managed tab + group storage. (tab-group-name === session-name) */
+  closeGroup(signal?: AbortSignal, sessionName?: string, ownerRoute?: string): Promise<unknown> {
+    return this.request({ protocol: PROTOCOL, action: "close_group" }, signal, sessionName, ownerRoute);
   }
 
   request(command: BrowserCommand, signal?: AbortSignal, sessionName?: string, ownerRoute?: string): Promise<unknown> {
     if (signal?.aborted) return Promise.reject(new Error("Background browser request cancelled"));
     const auth = readPairingToken(this.tokenPath);
     const id = randomBytes(16).toString("hex");
-    const sessionId = safeSessionId(environmentSessionId());
+    const effectiveSessionName = safeSessionName(
+      sessionName ?? environmentSessionName() ?? environmentSessionId(),
+      "Holar Session",
+    );
+    const sessionId = safeSessionId(environmentSessionId(), sessionName ?? effectiveSessionName);
     const session = {
       id: sessionId,
-      name: safeSessionName(
-        sessionName ?? environmentSessionName() ?? environmentSessionId(),
-        `holar-${sessionId.slice(0, 8)}`,
-      ),
+      name: effectiveSessionName,
       // Single source of truth: the workspace binding record supplies the
       // governance zone (ownerRoute). Consumers never derive their own name
       // from paths or environment variables.

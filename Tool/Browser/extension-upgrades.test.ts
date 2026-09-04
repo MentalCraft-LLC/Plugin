@@ -25,6 +25,21 @@ describe("Extension Upgrades & DevTools Superpowers", () => {
     expect(props.condition).toBeDefined();
     expect(props.condition.enum).toEqual(["visible", "hidden", "text", "network_idle", "attached"]);
     expect(props.text).toBeDefined();
+    expect(props.session_name).toBeDefined();
+    expect(props.session_name.type).toBe("string");
+    expect(props.tab_group_name).toBeDefined();
+    expect(props.tab_group_name.type).toBe("string");
+  });
+
+  test("BrowserContextInput and CHROME_INPUT_SCHEMA support session_name and tab_group_name", () => {
+    const input: BrowserContextInput = {
+      action: "open",
+      url: "https://example.com",
+      session_name: "test-session",
+      tab_group_name: "test-session",
+    };
+    expect(input.session_name).toBe("test-session");
+    expect(input.tab_group_name).toBe("test-session");
   });
 
   test("BrowserContextInput permits selector without name for click, fill, press_enter, select_combobox", () => {

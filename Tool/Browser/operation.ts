@@ -15,6 +15,7 @@ import {
   safeForegroundUrl,
   safePublicMultiline,
   safePublicValue,
+  safeSessionName,
   type BrowserAuthority,
   type BrowserCommand,
 } from "./core.ts";
@@ -54,6 +55,10 @@ import { evaluateLighthouseCiBudget } from "./modules/lighthouse_budget.ts";
 
 export type BrowserContextInput = {
   action: string;
+  /** Managed tab-group session name (in Chrome, the tab-group name is the session name). */
+  session_name?: string;
+  /** Direct alias for session_name (governance law: tab-group-name is session-name). */
+  tab_group_name?: string;
   mode?: "start" | "stop" | "list" | "add" | "remove" | "clear";
   url?: string;
   max_sections?: number;
@@ -225,7 +230,15 @@ export function createBrowserContextOperation(options: {
 
   return async (rawParams, signal, context = { isProjectTrusted: () => true }, sessionName = "browser_session", ownerRoute) => {
     const params: any = (rawParams as any).params ? { ...rawParams, ...(rawParams as any).params } : rawParams;
+    // Governance Law: In Browser, tab-group-name strictly is session-name (tab_group_name === session_name)
+    const effectiveSessionName = safeSessionName(
+      params.session_name ?? params.tab_group_name ?? params.sessionName ?? params.tabGroupName ?? sessionName,
+      sessionName,
+    );
     requireTrusted(context?.isProjectTrusted ? context.isProjectTrusted() : true);
+    if (params.action === "close_group" || params.action === "close_session") {
+      return client.closeGroup(signal, effectiveSessionName, ownerRoute);
+    }
     if (params.action === "list_actions") {
       const { CHROME_ACTIONS } = require("./mcp-server.ts");
       return {
@@ -247,12 +260,16 @@ export function createBrowserContextOperation(options: {
           popup_ui: false,
         };
       }
-      return client.request({ protocol: PROTOCOL, action: params.action }, signal, sessionName, ownerRoute);
+      return client.request({ protocol: PROTOCOL, action: params.action }, signal, effectiveSessionName, ownerRoute);
     }
 
-    const effectiveUrl = params.url || "https://example.com";
-    const url = params.action === "capture_screenshot" ? safeForegroundUrl(effectiveUrl) : safeBrowserUrl(effectiveUrl);
-    const financial = requiresFinancialConfirmation(params.action, url, [params.name, params.field]);
+    if (params.action === "open" && !params.url) {
+      throw new Error("Browser URL is required for 'open' action");
+    }
+    const url = params.url
+      ? (params.action === "capture_screenshot" ? safeForegroundUrl(params.url) : safeBrowserUrl(params.url))
+      : undefined;
+    const financial = url ? requiresFinancialConfirmation(params.action, url, [params.name, params.field]) : false;
     if (financial && params.ownerConfirmed !== true) {
       throw new Error("financial_confirmation_required");
     }
@@ -541,7 +558,7 @@ export function createBrowserContextOperation(options: {
       // synthetic event. The bridge then focuses the exact managed tab, the
       // host emits exactly one trusted click, and both Chrome and the prior
       // foreground application are restored in finally blocks.
-      const clickResult = await client.request(command, signal, sessionName, ownerRoute) as Record<string, unknown>;
+      const clickResult = await client.request(command, signal, effectiveSessionName, ownerRoute) as Record<string, unknown>;
       const diagnostics = (clickResult as { diagnostics?: Record<string, unknown> }).diagnostics;
       const sx = typeof diagnostics?.screen_x === "number" && Number.isFinite(diagnostics.screen_x) && Math.abs(diagnostics.screen_x) <= 100_000
         ? diagnostics.screen_x
@@ -584,7 +601,7 @@ export function createBrowserContextOperation(options: {
           const activation = await client.request(
             { protocol: PROTOCOL, action: "activate", url, foreground_confirmed: true },
             signal,
-            sessionName,
+            effectiveSessionName,
             ownerRoute,
           ) as Record<string, unknown>;
           activated = activation.status === "activated" && activation.tab_active === true;
@@ -639,7 +656,7 @@ export function createBrowserContextOperation(options: {
               const restored = await client.request(
                 { protocol: PROTOCOL, action: "restore_background", url },
                 undefined,
-                sessionName,
+                effectiveSessionName,
                 ownerRoute,
               ) as Record<string, unknown>;
               if (restored.status !== "restored" || restored.tab_active !== false) bridgeRestore = { ok: false, error: "browser background restoration failed" };
@@ -820,6 +837,6 @@ export function createBrowserContextOperation(options: {
         allow_active: allowActive,
       };
     }
-    return client.request(command, signal, sessionName, ownerRoute);
+    return client.request(command, signal, effectiveSessionName, ownerRoute);
   };
 }

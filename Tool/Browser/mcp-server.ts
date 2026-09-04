@@ -190,6 +190,8 @@ export const CHROME_INPUT_SCHEMA = {
     },
     timezone_id: { type: "string" },
     locale: { type: "string" },
+    session_name: { type: "string", minLength: 1, maxLength: 80 },
+    tab_group_name: { type: "string", minLength: 1, maxLength: 80 },
   },
 } as const;
 
@@ -221,7 +223,7 @@ export type ChromeSetupReceipt = {
 export type ChromeMcpHandlers = {
   execute: BrowserContextOperation;
   setup: () => ChromeSetupReceipt;
-  closeGroup: () => Promise<unknown>;
+  closeGroup: (sessionName?: string) => Promise<unknown>;
   sessionName?: string;
   ownerRoute?: string;
   trusted?: () => boolean;
@@ -230,7 +232,7 @@ export type ChromeMcpHandlers = {
 const BROWSER_TOOL = {
   name: "browser",
   description:
-    "Drive the Owner-installed Chrome profile through the local Native Messaging bridge. Host-agnostic MCP adapter over the Holar browser operation: open, read sanitized text, inspect semantic controls, click, fill, capture local-only session or screenshot receipts, close this session's tab group. Only financial actions require ownerConfirmed=true; do not ask the Owner to confirm anything else. Never returns Cookie, password or pairing-token values.",
+    "Drive the Owner-installed Chrome profile through the local Native Messaging bridge. Host-agnostic MCP adapter over the Holar browser operation: open, read sanitized text, inspect semantic controls, click, fill, capture local-only session or screenshot receipts, close this session's tab group. In Chrome, the tab-group name strictly is the session name. Only financial actions require ownerConfirmed=true; do not ask the Owner to confirm anything else. Never returns Cookie, password or pairing-token values.",
   inputSchema: BROWSER_INPUT_SCHEMA,
 };
 
@@ -379,14 +381,15 @@ export function createChromeMcpDispatcher(handlers: ChromeMcpHandlers) {
         if (!CHROME_ACTIONS.includes(input.action as (typeof CHROME_ACTIONS)[number])) {
           return { jsonrpc: "2.0", id: message.id, result: textResult({ error: "unknown chrome action" }, true) };
         }
+        const targetSession = input.session_name ?? input.tab_group_name ?? handlers.sessionName;
         if ((input.action as string) === "close_group") {
-          return { jsonrpc: "2.0", id: message.id, result: textResult(await handlers.closeGroup()) };
+          return { jsonrpc: "2.0", id: message.id, result: textResult(await handlers.closeGroup(targetSession)) };
         }
         const value = await handlers.execute(
           input,
           undefined,
           { isProjectTrusted: trusted },
-          handlers.sessionName,
+          targetSession,
           handlers.ownerRoute,
         );
         return { jsonrpc: "2.0", id: message.id, result: textResult(value) };
@@ -428,7 +431,7 @@ export function createDefaultChromeMcpDispatcher() {
   return createChromeMcpDispatcher({
     execute: createBrowserContextOperation(),
     setup: installChromeSetup,
-    closeGroup: () => client.closeGroup(),
+    closeGroup: (sessionName?: string) => client.closeGroup(undefined, sessionName),
     sessionName: resolveBrowserSessionName(),
     ownerRoute: process.env.HOLAR_BROWSER_WORKSPACE,
   });
