@@ -2715,9 +2715,11 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
       if (input.domain) args.push(`--domain=${input.domain}`);
       if (input.json) args.push("--json");
       if (input.quiet) args.push("--quiet");
+      if (input.markdown) args.push("--markdown");
+      if (input.matrix) args.push("--matrix");
       const res = spawnSync("bun", args, { encoding: "utf8" });
       let jsonReport = null;
-      if (input.json && res.status === 0) {
+      if (input.json && res.stdout) {
         try { jsonReport = JSON.parse(res.stdout); } catch {}
       }
       return {

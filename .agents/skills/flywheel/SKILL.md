@@ -70,7 +70,7 @@ graph TD
 | **`SCI_DES`** | `Science` ➔ `Design` | **认知工效学依据** | 眼动规律、注意广度与认知负荷定量结论，指导 OKLCH 色彩对比度、留白节奏与排版微调。 | 认知负荷与科研图表组件上线 |
 | **`SCI_PLG`** | `Science` ➔ `Plugin` | **严谨算法红线** | 心理量表评分算法（GAD-7/PHQ-9）、危机干预红线与专利先验算法，直接封装为核心算子。 | `Plugin/Domain/Science/` 严谨算法封装 |
 | **`SCI_INF`** | `Science` ➔ `Infra` | **算法合规红线** | 临床伦理标准、去标识化规则与脱敏规范直接固化为边缘数据存储与留存的物理策略。 | 医疗与伦理合规逻辑写入微服务 |
-| **`SCI_CMP`** | `Science` ➔ `Company` | **无形资产沉淀** | 发明专利、国际期刊论文与临床标准沉淀为法人主体的核心知识产权与无形资产储备。 | `Science/Patent/` 专利资产目录 |
+| **`SCI_CMP`** | `Science` ➔ `Company` | **无形资产沉淀** | 学术论文手稿与科研成果沉淀为法人主体的核心知识产权与专利资产储备。 | `Science/Paper/` 与 `Company/Patent/` 资产目录 |
 | **`CNT_BIZ`** | `Content` ➔ `Business` | **爆款转化资产** | 15 节拍产品故事、高转化 PAS 文案与 3 秒钩子，直接降低获客成本（CAC），拉升 LTV。 | PAS 框架文案直接赋能商业转化 |
 | **`CNT_DES`** | `Content` ➔ `Design` | **品牌调性塑形** | 叙事基调与语言情感温度塑造 Design 的主题氛围（Tokens）、瑞士网格与微交互阻尼感。 | 瑞士排版与情感色阶对齐 |
 | **`CNT_SCI`** | `Content` ➔ `Science` | **学术社会化破圈** | 将严密艰深的学术论文转化为通俗的图文摘要与媒体通稿，十倍放大 Altmetric 学术影响力。 | 学术论文公众化科普与图文分发 |
@@ -139,10 +139,16 @@ graph TD
 全域动量回路必须保持 100% 实时连通，任何代码提交前必须执行双重门禁：
 
 ```bash
-# 1. 巡检全域 7 维 42 通道飞轮连通度 (必须 42/42 100% 绿灯)
+# 1. 巡检全域 7 维 42 通道飞轮连通度及 $K_7$ 邻接矩阵 (必须 42/42 100% 绿灯)
 bun Plugin/.agents/scripts/check-flywheel.ts
 
-# 2. 运行全域统一 9 大主门禁 (涵盖跨域飞轮、代码合规、设计系统契约、微服务健康等)
+# 2. 生成 Markdown 格式的跨域飞轮记分卡 (用于 CI 汇总或 PR 审查)
+bun Plugin/.agents/scripts/check-flywheel.ts --markdown
+
+# 3. 针对特定领域快速过滤审查 (如 Infra 的 12 条输入输出回路)
+bun Plugin/.agents/scripts/check-flywheel.ts --domain=Infra
+
+# 4. 运行全域统一 9 大主门禁 (涵盖跨域飞轮、代码合规、设计系统契约、微服务健康等)
 bun Plugin/.agents/scripts/verify-all.ts
 ```
 

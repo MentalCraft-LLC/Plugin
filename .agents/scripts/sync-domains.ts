@@ -144,7 +144,7 @@ const domainManifests: Record<typeof domains[number], { title: string; role: str
 	},
 	Science: {
 		title: "Science Domain Repository",
-		role: "Computational Social Science Empirical Research, Grants, Journals & Patents",
+		role: "Computational Social Science Empirical Research, Grants & Journals",
 		consumes: [
 			"Business: Large-scale anonymized empirical telemetry, user behavior logs, and digital interaction traces",
 			"Design: Scientific visualization components (Radar, Figures, Posters, Presentation Slides)",
@@ -159,7 +159,7 @@ const domainManifests: Record<typeof domains[number], { title: string; role: str
 			"To Design: Quantitative cognitive ergonomics, visual fatigue data, and attention span benchmarks",
 			"To Plugin: Deterministic psychometric scoring formulas, suicide crisis safety filters, and patent novelty algorithms",
 			"To Infra: HIPAA/IRB privacy encryption algorithms, psychometric calibration logic, and audit standards",
-			"To Company: Defensible patent portfolios, peer-reviewed academic prestige, and deep tech IP valuation",
+			"To Company: Defensible patent disclosures & research IP, peer-reviewed academic prestige, and deep tech IP valuation",
 		],
 	},
 	Infra: {
@@ -228,9 +228,9 @@ This repository is an autonomous constituent of the **7-Domain Canonical Ecosyst
 | **\`Design\`** | https://github.com/MentalCraft-LLC/Design | Single-word Svelte 5 Runes Components & OKLCH Design Token System |
 | **\`Content\`** | https://github.com/MentalCraft-LLC/Content | Creative Lore, 15-Beat Narratives & Psychological Conversion Copy |
 | **\`Plugin\`** | https://github.com/MentalCraft-LLC/Plugin | MCP Protocol Engines, CDP Browser Automation & Compound Workflows |
-| **\`Science\`** | https://github.com/MentalCraft-LLC/Science | Computational Social Science, Empirical Manuscripts, Grants & Patents |
+| **\`Science\`** | https://github.com/MentalCraft-LLC/Science | Computational Social Science, Empirical Manuscripts, Grants & Journals |
 | **\`Infra\`** | https://github.com/MentalCraft-LLC/Infra | Global Edge Microservices, Cloudflare Workers (Auth, Event, Monetization, KV, D1) |
-| **\`Company\`** | https://github.com/MentalCraft-LLC/Company | Corporate Governance, Legal Entities, Equity, Compliance & Capital |
+| **\`Company\`** | https://github.com/MentalCraft-LLC/Company | Corporate Governance, Legal Entities, Equity, Patents & IP, Compliance & Capital |
 
 ---
 
@@ -276,6 +276,10 @@ ${manifest.produces.map((p) => `- **${p.split(":")[0]}**: ${p.split(":")[1]}`).j
     All shared backend microservices (Auth, Monetization, Event, KV/D1) MUST be unified under \`Infra/\`. Business products consume them via standardized HTTP/RPC clients. All shared frontend UI components, tokens, and page structures MUST be unified under \`Design/\` (\`@mentalcraft/design-svelte\`, \`@mentalcraft/design-token\`). Ad-hoc duplicate servers or un-tokenized private CSS are strictly prohibited.
 11. **The .agents Meta-State Consolidation Law (.agents 元状态收敛法则)**:
     All operational scripts, architecture docs, and decision skills in each domain MUST be strictly consolidated inside \`<Domain>/.agents/\` (\`scripts/\`, \`docs/\`, \`skills/\`). Bare scripts, docs, or skills at repo roots are strictly prohibited.
+12. **Chained Layer Hierarchy & Triad Page Architecture Law (逐级链式组件依赖公理与三元核心交互架构法则)**:
+    (1) 严格逐级链式依赖 ($L_n \\to L_{n-1}$): 高层次组件只能依赖于低一层次的组件，坚决禁止跨层跳跃调用。Layer 4（业务路由）只能消费 Layer 3（Page）；Layer 3 只能消费 Layer 2（Composite/Block）；Layer 2 只能消费 Layer 1（Component Primitives）；Layer 1 只能消费 Layer 0（Tokens & Behaviors）。
+    (2) 三元核心页面架构 (Navigation + Main + Artifact): 全域所有产品的核心交互统一构想为三元 Page 构成：Navigation（响应式导航）、Main（响应式推理与对话流）、Artifact（响应式产物舞台）。桌面端呈现为三栏收敛展开（带快捷键与拖拽手柄）；移动端呈现为连续水平滑轨。
+    (3) 插件决定 Artifact (Plugin Determines Artifact): 所有的运行态产物（Browser 浏览器实机、Timeline 工作流连线、Plugin 探针、Code Diff、文档）一律由对应插件驱动并收敛呈现于 Artifact，严禁在 Main 消息流中堆砌僵硬孤岛大卡片。
 
 ---
 

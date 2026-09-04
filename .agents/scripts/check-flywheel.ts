@@ -643,19 +643,32 @@ const channels: FlywheelChannel[] = [
 	},
 ];
 
+const CANONICAL_DOMAINS = ["Business", "Design", "Content", "Plugin", "Science", "Infra", "Company"] as const;
+const DOMAIN_ABBR: Record<string, string> = {
+	Business: "BIZ",
+	Design: "DES",
+	Content: "CNT",
+	Plugin: "PLG",
+	Science: "SCI",
+	Infra: "INF",
+	Company: "CMP",
+};
+
 const args = process.argv.slice(2);
 const domainArg = args.find((a) => a.startsWith("--domain="))?.split("=")[1]
 	|| args.find((a, i) => (a === "-d" || a === "--domain") && args[i + 1])
 	|| undefined;
 const isJson = args.includes("--json");
 const isQuiet = args.includes("--quiet");
+const isMarkdown = args.includes("--markdown");
+const showMatrix = args.includes("--matrix") || (!domainArg && !isQuiet && !isJson);
 
 const activeChannels = domainArg
 	? channels.filter((c) => c.from.toLowerCase() === domainArg.toLowerCase() || c.to.toLowerCase() === domainArg.toLowerCase())
 	: channels;
 
 if (domainArg && activeChannels.length === 0) {
-	console.error(`Unknown domain '${domainArg}'. Valid domains: Business, Design, Content, Plugin, Science, Infra, Company`);
+	console.error(`Unknown domain '${domainArg}'. Valid domains: ${CANONICAL_DOMAINS.join(", ")}`);
 	process.exit(1);
 }
 
@@ -675,6 +688,20 @@ const passedCount = results.filter((r) => r.passed).length;
 const totalCount = results.length;
 const score = Math.round((passedCount / totalCount) * 100);
 
+// Build $K_7$ Adjacency Matrix
+const matrix: Record<string, Record<string, boolean | null>> = {};
+for (const from of CANONICAL_DOMAINS) {
+	matrix[from] = {};
+	for (const to of CANONICAL_DOMAINS) {
+		if (from === to) {
+			matrix[from][to] = null;
+		} else {
+			const ch = results.find((r) => r.from === from && r.to === to);
+			matrix[from][to] = ch ? ch.passed : null;
+		}
+	}
+}
+
 if (isJson) {
 	console.log(JSON.stringify({
 		scope: domainArg ? `${domainArg} Domain Flywheel (${totalCount} channels)` : `Full 7-Domain K7 Flywheel (${totalCount} channels)`,
@@ -682,9 +709,42 @@ if (isJson) {
 		passedCount,
 		totalCount,
 		allPassed: passedCount === totalCount,
+		matrix,
 		channels: results,
 	}, null, 2));
 	if (passedCount < totalCount) process.exit(1);
+	process.exit(0);
+}
+
+if (isMarkdown) {
+	console.log(`# 🌀 Holar Heptagonal Interlocking Flywheel Scorecard ($K_7$)`);
+	console.log(`\n**Connectivity Index**: \`${passedCount}/${totalCount}\` Channels Verified (**${score}%**) | Status: ${score === 100 ? "🟢 100% PASS" : "🔴 CHANNELS REQUIRE HEALING"}\n`);
+	
+	if (!domainArg) {
+		console.log(`### 📊 $K_7$ Adjacency Matrix (Row: From ➔ Col: To)`);
+		console.log(`| From \\ To | ${CANONICAL_DOMAINS.map((d) => `**${DOMAIN_ABBR[d]}**`).join(" | ")} |`);
+		console.log(`| :--- | ${CANONICAL_DOMAINS.map(() => ":---:").join(" | ")} |`);
+		for (const from of CANONICAL_DOMAINS) {
+			const row = CANONICAL_DOMAINS.map((to) => {
+				if (from === to) return "—";
+				return matrix[from][to] ? "🟢" : "🔴";
+			}).join(" | ");
+			console.log(`| **${DOMAIN_ABBR[from]}** | ${row} |`);
+		}
+		console.log("");
+	}
+
+	console.log(`### 📋 Momentum Channels Verification`);
+	console.log(`| Channel ID | From ➔ To | Momentum Name | Status | Verified Evidence |`);
+	console.log(`| :--- | :--- | :--- | :---: | :--- |`);
+	for (const c of results) {
+		const status = c.passed ? "🟢 PASS" : "🔴 FAIL";
+		console.log(`| \`${c.id}\` | ${c.from} ➔ ${c.to} | **${c.name}** | ${status} | ${c.detail} |`);
+	}
+	console.log("");
+	if (score < 100) {
+		process.exit(1);
+	}
 	process.exit(0);
 }
 
@@ -695,6 +755,20 @@ if (!isQuiet) {
 	console.log("\n=========================================================================================");
 	console.log(title);
 	console.log("=========================================================================================\n");
+
+	if (showMatrix && !domainArg) {
+		console.log("📊 $K_7$ Adjacency Matrix (Row: From ➔ Col: To):");
+		const header = "      " + CANONICAL_DOMAINS.map((d) => DOMAIN_ABBR[d].padEnd(4)).join(" ");
+		console.log(header);
+		for (const from of CANONICAL_DOMAINS) {
+			const cells = CANONICAL_DOMAINS.map((to) => {
+				if (from === to) return " ·  ";
+				return matrix[from][to] ? "🟢  " : "🔴  ";
+			}).join("");
+			console.log(` ${DOMAIN_ABBR[from].padEnd(4)} ${cells}`);
+		}
+		console.log("");
+	}
 
 	if (domainArg) {
 		const inbounds = results.filter((r) => r.to.toLowerCase() === domainArg.toLowerCase());
@@ -743,4 +817,5 @@ console.log(`\nFlywheel Connectivity Index: ${passedCount}/${totalCount} Channel
 if (score < 100) {
 	process.exit(1);
 }
+
 

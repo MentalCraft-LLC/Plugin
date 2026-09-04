@@ -249,12 +249,13 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
   {
     id: "patent_invention_pipeline",
     name: "Patent Novelty & Claim Specification Pipeline",
-    description: "Patent lifecycle: USPTO/WIPO prior art search & novelty scoring → Independent/dependent claim tree structure → Patent specification scaffolding.",
-    requiredPlugins: ["science"],
+    description: "Patent lifecycle: USPTO/WIPO prior art search & novelty scoring → Independent/dependent claim tree structure → Patent specification scaffolding → Company IP assignment audit.",
+    requiredPlugins: ["science", "company"],
     steps: [
       { step: 1, plugin: "science", action: "patent_novelty_check", description: "Search prior art databases and compute 35 U.S.C. statutory factor scores." },
       { step: 2, plugin: "science", action: "patent_claim_structure", description: "Validate independent and dependent claims tree and antecedent basis." },
       { step: 3, plugin: "science", action: "patent_spec_scaffold", description: "Scaffold formal patent specification document with preferred embodiments." },
+      { step: 4, plugin: "company", action: "company_ip_assignment_audit", description: "Audit inventor-to-company chain of title and archive statutory assignment into Company/Patent." },
     ],
   },
   {
