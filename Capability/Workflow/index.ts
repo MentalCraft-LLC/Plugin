@@ -167,6 +167,7 @@ export {
   BUILTIN_WORKFLOWS,
   formatWorkflowSummary,
   compactWorkflowResult,
+  scheduleDagWaves,
   type WorkflowAction,
   type WorkflowId,
   type WorkflowStep,

@@ -1180,6 +1180,115 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(batch.successful).toBe(2);
     expect(batch.failed).toBe(0);
   });
+
+  test("scheduleDagWaves partitions steps into parallel execution waves respecting dependencies", () => {
+    const { scheduleDagWaves } = require("./core.ts");
+    const steps = [
+      { step: 1, plugin: "science", action: "paper_literature_search" },
+      { step: 2, plugin: "business", action: "venture_market_validation", dependsOn: [1] },
+      { step: 3, plugin: "company", action: "company_entity_audit", dependsOn: [1] },
+      { step: 4, plugin: "design", action: "generate_ui", dependsOn: [2, 3] },
+      { step: 5, plugin: "infra", action: "infra_canary_probe" },
+    ];
+
+    const waves = scheduleDagWaves(steps);
+    // Wave 0: steps with no dependencies: step 1, step 5
+    expect(waves[0].map((s: any) => s.step)).toEqual([1, 5]);
+    // Wave 1: steps depending on step 1: step 2, step 3
+    expect(waves[1].map((s: any) => s.step)).toEqual([2, 3]);
+    // Wave 2: step depending on steps 2 and 3: step 4
+    expect(waves[2].map((s: any) => s.step)).toEqual([4]);
+  });
+
+  test("run_workflow with concurrent_dag executes waves and records checkpoint", async () => {
+    const customWf = {
+      id: "test_concurrent_dag_flow",
+      name: "Test Concurrent DAG Flow",
+      description: "Tests parallel wave execution",
+      requiredPlugins: ["science", "infra", "company"],
+      concurrencyMode: "concurrent_dag" as const,
+      steps: [
+        { step: 1, plugin: "science" as const, action: "journal_submission_checklist" },
+        { step: 2, plugin: "infra" as const, action: "infra_canary_probe" },
+        { step: 3, plugin: "company" as const, action: "company_entity_audit", dependsOn: [1, 2] },
+      ],
+    };
+
+    const res = await workflowOperation({
+      action: "run_workflow",
+      custom_workflow: customWf,
+      concurrency_mode: "concurrent_dag",
+    });
+
+    expect(res.success).toBe(true);
+    const receipt = res.data as any;
+    expect(receipt.stepsCount).toBe(3);
+    expect(receipt.executionMode).toBe("concurrent_dag");
+    expect(receipt.checkpoint).toBeDefined();
+    expect(receipt.checkpoint.lastCompletedStep).toBe(3);
+    expect(receipt.checkpoint.resumable).toBe(false);
+  });
+
+  test("resume_workflow resumes from checkpoint after step failure", async () => {
+    const customWf = {
+      id: "test_resumable_flow",
+      name: "Test Resumable Flow",
+      description: "Tests resumption from checkpoint",
+      requiredPlugins: ["science", "company"],
+      steps: [
+        { step: 1, plugin: "science" as const, action: "journal_submission_checklist" },
+        { step: 2, plugin: "company" as const, action: "non_existent_failing_action" },
+        { step: 3, plugin: "science" as const, action: "paper_literature_search", parameters: { query: "resumed test" } },
+      ],
+    };
+
+    // First run fails at step 2
+    const failRes = await workflowOperation({
+      action: "run_workflow",
+      custom_workflow: customWf,
+    });
+
+    expect(failRes.success).toBe(false);
+    const failReceipt = failRes.data as any;
+    expect(failReceipt.checkpoint.lastCompletedStep).toBe(1);
+    expect(failReceipt.checkpoint.resumable).toBe(true);
+
+    // Fix definition for resumption
+    const fixedWf = {
+      ...customWf,
+      steps: [
+        { step: 1, plugin: "science" as const, action: "journal_submission_checklist" },
+        { step: 2, plugin: "company" as const, action: "company_entity_audit" },
+        { step: 3, plugin: "science" as const, action: "paper_literature_search", parameters: { query: "resumed test" } },
+      ],
+    };
+
+    // Resume using run_id
+    const resumeRes = await workflowOperation({
+      action: "resume_workflow",
+      run_id: failReceipt.runId,
+      custom_workflow: fixedWf,
+    });
+
+    expect(resumeRes.success).toBe(true);
+    const resumedReceipt = resumeRes.data as any;
+    expect(resumedReceipt.resumedFromRunId).toBe(failReceipt.runId);
+    expect(resumedReceipt.resumedFromStep).toBe(2);
+    expect(resumedReceipt.stepsCount).toBe(3);
+    expect(resumedReceipt.checkpoint.resumable).toBe(false);
+
+    // Prior run checkpoint should now be marked as not resumable
+    expect(failReceipt.checkpoint.resumable).toBe(false);
+  });
+
+  test("resume_workflow returns diagnostic error if run is already completed or not found", async () => {
+    const resNotFound = await workflowOperation({
+      action: "resume_workflow",
+      run_id: "non_existent_run_99999",
+    });
+    expect(resNotFound.success).toBe(false);
+    expect(resNotFound.diagnostics?.[0]).toContain("not found in run history");
+  });
 });
 
 

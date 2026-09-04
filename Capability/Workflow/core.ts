@@ -112,6 +112,12 @@ export type WorkflowRunReceipt = {
     data: unknown;
   }>;
   spans?: WorkflowSpan[];
+  checkpoint?: {
+    lastCompletedStep: number;
+    stepContext: Record<string, any>;
+    resumable: boolean;
+  };
+  resumedFromRunId?: string;
 };
 
 export type ClientTargetConfig = "claude_desktop" | "cursor" | "antigravity" | "pi" | "all";
@@ -737,6 +743,7 @@ export const WORKFLOW_ACTIONS = [
   "autopilot_status",
   "autopilot_schedule_spec",
   "autopilot_run",
+  "resume_workflow",
   "list_actions",
 ] as const;
 
@@ -746,6 +753,8 @@ export type WorkflowInput = {
   action: WorkflowAction;
   workflow_id?: WorkflowId;
   dynamic_intent?: DynamicWorkflowIntent;
+  run_id?: string;
+  concurrency_mode?: "sequential" | "concurrent_dag";
   target_plugin?: PluginId | "all";
   target_action?: string;
   custom_workflow?: {
@@ -863,6 +872,10 @@ export function formatWorkflowSummary(result: WorkflowResult): string {
       const data = result.data as any;
       return `✓ Workflow [${data.workflowName ?? data.name}]: All ${data.stepsCount ?? data.executedStepsCount} steps completed (${data.durationMs ?? 0}ms)`;
     }
+    case "resume_workflow": {
+      const data = result.data as any;
+      return `✓ Resumed Workflow [${data.workflowName ?? data.name}]: Steps ${data.resumedFromStep ?? 1}..${data.stepsCount ?? data.totalSteps} completed (${data.durationMs ?? 0}ms)`;
+    }
     case "autopilot_step":
     case "autopilot_run": {
       const data = result.data as any;
@@ -880,4 +893,73 @@ export function formatWorkflowSummary(result: WorkflowResult): string {
 }
 
 export const compactWorkflowResult = formatWorkflowSummary;
+
+/**
+ * Partitions workflow steps into concurrent DAG execution waves.
+ * Steps in each wave can run concurrently in parallel, while respecting
+ * all upstream step dependencies (dependsOn & ${stepX.param} references).
+ */
+export function scheduleDagWaves(steps: WorkflowStep[]): WorkflowStep[][] {
+  if (!steps || steps.length === 0) return [];
+
+  const stepMap = new Map<number, WorkflowStep>();
+  for (const s of steps) {
+    stepMap.set(s.step, s);
+  }
+
+  const depsMap = new Map<number, Set<number>>();
+  for (const s of steps) {
+    const deps = new Set<number>(s.dependsOn ?? []);
+    if (s.parameters) {
+      const jsonStr = JSON.stringify(s.parameters);
+      const matches = Array.from(jsonStr.matchAll(/\$\{step(\d+)\.[^}]+\}/g));
+      for (const m of matches) {
+        deps.add(parseInt(m[1], 10));
+      }
+    }
+    depsMap.set(s.step, deps);
+  }
+
+  const levels = new Map<number, number>();
+
+  function getLevel(stepNum: number, visited = new Set<number>()): number {
+    if (levels.has(stepNum)) return levels.get(stepNum)!;
+    if (visited.has(stepNum)) {
+      return 0;
+    }
+    visited.add(stepNum);
+    const deps = depsMap.get(stepNum) ?? new Set();
+    if (deps.size === 0) {
+      levels.set(stepNum, 0);
+      return 0;
+    }
+    let maxDepLevel = -1;
+    for (const dep of deps) {
+      if (stepMap.has(dep)) {
+        maxDepLevel = Math.max(maxDepLevel, getLevel(dep, new Set(visited)));
+      }
+    }
+    const level = maxDepLevel + 1;
+    levels.set(stepNum, level);
+    return level;
+  }
+
+  for (const s of steps) {
+    getLevel(s.step);
+  }
+
+  const maxLevel = Math.max(...Array.from(levels.values()), 0);
+  const waves: WorkflowStep[][] = Array.from({ length: maxLevel + 1 }, () => []);
+
+  for (const s of steps) {
+    const lvl = levels.get(s.step) ?? 0;
+    waves[lvl].push(s);
+  }
+
+  for (const wave of waves) {
+    wave.sort((a, b) => a.step - b.step);
+  }
+
+  return waves.filter((w) => w.length > 0);
+}
 

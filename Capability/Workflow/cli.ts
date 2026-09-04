@@ -144,6 +144,14 @@ Available REPL Commands:
           const wfId = parts[1] || "ecommerce_full_launch_pipeline";
           const res = await workflowOperation({ action: "run_workflow", workflow_id: wfId as any });
           console.log(JSON.stringify(res, null, 2));
+        } else if (sub === "resume") {
+          const runId = parts[1];
+          const res = await workflowOperation({ action: "resume_workflow", run_id: runId } as any);
+          console.log(JSON.stringify(res, null, 2));
+        } else if (sub === "dry-run" || sub === "dryrun") {
+          const wfId = parts[1] || "academic_paper_to_journal_submission";
+          const res = await workflowOperation({ action: "dry_run", workflow_id: wfId as any });
+          console.log(JSON.stringify(res, null, 2));
         } else if (sub === "call" || sub === "exec") {
           const p = parts[1];
           const a = parts[2];
@@ -711,6 +719,51 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "resume":
+    case "resume-workflow": {
+      const runId = args[1];
+      console.log(`\n🔄 Resuming Workflow Execution ${runId ? `(Run ID: ${runId})` : "(Latest Resumable Run)"}...\n` + "=".repeat(75));
+      const res = await workflowOperation({
+        action: "resume_workflow",
+        run_id: runId,
+      });
+      const data = res.data as any;
+      if (res.success) {
+        console.log(`\n✅ Workflow Resumed Successfully: ${data.workflowName ?? data.name} (${data.durationMs}ms)`);
+        console.log(`Resumed From Step: ${data.resumedFromStep} | Steps Completed: ${data.stepsCount}/${data.totalSteps}`);
+        data.stepResults?.forEach((s: any) => {
+          console.log(`  Step ${s.step} [${s.plugin}:${s.action}]: ${s.success ? "🟢 PASS" : "🔴 FAIL"} (${s.durationMs}ms)`);
+        });
+      } else {
+        console.error(`\n✗ Resumption Failed: ${(res.diagnostics ?? []).join("; ")}`);
+      }
+      console.log("=".repeat(75) + "\n");
+      break;
+    }
+
+    case "dry-run":
+    case "dryrun": {
+      const wfId = args[1] || "academic_paper_to_journal_submission";
+      console.log(`\n🧪 Pre-flight Dry Run Simulation for [${wfId}]...\n` + "=".repeat(75));
+      const res = await workflowOperation({
+        action: "dry_run",
+        workflow_id: wfId as any,
+      });
+      const data = res.data as any;
+      if (res.success) {
+        console.log(`\n✅ Dry Run Passed! (Preflight Health: ${data.preflightHealth})`);
+        console.log(`Workflow: ${data.workflow?.name} (${data.plan?.length} steps)`);
+        data.plan?.forEach((p: any) => {
+          const depStr = p.dependsOn?.length > 0 ? ` (depends on: [${p.dependsOn.join(", ")}])` : "";
+          console.log(`  Step ${p.step} [${p.plugin}:${p.action}]${depStr}: ${p.description}`);
+        });
+      } else {
+        console.error(`\n✗ Dry Run Failed: ${(res.diagnostics ?? []).join("; ")}`);
+      }
+      console.log("=".repeat(75) + "\n");
+      break;
+    }
+
     case "serve": {
       const httpFlag = args.includes("--http");
       const portArg = args.find((a) => a.startsWith("--port="));
@@ -735,6 +788,8 @@ Commands:
   health, doctor           Run comprehensive diagnostics across all plugins
   workflows, wf            List compound cross-plugin automation workflows
   run-workflow <id>        Execute a compound workflow pipeline
+  resume [run_id]          Resume failed workflow execution from checkpoint
+  dry-run <id>             Simulate and validate workflow DAG without side effects
   history                  View past workflow execution receipts
   export-config [client]   Generate MCP config JSON for Claude Desktop / Cursor
   export-specs [--dir=dir] Export OpenRPC 1.3.2 and OpenAPI 3.1.0 JSON specs

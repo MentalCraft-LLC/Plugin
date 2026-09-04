@@ -25,6 +25,7 @@ import {
   type BenchmarkSuiteResult,
   synthesizeDynamicWorkflow,
   type DynamicWorkflowIntent,
+  scheduleDagWaves,
 } from "./core.ts";
 import { designOperation } from "../../Domain/Design/operation.ts";
 import { businessOperation } from "../../Domain/Business/operation.ts";
@@ -360,6 +361,7 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "autopilot_status",
       "autopilot_schedule_spec",
       "autopilot_run",
+      "resume_workflow",
       "list_actions",
     ],
     browser: [
@@ -2626,9 +2628,9 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
     case "run_workflow": {
       const startTime = new Date().toISOString();
       const t0 = performance.now();
-      const targetId = input.workflow_id ?? "academic_paper_to_journal_submission";
       const all = getAllWorkflows();
-      const wf = all.find((w) => w.id === targetId);
+      const wf = input.custom_workflow ?? all.find((w) => w.id === (input.workflow_id ?? "academic_paper_to_journal_submission"));
+      const targetId = wf?.id ?? input.workflow_id ?? "academic_paper_to_journal_submission";
       if (!wf) {
         return {
           protocol: WORKFLOW_PROTOCOL,
@@ -2640,7 +2642,8 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
         };
       }
 
-      const stepResults: Array<{ step: number; plugin: PluginId; action: string; success: boolean; durationMs: number; data: unknown }> = [];
+      const stepResults: Array<{ step: number; plugin: PluginId; action: string; skill?: string; success: boolean; durationMs: number; data: unknown }> = [];
+      const stepContext: Record<string, any> = { input: input.parameters ?? {} };
 
       if (targetId === "academic_paper_to_journal_submission") {
         // Step 1: Literature search
@@ -2984,26 +2987,87 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
         const r4 = await businessOperation({ action: "venture_growth_playbook", modality: "website", venture_name: vName });
         stepResults.push({ step: 4, plugin: "business", action: "venture_growth_playbook", success: r4.success, durationMs: Math.round(performance.now() - s4), data: r4.data });
       } else {
-        const stepContext: Record<string, any> = { input: input.parameters ?? {} };
+        const mode = input.concurrency_mode ?? wf.concurrencyMode ?? "sequential";
         const enforceCircuit = Boolean(input.enforce_circuit || (input.parameters as any)?.enforce_circuit);
         const defaultRetries = Number(input.retries ?? (input.parameters as any)?.retries ?? (input.parameters as any)?.max_retries ?? 0);
 
-        for (const s of wf.steps) {
-          const sT0 = performance.now();
-          const interpolated = { ...(input.parameters ?? {}), ...interpolateParams(s.parameters ?? {}, stepContext) };
-          const stepRetries = Number((s as any).maxRetries ?? (s as any).retries ?? defaultRetries);
-          const r = await dispatchPluginAction(s.plugin, s.action, interpolated as Record<string, unknown>, {
-            enforceCircuit,
-            retries: stepRetries,
-          });
-          const dur = Math.round(performance.now() - sT0);
-          stepResults.push({ step: s.step, plugin: s.plugin, action: s.action, skill: s.skill, success: r.success ?? true, durationMs: dur, data: r.data ?? r });
-          stepContext[`step${s.step}`] = { data: r.data ?? r, success: r.success ?? true };
+        if (mode === "concurrent_dag" && wf.steps && wf.steps.length > 0) {
+          const waves = scheduleDagWaves(wf.steps);
+          for (const wave of waves) {
+            const wavePromises = wave.map(async (s) => {
+              const sT0 = performance.now();
+              try {
+                const interpolated = { ...(input.parameters ?? {}), ...interpolateParams(s.parameters ?? {}, stepContext) };
+                const stepRetries = Number((s as any).maxRetries ?? (s as any).retries ?? defaultRetries);
+                const r = await dispatchPluginAction(s.plugin, s.action, interpolated as Record<string, unknown>, {
+                  enforceCircuit,
+                  retries: stepRetries,
+                });
+                const dur = Math.round(performance.now() - sT0);
+                return {
+                  step: s.step,
+                  plugin: s.plugin,
+                  action: s.action,
+                  skill: s.skill,
+                  success: r.success ?? true,
+                  durationMs: dur,
+                  data: r.data ?? r,
+                };
+              } catch (err: any) {
+                const dur = Math.round(performance.now() - sT0);
+                return {
+                  step: s.step,
+                  plugin: s.plugin,
+                  action: s.action,
+                  skill: s.skill,
+                  success: false,
+                  durationMs: dur,
+                  data: { error: err?.message || String(err) },
+                };
+              }
+            });
+            const waveResults = await Promise.all(wavePromises);
+            for (const res of waveResults) {
+              stepResults.push(res);
+              stepContext[`step${res.step}`] = { data: res.data, success: res.success };
+            }
+            if (waveResults.some((w) => !w.success)) {
+              break;
+            }
+          }
+        } else {
+          for (const s of wf.steps) {
+            const sT0 = performance.now();
+            try {
+              const interpolated = { ...(input.parameters ?? {}), ...interpolateParams(s.parameters ?? {}, stepContext) };
+              const stepRetries = Number((s as any).maxRetries ?? (s as any).retries ?? defaultRetries);
+              const r = await dispatchPluginAction(s.plugin, s.action, interpolated as Record<string, unknown>, {
+                enforceCircuit,
+                retries: stepRetries,
+              });
+              const dur = Math.round(performance.now() - sT0);
+              const success = r.success ?? true;
+              stepResults.push({ step: s.step, plugin: s.plugin, action: s.action, skill: s.skill, success, durationMs: dur, data: r.data ?? r });
+              stepContext[`step${s.step}`] = { data: r.data ?? r, success };
+              if (!success) {
+                break;
+              }
+            } catch (err: any) {
+              const dur = Math.round(performance.now() - sT0);
+              stepResults.push({ step: s.step, plugin: s.plugin, action: s.action, skill: s.skill, success: false, durationMs: dur, data: { error: err?.message || String(err) } });
+              stepContext[`step${s.step}`] = { data: { error: err?.message || String(err) }, success: false };
+              break;
+            }
+          }
         }
       }
 
+      stepResults.sort((a, b) => a.step - b.step);
       const totalDuration = Math.round(performance.now() - t0);
       const isSuccess = stepResults.every((s) => s.success);
+      const lastCompletedStep = Math.max(0, ...stepResults.filter((s) => s.success).map((s) => s.step));
+      const totalPlanned = wf.steps ? wf.steps.length : stepResults.length;
+      const isResumable = !isSuccess && lastCompletedStep < totalPlanned;
       const runId = `run_wf_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
       const endTime = new Date().toISOString();
 
@@ -3028,9 +3092,14 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
         durationMs: totalDuration,
         success: isSuccess,
         stepsCount: stepResults.length,
-        executionMode: wf.concurrencyMode ?? "concurrent_dag",
+        executionMode: input.concurrency_mode ?? wf.concurrencyMode ?? "concurrent_dag",
         stepResults,
         spans,
+        checkpoint: {
+          lastCompletedStep,
+          stepContext,
+          resumable: isResumable,
+        },
       };
 
       RUN_HISTORY.push(receipt);
@@ -3041,6 +3110,201 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
         success: isSuccess,
         timestamp: endTime,
         data: receipt,
+      };
+    }
+
+    case "resume_workflow": {
+      const startTime = new Date().toISOString();
+      const t0 = performance.now();
+      let targetRun: WorkflowRunReceipt | undefined;
+      if (input.run_id) {
+        targetRun = RUN_HISTORY.find((r) => r.runId === input.run_id);
+        if (!targetRun) {
+          return {
+            protocol: WORKFLOW_PROTOCOL,
+            action: "resume_workflow",
+            success: false,
+            timestamp,
+            data: null,
+            diagnostics: [`Workflow run receipt '${input.run_id}' not found in run history.`],
+          };
+        }
+      } else {
+        targetRun = [...RUN_HISTORY].reverse().find((r) => r.checkpoint?.resumable);
+        if (!targetRun) {
+          return {
+            protocol: WORKFLOW_PROTOCOL,
+            action: "resume_workflow",
+            success: false,
+            timestamp,
+            data: null,
+            diagnostics: ["No resumable workflow runs found in history."],
+          };
+        }
+      }
+
+      if (!targetRun.checkpoint || !targetRun.checkpoint.resumable) {
+        return {
+          protocol: WORKFLOW_PROTOCOL,
+          action: "resume_workflow",
+          success: false,
+          timestamp,
+          data: null,
+          diagnostics: [`Workflow run '${targetRun.runId}' is not resumable or already completed.`],
+        };
+      }
+
+      const all = getAllWorkflows();
+      const wf = input.custom_workflow ?? all.find((w) => w.id === targetRun!.workflowId);
+      if (!wf) {
+        return {
+          protocol: WORKFLOW_PROTOCOL,
+          action: "resume_workflow",
+          success: false,
+          timestamp,
+          data: null,
+          diagnostics: [`Workflow definition '${targetRun.workflowId}' not found for resumption.`],
+        };
+      }
+
+      const lastCompletedStep = targetRun.checkpoint.lastCompletedStep;
+      const stepContext: Record<string, any> = { ...targetRun.checkpoint.stepContext, ...(input.parameters ?? {}) };
+      const enforceCircuit = Boolean(input.enforce_circuit || (input.parameters as any)?.enforce_circuit);
+      const defaultRetries = Number(input.retries ?? (input.parameters as any)?.retries ?? (input.parameters as any)?.max_retries ?? 0);
+      const mode = input.concurrency_mode ?? wf.concurrencyMode ?? "sequential";
+
+      const stepResults: Array<{ step: number; plugin: PluginId; action: string; skill?: string; success: boolean; durationMs: number; data: unknown }> = [
+        ...targetRun.stepResults.filter((s) => s.step <= lastCompletedStep && s.success),
+      ];
+
+      const remainingSteps = wf.steps ? wf.steps.filter((s) => s.step > lastCompletedStep) : [];
+
+      if (mode === "concurrent_dag" && remainingSteps.length > 0) {
+        const waves = scheduleDagWaves(remainingSteps);
+        for (const wave of waves) {
+          const wavePromises = wave.map(async (s) => {
+            const sT0 = performance.now();
+            try {
+              const interpolated = { ...(input.parameters ?? {}), ...interpolateParams(s.parameters ?? {}, stepContext) };
+              const stepRetries = Number((s as any).maxRetries ?? (s as any).retries ?? defaultRetries);
+              const r = await dispatchPluginAction(s.plugin, s.action, interpolated as Record<string, unknown>, {
+                enforceCircuit,
+                retries: stepRetries,
+              });
+              const dur = Math.round(performance.now() - sT0);
+              return {
+                step: s.step,
+                plugin: s.plugin,
+                action: s.action,
+                skill: s.skill,
+                success: r.success ?? true,
+                durationMs: dur,
+                data: r.data ?? r,
+              };
+            } catch (err: any) {
+              const dur = Math.round(performance.now() - sT0);
+              return {
+                step: s.step,
+                plugin: s.plugin,
+                action: s.action,
+                skill: s.skill,
+                success: false,
+                durationMs: dur,
+                data: { error: err?.message || String(err) },
+              };
+            }
+          });
+          const waveResults = await Promise.all(wavePromises);
+          for (const res of waveResults) {
+            stepResults.push(res);
+            stepContext[`step${res.step}`] = { data: res.data, success: res.success };
+          }
+          if (waveResults.some((w) => !w.success)) {
+            break;
+          }
+        }
+      } else {
+        for (const s of remainingSteps) {
+          const sT0 = performance.now();
+          try {
+            const interpolated = { ...(input.parameters ?? {}), ...interpolateParams(s.parameters ?? {}, stepContext) };
+            const stepRetries = Number((s as any).maxRetries ?? (s as any).retries ?? defaultRetries);
+            const r = await dispatchPluginAction(s.plugin, s.action, interpolated as Record<string, unknown>, {
+              enforceCircuit,
+              retries: stepRetries,
+            });
+            const dur = Math.round(performance.now() - sT0);
+            const success = r.success ?? true;
+            stepResults.push({ step: s.step, plugin: s.plugin, action: s.action, skill: s.skill, success, durationMs: dur, data: r.data ?? r });
+            stepContext[`step${s.step}`] = { data: r.data ?? r, success };
+            if (!success) {
+              break;
+            }
+          } catch (err: any) {
+            const dur = Math.round(performance.now() - sT0);
+            stepResults.push({ step: s.step, plugin: s.plugin, action: s.action, skill: s.skill, success: false, durationMs: dur, data: { error: err?.message || String(err) } });
+            stepContext[`step${s.step}`] = { data: { error: err?.message || String(err) }, success: false };
+            break;
+          }
+        }
+      }
+
+      targetRun.checkpoint.resumable = false;
+
+      stepResults.sort((a, b) => a.step - b.step);
+      const totalDuration = Math.round(performance.now() - t0);
+      const isSuccess = stepResults.every((s) => s.success);
+      const newLastCompleted = Math.max(0, ...stepResults.filter((s) => s.success).map((s) => s.step));
+      const totalPlanned = wf.steps ? wf.steps.length : stepResults.length;
+      const isStillResumable = !isSuccess && newLastCompleted < totalPlanned;
+
+      const newRunId = `run_wf_resumed_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+      const endTime = new Date().toISOString();
+
+      recordTelemetry(`workflow.${wf.id}.resumed`, totalDuration, isSuccess);
+
+      const spans: WorkflowSpan[] = stepResults.map((s, idx) => ({
+        name: `${s.plugin}.${s.action}`,
+        step: s.step,
+        plugin: s.plugin,
+        action: s.action,
+        startOffsetMs: idx * 2,
+        durationMs: s.durationMs,
+        status: s.success ? "OK" : "ERROR",
+      }));
+
+      const receipt: WorkflowRunReceipt = {
+        runId: newRunId,
+        workflowId: wf.id,
+        workflowName: wf.name,
+        resumedFromRunId: targetRun.runId,
+        startTime,
+        endTime,
+        durationMs: totalDuration,
+        success: isSuccess,
+        stepsCount: stepResults.length,
+        executionMode: mode,
+        stepResults,
+        spans,
+        checkpoint: {
+          lastCompletedStep: newLastCompleted,
+          stepContext,
+          resumable: isStillResumable,
+        },
+      };
+
+      RUN_HISTORY.push(receipt);
+
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "resume_workflow",
+        success: isSuccess,
+        timestamp: endTime,
+        data: {
+          ...receipt,
+          resumedFromStep: lastCompletedStep + 1,
+          totalSteps: totalPlanned,
+        },
       };
     }
 
