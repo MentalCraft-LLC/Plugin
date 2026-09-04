@@ -76,49 +76,75 @@ export async function dispatchPluginAction(
   }
 
   const normalizedPlugin = (plugin || "").toLowerCase();
+  const t0 = performance.now();
+  let result: { success: boolean; data: unknown; protocol?: string; action?: string; [key: string]: unknown };
 
-  switch (normalizedPlugin) {
-    case "business": {
-      return (await businessOperation({ action: action as any, ...params })) as any;
+  try {
+    switch (normalizedPlugin) {
+      case "business": {
+        result = (await businessOperation({ action: action as any, ...params })) as any;
+        break;
+      }
+      case "science": {
+        result = (await scienceOperation({ action: action as any, ...params })) as any;
+        break;
+      }
+      case "content": {
+        result = (await contentOperation({ action: action as any, ...params })) as any;
+        break;
+      }
+      case "design": {
+        result = (await designOperation({ action: action as any, ...params })) as any;
+        break;
+      }
+      case "workflow": {
+        result = (await workflowOperation({ action: action as any, ...params })) as any;
+        break;
+      }
+      case "browser":
+      case "chrome": {
+        const res = (await executeBrowser({ action: action as any, ...params })) as any;
+        result = { success: true, data: res, protocol: "spiral.browser.v1", action };
+        break;
+      }
+      case "message": {
+        const res = (await executeMessage({ action: action as any, ...params })) as any;
+        result = { success: res.ok ?? true, data: res, protocol: "holar.message.v1", action };
+        break;
+      }
+      case "secret": {
+        const act = (action as string) || (params.content !== undefined ? "write" : "read");
+        const res = secretOperation({ ...params, action: act } as any) as any;
+        result = { success: res.ok ?? true, data: res, protocol: "holar.secret.v1", action: act };
+        break;
+      }
+      case "infra": {
+        const res = await infraOperation(action as any, params);
+        const isSuccess = (res.result as any)?.status !== "NON_COMPLIANT" && (res.result as any)?.status !== "INVALID";
+        result = { success: isSuccess, data: res.result, protocol: res.protocol, action: res.action };
+        break;
+      }
+      case "company": {
+        const res = await companyOperation(action as any, params);
+        const isSuccess = (res.result as any)?.status !== "NON_COMPLIANT";
+        result = { success: isSuccess, data: res.result, protocol: res.protocol, action: res.action };
+        break;
+      }
+      default:
+        throw new Error(`Unknown plugin '${plugin}'. Supported: business, science, content, design, workflow, browser, message, secret, infra, company`);
     }
-    case "science": {
-      return (await scienceOperation({ action: action as any, ...params })) as any;
+
+    const durMs = Math.round(performance.now() - t0);
+    if (action) {
+      recordTelemetry(`${normalizedPlugin}.${action}`, durMs, result.success ?? true);
     }
-    case "content": {
-      return (await contentOperation({ action: action as any, ...params })) as any;
+    return result;
+  } catch (err) {
+    const durMs = Math.round(performance.now() - t0);
+    if (action) {
+      recordTelemetry(`${normalizedPlugin}.${action}`, durMs, false);
     }
-    case "design": {
-      return (await designOperation({ action: action as any, ...params })) as any;
-    }
-    case "workflow": {
-      return (await workflowOperation({ action: action as any, ...params })) as any;
-    }
-    case "browser":
-    case "chrome": {
-      const res = (await executeBrowser({ action: action as any, ...params })) as any;
-      return { success: true, data: res, protocol: "spiral.browser.v1", action };
-    }
-    case "message": {
-      const res = (await executeMessage({ action: action as any, ...params })) as any;
-      return { success: res.ok ?? true, data: res, protocol: "holar.message.v1", action };
-    }
-    case "secret": {
-      const act = (action as string) || (params.content !== undefined ? "write" : "read");
-      const res = secretOperation({ ...params, action: act } as any) as any;
-      return { success: res.ok ?? true, data: res, protocol: "holar.secret.v1", action: act };
-    }
-    case "infra": {
-      const res = await infraOperation(action as any, params);
-      const isSuccess = (res.result as any)?.status !== "NON_COMPLIANT" && (res.result as any)?.status !== "INVALID";
-      return { success: isSuccess, data: res.result, protocol: res.protocol, action: res.action };
-    }
-    case "company": {
-      const res = await companyOperation(action as any, params);
-      const isSuccess = (res.result as any)?.status !== "NON_COMPLIANT";
-      return { success: isSuccess, data: res.result, protocol: res.protocol, action: res.action };
-    }
-    default:
-      throw new Error(`Unknown plugin '${plugin}'. Supported: business, science, content, design, workflow, browser, message, secret, infra, company`);
+    throw err;
   }
 }
 
@@ -658,20 +684,31 @@ export function exportOpenRpcSpec(): Record<string, unknown> {
       },
     },
     plugins: {
-      business: { title: "8-Stage Venture Lifecycle & Commercial Intelligence", actions: 24, schema: BUSINESS_INPUT_SCHEMA },
-      science: { title: "8-Stage Academic Production Lifecycle & Research Intelligence", actions: 16, schema: SCIENCE_INPUT_SCHEMA },
-      content: { title: "Story & Marketing Content Engine", actions: 10, schema: CONTENT_INPUT_SCHEMA },
-      design: { title: "5-Layer Design System & UI Intelligence", actions: 10, schema: DESIGN_INPUT_SCHEMA },
-      workflow: { title: "Cross-Plugin Orchestrator & Health Diagnostics", actions: 27, schema: WORKFLOW_INPUT_SCHEMA },
-      browser: { title: "Browser Automation & Native Bridge", actions: 38, schema: BROWSER_INPUT_SCHEMA },
-      message: { title: "Agent Message Bus", actions: 5, schema: MESSAGE_INPUT_SCHEMA },
-      secret: { title: "Mode-0600 Local Credential Vault", actions: 6, schema: SECRET_INPUT_SCHEMA },
-      infra: { title: "Global Edge Microservices & Data Infrastructure", actions: 4, schema: INFRA_INPUT_SCHEMA },
-      company: { title: "Corporate Governance & Legal Entity Compliance", actions: 4, schema: COMPANY_INPUT_SCHEMA },
+      business: { title: "8-Stage Venture Lifecycle & Commercial Intelligence", actions: BUSINESS_INPUT_SCHEMA.properties?.action?.enum?.length ?? 80, schema: BUSINESS_INPUT_SCHEMA },
+      science: { title: "8-Stage Academic Production Lifecycle & Research Intelligence", actions: SCIENCE_INPUT_SCHEMA.properties?.action?.enum?.length ?? 23, schema: SCIENCE_INPUT_SCHEMA },
+      content: { title: "Story & Marketing Content Engine", actions: CONTENT_INPUT_SCHEMA.properties?.action?.enum?.length ?? 10, schema: CONTENT_INPUT_SCHEMA },
+      design: { title: "5-Layer Design System & UI Intelligence", actions: DESIGN_INPUT_SCHEMA.properties?.action?.enum?.length ?? 10, schema: DESIGN_INPUT_SCHEMA },
+      workflow: { title: "Cross-Plugin Orchestrator & Health Diagnostics", actions: WORKFLOW_INPUT_SCHEMA.properties?.action?.enum?.length ?? 29, schema: WORKFLOW_INPUT_SCHEMA },
+      browser: { title: "Browser Automation & Native Bridge", actions: BROWSER_INPUT_SCHEMA.properties?.action?.enum?.length ?? 65, schema: BROWSER_INPUT_SCHEMA },
+      message: { title: "Agent Message Bus", actions: MESSAGE_INPUT_SCHEMA.properties?.action?.enum?.length ?? 4, schema: MESSAGE_INPUT_SCHEMA },
+      secret: { title: "Mode-0600 Local Credential Vault", actions: SECRET_INPUT_SCHEMA.properties?.action?.enum?.length ?? 6, schema: SECRET_INPUT_SCHEMA },
+      infra: { title: "Global Edge Microservices & Data Infrastructure", actions: INFRA_INPUT_SCHEMA.properties?.action?.enum?.length ?? 4, schema: INFRA_INPUT_SCHEMA },
+      company: { title: "Corporate Governance & Legal Entity Compliance", actions: COMPANY_INPUT_SCHEMA.properties?.action?.enum?.length ?? 4, schema: COMPANY_INPUT_SCHEMA },
     },
     totalPlugins: 10,
     totalTools: 10,
-    totalMethods: 144,
+    totalMethods: [
+      BUSINESS_INPUT_SCHEMA,
+      SCIENCE_INPUT_SCHEMA,
+      CONTENT_INPUT_SCHEMA,
+      DESIGN_INPUT_SCHEMA,
+      WORKFLOW_INPUT_SCHEMA,
+      BROWSER_INPUT_SCHEMA,
+      MESSAGE_INPUT_SCHEMA,
+      SECRET_INPUT_SCHEMA,
+      INFRA_INPUT_SCHEMA,
+      COMPANY_INPUT_SCHEMA,
+    ].reduce((acc, s) => acc + (s.properties?.action?.enum?.length ?? 0), 0),
   };
 }
 
@@ -1372,8 +1409,49 @@ function savePersistedState(): void {
   }
 }
 
-// Initial state load
-loadPersistedState();
+let persistTimer: NodeJS.Timeout | null = null;
+
+export function schedulePersistedStateSave(): void {
+  if (persistTimer) return;
+  persistTimer = setTimeout(() => {
+    persistTimer = null;
+    savePersistedState();
+  }, 100);
+}
+
+export function flushPersistedState(): void {
+  if (persistTimer) {
+    clearTimeout(persistTimer);
+    persistTimer = null;
+  }
+  savePersistedState();
+}
+
+export function getCircuitState(actionKey: string): "CLOSED" | "OPEN" | "HALF_OPEN" {
+  const raw = TELEMETRY_STORE.get(actionKey);
+  if (!raw || raw.consecutiveFailures < 3) return "CLOSED";
+  return Date.now() - raw.lastFailureTime > 15000 ? "HALF_OPEN" : "OPEN";
+}
+
+export function resetCircuit(actionKey?: string): { resetCount: number; affectedKeys: string[] } {
+  const affectedKeys: string[] = [];
+  if (actionKey) {
+    const entry = TELEMETRY_STORE.get(actionKey);
+    if (entry) {
+      entry.consecutiveFailures = 0;
+      affectedKeys.push(actionKey);
+    }
+  } else {
+    for (const [key, entry] of TELEMETRY_STORE.entries()) {
+      if (entry.consecutiveFailures > 0) {
+        entry.consecutiveFailures = 0;
+        affectedKeys.push(key);
+      }
+    }
+  }
+  schedulePersistedStateSave();
+  return { resetCount: affectedKeys.length, affectedKeys };
+}
 
 export function recordTelemetry(actionKey: string, durationMs: number, success: boolean): void {
   let entry = TELEMETRY_STORE.get(actionKey);
@@ -1396,7 +1474,7 @@ export function recordTelemetry(actionKey: string, durationMs: number, success: 
   } else {
     entry.latencies[Math.floor(Math.random() * 500)] = durationMs;
   }
-  savePersistedState();
+  schedulePersistedStateSave();
 }
 
 export function getSystemTelemetry(): SystemTelemetryReport {
@@ -1953,6 +2031,12 @@ function normalizeWorkflowAction(action: string): string {
     case "audit_product":
     case "product_diagnostics":
       return "run_diagnostics";
+    case "circuit":
+    case "reset_circuit":
+      return "reset_circuit";
+    case "circuit_state":
+    case "get_circuit":
+      return "get_circuit";
     default:
       return action;
   }
@@ -2179,6 +2263,32 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
         success: true,
         timestamp,
         data: telemetry,
+      };
+    }
+
+    case "get_circuit": {
+      const targetAction = (input as any).target_action;
+      const state = targetAction ? getCircuitState(targetAction) : "UNKNOWN";
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "get_circuit",
+        success: true,
+        timestamp,
+        data: {
+          targetAction,
+          circuitState: state,
+        },
+      };
+    }
+
+    case "reset_circuit": {
+      const resetRes = resetCircuit((input as any).target_action);
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "reset_circuit",
+        success: true,
+        timestamp,
+        data: resetRes,
       };
     }
 
@@ -2698,9 +2808,6 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
       const runId = `run_wf_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
       const endTime = new Date().toISOString();
 
-      for (const step of stepResults) {
-        recordTelemetry(`${step.plugin}.${step.action}`, step.durationMs, step.success);
-      }
       recordTelemetry(`workflow.${targetId}`, totalDuration, isSuccess);
 
       const spans: WorkflowSpan[] = stepResults.map((s, idx) => ({

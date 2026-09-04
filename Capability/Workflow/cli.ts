@@ -103,13 +103,14 @@ Available REPL Commands:
   list, ls                 List all plugins
   health, doctor           Run diagnostics
   metrics, telemetry       Show live latency & circuit breaker
+  circuit [--reset] [act]  Inspect or reset circuit breaker state
   workflows, wf            List compound DAG pipelines
   run <workflow_id>        Execute workflow pipeline
+  call, exec <p> <a> [arg] Execute single action (e.g. call business traffic_domain_overview domain=mentalcraft.org)
   benchmark, bench         Run P50/P90/P99 latency benchmark suite
   export-specs, specs      Export OpenRPC 1.3.2 & OpenAPI 3.1.0 specifications
   openrpc, schema          Export OpenRPC 1.3.2 JSON spec
   openapi                  Export OpenAPI 3.1.0 JSON spec
-  exec <p> <a> [json]      Execute single action (e.g. exec business traffic_domain_overview {"domain":"mentalcraft.org"})
   docs, catalog            Generate CATALOG.md documentation
   exit, quit               Exit the REPL
 `);
@@ -119,6 +120,16 @@ Available REPL Commands:
           await mainCommand("health");
         } else if (sub === "metrics" || sub === "telemetry") {
           await mainCommand("metrics");
+        } else if (sub === "circuit") {
+          const resetFlag = parts.includes("--reset");
+          const targetAction = parts.find((a) => !a.startsWith("-") && a !== "circuit");
+          if (resetFlag) {
+            const res = await workflowOperation({ action: "reset_circuit", target_action: targetAction } as any);
+            console.log(JSON.stringify(res.data, null, 2));
+          } else {
+            const res = await workflowOperation({ action: "get_circuit", target_action: targetAction } as any);
+            console.log(JSON.stringify(res.data, null, 2));
+          }
         } else if (sub === "bench" || sub === "benchmark") {
           await mainCommand("benchmark");
         } else if (sub === "specs" || sub === "export-specs") {
@@ -133,11 +144,26 @@ Available REPL Commands:
           const wfId = parts[1] || "ecommerce_full_launch_pipeline";
           const res = await workflowOperation({ action: "run_workflow", workflow_id: wfId as any });
           console.log(JSON.stringify(res, null, 2));
-        } else if (sub === "exec") {
+        } else if (sub === "call" || sub === "exec") {
           const p = parts[1];
           const a = parts[2];
-          const jsonStr = parts.slice(3).join(" ");
-          const parsed = jsonStr ? JSON.parse(jsonStr) : {};
+          const rawArgs = parts.slice(3);
+          let parsed: Record<string, unknown> = {};
+          if (rawArgs.length > 0) {
+            const joined = rawArgs.join(" ");
+            try {
+              parsed = JSON.parse(joined);
+            } catch {
+              for (const item of rawArgs) {
+                const eqIdx = item.indexOf("=");
+                if (eqIdx > 0) {
+                  const k = item.slice(0, eqIdx);
+                  const v = item.slice(eqIdx + 1);
+                  parsed[k] = v === "true" ? true : v === "false" ? false : isNaN(Number(v)) ? v : Number(v);
+                }
+              }
+            }
+          }
           const res = await executePluginAction(p, a, parsed);
           console.log(JSON.stringify(res, null, 2));
         } else if (sub === "docs" || sub === "catalog") {
@@ -291,20 +317,60 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "call":
     case "exec":
     case "run": {
+      const maybeWfId = args[1];
+      if (maybeWfId && !args[2] && BUILTIN_WORKFLOWS.some((w) => w.id === maybeWfId)) {
+        console.log(`\n🚀 Executing workflow '${maybeWfId}'...`);
+        const res = await workflowOperation({ action: "run_workflow", workflow_id: maybeWfId as any });
+        console.log(JSON.stringify(res, null, 2));
+        break;
+      }
       const plugin = args[1];
       const action = args[2];
-      const jsonArgs = args[3] ? JSON.parse(args[3]) : {};
 
       if (!plugin || !action) {
-        console.error("Usage: bun Plugin/cli.ts exec <plugin> <action> [json-args]");
+        console.error("Usage: bun Plugin/cli.ts call <plugin> <action> [json-args | key=value ...]");
+        console.error("   Or: bun Plugin/cli.ts run <workflow_id>");
         process.exit(1);
+      }
+
+      let jsonArgs: Record<string, unknown> = {};
+      if (args[3]) {
+        try {
+          jsonArgs = JSON.parse(args[3]);
+        } catch {
+          for (const raw of args.slice(3)) {
+            const eqIdx = raw.indexOf("=");
+            if (eqIdx > 0) {
+              const k = raw.slice(0, eqIdx);
+              const v = raw.slice(eqIdx + 1);
+              jsonArgs[k] = v === "true" ? true : v === "false" ? false : isNaN(Number(v)) ? v : Number(v);
+            }
+          }
+        }
       }
 
       console.log(`\n⚡ Executing ${plugin}.${action}...`);
       const res = await executePluginAction(plugin, action, jsonArgs);
       console.log(JSON.stringify(res, null, 2));
+      break;
+    }
+
+    case "circuit": {
+      const resetFlag = args.includes("--reset");
+      const targetAction = args.find((a) => !a.startsWith("-") && a !== "circuit");
+      if (resetFlag) {
+        const res = await workflowOperation({ action: "reset_circuit", target_action: targetAction } as any);
+        console.log("\n🔌 Circuit Breaker Reset\n" + "=".repeat(60));
+        console.log(JSON.stringify(res.data, null, 2));
+      } else {
+        const res = await workflowOperation({ action: "get_circuit", target_action: targetAction } as any);
+        console.log("\n🔌 Circuit Breaker State\n" + "=".repeat(60));
+        console.log(JSON.stringify(res.data, null, 2));
+      }
+      console.log("=".repeat(60) + "\n");
       break;
     }
 

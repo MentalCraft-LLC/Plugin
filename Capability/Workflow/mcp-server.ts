@@ -31,6 +31,8 @@ export const WORKFLOW_ACTIONS = [
   "check_flywheel",
   "audit_workspace",
   "run_diagnostics",
+  "reset_circuit",
+  "get_circuit",
   "autopilot_step",
   "autopilot_status",
   "autopilot_schedule_spec",
@@ -45,11 +47,15 @@ export const WORKFLOW_INPUT_SCHEMA = {
     action: {
       type: "string",
       enum: WORKFLOW_ACTIONS,
-      description: "Workflow action: 'list_workflows' (catalog of pipelines), 'run_workflow' (live execution), 'register_workflow' (define custom DAG), 'get_workflow_history' (past execution receipts), 'export_config' (generate MCP client JSON configs), 'install_mcp_schemas' (install to Antigravity), 'sync_mcp' (auto-heal & sync all 11 FastMCP servers and schemas), 'export_schema_catalog' / 'export_openrpc_spec' (OpenRPC 1.3.2 specification), 'export_openapi_catalog' / 'export_openapi_spec' (OpenAPI 3.1.0 specification), 'benchmark' (P50/P90/P99 latency & ops/sec suite across all 10 subsystems), 'get_metrics' (live telemetry and circuit breaker state), 'export_trace' (OTel spans export), 'export_mermaid_dag' (Mermaid diagram), 'batch_run' (pooled parallel execution), 'health_check' (system diagnostics), 'dry_run' (plan graph inspection), 'run_diagnostics' (10-dimensional product health audit), 'autopilot_step' (autonomous sprint cycle).",
+      description: "Workflow action: 'list_workflows' (catalog of pipelines), 'run_workflow' (live execution), 'register_workflow' (define custom DAG), 'get_workflow_history' (past execution receipts), 'export_config' (generate MCP client JSON configs), 'install_mcp_schemas' (install to Antigravity), 'sync_mcp' (auto-heal & sync all 11 FastMCP servers and schemas), 'export_schema_catalog' / 'export_openrpc_spec' (OpenRPC 1.3.2 specification), 'export_openapi_catalog' / 'export_openapi_spec' (OpenAPI 3.1.0 specification), 'benchmark' (P50/P90/P99 latency & ops/sec suite across all 10 subsystems), 'get_metrics' (live telemetry and circuit breaker state), 'get_circuit' (inspect circuit state), 'reset_circuit' (reset circuit breaker), 'export_trace' (OTel spans export), 'export_mermaid_dag' (Mermaid diagram), 'batch_run' (pooled parallel execution), 'health_check' (system diagnostics), 'dry_run' (plan graph inspection), 'run_diagnostics' (10-dimensional product health audit), 'autopilot_step' (autonomous sprint cycle).",
     },
     workflow_id: {
       type: "string",
       description: "Target workflow identifier.",
+    },
+    target_action: {
+      type: "string",
+      description: "Target action key for circuit breaker query or reset (e.g. 'business.venture_market_validation').",
     },
     target_plugin: {
       type: "string",

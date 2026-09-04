@@ -190,6 +190,9 @@ export {
   withRetry,
   redactSensitiveData,
   dispatchPluginAction,
+  getCircuitState,
+  resetCircuit,
+  flushPersistedState,
 } from "./operation.ts";
 export {
   runMentalCraftDiagnostics,
