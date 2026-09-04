@@ -30,6 +30,12 @@ import {
   type InfraWorkflowExecuteOutput,
   type InfraMediaRenderInput,
   type InfraMediaRenderOutput,
+  type InfraMediaImageInput,
+  type InfraMediaImageOutput,
+  type InfraMediaVideoInput,
+  type InfraMediaVideoOutput,
+  type InfraMediaWorkflowActionInput,
+  type InfraMediaWorkflowActionOutput,
 } from "./core.ts";
 import { assignConsistentVariant, getSubjectBucket } from "../../../Infra/Experiment/src/hasher.ts";
 import { localWorkflowEngine } from "../../../Infra/Workflow/src/local.ts";
@@ -37,7 +43,10 @@ import {
   renderCardToSvg,
   renderCodeSnippetToSvg,
   renderFormulaToSvg,
+  renderGenerativeArtToSvg,
+  renderStoryboardClipToSvg,
 } from "../../../Design/Svelte/src/lib/block/asset/vector.ts";
+import { mediaClient } from "../../../Infra/Media/src/client.ts";
 
 export async function executeInfraCanaryProbe(
   input: InfraCanaryProbeInput = {}
@@ -412,6 +421,77 @@ export function executeInfraMediaRender(
   };
 }
 
+export async function executeInfraMediaImageGenerate(
+  input: InfraMediaImageInput
+): Promise<InfraMediaImageOutput> {
+  const result = await mediaClient.generateImage({
+    prompt: input.prompt,
+    seed: input.seed,
+    style: input.style,
+    theme: input.theme,
+    aspectRatio: input.aspectRatio,
+    title: input.title,
+    signature: input.signature,
+    useAiModel: input.useAiModel,
+    uploadToR2: input.uploadToR2,
+  });
+
+  return {
+    status: "GENERATED",
+    format: result.format as "svg" | "png",
+    width: result.width,
+    height: result.height,
+    svg: result.svg,
+    r2Key: result.r2Key,
+    r2Url: result.r2Url,
+  };
+}
+
+export async function executeInfraMediaVideoClip(
+  input: InfraMediaVideoInput
+): Promise<InfraMediaVideoOutput> {
+  const result = await mediaClient.generateVideoClip({
+    title: input.title,
+    durationSeconds: input.durationSeconds || 5,
+    theme: input.theme,
+    aspectRatio: input.aspectRatio,
+    frames: input.frames,
+    uploadToR2: input.uploadToR2,
+  });
+
+  return {
+    status: "GENERATED",
+    format: "svg",
+    frameCount: result.frameCount,
+    durationSeconds: result.durationSeconds,
+    animatedSvg: result.animatedSvg,
+    r2Key: result.r2Key,
+    r2Url: result.r2Url,
+  };
+}
+
+export async function executeInfraMediaWorkflowExecute(
+  input: InfraMediaWorkflowActionInput
+): Promise<InfraMediaWorkflowActionOutput> {
+  const result = await mediaClient.startWorkflow({
+    jobType: input.jobType,
+    payload: input.payload,
+    rasterizeFormat: input.rasterizeFormat,
+    targetR2Key: input.targetR2Key,
+    mockSleep: true,
+  });
+
+  return {
+    status: (result.status === "completed" ? "COMPLETED" : "FAILED") as any,
+    instanceId: result.id || result.instanceId,
+    jobId: result.output?.jobId || result.instanceId,
+    jobType: input.jobType,
+    r2Key: result.output?.r2Key,
+    r2Url: result.output?.r2Url,
+    durationMs: result.output?.durationMs || 0,
+  };
+}
+
 function normalizeInfraAction(action: string): InfraAction {
   switch (action) {
     case "canary":
@@ -459,6 +539,18 @@ function normalizeInfraAction(action: string): InfraAction {
     case "media_render":
     case "card":
       return "infra_media_render";
+    case "image":
+    case "media_image":
+    case "image_generate":
+      return "infra_media_image_generate";
+    case "video":
+    case "media_video":
+    case "video_clip":
+    case "storyboard":
+      return "infra_media_video_clip";
+    case "media_workflow":
+    case "media_pipeline":
+      return "infra_media_workflow_execute";
     default:
       return action as InfraAction;
   }
@@ -517,6 +609,15 @@ export async function infraOperation(
       break;
     case "infra_media_render":
       result = executeInfraMediaRender(params as unknown as InfraMediaRenderInput);
+      break;
+    case "infra_media_image_generate":
+      result = await executeInfraMediaImageGenerate(params as unknown as InfraMediaImageInput);
+      break;
+    case "infra_media_video_clip":
+      result = await executeInfraMediaVideoClip(params as unknown as InfraMediaVideoInput);
+      break;
+    case "infra_media_workflow_execute":
+      result = await executeInfraMediaWorkflowExecute(params as unknown as InfraMediaWorkflowActionInput);
       break;
     case "list_actions":
       result = {

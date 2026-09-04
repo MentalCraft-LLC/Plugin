@@ -123,7 +123,7 @@ describe("Plugin/Infra FastMCP Protocol Engine", () => {
     expect(bData.compliant).toBe(true);
 
     const list = await infraOperation("list_actions");
-    expect((list.result as any).totalActions).toBe(12);
+    expect((list.result as any).totalActions).toBe(15);
   });
 
   test("infraOperation executes experiment route, workflow, and media actions", async () => {
@@ -174,6 +174,54 @@ describe("Plugin/Infra FastMCP Protocol Engine", () => {
     expect(mData.format).toBe("svg");
     expect(mData.width).toBe(1200);
     expect(mData.svg).toContain("<svg");
+
+    // 4. Media Image Generate
+    const img = await infraOperation({
+      action: "image",
+      params: {
+        prompt: "Autonomous FastMCP Matrix",
+        style: "swiss-grid",
+        theme: "paper",
+      },
+    });
+    expect(img.action).toBe("infra_media_image_generate");
+    const imgData = img.result as any;
+    expect(imgData.status).toBe("GENERATED");
+    expect(imgData.svg).toContain("Autonomous FastMCP Matrix");
+
+    // 5. Media Video Clip
+    const vid = await infraOperation({
+      action: "video",
+      params: {
+        title: "Agent Storyboard Teaser",
+        durationSeconds: 4,
+        frames: [
+          { timestampMs: 0, title: "Frame 1: Launch" },
+          { timestampMs: 2000, title: "Frame 2: Orbit" },
+        ],
+      },
+    });
+    expect(vid.action).toBe("infra_media_video_clip");
+    const vidData = vid.result as any;
+    expect(vidData.status).toBe("GENERATED");
+    expect(vidData.frameCount).toBe(2);
+    expect(vidData.animatedSvg).toContain("@keyframes cycleFrames");
+
+    // 6. Media Workflow Execute
+    const mwf = await infraOperation({
+      action: "media_workflow",
+      params: {
+        jobType: "image",
+        payload: {
+          prompt: "Durable Pipeline Generation",
+          style: "harmonic-waves",
+          theme: "dark",
+        },
+      },
+    });
+    expect(mwf.action).toBe("infra_media_workflow_execute");
+    const mwfData = mwf.result as any;
+    expect(mwfData.status).toBe("COMPLETED");
   });
 });
 

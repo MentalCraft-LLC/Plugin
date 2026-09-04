@@ -24,6 +24,9 @@ export type InfraAction =
   | "infra_experiment_route"
   | "infra_workflow_execute"
   | "infra_media_render"
+  | "infra_media_image_generate"
+  | "infra_media_video_clip"
+  | "infra_media_workflow_execute"
   | "list_actions";
 
 export const INFRA_ACTIONS: InfraAction[] = [
@@ -38,6 +41,9 @@ export const INFRA_ACTIONS: InfraAction[] = [
   "infra_experiment_route",
   "infra_workflow_execute",
   "infra_media_render",
+  "infra_media_image_generate",
+  "infra_media_video_clip",
+  "infra_media_workflow_execute",
   "list_actions",
 ];
 
@@ -235,6 +241,70 @@ export interface InfraMediaRenderOutput {
   height: number;
   svgLength: number;
   svg: string;
+}
+
+export interface InfraMediaImageInput {
+  prompt: string;
+  seed?: number;
+  style?: "swiss-grid" | "harmonic-waves" | "geometric-minimal" | "neural-mesh";
+  theme?: "dark" | "light" | "paper" | "clay";
+  aspectRatio?: "1:1" | "16:9" | "3:4" | "4:5";
+  title?: string;
+  signature?: string;
+  useAiModel?: boolean;
+  uploadToR2?: boolean;
+}
+
+export interface InfraMediaImageOutput {
+  status: "GENERATED";
+  format: "svg" | "png";
+  width: number;
+  height: number;
+  svg?: string;
+  r2Key?: string;
+  r2Url?: string;
+}
+
+export interface InfraMediaVideoInput {
+  title: string;
+  durationSeconds?: number;
+  theme?: "dark" | "light" | "paper" | "clay";
+  aspectRatio?: "1:1" | "16:9" | "3:4" | "4:5";
+  frames: Array<{
+    timestampMs: number;
+    title: string;
+    subtitle?: string;
+    badge?: string;
+    elements?: string[];
+  }>;
+  uploadToR2?: boolean;
+}
+
+export interface InfraMediaVideoOutput {
+  status: "GENERATED";
+  format: "svg";
+  frameCount: number;
+  durationSeconds: number;
+  animatedSvg: string;
+  r2Key?: string;
+  r2Url?: string;
+}
+
+export interface InfraMediaWorkflowActionInput {
+  jobType: "card" | "code" | "formula" | "carousel" | "image" | "video";
+  payload: any;
+  rasterizeFormat?: "webp" | "png" | "pdf";
+  targetR2Key?: string;
+}
+
+export interface InfraMediaWorkflowActionOutput {
+  status: "COMPLETED" | "FAILED";
+  instanceId: string;
+  jobId: string;
+  jobType: string;
+  r2Key?: string;
+  r2Url?: string;
+  durationMs: number;
 }
 
 
