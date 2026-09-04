@@ -656,7 +656,41 @@ export function synthesizeDynamicWorkflow(intent: DynamicWorkflowIntent): Workfl
     };
   }
 
-  // 5. Default: Full-Cycle Product Sprint OS
+  // 5. Compliance / Governance / Entity / Equity Intent
+  if (goal.includes("compliance") || goal.includes("legal") || goal.includes("entity") || goal.includes("equity") || goal.includes("governance") || goal.includes("cap_table")) {
+    return {
+      id: id as any,
+      name: `Dynamic Corporate Governance & Entity Compliance Sprint [${venture}]`,
+      description: `Targeted dynamic workflow for ${venture}: dual-jurisdiction entity audit -> IP chain verification -> cap table dilution modeling -> good standing check -> encrypted ops dispatch.`,
+      requiredPlugins: ["company", "infra", "message"],
+      steps: [
+        { step: 1, plugin: "company", action: "company_entity_audit", skill: "company", description: `Audit parent LLC and subsidiary WFOE good standing status.` },
+        { step: 2, plugin: "company", action: "company_ip_assignment_audit", skill: "patent", description: `Validate IP assignment chain, inventor agreements, and trademark filings.` },
+        { step: 3, plugin: "company", action: "company_cap_table_calc", skill: "company", description: `Model founder equity allocation and ESOP pool dilution.` },
+        { step: 4, plugin: "company", action: "company_compliance_check", skill: "governance", description: `Audit annual report filing deadlines and registered agent credentials.` },
+        { step: 5, plugin: "message", action: "send", skill: "tone", description: `Dispatch encrypted compliance summary to corporate governance bus.` },
+      ],
+    };
+  }
+
+  // 6. Edge Infrastructure / Canary / D1 Database Intent
+  if (goal.includes("infra") || goal.includes("edge") || goal.includes("deployment") || goal.includes("canary") || goal.includes("d1") || goal.includes("worker")) {
+    return {
+      id: id as any,
+      name: `Dynamic Edge Infrastructure & Resilience Sprint [${venture}]`,
+      description: `Targeted dynamic workflow for ${venture}: sub-15ms edge canaries -> D1 migration schema checks -> Worker bundle verification -> circuit breaker telemetry -> message bus notification.`,
+      requiredPlugins: ["infra", "workflow", "message"],
+      steps: [
+        { step: 1, plugin: "infra", action: "infra_canary_probe", skill: "infra", description: `Execute sub-15ms synthetic canary probes across global Edge POPs.` },
+        { step: 2, plugin: "infra", action: "infra_d1_schema_audit", skill: "infra", description: `Verify SQLite D1 database migration idempotency and table indices.` },
+        { step: 3, plugin: "infra", action: "infra_worker_bundle_audit", skill: "infra", description: `Audit Cloudflare Worker bundle sizes, tree-shaking, and cold-start budgets.` },
+        { step: 4, plugin: "workflow", action: "get_metrics", skill: "governance", description: `Audit live edge telemetry percentiles and circuit breaker state.` },
+        { step: 5, plugin: "message", action: "send", skill: "tone", description: `Broadcast edge deployment and canary health verification receipt.` },
+      ],
+    };
+  }
+
+  // 7. Default: Full-Cycle Product Sprint OS
   return {
     id: id as any,
     name: `Dynamic 6-Stage Product Iteration Sprint [${venture}]`,
@@ -697,6 +731,8 @@ export type WorkflowAction =
   | "check_flywheel"
   | "audit_workspace"
   | "run_diagnostics"
+  | "reset_circuit"
+  | "get_circuit"
   | "autopilot_step"
   | "autopilot_status"
   | "autopilot_schedule_spec"
@@ -707,6 +743,7 @@ export type WorkflowInput = {
   workflow_id?: WorkflowId;
   dynamic_intent?: DynamicWorkflowIntent;
   target_plugin?: PluginId | "all";
+  target_action?: string;
   custom_workflow?: {
     id: string;
     name: string;

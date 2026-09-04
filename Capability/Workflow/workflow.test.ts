@@ -380,7 +380,10 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     const { validateWorkflowDag } = require("./operation.ts");
     const valid = validateWorkflowDag([
       { step: 1, plugin: "science", action: "paper_literature_search" },
-      { step: 2, plugin: "design", action: "generate_ui", dependsOn: [1], parameters: { prompt: "${step1.data.query}" } },
+      { step: 2, plugin: "company", action: "company_entity_audit" },
+      { step: 3, plugin: "infra", action: "infra_canary_probe" },
+      { step: 4, plugin: "secret", action: "mask" },
+      { step: 5, plugin: "design", action: "generate_ui", dependsOn: [1], parameters: { prompt: "${step1.data.query}" } },
     ]);
     expect(valid.valid).toBe(true);
     expect(valid.errors.length).toBe(0);
@@ -895,6 +898,26 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     const incData = incRes.data as any;
     expect(incData.synthesizedWorkflow.name).toContain("Dynamic Rapid Remediation");
     expect(incData.synthesizedWorkflow.requiredPlugins).toContain("workflow");
+
+    // 4. Compliance & governance intent
+    const compRes = await workflowOperation({
+      action: "plan_dynamic_workflow",
+      dynamic_intent: { goal: "annual_compliance_and_entity_audit", venture: "MentalCraft" },
+    });
+    expect(compRes.success).toBe(true);
+    const compData = compRes.data as any;
+    expect(compData.synthesizedWorkflow.name).toContain("Dynamic Corporate Governance & Entity Compliance Sprint");
+    expect(compData.synthesizedWorkflow.requiredPlugins).toContain("company");
+
+    // 5. Edge infrastructure & deployment intent
+    const infraRes = await workflowOperation({
+      action: "plan_dynamic_workflow",
+      dynamic_intent: { goal: "edge_infra_canary_deployment", venture: "MentalCraft" },
+    });
+    expect(infraRes.success).toBe(true);
+    const infraData = infraRes.data as any;
+    expect(infraData.synthesizedWorkflow.name).toContain("Dynamic Edge Infrastructure & Resilience Sprint");
+    expect(infraData.synthesizedWorkflow.requiredPlugins).toContain("infra");
   });
 
   test("run_dynamic_workflow compiles and executes dynamic pipeline end-to-end", async () => {
