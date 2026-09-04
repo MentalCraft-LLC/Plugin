@@ -203,11 +203,19 @@ export async function executeInfraPublishDispatch(
         ? `https://www.xiaohongshu.com/explore/mock_${Date.now()}`
         : d.platform === "zhihu"
         ? `https://zhuanlan.zhihu.com/p/mock_${Date.now()}`
+        : d.platform === "juejin"
+        ? `https://juejin.cn/post/mock_${Date.now()}`
         : d.platform === "x"
         ? `https://x.com/status/mock_${Date.now()}`
         : d.platform === "linkedin"
         ? `https://www.linkedin.com/feed/update/urn:li:share:mock_${Date.now()}`
-        : `https://juejin.cn/post/mock_${Date.now()}`,
+        : d.platform === "medium"
+        ? `https://medium.com/@mentalcraft/mock_${Date.now()}`
+        : d.platform === "devto"
+        ? `https://dev.to/mentalcraft/mock_${Date.now()}`
+        : d.platform === "reddit"
+        ? `https://reddit.com/r/webdev/comments/mock_${Date.now()}`
+        : `https://bsky.app/profile/mentalcraft.bsky.social/post/mock_${Date.now()}`,
   }));
 
   return {

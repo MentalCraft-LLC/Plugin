@@ -70,6 +70,27 @@ describe("Plugin/Infra FastMCP Protocol Engine", () => {
     expect(pub.action).toBe("infra_publish_dispatch");
     expect((pub.result as any).status).toBe("SUCCESS");
 
+    const pub10 = await infraOperation({
+      action: "publish",
+      params: {
+        title: "全域十端原生分发实测",
+        markdown: "# 架构拆解",
+        destinations: [
+          { platform: "wechat" },
+          { platform: "xiaohongshu" },
+          { platform: "zhihu" },
+          { platform: "juejin" },
+          { platform: "x" },
+          { platform: "linkedin" },
+          { platform: "medium" },
+          { platform: "devto" },
+          { platform: "reddit" },
+          { platform: "bluesky" },
+        ],
+      },
+    });
+    expect((pub10.result as any).results.length).toBe(10);
+
     const wx = await infraOperation({
       action: "wechat",
       params: { content: "【自动化】" },

@@ -104,8 +104,18 @@ export interface InfraPublishDispatchInput {
   markdown: string;
   author?: string;
   destinations?: Array<{
-    platform: "wechat" | "xiaohongshu" | "zhihu" | "x" | "linkedin" | "juejin";
-    mode?: "draft" | "publish" | "preview" | "card_carousel" | "thread";
+    platform:
+      | "wechat"
+      | "xiaohongshu"
+      | "zhihu"
+      | "x"
+      | "linkedin"
+      | "juejin"
+      | "medium"
+      | "devto"
+      | "reddit"
+      | "bluesky";
+    mode?: "draft" | "publish" | "preview" | "card_carousel" | "thread" | "pin" | "skeet";
   }>;
 }
 
