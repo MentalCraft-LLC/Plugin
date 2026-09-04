@@ -2450,6 +2450,37 @@ export async function businessOperation(origInput: BusinessInput): Promise<Busin
         };
       }
 
+      case "dispatch_mrr_engine": {
+        const model = getDispatchMrrModel();
+        const currentProgress = computeDispatchMrr({
+          proSubscribers: input.pro_subscribers,
+          scaleSubscribers: input.scale_subscribers ?? input.studio_subscribers,
+        });
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "dispatch_mrr_engine",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data: {
+            ...model,
+            currentProgress,
+          },
+        };
+      }
+
+      case "dispatch_five_pillars": {
+        const data = auditDispatchFivePillars();
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "dispatch_five_pillars",
+          success: true,
+          timestamp,
+          provider: "auto",
+          data,
+        };
+      }
+
       default: {
         return {
           protocol: BUSINESS_PROTOCOL,
