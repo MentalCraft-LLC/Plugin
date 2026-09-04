@@ -130,7 +130,7 @@ bun run Plugin/Business/mcp-server.ts
 
 Run the comprehensive unit test suite:
 ```bash
-cd /Users/laiyongzhang/Documents/Holar/Plugin/Business && bun test business.test.ts
+cd Plugin/Domain/Business && bun test business.test.ts
 ```
 
 ---

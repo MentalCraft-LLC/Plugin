@@ -15,7 +15,7 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 
 export type IssueSeverity = "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
 export type IssueStatus = "DETECTED" | "FIXED" | "VERIFIED";
@@ -68,7 +68,9 @@ export interface DiagnosticReport {
   remediationPlan: string[];
 }
 
-export function runMentalCraftDiagnostics(workspaceRoot: string = "/Users/laiyongzhang/Documents/Holar"): DiagnosticReport {
+export function runMentalCraftDiagnostics(
+  workspaceRoot: string = process.env.HOLAR_ROOT || resolve(import.meta.dirname, "../../..")
+): DiagnosticReport {
   const issues: DiagnosticIssue[] = [];
   const mcAppPath = join(workspaceRoot, "Business/Health/MentalCraft");
 

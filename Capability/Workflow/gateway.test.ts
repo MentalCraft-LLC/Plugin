@@ -134,9 +134,7 @@ describe("Plugin Master Gateway MCP Server", () => {
         name: "company",
         arguments: {
           action: "company_compliance_check",
-          params: {
-            workspaceRoot: "/Users/laiyongzhang/Documents/Holar",
-          },
+          params: {},
         },
       },
     });

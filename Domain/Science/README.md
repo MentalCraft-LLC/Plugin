@@ -118,6 +118,6 @@ The Science plugin provides native JSON-RPC 2.0 stdio MCP server support in `Plu
 Execute the test suite with Bun:
 
 ```bash
-cd /Users/laiyongzhang/Documents/Holar/Plugin/Science
+cd Plugin/Domain/Science
 bun test science.test.ts
 ```

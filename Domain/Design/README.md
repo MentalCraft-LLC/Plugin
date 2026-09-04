@@ -188,5 +188,5 @@ Features MRR/ARR growth metrics cards, D1/D7/D30 cohort retention decay heatmap 
 
 ```bash
 # Run Design plugin test suite
-cd /Users/laiyongzhang/Documents/Holar/Plugin/Design && bun test design.test.ts
+cd Plugin/Domain/Design && bun test design.test.ts
 ```

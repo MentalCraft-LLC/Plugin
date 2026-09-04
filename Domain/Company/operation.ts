@@ -3,7 +3,7 @@
  */
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import {
   COMPANY_PROTOCOL,
   type CompanyAction,
@@ -20,7 +20,7 @@ import {
 export function executeCompanyEntityAudit(
   input: CompanyEntityAuditInput = {}
 ): CompanyEntityAuditOutput {
-  const root = input.workspaceRoot || "/Users/laiyongzhang/Documents/Holar";
+  const root = input.workspaceRoot || process.env.HOLAR_ROOT || resolve(import.meta.dirname, "../../..");
   const entityDir = join(root, "Company", "Entity");
 
   const entities = [
@@ -88,7 +88,7 @@ export function executeCompanyCapTableCalc(
 export function executeCompanyIpAssignmentAudit(
   input: CompanyIpAssignmentAuditInput = {}
 ): CompanyIpAssignmentAuditOutput {
-  const root = input.workspaceRoot || "/Users/laiyongzhang/Documents/Holar";
+  const root = input.workspaceRoot || process.env.HOLAR_ROOT || resolve(import.meta.dirname, "../../..");
   const patentDir = join(root, "Science", "Patent");
 
   let patentCount = 0;

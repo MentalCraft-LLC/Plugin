@@ -3,7 +3,7 @@
  */
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import {
   INFRA_PROTOCOL,
   type InfraAction,
@@ -49,7 +49,7 @@ export async function executeInfraCanaryProbe(
 export function executeInfraD1SchemaAudit(
   input: InfraD1SchemaAuditInput = {}
 ): InfraD1SchemaAuditOutput {
-  const root = input.workspaceRoot || "/Users/laiyongzhang/Documents/Holar";
+  const root = input.workspaceRoot || process.env.HOLAR_ROOT || resolve(import.meta.dirname, "../../..");
   const authMigrationsDir = join(root, "Infra", "Auth", "migrations");
   const monetizationMigrationsDir = join(root, "Infra", "Monetization", "migrations");
   const eventMigrationsDir = join(root, "Infra", "Event", "migrations");
@@ -63,47 +63,44 @@ export function executeInfraD1SchemaAudit(
     if (existsSync(dir)) {
       const files = readdirSync(dir).filter((f) => f.endsWith(".sql"));
       filesCount += files.length;
-      for (const file of files) {
-        const content = readFileSync(join(dir, file), "utf8");
-        const tableMatches = content.match(/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([a-zA-Z0-9_]+)/gi);
+      for (const f of files) {
+        const content = readFileSync(join(dir, f), "utf8");
+        const tableMatches = content.match(/CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?\s+([a-zA-Z0-9_]+)/gi);
         if (tableMatches) {
           for (const m of tableMatches) {
-            const t = m.split(/\s+/).pop();
-            if (t && !tables.includes(t)) tables.push(t);
+            const name = m.split(/\s+/).pop()?.replace(/["`]/g, "");
+            if (name && !tables.includes(name)) tables.push(name);
           }
         }
-        const indexMatches = content.match(/CREATE\s+(?:UNIQUE\s+)?INDEX\s+(?:IF\s+NOT\s+EXISTS\s+)?([a-zA-Z0-9_]+)/gi);
+        const indexMatches = content.match(/CREATE\s+(?:UNIQUE\s+)?INDEX(?:\s+IF\s+NOT\s+EXISTS)?\s+([a-zA-Z0-9_]+)/gi);
         if (indexMatches) {
           for (const m of indexMatches) {
-            const idx = m.split(/\s+/).pop();
-            if (idx && !indexes.includes(idx)) indexes.push(idx);
+            const name = m.split(/\s+/).pop()?.replace(/["`]/g, "");
+            if (name && !indexes.includes(name)) indexes.push(name);
           }
         }
       }
     }
   }
 
-  const compliant = tables.length >= 2;
-  if (compliant) {
-    diagnostics.push(`Discovered ${tables.length} valid D1 tables across ${filesCount} migration files.`);
-  } else {
-    diagnostics.push("Warning: Fewer than 2 D1 tables discovered in Infra migrations.");
+  if (tables.length === 0) {
+    diagnostics.push("Warning: No D1 tables found across Infra migrations");
   }
 
   return {
-    status: compliant ? "COMPLIANT" : "NON_COMPLIANT",
+    status: tables.length >= 2 ? "COMPLIANT" : "NON_COMPLIANT",
     auditedFiles: filesCount,
     tablesFound: tables,
     indexesFound: indexes,
     foreignKeysCompliant: true,
     diagnostics,
-  };
+  } as any;
 }
 
 export function executeInfraWorkerBundleAudit(
   input: InfraWorkerBundleAuditInput = {}
 ): InfraWorkerBundleAuditOutput {
-  const root = input.workspaceRoot || "/Users/laiyongzhang/Documents/Holar";
+  const root = input.workspaceRoot || process.env.HOLAR_ROOT || resolve(import.meta.dirname, "../../..");
   const modules = ["Auth", "Monetization", "Event"];
   const results: InfraWorkerBundleAuditOutput["results"] = [];
 
