@@ -29,6 +29,7 @@ export async function executeInfraCanaryProbe(
     { name: "holar-monetization", url: "https://holar-monetization.pages.dev/api/health" },
     { name: "holar-event", url: "https://holar-event.pages.dev/ping" },
     { name: "holar-publish", url: "https://publish.mentalcraft.org/health" },
+    { name: "holar-analytics", url: "https://analytics.mentalcraft.org/health" },
   ];
 
   const results = defaultServices.map((svc) => ({
@@ -59,13 +60,14 @@ export function executeInfraD1SchemaAudit(
   const monetizationMigrationsDir = join(root, "Infra", "Monetization", "migrations");
   const eventMigrationsDir = join(root, "Infra", "Event", "migrations");
   const publishMigrationsDir = join(root, "Infra", "Publish", "migrations");
+  const analyticsMigrationsDir = join(root, "Infra", "Analytics", "migrations");
 
   const tables: string[] = [];
   const indexes: string[] = [];
   const diagnostics: string[] = [];
   let filesCount = 0;
 
-  for (const dir of [authMigrationsDir, monetizationMigrationsDir, eventMigrationsDir, publishMigrationsDir]) {
+  for (const dir of [authMigrationsDir, monetizationMigrationsDir, eventMigrationsDir, publishMigrationsDir, analyticsMigrationsDir]) {
     if (existsSync(dir)) {
       const files = readdirSync(dir).filter((f) => f.endsWith(".sql"));
       filesCount += files.length;
@@ -107,7 +109,7 @@ export function executeInfraWorkerBundleAudit(
   input: InfraWorkerBundleAuditInput = {}
 ): InfraWorkerBundleAuditOutput {
   const root = input.workspaceRoot || process.env.HOLAR_ROOT || resolve(import.meta.dirname, "../../..");
-  const modules = ["Auth", "Monetization", "Event", "Publish"];
+  const modules = ["Auth", "Monetization", "Event", "Publish", "Analytics"];
   const results: InfraWorkerBundleAuditOutput["results"] = [];
 
   for (const mod of modules) {

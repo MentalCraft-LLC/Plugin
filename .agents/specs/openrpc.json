@@ -281,6 +281,8 @@
                   "plausible_list_sites",
                   "plausible_tracker_snippet",
                   "plausible_website_stats",
+                  "dispatch_mrr_engine",
+                  "dispatch_five_pillars",
                   "list_actions"
                 ],
                 "description": "Business action across the 8 venture lifecycle stages: Stage 1 Ideation ('venture_market_validation', 'market_niche_discovery'), Stage 2 PMF ('venture_pmf_validation'), Stage 3 Acquisition ('venture_acquisition_audit', SEO/TrafficCV actions), Stage 4 Activation ('venture_activation_funnel'), Stage 5 Retention ('venture_retention_curves'), Stage 6 Unit Economics ('venture_unit_economics', 'venture_monetization_telemetry', 'market_stripe_radar', 'market_site_trajectory', 'product_traction_score'), Stage 7 Pricing ('venture_pricing_experiment'), Stage 8 Scale & Moats ('venture_growth_playbook', 'venture_expansion_moat'), SpriteFlow & Indie SaaS Growth Engines ('spriteflow_mrr_engine', 'spriteflow_pseo_matrix', 'zero_cost_viral_loops'), and 'list_actions'."
@@ -522,6 +524,14 @@
               "max_kd": {
                 "type": "integer",
                 "description": "Maximum keyword difficulty (KD) filter for pSEO matrix."
+              },
+              "scale_price": {
+                "type": "number",
+                "description": "Scale tier monthly subscription price in USD (e.g. 99)."
+              },
+              "scale_subscribers": {
+                "type": "integer",
+                "description": "Target Scale subscriber count (e.g. 15)."
               }
             }
           }
@@ -1897,6 +1907,8 @@
                   "infra_d1_schema_audit",
                   "infra_worker_bundle_audit",
                   "infra_stripe_webhook_simulate",
+                  "infra_publish_dispatch",
+                  "infra_wechat_webhook_simulate",
                   "list_actions"
                 ],
                 "description": "Infra action to perform"
@@ -2195,6 +2207,8 @@
               "plausible_list_sites",
               "plausible_tracker_snippet",
               "plausible_website_stats",
+              "dispatch_mrr_engine",
+              "dispatch_five_pillars",
               "list_actions"
             ],
             "description": "Business action across the 8 venture lifecycle stages: Stage 1 Ideation ('venture_market_validation', 'market_niche_discovery'), Stage 2 PMF ('venture_pmf_validation'), Stage 3 Acquisition ('venture_acquisition_audit', SEO/TrafficCV actions), Stage 4 Activation ('venture_activation_funnel'), Stage 5 Retention ('venture_retention_curves'), Stage 6 Unit Economics ('venture_unit_economics', 'venture_monetization_telemetry', 'market_stripe_radar', 'market_site_trajectory', 'product_traction_score'), Stage 7 Pricing ('venture_pricing_experiment'), Stage 8 Scale & Moats ('venture_growth_playbook', 'venture_expansion_moat'), SpriteFlow & Indie SaaS Growth Engines ('spriteflow_mrr_engine', 'spriteflow_pseo_matrix', 'zero_cost_viral_loops'), and 'list_actions'."
@@ -2436,6 +2450,14 @@
           "max_kd": {
             "type": "integer",
             "description": "Maximum keyword difficulty (KD) filter for pSEO matrix."
+          },
+          "scale_price": {
+            "type": "number",
+            "description": "Scale tier monthly subscription price in USD (e.g. 99)."
+          },
+          "scale_subscribers": {
+            "type": "integer",
+            "description": "Target Scale subscriber count (e.g. 15)."
           }
         }
       },
@@ -3685,6 +3707,8 @@
               "infra_d1_schema_audit",
               "infra_worker_bundle_audit",
               "infra_stripe_webhook_simulate",
+              "infra_publish_dispatch",
+              "infra_wechat_webhook_simulate",
               "list_actions"
             ],
             "description": "Infra action to perform"
@@ -3724,7 +3748,7 @@
   "plugins": {
     "business": {
       "title": "8-Stage Venture Lifecycle & Commercial Intelligence",
-      "actions": 79,
+      "actions": 81,
       "schema": {
         "type": "object",
         "additionalProperties": false,
@@ -3813,6 +3837,8 @@
               "plausible_list_sites",
               "plausible_tracker_snippet",
               "plausible_website_stats",
+              "dispatch_mrr_engine",
+              "dispatch_five_pillars",
               "list_actions"
             ],
             "description": "Business action across the 8 venture lifecycle stages: Stage 1 Ideation ('venture_market_validation', 'market_niche_discovery'), Stage 2 PMF ('venture_pmf_validation'), Stage 3 Acquisition ('venture_acquisition_audit', SEO/TrafficCV actions), Stage 4 Activation ('venture_activation_funnel'), Stage 5 Retention ('venture_retention_curves'), Stage 6 Unit Economics ('venture_unit_economics', 'venture_monetization_telemetry', 'market_stripe_radar', 'market_site_trajectory', 'product_traction_score'), Stage 7 Pricing ('venture_pricing_experiment'), Stage 8 Scale & Moats ('venture_growth_playbook', 'venture_expansion_moat'), SpriteFlow & Indie SaaS Growth Engines ('spriteflow_mrr_engine', 'spriteflow_pseo_matrix', 'zero_cost_viral_loops'), and 'list_actions'."
@@ -4054,6 +4080,14 @@
           "max_kd": {
             "type": "integer",
             "description": "Maximum keyword difficulty (KD) filter for pSEO matrix."
+          },
+          "scale_price": {
+            "type": "number",
+            "description": "Scale tier monthly subscription price in USD (e.g. 99)."
+          },
+          "scale_subscribers": {
+            "type": "integer",
+            "description": "Target Scale subscriber count (e.g. 15)."
           }
         }
       }
@@ -5465,7 +5499,7 @@
     },
     "infra": {
       "title": "Global Edge Microservices & Data Infrastructure",
-      "actions": 5,
+      "actions": 7,
       "schema": {
         "type": "object",
         "additionalProperties": false,
@@ -5480,6 +5514,8 @@
               "infra_d1_schema_audit",
               "infra_worker_bundle_audit",
               "infra_stripe_webhook_simulate",
+              "infra_publish_dispatch",
+              "infra_wechat_webhook_simulate",
               "list_actions"
             ],
             "description": "Infra action to perform"
@@ -5522,5 +5558,5 @@
   },
   "totalPlugins": 10,
   "totalTools": 10,
-  "totalMethods": 279
+  "totalMethods": 283
 }

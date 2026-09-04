@@ -7,17 +7,17 @@
 | Subsystem | Actions | Protocol | Key Domain Scope |
 |---|---|---|---|
 | `Workflow` | 35 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |
-| `Business` | 79 | `holar.business.v1` | 8-Stage Venture Lifecycle, Dual $10k MRR, SEO/LLMO Content Gen, Full-Stack Excellence |
+| `Business` | 81 | `holar.business.v1` | 8-Stage Venture Lifecycle, Dual $10k MRR, SEO/LLMO Content Gen, Full-Stack Excellence |
 | `Science` | 43 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, CSS, Grants, Authoring, Peer Review, Journals, Patents, Impact |
 | `Content` | 11 | `holar.content.v1` | Creative & Commercial Content: Fiction Worldbuilding, 15 Plot Beats, Character Arcs, PAS Copy, Omnichannel Matrix |
 | `Design` | 12 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |
 | `Browser` | 76 | `spiral.browser.v1` | DevTools Superset, Next-Gen Radar & Saliency, Anti-bot Stealth, E2E Codegen, Memory Tracer, Responsive Matrix |
 | `Message` | 6 | `holar.message.v1` | Multi-channel priority bus (Telegram > iMessage > Email) with mode-0600 isolation |
 | `Secret` | 7 | `holar.secret.v1` | Mode-0600 secure token vault with key derivation & encrypted credential isolation |
-| `Infra` | 5 | `holar.infra.v1` | Global edge microservices, sub-15ms canary probes (Auth, Monetization, Event), SQLite D1 migrations & worker bundles |
+| `Infra` | 7 | `holar.infra.v1` | Global edge microservices, sub-15ms canary probes (Auth, Monetization, Event), SQLite D1 migrations & worker bundles |
 | `Company` | 5 | `holar.company.v1` | Dual-jurisdiction entity audits (Wyoming parent LLC & Shanghai R&D), cap table dilution, IP chain & annual report compliance |
 
-> **Total Capabilities**: 279 sovereign actions across 10 canonical subsystems.
+> **Total Capabilities**: 283 sovereign actions across 10 canonical subsystems.
 
 ---
 

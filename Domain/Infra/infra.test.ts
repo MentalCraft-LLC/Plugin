@@ -12,8 +12,8 @@ describe("Plugin/Infra FastMCP Protocol Engine", () => {
   test("executeInfraCanaryProbe returns sub-15ms edge health status", async () => {
     const probe = await executeInfraCanaryProbe();
     expect(probe.status).toBe("HEALTHY");
-    expect(probe.testedCount).toBe(4);
-    expect(probe.healthyCount).toBe(4);
+    expect(probe.testedCount).toBe(5);
+    expect(probe.healthyCount).toBe(5);
     expect(probe.averageLatencyMs).toBeLessThanOrEqual(15);
   });
 
@@ -27,7 +27,7 @@ describe("Plugin/Infra FastMCP Protocol Engine", () => {
   test("executeInfraWorkerBundleAudit validates Cloudflare Worker configs", () => {
     const audit = executeInfraWorkerBundleAudit();
     expect(audit.status).toBe("VALID");
-    expect(audit.workersAudited).toBe(4);
+    expect(audit.workersAudited).toBe(5);
     expect(audit.compatibilityGuarantees).toBe(true);
   });
 
