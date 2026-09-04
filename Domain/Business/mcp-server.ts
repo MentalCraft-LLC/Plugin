@@ -86,6 +86,8 @@ export const BUSINESS_ACTIONS = [
   "plausible_list_sites",
   "plausible_tracker_snippet",
   "plausible_website_stats",
+  "dispatch_mrr_engine",
+  "dispatch_five_pillars",
   "list_actions",
 ] as const;
 
@@ -309,6 +311,14 @@ export const BUSINESS_INPUT_SCHEMA = {
     max_kd: {
       type: "integer",
       description: "Maximum keyword difficulty (KD) filter for pSEO matrix.",
+    },
+    scale_price: {
+      type: "number",
+      description: "Scale tier monthly subscription price in USD (e.g. 99).",
+    },
+    scale_subscribers: {
+      type: "integer",
+      description: "Target Scale subscriber count (e.g. 15).",
     },
   },
 } as const;

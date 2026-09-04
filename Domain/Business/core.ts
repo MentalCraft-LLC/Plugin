@@ -21,6 +21,7 @@
 export * from "./modules/essay_growth.ts";
 export * from "./modules/plausible.ts";
 export * from "./modules/mentalcraft_growth.ts";
+export * from "./modules/dispatch_growth.ts";
 
 export const BUSINESS_PROTOCOL = "holar.business.v1" as const;
 
@@ -109,6 +110,8 @@ export type BusinessAction =
   | "plausible_list_sites"
   | "plausible_tracker_snippet"
   | "plausible_website_stats"
+  | "dispatch_mrr_engine"
+  | "dispatch_five_pillars"
   | "list_actions";
 
 export type MarketValidationResult = {
@@ -577,6 +580,8 @@ export type BusinessInput = {
   engine_filter?: string;
   min_volume?: number;
   max_kd?: number;
+  scale_subscribers?: number;
+  scale_price?: number;
 };
 
 export type BusinessResult = {
@@ -698,6 +703,14 @@ export function formatBusinessSummary(result: BusinessResult): string {
     case "zero_cost_viral_loops": {
       const data = result.data as ZeroCostViralLoopsResult;
       return `Zero-Cost Viral Loops: ${data.vectors.length} vectors analyzed → Blended K-Factor: ${data.blendedKFactor.toFixed(2)} [${data.viralLoopStatus}] (Projected Organic Signups: ${data.totalMonthlyOrganicSignups.toLocaleString()}/mo)`;
+    }
+    case "dispatch_mrr_engine": {
+      const data = result.data as any;
+      return `Dispatch MRR Engine: $${data.targetMrrUsd.toLocaleString()} MRR → Target: ${data.proSubscribersTarget} Pro ($${data.proPriceUsd}/mo) + ${data.scaleSubscribersTarget} Scale ($${data.scalePriceUsd}/mo) | LTV: $${data.ltvUsd.toFixed(2)} (ARPU: $${data.blendedArpuUsd}, Margin: ${data.grossMarginPercent}%)`;
+    }
+    case "dispatch_five_pillars": {
+      const data = result.data as any;
+      return `Dispatch Five-Pillars Audit: Score ${data.score}/100 [SEO: ${data.pillars.seo.score}, LLMO: ${data.pillars.llmo.score}, EEAT: ${data.pillars.eeat.score}, UX: ${data.pillars.ux.score}, Funnel: ${data.pillars.funnel.score}]`;
     }
     default: {
       return `✓ Business ${result.action} executed successfully.`;
