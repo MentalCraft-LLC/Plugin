@@ -8,14 +8,8 @@
  */
 
 import { BUILTIN_WORKFLOWS, type PluginId } from "./core.ts";
-import { executeHealthCheck, workflowOperation } from "./operation.ts";
+import { executeHealthCheck, workflowOperation, dispatchPluginAction } from "./operation.ts";
 import { formatAutopilotSummary } from "./autopilot.ts";
-import { designOperation } from "../../Domain/Design/operation.ts";
-import { businessOperation } from "../../Domain/Business/operation.ts";
-import { scienceOperation } from "../../Domain/Science/operation.ts";
-import { contentOperation } from "../../Domain/Content/operation.ts";
-import { createBrowserContextOperation } from "../../Tool/Browser/operation.ts";
-import { createMessageOperation } from "../../Tool/Message/operation.ts";
 import { startGatewayMcpStdio, startGatewayMcpHttp } from "./gateway.ts";
 import { createInterface } from "node:readline/promises";
 import { writeFileSync, existsSync, mkdirSync } from "node:fs";
@@ -24,40 +18,8 @@ import { join } from "node:path";
 const args = process.argv.slice(2);
 const command = args[0] || "help";
 
-const rawExecuteChrome = createBrowserContextOperation();
-const executeChrome = async (input: any) => {
-  return await rawExecuteChrome(input, undefined, { isProjectTrusted: () => true }, "cli_session", undefined);
-};
-const executeMessage = createMessageOperation();
-
 export async function executePluginAction(plugin: string, action: string, jsonArgs: Record<string, unknown> = {}): Promise<unknown> {
-  if (plugin === "design") {
-    return await designOperation({ action: action as any, ...jsonArgs });
-  } else if (plugin === "business") {
-    return await businessOperation({ action: action as any, ...jsonArgs });
-  } else if (plugin === "science") {
-    return await scienceOperation({ action: action as any, ...jsonArgs });
-  } else if (plugin === "content") {
-    return await contentOperation({ action: action as any, ...jsonArgs });
-  } else if (plugin === "workflow") {
-    return await workflowOperation({ action: action as any, ...jsonArgs });
-  } else if (plugin === "browser" || plugin === "chrome") {
-    return await executeChrome({ action: action as any, ...jsonArgs });
-  } else if (plugin === "message") {
-    return await executeMessage({ action: action as any, ...jsonArgs });
-  } else if (plugin === "secret") {
-    const { secretOperation } = await import("../../Tool/Secret/operation.ts");
-    const act = (action as string) || (jsonArgs.content !== undefined ? "write" : "read");
-    return secretOperation({ ...jsonArgs, action: act } as any);
-  } else if (plugin === "infra") {
-    const { infraOperation } = await import("../../Domain/Infra/operation.ts");
-    return await infraOperation(action as any, (jsonArgs.params as any) || jsonArgs);
-  } else if (plugin === "company") {
-    const { companyOperation } = await import("../../Domain/Company/operation.ts");
-    return await companyOperation(action as any, (jsonArgs.params as any) || jsonArgs);
-  } else {
-    throw new Error(`Unknown plugin '${plugin}'. Available: business, science, content, design, workflow, browser, message, secret, infra, company`);
-  }
+  return await dispatchPluginAction(plugin, action, jsonArgs);
 }
 
 export function generateMarkdownCatalog(): string {

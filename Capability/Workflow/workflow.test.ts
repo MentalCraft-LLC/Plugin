@@ -217,15 +217,20 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
   });
 
   test("install_mcp_schemas writes JSON schemas to designated directory", async () => {
-    const { mkdtempSync, rmSync } = require("node:fs");
+    const { mkdtempSync, rmSync, existsSync } = require("node:fs");
     const { tmpdir } = require("node:os");
     const { join } = require("node:path");
     const tmp = mkdtempSync(join(tmpdir(), "mcp-test-"));
     try {
       const { installMcpSchemasToAgy } = require("./operation.ts");
       const res = installMcpSchemasToAgy(tmp);
-      expect(res.installedCount).toBeGreaterThanOrEqual(7);
-      expect(res.installedPaths.length).toBeGreaterThanOrEqual(7);
+      expect(res.installedCount).toBe(20);
+      expect(res.installedPaths.length).toBe(20);
+      expect(existsSync(join(tmp, "gateway", "workflow.json"))).toBe(true);
+      expect(existsSync(join(tmp, "gateway", "infra.json"))).toBe(true);
+      expect(existsSync(join(tmp, "gateway", "company.json"))).toBe(true);
+      expect(existsSync(join(tmp, "infra", "infra.json"))).toBe(true);
+      expect(existsSync(join(tmp, "company", "company.json"))).toBe(true);
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }
@@ -982,6 +987,26 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.stepResults[0].plugin).toBe("company");
     expect(data.stepResults[2].plugin).toBe("infra");
   }, 20000);
+
+  test("dispatchPluginAction supports flexible signatures, case-insensitivity, and nested params", async () => {
+    const { dispatchPluginAction } = require("./operation.ts");
+    const { executePluginAction } = require("./cli.ts");
+
+    // 1. Single-object form with case-insensitivity
+    const r1 = await dispatchPluginAction("Company", { action: "company_compliance_check" });
+    expect(r1.success).toBe(true);
+    expect((r1.data as any).status).toBe("GOOD_STANDING");
+
+    // 2. Nested params object unwrapping
+    const r2 = await dispatchPluginAction("infra", "infra_canary_probe", { params: {} });
+    expect(r2.success).toBe(true);
+    expect((r2.data as any).status).toBe("HEALTHY");
+
+    // 3. executePluginAction CLI delegation
+    const r3 = await executePluginAction("company", "company_entity_audit");
+    expect(r3.success).toBe(true);
+    expect((r3.data as any).status).toBe("COMPLIANT");
+  });
 });
 
 

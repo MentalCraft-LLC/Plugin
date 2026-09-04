@@ -52,46 +52,68 @@ const executeMessage = createMessageOperation();
 
 export async function dispatchPluginAction(
   plugin: PluginId | string,
-  action: string,
+  actionOrParams: string | Record<string, unknown>,
   parameters: Record<string, unknown> = {}
-): Promise<{ success: boolean; data: unknown; [key: string]: unknown }> {
-  switch (plugin) {
+): Promise<{ success: boolean; data: unknown; protocol?: string; action?: string; [key: string]: unknown }> {
+  let action: string;
+  let params: Record<string, unknown>;
+
+  if (typeof actionOrParams === "string") {
+    action = actionOrParams;
+    params = { ...parameters };
+  } else if (actionOrParams && typeof actionOrParams === "object") {
+    action = String(actionOrParams.action || "");
+    const { action: _a, ...rest } = actionOrParams;
+    params = { ...rest, ...parameters };
+  } else {
+    action = "";
+    params = { ...parameters };
+  }
+
+  // Support nested parameters (e.g. { params: { ... } })
+  if (params.params && typeof params.params === "object" && !Array.isArray(params.params)) {
+    params = { ...(params.params as Record<string, unknown>), ...params };
+  }
+
+  const normalizedPlugin = (plugin || "").toLowerCase();
+
+  switch (normalizedPlugin) {
     case "business": {
-      return (await businessOperation({ action: action as any, ...parameters })) as any;
+      return (await businessOperation({ action: action as any, ...params })) as any;
     }
     case "science": {
-      return (await scienceOperation({ action: action as any, ...parameters })) as any;
+      return (await scienceOperation({ action: action as any, ...params })) as any;
     }
     case "content": {
-      return (await contentOperation({ action: action as any, ...parameters })) as any;
+      return (await contentOperation({ action: action as any, ...params })) as any;
     }
     case "design": {
-      return (await designOperation({ action: action as any, ...parameters })) as any;
+      return (await designOperation({ action: action as any, ...params })) as any;
     }
     case "workflow": {
-      return (await workflowOperation({ action: action as any, ...parameters })) as any;
+      return (await workflowOperation({ action: action as any, ...params })) as any;
     }
     case "browser":
     case "chrome": {
-      const res = (await executeBrowser({ action: action as any, ...parameters })) as any;
+      const res = (await executeBrowser({ action: action as any, ...params })) as any;
       return { success: true, data: res, protocol: "spiral.browser.v1", action };
     }
     case "message": {
-      const res = (await executeMessage({ action: action as any, ...parameters })) as any;
+      const res = (await executeMessage({ action: action as any, ...params })) as any;
       return { success: res.ok ?? true, data: res, protocol: "holar.message.v1", action };
     }
     case "secret": {
-      const act = (action as string) || (parameters.content !== undefined ? "write" : "read");
-      const res = secretOperation({ ...parameters, action: act } as any) as any;
+      const act = (action as string) || (params.content !== undefined ? "write" : "read");
+      const res = secretOperation({ ...params, action: act } as any) as any;
       return { success: res.ok ?? true, data: res, protocol: "holar.secret.v1", action: act };
     }
     case "infra": {
-      const res = await infraOperation(action as any, parameters);
+      const res = await infraOperation(action as any, params);
       const isSuccess = (res.result as any)?.status !== "NON_COMPLIANT" && (res.result as any)?.status !== "INVALID";
       return { success: isSuccess, data: res.result, protocol: res.protocol, action: res.action };
     }
     case "company": {
-      const res = await companyOperation(action as any, parameters);
+      const res = await companyOperation(action as any, params);
       const isSuccess = (res.result as any)?.status !== "NON_COMPLIANT";
       return { success: isSuccess, data: res.result, protocol: res.protocol, action: res.action };
     }
@@ -1759,13 +1781,21 @@ export function installMcpSchemasToAgy(customDir?: string): { installedCount: nu
   ];
 
   const installedPaths: string[] = [];
+  const gatewayDir = join(baseDir, "gateway");
+  mkdirSync(gatewayDir, { recursive: true });
 
   for (const t of toolsToInstall) {
+    // 1. Install to individual server directory
     const sDir = join(baseDir, t.server);
     mkdirSync(sDir, { recursive: true });
     const targetFile = join(sDir, `${t.tool}.json`);
     writeFileSync(targetFile, JSON.stringify(t.schema, null, 2), "utf-8");
     installedPaths.push(targetFile);
+
+    // 2. Mirror into master gateway server directory for lazy tool loading
+    const gatewayTarget = join(gatewayDir, `${t.tool}.json`);
+    writeFileSync(gatewayTarget, JSON.stringify(t.schema, null, 2), "utf-8");
+    installedPaths.push(gatewayTarget);
   }
 
   return {
