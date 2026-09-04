@@ -50,6 +50,56 @@ const executeBrowser = async (input: any) => {
 const executeChrome = executeBrowser;
 const executeMessage = createMessageOperation();
 
+export async function dispatchPluginAction(
+  plugin: PluginId | string,
+  action: string,
+  parameters: Record<string, unknown> = {}
+): Promise<{ success: boolean; data: unknown; [key: string]: unknown }> {
+  switch (plugin) {
+    case "business": {
+      return (await businessOperation({ action: action as any, ...parameters })) as any;
+    }
+    case "science": {
+      return (await scienceOperation({ action: action as any, ...parameters })) as any;
+    }
+    case "content": {
+      return (await contentOperation({ action: action as any, ...parameters })) as any;
+    }
+    case "design": {
+      return (await designOperation({ action: action as any, ...parameters })) as any;
+    }
+    case "workflow": {
+      return (await workflowOperation({ action: action as any, ...parameters })) as any;
+    }
+    case "browser":
+    case "chrome": {
+      const res = (await executeBrowser({ action: action as any, ...parameters })) as any;
+      return { success: true, data: res, protocol: "spiral.browser.v1", action };
+    }
+    case "message": {
+      const res = (await executeMessage({ action: action as any, ...parameters })) as any;
+      return { success: res.ok ?? true, data: res, protocol: "holar.message.v1", action };
+    }
+    case "secret": {
+      const act = (action as string) || (parameters.content !== undefined ? "write" : "read");
+      const res = secretOperation({ ...parameters, action: act } as any) as any;
+      return { success: res.ok ?? true, data: res, protocol: "holar.secret.v1", action: act };
+    }
+    case "infra": {
+      const res = await infraOperation(action as any, parameters);
+      const isSuccess = (res.result as any)?.status !== "NON_COMPLIANT" && (res.result as any)?.status !== "INVALID";
+      return { success: isSuccess, data: res.result, protocol: res.protocol, action: res.action };
+    }
+    case "company": {
+      const res = await companyOperation(action as any, parameters);
+      const isSuccess = (res.result as any)?.status !== "NON_COMPLIANT";
+      return { success: isSuccess, data: res.result, protocol: res.protocol, action: res.action };
+    }
+    default:
+      throw new Error(`Unknown plugin '${plugin}'. Supported: business, science, content, design, workflow, browser, message, secret, infra, company`);
+  }
+}
+
 const RUN_HISTORY: WorkflowRunReceipt[] = [];
 const CUSTOM_REGISTRY: Map<string, WorkflowDefinition> = new Map();
 const TELEMETRY_STORE: Map<string, { calls: number; successes: number; failures: number; totalMs: number; latencies: number[]; consecutiveFailures: number; lastFailureTime: number }> = new Map();
@@ -1217,22 +1267,7 @@ export async function batchExecute(
       if (!task) break;
       const sT0 = performance.now();
       try {
-        let r: any;
-        if (task.plugin === "business") {
-          r = await businessOperation({ action: task.action as any, ...(task.parameters ?? {}) });
-        } else if (task.plugin === "science") {
-          r = await scienceOperation({ action: task.action as any, ...(task.parameters ?? {}) });
-        } else if (task.plugin === "design") {
-          r = await designOperation({ action: task.action as any, ...(task.parameters ?? {}) });
-        } else if (task.plugin === "workflow") {
-          r = await workflowOperation({ action: task.action as any, ...(task.parameters ?? {}) });
-        } else if (task.plugin === "browser" || task.plugin === "chrome") {
-          r = await executeBrowser({ action: task.action as any, ...(task.parameters ?? {}) });
-        } else if (task.plugin === "message") {
-          r = await executeMessage({ action: task.action as any, ...(task.parameters ?? {}) });
-        } else {
-          r = { success: true, data: { status: "executed", task } };
-        }
+        const r = await dispatchPluginAction(task.plugin, task.action, (task.parameters ?? {}) as Record<string, unknown>);
         const dur = Math.round(performance.now() - sT0);
         results.push({
           id: task.id,
@@ -2621,24 +2656,7 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
         for (const s of wf.steps) {
           const sT0 = performance.now();
           const interpolated = { ...(input.parameters ?? {}), ...interpolateParams(s.parameters ?? {}, stepContext) };
-          let r: any;
-          if (s.plugin === "business") {
-            r = await businessOperation({ action: s.action as any, ...interpolated });
-          } else if (s.plugin === "science") {
-            r = await scienceOperation({ action: s.action as any, ...interpolated });
-          } else if (s.plugin === "content") {
-            r = await contentOperation({ action: s.action as any, ...interpolated });
-          } else if (s.plugin === "design") {
-            r = await designOperation({ action: s.action as any, ...interpolated });
-          } else if (s.plugin === "workflow") {
-            r = await workflowOperation({ action: s.action as any, ...interpolated });
-          } else if (s.plugin === "browser" || s.plugin === "chrome") {
-            r = await executeBrowser({ action: s.action as any, ...interpolated });
-          } else if (s.plugin === "message") {
-            r = await executeMessage({ action: s.action as any, ...interpolated });
-          } else {
-            r = { success: true, data: { status: "executed", plugin: s.plugin, action: s.action } };
-          }
+          const r = await dispatchPluginAction(s.plugin, s.action, interpolated as Record<string, unknown>);
           const dur = Math.round(performance.now() - sT0);
           stepResults.push({ step: s.step, plugin: s.plugin, action: s.action, skill: s.skill, success: r.success ?? true, durationMs: dur, data: r.data ?? r });
           stepContext[`step${s.step}`] = { data: r.data ?? r, success: r.success ?? true };

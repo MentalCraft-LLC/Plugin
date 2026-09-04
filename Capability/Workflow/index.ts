@@ -121,8 +121,22 @@ export {
   type InfraAction,
   type InfraInput,
   type InfraResult,
+  type InfraCanaryProbeInput,
+  type InfraCanaryProbeOutput,
+  type InfraD1SchemaAuditInput,
+  type InfraD1SchemaAuditOutput,
+  type InfraWorkerBundleAuditInput,
+  type InfraWorkerBundleAuditOutput,
+  type InfraStripeWebhookSimulateInput,
+  type InfraStripeWebhookSimulateOutput,
 } from "../../Domain/Infra/core.ts";
-export { infraOperation } from "../../Domain/Infra/operation.ts";
+export {
+  infraOperation,
+  executeInfraCanaryProbe,
+  executeInfraD1SchemaAudit,
+  executeInfraWorkerBundleAudit,
+  executeInfraStripeWebhookSimulate,
+} from "../../Domain/Infra/operation.ts";
 
 // Company Subsystem (Domain)
 export {
@@ -130,8 +144,22 @@ export {
   type CompanyAction,
   type CompanyInput,
   type CompanyResult,
+  type CompanyEntityAuditInput,
+  type CompanyEntityAuditOutput,
+  type CompanyCapTableCalcInput,
+  type CompanyCapTableCalcOutput,
+  type CompanyIpAssignmentAuditInput,
+  type CompanyIpAssignmentAuditOutput,
+  type CompanyComplianceCheckInput,
+  type CompanyComplianceCheckOutput,
 } from "../../Domain/Company/core.ts";
-export { companyOperation } from "../../Domain/Company/operation.ts";
+export {
+  companyOperation,
+  executeCompanyEntityAudit,
+  executeCompanyCapTableCalc,
+  executeCompanyIpAssignmentAudit,
+  executeCompanyComplianceCheck,
+} from "../../Domain/Company/operation.ts";
 
 // Workflow Subsystem (Capability)
 export {
@@ -161,6 +189,7 @@ export {
   batchExecute,
   withRetry,
   redactSensitiveData,
+  dispatchPluginAction,
 } from "./operation.ts";
 export {
   runMentalCraftDiagnostics,
@@ -201,3 +230,4 @@ export {
   startGatewayMcpHttp,
   GATEWAY_TOOLS,
 } from "./gateway.ts";
+

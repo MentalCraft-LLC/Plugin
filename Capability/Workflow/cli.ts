@@ -70,13 +70,16 @@ export function generateMarkdownCatalog(): string {
     "",
     "| Subsystem | Actions | Protocol | Key Domain Scope |",
     "|---|---|---|---|",
-    "| `Workflow` | 17 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |",
+    "| `Workflow` | 27 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |",
     "| `Business` | 41 | `holar.business.v1` | 8-Stage Venture Lifecycle, Dual $10k MRR, SEO/LLMO Content Gen, Full-Stack Excellence |",
     "| `Science` | 23 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, CSS, Grants, Authoring, Peer Review, Journals, Patents, Impact |",
     "| `Content` | 10 | `holar.content.v1` | Creative & Commercial Content: Fiction Worldbuilding, 15 Plot Beats, Character Arcs, PAS Copy, Omnichannel Matrix |",
     "| `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |",
     "| `Browser` | 65 | `spiral.browser.v1` | DevTools Superset, Next-Gen Radar & Saliency, Anti-bot Stealth, E2E Codegen, Memory Tracer, Responsive Matrix |",
     "| `Message` | 4 | `holar.message.v1` | Multi-channel priority bus (Telegram > iMessage > Email) with mode-0600 isolation |",
+    "| `Secret` | 6 | `holar.secret.v1` | Mode-0600 secure token vault with key derivation & encrypted credential isolation |",
+    "| `Infra` | 4 | `holar.infra.v1` | Global edge microservices, sub-15ms canary probes (Auth, Monetization, Event), SQLite D1 migrations & worker bundles |",
+    "| `Company` | 4 | `holar.company.v1` | Dual-jurisdiction entity audits (Wyoming parent LLC & Shanghai R&D), cap table dilution, IP chain & annual report compliance |",
     "",
     "---",
     "",
@@ -176,9 +179,7 @@ Available REPL Commands:
           const res = await executePluginAction(p, a, parsed);
           console.log(JSON.stringify(res, null, 2));
         } else if (sub === "docs" || sub === "catalog") {
-          const doc = generateMarkdownCatalog();
-          writeFileSync(join(import.meta.dir, "CATALOG.md"), doc, "utf-8");
-          console.log("✓ Generated CATALOG.md");
+          await mainCommand("docs");
         } else {
           console.log(`Unknown command '${sub}'. Type 'help' for available commands.`);
         }
@@ -197,14 +198,16 @@ async function mainCommand(cmd: string) {
     case "ls": {
       console.log("\n📦 Holar Plugin Registry\n" + "=".repeat(60));
       const plugins = [
-        { id: "workflow", name: "Workflow Orchestrator & Health Engine", actions: 17, desc: "Multi-plugin compound DAG execution, latency benchmark suite, OpenRPC/OpenAPI specs & pre-flight health diagnostics" },
-        { id: "business", name: "Business & Market Intelligence", actions: 24, desc: "8-Stage Venture Lifecycle (Websites, Apps, Games, Shops), Gefei SEO KD, TrafficCV domain traffic & channels, Stripe Radar, SpriteFlow $10k MRR" },
+        { id: "workflow", name: "Workflow Orchestrator & Health Engine", actions: 27, desc: "Multi-plugin compound DAG execution, latency benchmark suite, OpenRPC/OpenAPI specs & pre-flight health diagnostics" },
+        { id: "business", name: "Business & Market Intelligence", actions: 41, desc: "8-Stage Venture Lifecycle (Websites, Apps, Games, Shops), Gefei SEO KD, TrafficCV domain traffic & channels, Stripe Radar, SpriteFlow $10k MRR" },
         { id: "science", name: "Science & Academic Production Intelligence", actions: 23, desc: "8-Stage Academic Production Lifecycle: Literature, CSS Empirical, Grants, LaTeX, Peer Review, CSSCI/SSCI Journals, Patents" },
         { id: "content", name: "Content Creative & Commercial Engine", actions: 10, desc: "Fiction Worldbuilding, Character Arcs (Want vs Need), 15 Plot Beats, Sensory Prose, Lore Linter, PAS Copy, Omnichannel Launch Matrix" },
         { id: "design", name: "Design System & UI Intelligence", actions: 10, desc: "5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths" },
-        { id: "browser", name: "Browser Automation & DevTools Superset", actions: 54, desc: "DevTools Superset (Lighthouse, Trace, Heap, Waterfall), Resilience (Personas, Schemas, Chaos), Background Driving" },
+        { id: "browser", name: "Browser Automation & DevTools Superset", actions: 65, desc: "DevTools Superset (Lighthouse, Trace, Heap, Waterfall), Resilience (Personas, Schemas, Chaos), Background Driving" },
         { id: "message", name: "Agent Message Bus", actions: 4, desc: "Multi-channel priority dispatching (Telegram > iMessage > Email)" },
-        { id: "secret", name: "Local Credential Vault", actions: 2, desc: "Mode-0600 secure token vault" },
+        { id: "secret", name: "Local Credential Vault", actions: 6, desc: "Mode-0600 secure token vault with key derivation & encrypted credential isolation" },
+        { id: "infra", name: "Global Edge Microservices & Data Infrastructure", actions: 4, desc: "Global edge microservices (Auth, Monetization, Event), sub-15ms canary probes, SQLite D1 database migrations, and Cloudflare Worker bundle verification" },
+        { id: "company", name: "Corporate Governance & Legal Entity Engine", actions: 4, desc: "Dual-jurisdiction entity audits (Wyoming parent LLC & Shanghai R&D), cap table dilution modeling, intellectual property chain verification, and annual report compliance" },
       ];
       for (const p of plugins) {
         console.log(`\n🔹 [${p.id.toUpperCase()}] ${p.name}`);
@@ -246,14 +249,17 @@ async function mainCommand(cmd: string) {
 ║ Overall Health: ${report.overallStatus === "healthy" ? "🟢 HEALTHY" : "🟡 DEGRADED"} (Score: ${report.healthScore}/100) | Healthy Plugins: ${report.healthyPlugins}/${report.totalPlugins}   ║
 ║ Protocols: MCP Stdio, HTTP/SSE (Port 3999), OpenRPC 1.3, OpenAPI 3.1           ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
-║ ACTIVE CAPABILITY SUBSYSTEMS (7 Modules / 172 Actions)                         ║
+║ ACTIVE CAPABILITY SUBSYSTEMS (10 Modules / 194 Actions)                        ║
 ║  • Business  [${report.plugins.business?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (41 actions) | 8-Stage Venture Lifecycle & Dual $10k MRR║
 ║  • Science   [${report.plugins.science?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (23 actions) | 8-Stage Academic Production Lifecycle       ║
 ║  • Content   [${report.plugins.content?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (10 actions) | Fiction Worldbuilding, 15 Beats, PAS Copy   ║
 ║  • Design    [${report.plugins.design?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (10 actions) | 5-Layer UI, Runes, Tokens, Presets     ║
 ║  • Browser   [${(report.plugins.browser || report.plugins.chrome)?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (65 actions) | DevTools Superset, Memory & Responsive ║
-║  • Workflow  [${report.plugins.workflow?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (17 actions) | DAG Engine, OTel Spans, Batch, Benchmark  ║
+║  • Workflow  [${report.plugins.workflow?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] (27 actions) | DAG Engine, OTel Spans, Batch, Benchmark  ║
 ║  • Message   [${report.plugins.message?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] ( 4 actions) | Telegram, iMessage, Email Secure Bus  ║
+║  • Secret    [${report.plugins.secret?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] ( 6 actions) | Mode-0600 Local Encrypted Vault        ║
+║  • Infra     [${report.plugins.infra?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] ( 4 actions) | Cloudflare Edge, D1, Canary Probes      ║
+║  • Company   [${report.plugins.company?.status === "healthy" ? "🟢 HEALTHY" : "🔴 DEGRADED"}] ( 4 actions) | Legal Entities, Compliance, Cap Table   ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
 ║ METRICS & TELEMETRY                                                            ║
 ║  Total Invocations: ${telemetry.totalInvocations} | Success Rate: ${telemetry.overallSuccessRate}% | Tracked Actions: ${Object.keys(telemetry.metricsByAction).length} ║
@@ -418,11 +424,11 @@ async function mainCommand(cmd: string) {
     case "docs":
     case "catalog": {
       const doc = generateMarkdownCatalog();
-      const agentsDir = join(import.meta.dir, "../../.agents");
-      if (!existsSync(agentsDir)) {
-        mkdirSync(agentsDir, { recursive: true });
+      const docsDir = join(import.meta.dir, "../../.agents/docs");
+      if (!existsSync(docsDir)) {
+        mkdirSync(docsDir, { recursive: true });
       }
-      const targetFile = join(agentsDir, "CATALOG.md");
+      const targetFile = join(docsDir, "CATALOG.md");
       writeFileSync(targetFile, doc, "utf-8");
       console.log(`\n✓ Generated documentation catalog: ${targetFile}\n`);
       break;

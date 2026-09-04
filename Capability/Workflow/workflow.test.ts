@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { workflowOperation, executeHealthCheck } from "./operation.ts";
+import { workflowOperation, executeHealthCheck, dispatchPluginAction } from "./operation.ts";
 import { handleWorkflowRpc } from "./mcp-server.ts";
 import { WORKFLOW_PROTOCOL, BUILTIN_WORKFLOWS, compactWorkflowResult } from "./core.ts";
 
@@ -902,6 +902,86 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.stepsCount).toBe(5);
     expect(data.stepResults.length).toBe(5);
   }, 30000);
+
+  test("dispatchPluginAction dispatches cleanly across all 10 subsystems", async () => {
+    // 1. Business
+    const biz = await dispatchPluginAction("business", "venture_market_validation", { modality: "website" });
+    expect(biz.success).toBe(true);
+
+    // 2. Science
+    const sci = await dispatchPluginAction("science", "grant_criteria_audit", { funding_agency: "NIH" });
+    expect(sci.success).toBe(true);
+
+    // 3. Content
+    const cnt = await dispatchPluginAction("content", "story_worldbuilding_forge", { genre: "sci-fi" });
+    expect(cnt.success).toBe(true);
+
+    // 4. Design
+    const dsn = await dispatchPluginAction("design", "audit_ui", { code: "<button>test</button>" });
+    expect(dsn.success).toBe(true);
+
+    // 5. Workflow
+    const wf = await dispatchPluginAction("workflow", "list_workflows");
+    expect(wf.success).toBe(true);
+
+    // 6. Browser
+    const brw = await dispatchPluginAction("browser", "security_audit", { url: "https://example.com" });
+    expect(brw.success).toBe(true);
+
+    // 7. Message
+    const msg = await dispatchPluginAction("message", "status");
+    expect(msg.success).toBe(true);
+
+    // 8. Secret
+    const sec = await dispatchPluginAction("secret", "mask", { secret: "dummy_vault_secret_token_123" });
+    expect(sec.success).toBe(true);
+
+    // 9. Infra
+    const inf = await dispatchPluginAction("infra", "infra_canary_probe");
+    expect(inf.success).toBe(true);
+    expect((inf.data as any).status).toBe("HEALTHY");
+
+    // 10. Company
+    const cmp = await dispatchPluginAction("company", "company_entity_audit");
+    expect(cmp.success).toBe(true);
+    expect((cmp.data as any).status).toBe("COMPLIANT");
+  }, 10000);
+
+  test("batchExecute dispatches tasks across infra, company, secret, content, and business", async () => {
+    const res = await workflowOperation({
+      action: "batch_run",
+      tasks: [
+        { id: "t_infra", plugin: "infra", action: "infra_canary_probe" },
+        { id: "t_company", plugin: "company", action: "company_compliance_check" },
+        { id: "t_secret", plugin: "secret", action: "mask", parameters: { secret: "dummy_vault_token" } },
+        { id: "t_content", plugin: "content", action: "story_worldbuilding_forge", parameters: { genre: "fantasy" } },
+        { id: "t_biz", plugin: "business", action: "venture_market_validation", parameters: { modality: "website" } },
+      ],
+      concurrency: 5,
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.total).toBe(5);
+    expect(data.successful).toBe(5);
+    expect(data.failed).toBe(0);
+    expect(data.results.map((r: any) => r.plugin)).toContain("infra");
+    expect(data.results.map((r: any) => r.plugin)).toContain("company");
+    expect(data.results.map((r: any) => r.plugin)).toContain("secret");
+  });
+
+  test("run_workflow executes venture_compliance_and_edge_deployment", async () => {
+    const res = await workflowOperation({
+      action: "run_workflow",
+      workflow_id: "venture_compliance_and_edge_deployment",
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.stepsCount).toBe(6);
+    expect(data.stepResults.length).toBe(6);
+    expect(data.stepResults.every((s: any) => s.success)).toBe(true);
+    expect(data.stepResults[0].plugin).toBe("company");
+    expect(data.stepResults[2].plugin).toBe("infra");
+  }, 20000);
 });
 
 

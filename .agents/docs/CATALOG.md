@@ -6,13 +6,16 @@
 
 | Subsystem | Actions | Protocol | Key Domain Scope |
 |---|---|---|---|
-| `Workflow` | 17 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |
+| `Workflow` | 27 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |
 | `Business` | 41 | `holar.business.v1` | 8-Stage Venture Lifecycle, Dual $10k MRR, SEO/LLMO Content Gen, Full-Stack Excellence |
 | `Science` | 23 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, CSS, Grants, Authoring, Peer Review, Journals, Patents, Impact |
 | `Content` | 10 | `holar.content.v1` | Creative & Commercial Content: Fiction Worldbuilding, 15 Plot Beats, Character Arcs, PAS Copy, Omnichannel Matrix |
 | `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |
 | `Browser` | 65 | `spiral.browser.v1` | DevTools Superset, Next-Gen Radar & Saliency, Anti-bot Stealth, E2E Codegen, Memory Tracer, Responsive Matrix |
 | `Message` | 4 | `holar.message.v1` | Multi-channel priority bus (Telegram > iMessage > Email) with mode-0600 isolation |
+| `Secret` | 6 | `holar.secret.v1` | Mode-0600 secure token vault with key derivation & encrypted credential isolation |
+| `Infra` | 4 | `holar.infra.v1` | Global edge microservices, sub-15ms canary probes (Auth, Monetization, Event), SQLite D1 migrations & worker bundles |
+| `Company` | 4 | `holar.company.v1` | Dual-jurisdiction entity audits (Wyoming parent LLC & Shanghai R&D), cap table dilution, IP chain & annual report compliance |
 
 ---
 
@@ -128,13 +131,13 @@
   5. **[business]** `venture_monetization_telemetry`: Track real-time Stripe telemetry and churn decay.
 
 ### `mentalcraft_practitioner_growth_workflow` — MentalCraft Academic-to-Commercial $10,000 MRR Engine
-- **Description**: Dual academic-commercial engine: Academic IRB survey integrity check → B2B practitioner scale workbench ($29/mo) + B2C in-depth parenting diagnostic reports ($9.90) → Real-time telemetry.
+- **Description**: Dual academic-commercial engine: Academic IRB survey integrity check → B2B practitioner Pro ($19/mo) + clinic seats ($200/mo) on the live MentalCraft mix → Real-time telemetry.
 - **Required Plugins**: `science` ➔ `business` ➔ `design`
 - **Execution Steps**:
   1. **[science]** `social_science_peer_review_audit`: Audit academic scale validity, psychometrics, and IRB ethical boundary compliance.
   2. **[business]** `venture_market_validation`: Model practitioner and parent TAM/SAM/SOM and willingness-to-pay elasticity.
   3. **[design]** `generate_ui`: Generate Svelte 5 Runes practitioner screening workbench and assessment summary card.
-  4. **[business]** `venture_unit_economics`: Model $10,000 MRR: 250 Practitioner Pro ($29/mo) + 300 In-Depth Reports ($9.90/mo).
+  4. **[business]** `company_mrr_engine`: Model $10,000 MRR: 350 Practitioner Pro ($19/mo) + 17 Clinic ($200/mo).
   5. **[business]** `venture_monetization_telemetry`: Monitor active practitioner retention, screening link throughput, and Stripe ARR.
 
 ### `social_science_top_journal_pipeline` — Top Social Science Journal (CSSCI & SSCI Q1) Publication Pipeline
@@ -296,6 +299,39 @@
   5. **[browser]** `responsive_matrix_linter`: Lint responsive layout across 8 viewport breakpoints from 375px mobile to 4K ultra-wide.
   6. **[browser]** `web_vitals_radar`: Verify sub-50ms Long Animation Frame (LoAF) smoothness and zero cumulative layout shift (CLS).
   7. **[message]** `send`: Dispatch holistic 5-pillar product excellence certification package.
+
+### `product_iteration_lifecycle` — Standard 6-Stage Product Iteration Lifecycle (Sprint OS)
+- **Description**: Holistic 6-stage product iteration pipeline: Gap Discovery (Monica/Manus benchmark) ➔ Single-Word & 12 Virtues Spec ➔ Clean Svelte 5 / Token Build ➔ Empirical Dual Verification (0 warning / 7 gates) ➔ Flywheel Compounding ➔ Autonomous Next Sprint Transition.
+- **Required Plugins**: `business` ➔ `design` ➔ `browser` ➔ `content` ➔ `workflow`
+- **Execution Steps**:
+  1. **[business]** `venture_market_validation`: Stage 1 (Discovery): Analyze conversion leaks, audit benchmark gaps (Monica/Manus), and pinpoint single high-impact focus for current sprint.
+  2. **[design]** `audit_ui`: Stage 2 (Spec): Validate Single-Word Parent Component Law and Twelve Universal Ecosystem Virtues, establishing clean input/output contracts.
+  3. **[design]** `generate_ui`: Stage 3 (Build): Implement minimal viable deliverable using Svelte 5 runes, OKLCH canonical tokens, and end-to-end business routing.
+  4. **[browser]** `inspect_element`: Stage 4 (Verify): Execute empirical dual verification via svelte-check (0 error, 0 warning) and the 7 master quality gates (100% pass).
+  5. **[business]** `venture_monetization_telemetry`: Stage 5 (Compound): Sediment telemetry tracking, promote reusable UI into Design system, and feed empirical evidence to Science.
+  6. **[workflow]** `autopilot_step`: Stage 6 (Next Sprint): Autonomously seed completed artifacts as input to immediately trigger and advance the subsequent product sprint.
+
+### `venture_compliance_and_edge_deployment` — Venture Corporate Compliance & Global Edge Deployment Pipeline
+- **Description**: End-to-end legal & infrastructure deployment: Corporate entity audit ➔ IP chain assignment ➔ Sub-15ms edge canary probe ➔ SQLite D1 schema audit ➔ Cloudflare Worker bundle check ➔ Encrypted ops dispatch.
+- **Required Plugins**: `company` ➔ `infra` ➔ `message`
+- **Execution Steps**:
+  1. **[company]** `company_entity_audit`: Audit dual-jurisdiction legal entities (Wyoming parent LLC & Shanghai R&D).
+  2. **[company]** `company_ip_assignment_audit`: Verify all 7 canonical domain repositories and patents assigned to Wyoming parent entity.
+  3. **[infra]** `infra_canary_probe`: Execute sub-15ms canary health probe across Auth, Monetization, and Event edge services.
+  4. **[infra]** `infra_d1_schema_audit`: Verify SQLite D1 database migration invariants, tables, and indexing structures.
+  5. **[infra]** `infra_worker_bundle_audit`: Verify Cloudflare Worker deployment configs and compatibility dates across Auth, Monetization, and Event.
+  6. **[message]** `send`: Dispatch encrypted deployment and compliance certificate to operations team.
+
+### `global_fintech_and_monetization_readiness` — Global FinTech & Monetization Readiness Pipeline
+- **Description**: Multi-jurisdiction revenue & governance engine: Merchant compliance check ➔ Stripe webhook HMAC signature simulation ➔ Monetization edge canary probe ➔ Cap table dilution simulation ➔ Stripe revenue radar ➔ Financial readiness dispatch.
+- **Required Plugins**: `company` ➔ `infra` ➔ `business` ➔ `message`
+- **Execution Steps**:
+  1. **[company]** `company_compliance_check`: Verify Wyoming LLC registered agent active status, annual report filings, and tax pass-through standing.
+  2. **[infra]** `infra_stripe_webhook_simulate`: Simulate and verify HMAC-SHA256 Stripe webhook event delivery and processing pipeline.
+  3. **[infra]** `infra_canary_probe`: Verify global edge Monetization and Auth microservices responding with sub-15ms latency.
+  4. **[company]** `company_cap_table_calc`: Model founder equity, 15% ESOP reserve pool, and post-money valuation under new financing.
+  5. **[business]** `market_stripe_radar`: Benchmark competitive Stripe revenue volume and payment conversion velocity.
+  6. **[message]** `send`: Dispatch consolidated FinTech and monetization readiness report to leadership.
 
 ---
 

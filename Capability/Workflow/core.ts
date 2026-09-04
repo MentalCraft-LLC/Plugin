@@ -60,6 +60,8 @@ export type WorkflowId =
   | "automated_revenue_monitor"
   | "design_system_audit_pipeline"
   | "product_iteration_lifecycle"
+  | "venture_compliance_and_edge_deployment"
+  | "global_fintech_and_monetization_readiness"
   | (string & {});
 
 export type WorkflowStep = {
@@ -493,6 +495,34 @@ export const BUILTIN_WORKFLOWS: WorkflowDefinition[] = [
       { step: 4, plugin: "browser", action: "inspect_element", description: "Stage 4 (Verify): Execute empirical dual verification via svelte-check (0 error, 0 warning) and the 7 master quality gates (100% pass)." },
       { step: 5, plugin: "business", action: "venture_monetization_telemetry", description: "Stage 5 (Compound): Sediment telemetry tracking, promote reusable UI into Design system, and feed empirical evidence to Science." },
       { step: 6, plugin: "workflow", action: "autopilot_step", description: "Stage 6 (Next Sprint): Autonomously seed completed artifacts as input to immediately trigger and advance the subsequent product sprint." },
+    ],
+  },
+  {
+    id: "venture_compliance_and_edge_deployment",
+    name: "Venture Corporate Compliance & Global Edge Deployment Pipeline",
+    description: "End-to-end legal & infrastructure deployment: Corporate entity audit ➔ IP chain assignment ➔ Sub-15ms edge canary probe ➔ SQLite D1 schema audit ➔ Cloudflare Worker bundle check ➔ Encrypted ops dispatch.",
+    requiredPlugins: ["company", "infra", "message"],
+    steps: [
+      { step: 1, plugin: "company", action: "company_entity_audit", description: "Audit dual-jurisdiction legal entities (Wyoming parent LLC & Shanghai R&D)." },
+      { step: 2, plugin: "company", action: "company_ip_assignment_audit", description: "Verify all 7 canonical domain repositories and patents assigned to Wyoming parent entity." },
+      { step: 3, plugin: "infra", action: "infra_canary_probe", description: "Execute sub-15ms canary health probe across Auth, Monetization, and Event edge services." },
+      { step: 4, plugin: "infra", action: "infra_d1_schema_audit", description: "Verify SQLite D1 database migration invariants, tables, and indexing structures." },
+      { step: 5, plugin: "infra", action: "infra_worker_bundle_audit", description: "Verify Cloudflare Worker deployment configs and compatibility dates across Auth, Monetization, and Event." },
+      { step: 6, plugin: "message", action: "send", description: "Dispatch encrypted deployment and compliance certificate to operations team.", parameters: { text: "Venture Corporate Compliance & Global Edge Deployment Pipeline Verified 100%." } },
+    ],
+  },
+  {
+    id: "global_fintech_and_monetization_readiness",
+    name: "Global FinTech & Monetization Readiness Pipeline",
+    description: "Multi-jurisdiction revenue & governance engine: Merchant compliance check ➔ Stripe webhook HMAC signature simulation ➔ Monetization edge canary probe ➔ Cap table dilution simulation ➔ Stripe revenue radar ➔ Financial readiness dispatch.",
+    requiredPlugins: ["company", "infra", "business", "message"],
+    steps: [
+      { step: 1, plugin: "company", action: "company_compliance_check", description: "Verify Wyoming LLC registered agent active status, annual report filings, and tax pass-through standing." },
+      { step: 2, plugin: "infra", action: "infra_stripe_webhook_simulate", description: "Simulate and verify HMAC-SHA256 Stripe webhook event delivery and processing pipeline." },
+      { step: 3, plugin: "infra", action: "infra_canary_probe", description: "Verify global edge Monetization and Auth microservices responding with sub-15ms latency." },
+      { step: 4, plugin: "company", action: "company_cap_table_calc", description: "Model founder equity, 15% ESOP reserve pool, and post-money valuation under new financing." },
+      { step: 5, plugin: "business", action: "market_stripe_radar", description: "Benchmark competitive Stripe revenue volume and payment conversion velocity." },
+      { step: 6, plugin: "message", action: "send", description: "Dispatch consolidated FinTech and monetization readiness report to leadership.", parameters: { text: "Global FinTech & Monetization Readiness Pipeline Verified 100%." } },
     ],
   },
 ];
