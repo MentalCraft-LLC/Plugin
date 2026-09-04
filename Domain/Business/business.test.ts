@@ -950,4 +950,83 @@ describe("Plugin/Business 8-Stage Venture Lifecycle Engine", () => {
       if (previous !== undefined) process.env.PLAUSIBLE_API_KEY = previous;
     }
   });
+
+  test("Dispatch MRR Engine models path to $10,035 MRR and computes subscriber pacing", async () => {
+    const res = await businessOperation({
+      action: "dispatch_mrr_engine",
+      pro_subscribers: 200,
+      scale_subscribers: 5,
+    });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.ventureName).toBe("Dispatch");
+    expect(data.targetMrrUsd).toBe(10035);
+    expect(data.proPriceUsd).toBe(19);
+    expect(data.proSubscribersTarget).toBe(450);
+    expect(data.scalePriceUsd).toBe(99);
+    expect(data.scaleSubscribersTarget).toBe(15);
+    expect(data.grossMarginPercent).toBe(97.2);
+    expect(data.organicCacUsd).toBe(0);
+    expect(data.monthlyChurnPercent).toBe(3.5);
+    expect(data.growthPhases.length).toBe(4);
+
+    // Dynamic progress
+    expect(data.currentProgress.proSubscribers).toBe(200);
+    expect(data.currentProgress.scaleSubscribers).toBe(5);
+    expect(data.currentProgress.proMrrUsd).toBe(3800);
+    expect(data.currentProgress.scaleMrrUsd).toBe(495);
+    expect(data.currentProgress.totalMrrUsd).toBe(4295);
+    expect(data.currentProgress.targetMet).toBe(false);
+
+    // Summary formatter
+    const summary = compactBusinessResult(res);
+    expect(summary).toContain("Dispatch MRR Engine: $10,035 MRR");
+    expect(summary).toContain("450 Pro");
+    expect(summary).toContain("15 Scale");
+  });
+
+  test("Dispatch Five Pillars Audit covers SEO, LLMO, EEAT, UX, Funnel", async () => {
+    const res = await businessOperation({ action: "dispatch_five_pillars" });
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(data.score).toBeGreaterThanOrEqual(90);
+    expect(data.pillars.seo.status).toBe("PASS");
+    expect(data.pillars.llmo.status).toBe("PASS");
+    expect(data.pillars.eeat.status).toBe("PASS");
+    expect(data.pillars.ux.status).toBe("PASS");
+    expect(data.pillars.funnel.targetMet).toBe(true);
+    expect(data.recommendations.length).toBeGreaterThan(0);
+
+    // Summary formatter
+    const summary = compactBusinessResult(res);
+    expect(summary).toContain("Dispatch Five-Pillars Audit: Score");
+
+    // product_fullstack_excellence_audit delegation for Dispatch
+    const fullRes = await businessOperation({
+      action: "product_fullstack_excellence_audit",
+      product_name: "Dispatch Content Publisher",
+    });
+    expect(fullRes.success).toBe(true);
+    const fullData = fullRes.data as any;
+    expect(fullData.pillars.eeat.tokenCollisionProof).toBe(true);
+  });
+
+  test("MCP Protocol server handles dispatch_mrr_engine and dispatch_five_pillars", async () => {
+    const rpcRes = await handleBusinessRpc({
+      jsonrpc: "2.0",
+      id: "test-dispatch-rpc",
+      method: "tools/call",
+      params: {
+        name: "business",
+        arguments: { action: "dispatch_mrr_engine", pro_subscribers: 450, scale_subscribers: 15 },
+      },
+    });
+    expect(rpcRes).not.toBeNull();
+    expect(rpcRes?.id).toBe("test-dispatch-rpc");
+    const content = (rpcRes?.result as any)?.content?.[0]?.text;
+    expect(content).toBeDefined();
+    const parsed = JSON.parse(content);
+    expect(parsed.success).toBe(true);
+    expect(parsed.data.currentProgress.targetMet).toBe(true);
+  });
 });
