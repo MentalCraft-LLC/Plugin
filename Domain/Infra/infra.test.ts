@@ -12,8 +12,8 @@ describe("Plugin/Infra FastMCP Protocol Engine", () => {
   test("executeInfraCanaryProbe returns sub-15ms edge health status", async () => {
     const probe = await executeInfraCanaryProbe();
     expect(probe.status).toBe("HEALTHY");
-    expect(probe.testedCount).toBe(5);
-    expect(probe.healthyCount).toBe(5);
+    expect(probe.testedCount).toBe(8);
+    expect(probe.healthyCount).toBe(8);
     expect(probe.averageLatencyMs).toBeLessThanOrEqual(15);
   });
 
@@ -27,7 +27,7 @@ describe("Plugin/Infra FastMCP Protocol Engine", () => {
   test("executeInfraWorkerBundleAudit validates Cloudflare Worker configs", () => {
     const audit = executeInfraWorkerBundleAudit();
     expect(audit.status).toBe("VALID");
-    expect(audit.workersAudited).toBe(5);
+    expect(audit.workersAudited).toBe(8);
     expect(audit.compatibilityGuarantees).toBe(true);
   });
 
@@ -123,6 +123,57 @@ describe("Plugin/Infra FastMCP Protocol Engine", () => {
     expect(bData.compliant).toBe(true);
 
     const list = await infraOperation("list_actions");
-    expect((list.result as any).totalActions).toBe(9);
+    expect((list.result as any).totalActions).toBe(12);
+  });
+
+  test("infraOperation executes experiment route, workflow, and media actions", async () => {
+    // 1. Experiment Route
+    const exp = await infraOperation({
+      action: "experiment",
+      params: {
+        experimentId: "exp_hero_cta",
+        subjectId: "user_123",
+        variants: [
+          { key: "control", weight: 50 },
+          { key: "variant_b", weight: 50 },
+        ],
+      },
+    });
+    expect(exp.action).toBe("infra_experiment_route");
+    const expData = exp.result as any;
+    expect(expData.status).toBe("ASSIGNED");
+    expect(["control", "variant_b"]).toContain(expData.assignedVariant);
+
+    // 2. Workflow Execute
+    const wf = await infraOperation({
+      action: "workflow",
+      params: {
+        workflowName: "test_pipeline",
+        input: { job: "digest" },
+        mockSleep: true,
+      },
+    });
+    expect(wf.action).toBe("infra_workflow_execute");
+    const wfData = wf.result as any;
+    expect(wfData.status).toBe("COMPLETED");
+    expect(wfData.stepCount).toBeGreaterThanOrEqual(1);
+
+    // 3. Media Render
+    const media = await infraOperation({
+      action: "media",
+      params: {
+        type: "card",
+        title: "Test Editorial Card",
+        theme: "paper",
+        aspectRatio: "16:9",
+      },
+    });
+    expect(media.action).toBe("infra_media_render");
+    const mData = media.result as any;
+    expect(mData.status).toBe("RENDERED");
+    expect(mData.format).toBe("svg");
+    expect(mData.width).toBe(1200);
+    expect(mData.svg).toContain("<svg");
   });
 });
+

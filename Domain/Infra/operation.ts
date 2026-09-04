@@ -24,7 +24,18 @@ import {
   type InfraAnalyticsQueryOutput,
   type InfraAnalyticsBeaconVerifyInput,
   type InfraAnalyticsBeaconVerifyOutput,
+  type InfraExperimentRouteInput,
+  type InfraExperimentRouteOutput,
+  type InfraWorkflowExecuteInput,
+  type InfraWorkflowExecuteOutput,
+  type InfraMediaRenderInput,
+  type InfraMediaRenderOutput,
 } from "./core.ts";
+import { assignConsistentVariant, getSubjectBucket } from "../../../Infra/Experiment/src/hasher.ts";
+import { localWorkflowEngine } from "../../../Infra/Workflow/src/local.ts";
+import { renderCardToSvg } from "../../../Infra/Media/src/local/svg.ts";
+import { renderCodeSnippetToSvg } from "../../../Infra/Media/src/local/code.ts";
+import { renderFormulaToSvg } from "../../../Infra/Media/src/local/math.ts";
 
 export async function executeInfraCanaryProbe(
   input: InfraCanaryProbeInput = {}
@@ -35,6 +46,9 @@ export async function executeInfraCanaryProbe(
     { name: "holar-event", url: "https://holar-event.pages.dev/ping" },
     { name: "holar-publish", url: "https://publish.mentalcraft.org/health" },
     { name: "holar-analytics", url: "https://analytics.mentalcraft.org/health" },
+    { name: "holar-experiment", url: "https://experiment.mentalcraft.org/health" },
+    { name: "holar-workflow", url: "https://workflow.mentalcraft.org/health" },
+    { name: "holar-media", url: "https://media.mentalcraft.org/health" },
   ];
 
   const results = defaultServices.map((svc) => ({
@@ -61,18 +75,15 @@ export function executeInfraD1SchemaAudit(
   input: InfraD1SchemaAuditInput = {}
 ): InfraD1SchemaAuditOutput {
   const root = input.workspaceRoot || process.env.HOLAR_ROOT || resolve(import.meta.dirname, "../../..");
-  const authMigrationsDir = join(root, "Infra", "Auth", "migrations");
-  const monetizationMigrationsDir = join(root, "Infra", "Monetization", "migrations");
-  const eventMigrationsDir = join(root, "Infra", "Event", "migrations");
-  const publishMigrationsDir = join(root, "Infra", "Publish", "migrations");
-  const analyticsMigrationsDir = join(root, "Infra", "Analytics", "migrations");
+  const modules = ["Auth", "Monetization", "Event", "Publish", "Analytics", "Experiment", "Workflow", "Media"];
+  const migrationDirs = modules.map((m) => join(root, "Infra", m, "migrations"));
 
   const tables: string[] = [];
   const indexes: string[] = [];
   const diagnostics: string[] = [];
   let filesCount = 0;
 
-  for (const dir of [authMigrationsDir, monetizationMigrationsDir, eventMigrationsDir, publishMigrationsDir, analyticsMigrationsDir]) {
+  for (const dir of migrationDirs) {
     if (existsSync(dir)) {
       const files = readdirSync(dir).filter((f) => f.endsWith(".sql"));
       filesCount += files.length;
@@ -114,7 +125,7 @@ export function executeInfraWorkerBundleAudit(
   input: InfraWorkerBundleAuditInput = {}
 ): InfraWorkerBundleAuditOutput {
   const root = input.workspaceRoot || process.env.HOLAR_ROOT || resolve(import.meta.dirname, "../../..");
-  const modules = ["Auth", "Monetization", "Event", "Publish", "Analytics"];
+  const modules = ["Auth", "Monetization", "Event", "Publish", "Analytics", "Experiment", "Workflow", "Media"];
   const results: InfraWorkerBundleAuditOutput["results"] = [];
 
   for (const mod of modules) {
@@ -297,6 +308,108 @@ export function executeInfraAnalyticsBeaconVerify(
   };
 }
 
+export function executeInfraExperimentRoute(
+  input: InfraExperimentRouteInput
+): InfraExperimentRouteOutput {
+  const experimentId = input.experimentId || "exp_default";
+  const subjectId = input.subjectId || "sub_anonymous";
+  const variants = input.variants || [
+    { key: "control", weight: 50 },
+    { key: "variant_a", weight: 50 },
+  ];
+
+  const bucket = getSubjectBucket(experimentId, subjectId);
+  const hashRatio = Math.round((bucket / 100) * 100) / 100;
+  const assigned = assignConsistentVariant(
+    experimentId,
+    subjectId,
+    variants.map((v) => ({
+      key: v.key,
+      name: v.name || v.key,
+      weight: v.weight ?? 50,
+    }))
+  );
+
+  return {
+    status: "ASSIGNED",
+    experimentId,
+    subjectId,
+    assignedVariant: assigned.key,
+    hashRatio,
+  };
+}
+
+export async function executeInfraWorkflowExecute(
+  input: InfraWorkflowExecuteInput
+): Promise<InfraWorkflowExecuteOutput> {
+  const workflowName = input.workflowName || "sample_workflow";
+  const wfInput = input.input || {};
+  const mockSleep = input.mockSleep ?? true;
+  const startTime = Date.now();
+
+  if (!localWorkflowEngine.getDefinition(workflowName)) {
+    localWorkflowEngine.register({
+      name: workflowName,
+      handler: async (step, inp) => {
+        const validated = await step.do("validate", async () => ({ ...inp, validatedAt: Date.now() }));
+        await step.sleep("settle", 1);
+        const processed = await step.do("process", async () => ({ ...validated, processed: true }));
+        return processed;
+      },
+    });
+  }
+
+  const instance = await localWorkflowEngine.run(workflowName, wfInput, { mockSleep });
+  const steps = localWorkflowEngine.getSteps(instance.id);
+
+  return {
+    status: instance.status === "completed" ? "COMPLETED" : "FAILED",
+    instanceId: instance.id,
+    workflowName: instance.workflowName,
+    stepCount: steps.length,
+    output: instance.output,
+    error: instance.error,
+    durationMs: Date.now() - startTime,
+  };
+}
+
+export function executeInfraMediaRender(
+  input: InfraMediaRenderInput
+): InfraMediaRenderOutput {
+  let result;
+  if (input.type === "code") {
+    result = renderCodeSnippetToSvg({
+      code: input.code || "console.log('Hello Edge');",
+      language: input.language || "typescript",
+      title: input.title || "main.ts",
+      theme: input.theme === "light" ? "light" : "dark",
+    });
+  } else if (input.type === "formula") {
+    result = renderFormulaToSvg({
+      latex: input.latex || "E = mc^2",
+      title: input.title,
+      theme: input.theme || "paper",
+    });
+  } else {
+    result = renderCardToSvg({
+      title: input.title || "Card Title",
+      subtitle: input.subtitle,
+      bullets: input.bullets,
+      theme: input.theme || "paper",
+      aspectRatio: input.aspectRatio || "16:9",
+    });
+  }
+
+  return {
+    status: "RENDERED",
+    format: "svg",
+    width: result.width,
+    height: result.height,
+    svgLength: result.svg.length,
+    svg: result.svg,
+  };
+}
+
 function normalizeInfraAction(action: string): InfraAction {
   switch (action) {
     case "canary":
@@ -333,6 +446,17 @@ function normalizeInfraAction(action: string): InfraAction {
     case "beacon_verify":
     case "script":
       return "infra_analytics_beacon_verify";
+    case "experiment":
+    case "experiment_route":
+    case "ab_test":
+      return "infra_experiment_route";
+    case "workflow":
+    case "workflow_execute":
+      return "infra_workflow_execute";
+    case "media":
+    case "media_render":
+    case "card":
+      return "infra_media_render";
     default:
       return action as InfraAction;
   }
@@ -382,6 +506,15 @@ export async function infraOperation(
       break;
     case "infra_analytics_beacon_verify":
       result = executeInfraAnalyticsBeaconVerify(params as InfraAnalyticsBeaconVerifyInput);
+      break;
+    case "infra_experiment_route":
+      result = executeInfraExperimentRoute(params as unknown as InfraExperimentRouteInput);
+      break;
+    case "infra_workflow_execute":
+      result = await executeInfraWorkflowExecute(params as unknown as InfraWorkflowExecuteInput);
+      break;
+    case "infra_media_render":
+      result = executeInfraMediaRender(params as unknown as InfraMediaRenderInput);
       break;
     case "list_actions":
       result = {

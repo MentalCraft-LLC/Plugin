@@ -21,6 +21,9 @@ export type InfraAction =
   | "infra_wechat_webhook_simulate"
   | "infra_analytics_query"
   | "infra_analytics_beacon_verify"
+  | "infra_experiment_route"
+  | "infra_workflow_execute"
+  | "infra_media_render"
   | "list_actions";
 
 export const INFRA_ACTIONS: InfraAction[] = [
@@ -32,6 +35,9 @@ export const INFRA_ACTIONS: InfraAction[] = [
   "infra_wechat_webhook_simulate",
   "infra_analytics_query",
   "infra_analytics_beacon_verify",
+  "infra_experiment_route",
+  "infra_workflow_execute",
+  "infra_media_render",
   "list_actions",
 ];
 
@@ -179,4 +185,56 @@ export interface InfraAnalyticsBeaconVerifyOutput {
   zeroPiiGuaranteed: boolean;
   compliant: boolean;
 }
+
+export interface InfraExperimentRouteInput {
+  experimentId: string;
+  subjectId: string;
+  variants?: { key: string; name?: string; weight?: number }[];
+}
+
+export interface InfraExperimentRouteOutput {
+  status: "ASSIGNED";
+  experimentId: string;
+  subjectId: string;
+  assignedVariant: string;
+  hashRatio: number;
+}
+
+export interface InfraWorkflowExecuteInput {
+  workflowName: string;
+  input: any;
+  mockSleep?: boolean;
+}
+
+export interface InfraWorkflowExecuteOutput {
+  status: "COMPLETED" | "FAILED";
+  instanceId: string;
+  workflowName: string;
+  stepCount: number;
+  output?: any;
+  error?: string;
+  durationMs: number;
+}
+
+export interface InfraMediaRenderInput {
+  type: "card" | "code" | "formula";
+  title?: string;
+  subtitle?: string;
+  bullets?: string[];
+  theme?: "dark" | "light" | "paper" | "clay";
+  aspectRatio?: "1:1" | "16:9" | "3:4" | "4:5";
+  code?: string;
+  language?: any;
+  latex?: string;
+}
+
+export interface InfraMediaRenderOutput {
+  status: "RENDERED";
+  format: "svg";
+  width: number;
+  height: number;
+  svgLength: number;
+  svg: string;
+}
+
 
