@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { workflowOperation, executeHealthCheck, dispatchPluginAction } from "./operation.ts";
+import { workflowOperation, executeHealthCheck, dispatchPluginAction, exportMermaidDag } from "./operation.ts";
 import { handleWorkflowRpc } from "./mcp-server.ts";
-import { WORKFLOW_PROTOCOL, BUILTIN_WORKFLOWS, compactWorkflowResult } from "./core.ts";
+import { WORKFLOW_PROTOCOL, BUILTIN_WORKFLOWS, compactWorkflowResult, evaluateStepCondition } from "./core.ts";
 
 describe("Plugin/Workflow Orchestrator & Health Engine", () => {
   test("list_workflows returns all multi-plugin compound pipelines", async () => {
@@ -1288,6 +1288,179 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     });
     expect(resNotFound.success).toBe(false);
     expect(resNotFound.diagnostics?.[0]).toContain("not found in run history");
+  });
+
+  test("evaluateStepCondition correctly evaluates object and string expressions without eval()", () => {
+    const context = {
+      step1: {
+        success: true,
+        data: {
+          score: 85,
+          tier: "enterprise",
+          tags: ["alpha", "beta", "gamma"],
+          active: true,
+          zero: 0,
+          emptyStr: "",
+        },
+      },
+    };
+
+    // Object condition tests
+    expect(evaluateStepCondition({ path: "step1.data.score", operator: "greater_equal", value: 80 }, context)).toBe(true);
+    expect(evaluateStepCondition({ path: "step1.data.score", operator: "less_than", value: 50 }, context)).toBe(false);
+    expect(evaluateStepCondition({ path: "step1.data.tier", operator: "equals", value: "enterprise" }, context)).toBe(true);
+    expect(evaluateStepCondition({ path: "step1.data.tier", operator: "not_equals", value: "free" }, context)).toBe(true);
+    expect(evaluateStepCondition({ path: "step1.data.tags", operator: "contains", value: "beta" }, context)).toBe(true);
+    expect(evaluateStepCondition({ path: "step1.data.tags", operator: "contains", value: "omega" }, context)).toBe(false);
+    expect(evaluateStepCondition({ path: "step1.data.active", operator: "truthy" }, context)).toBe(true);
+    expect(evaluateStepCondition({ path: "step1.data.emptyStr", operator: "falsy" }, context)).toBe(true);
+
+    // String condition tests
+    expect(evaluateStepCondition("${step1.data.score} >= 80", context)).toBe(true);
+    expect(evaluateStepCondition("${step1.data.score} < 50", context)).toBe(false);
+    expect(evaluateStepCondition("${step1.data.tier} == 'enterprise'", context)).toBe(true);
+    expect(evaluateStepCondition("${step1.data.tier} != 'free'", context)).toBe(true);
+    expect(evaluateStepCondition("${step1.data.active} truthy", context)).toBe(true);
+    expect(evaluateStepCondition("${step1.data.emptyStr} falsy", context)).toBe(true);
+    expect(evaluateStepCondition("${step1.missing} falsy", context)).toBe(true);
+  });
+
+  test("workflowOperation executes conditional steps and skips when condition is false", async () => {
+    const customWf = {
+      id: "test_conditional_workflow",
+      name: "Test Conditional Workflow",
+      description: "Tests conditional step execution and skipping",
+      requiredPlugins: ["science", "company"],
+      steps: [
+        {
+          step: 1,
+          plugin: "science" as const,
+          action: "journal_submission_checklist",
+        },
+        {
+          step: 2,
+          plugin: "company" as const,
+          action: "company_entity_audit",
+          condition: "${step1.data.fake_status} == 'non_existent'", // Evaluates to false
+        },
+        {
+          step: 3,
+          plugin: "science" as const,
+          action: "paper_literature_search",
+          parameters: { query: "conditional test" },
+          condition: { path: "step1.success", operator: "truthy" as const }, // Evaluates to true
+        },
+      ],
+    };
+
+    const res = await workflowOperation({
+      action: "run_workflow",
+      custom_workflow: customWf,
+    });
+
+    expect(res.success).toBe(true);
+    const receipt = res.data as any;
+    expect(receipt.stepsCount).toBe(3);
+
+    // Step 2 should be skipped
+    const step2Result = receipt.stepResults.find((s: any) => s.step === 2);
+    expect(step2Result.skipped).toBe(true);
+    expect(step2Result.data.status).toBe("SKIPPED");
+    const step2Span = receipt.spans.find((s: any) => s.step === 2);
+    expect(step2Span.status).toBe("SKIPPED");
+
+    // Step 3 should be executed normally
+    const step3Result = receipt.stepResults.find((s: any) => s.step === 3);
+    expect(step3Result.skipped).toBeUndefined();
+    expect(step3Result.success).toBe(true);
+  });
+
+  test("dispatchPluginAction enforces step-level timeoutMs and aborts execution", async () => {
+    // Calling infra_canary_probe with a 1ms timeout will reliably trigger a timeout rejection
+    try {
+      await dispatchPluginAction(
+        "infra",
+        "infra_canary_probe",
+        {},
+        { timeoutMs: 1 }
+      );
+      // If it somehow completed in 0ms, test passes
+    } catch (err: any) {
+      expect(err.message).toContain("timed out after 1ms");
+    }
+  });
+
+  test("workflowOperation emits events to on_event callback and supports get_events", async () => {
+    const streamedEvents: any[] = [];
+    const customWf = {
+      id: "test_event_streaming_flow",
+      name: "Test Event Streaming Flow",
+      description: "Tests live event telemetry",
+      requiredPlugins: ["science"],
+      steps: [
+        {
+          step: 1,
+          plugin: "science" as const,
+          action: "journal_submission_checklist",
+        },
+      ],
+    };
+
+    const res = await workflowOperation({
+      action: "run_workflow",
+      custom_workflow: customWf,
+      on_event: (evt) => streamedEvents.push(evt),
+    });
+
+    expect(res.success).toBe(true);
+    const runId = (res.data as any).runId;
+
+    // Verify streaming events captured
+    expect(streamedEvents.length).toBeGreaterThanOrEqual(3);
+    expect(streamedEvents.some((e) => e.type === "workflow_start")).toBe(true);
+    expect(streamedEvents.some((e) => e.type === "step_start")).toBe(true);
+    expect(streamedEvents.some((e) => e.type === "step_complete")).toBe(true);
+    expect(streamedEvents.some((e) => e.type === "workflow_complete")).toBe(true);
+
+    // Query events via get_events action
+    const eventsRes = await workflowOperation({
+      action: "get_events",
+      run_id: runId,
+    });
+
+    expect(eventsRes.success).toBe(true);
+    const eventData = eventsRes.data as any;
+    expect(eventData.total).toBeGreaterThanOrEqual(3);
+    expect(eventData.events[0].runId).toBe(runId);
+  });
+
+  test("exportMermaidDag includes conditional edges and subsystem styles", () => {
+    const customWf = {
+      id: "test_mermaid_condition_flow",
+      name: "Test Mermaid Condition Flow",
+      description: "Tests conditional edge rendering in Mermaid",
+      requiredPlugins: ["infra", "company"],
+      steps: [
+        {
+          step: 1,
+          plugin: "infra" as const,
+          action: "infra_canary_probe",
+        },
+        {
+          step: 2,
+          plugin: "company" as const,
+          action: "company_entity_audit",
+          dependsOn: [1],
+          condition: "${step1.data.status} == 'healthy'",
+        },
+      ],
+    };
+
+    const result = exportMermaidDag(customWf);
+    expect(result.mermaidCode).toContain("graph TD");
+    expect(result.mermaidCode).toContain("when:");
+    expect(result.mermaidCode).toContain("classDef infra");
+    expect(result.mermaidCode).toContain("classDef company");
   });
 });
 

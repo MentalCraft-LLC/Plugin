@@ -32,7 +32,7 @@ export function generateMarkdownCatalog(): string {
     "",
     "| Subsystem | Actions | Protocol | Key Domain Scope |",
     "|---|---|---|---|",
-    "| `Workflow` | 27 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |",
+    "| `Workflow` | 32 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |",
     "| `Business` | 41 | `holar.business.v1` | 8-Stage Venture Lifecycle, Dual $10k MRR, SEO/LLMO Content Gen, Full-Stack Excellence |",
     "| `Science` | 23 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, CSS, Grants, Authoring, Peer Review, Journals, Patents, Impact |",
     "| `Content` | 10 | `holar.content.v1` | Creative & Commercial Content: Fiction Worldbuilding, 15 Plot Beats, Character Arcs, PAS Copy, Omnichannel Matrix |",
@@ -106,6 +106,9 @@ Available REPL Commands:
   circuit [--reset] [act]  Inspect or reset circuit breaker state
   workflows, wf            List compound DAG pipelines
   run <workflow_id>        Execute workflow pipeline
+  resume [run_id]          Resume workflow execution from checkpoint
+  dry-run [workflow_id]    Simulate workflow DAG without side effects
+  events [run_id]          Query workflow telemetry events stream
   call, exec <p> <a> [arg] Execute single action (e.g. call business traffic_domain_overview domain=mentalcraft.org)
   benchmark, bench         Run P50/P90/P99 latency benchmark suite
   export-specs, specs      Export OpenRPC 1.3.2 & OpenAPI 3.1.0 specifications
@@ -152,6 +155,10 @@ Available REPL Commands:
           const wfId = parts[1] || "academic_paper_to_journal_submission";
           const res = await workflowOperation({ action: "dry_run", workflow_id: wfId as any });
           console.log(JSON.stringify(res, null, 2));
+        } else if (sub === "events") {
+          const runId = parts[1];
+          const res = await workflowOperation({ action: "get_events", run_id: runId });
+          console.log(JSON.stringify(res.data, null, 2));
         } else if (sub === "call" || sub === "exec") {
           const p = parts[1];
           const a = parts[2];
@@ -764,6 +771,29 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "events": {
+      const runId = args[1];
+      console.log(`\n📡 Querying Workflow Telemetry Events ${runId ? `(Run ID: ${runId})` : "(All Recent)"}...\n` + "=".repeat(75));
+      const res = await workflowOperation({
+        action: "get_events",
+        run_id: runId,
+      });
+      const data = res.data as any;
+      if (res.success) {
+        console.log(`\n✅ Retrieved ${data.total} Workflow Event(s):`);
+        data.events?.forEach((evt: any) => {
+          const detail = evt.step ? ` [Step ${evt.step} ${evt.plugin}:${evt.action}]` : evt.wave ? ` [Wave ${evt.wave}]` : "";
+          const dur = evt.durationMs !== undefined ? ` (${evt.durationMs}ms)` : "";
+          const err = evt.error ? ` - ❌ ${evt.error}` : "";
+          console.log(`  • [${evt.timestamp}] ${evt.type.toUpperCase()}${detail}${dur}${err}`);
+        });
+      } else {
+        console.error(`\n✗ Query Failed: ${(res.diagnostics ?? []).join("; ")}`);
+      }
+      console.log("=".repeat(75) + "\n");
+      break;
+    }
+
     case "serve": {
       const httpFlag = args.includes("--http");
       const portArg = args.find((a) => a.startsWith("--port="));
@@ -790,6 +820,7 @@ Commands:
   run-workflow <id>        Execute a compound workflow pipeline
   resume [run_id]          Resume failed workflow execution from checkpoint
   dry-run <id>             Simulate and validate workflow DAG without side effects
+  events [run_id]          Query real-time streaming workflow telemetry events
   history                  View past workflow execution receipts
   export-config [client]   Generate MCP config JSON for Claude Desktop / Cursor
   export-specs [--dir=dir] Export OpenRPC 1.3.2 and OpenAPI 3.1.0 JSON specs

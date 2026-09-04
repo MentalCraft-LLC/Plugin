@@ -64,14 +64,51 @@ export type WorkflowId =
   | "global_fintech_and_monetization_readiness"
   | (string & {});
 
+export type WorkflowStepCondition = {
+  field?: string;
+  path?: string;
+  operator: "equals" | "not_equals" | "truthy" | "falsy" | "greater_than" | "less_than" | "greater_equal" | "less_equal" | "contains";
+  value?: unknown;
+};
+
 export type WorkflowStep = {
   step: number;
   plugin: PluginId;
   action: string;
   skill?: string;
-  description: string;
+  description?: string;
   dependsOn?: number[];
   parameters?: Record<string, unknown>;
+  maxRetries?: number;
+  retries?: number;
+  timeoutMs?: number;
+  condition?: WorkflowStepCondition | string;
+};
+
+export type WorkflowEventType =
+  | "workflow_start"
+  | "wave_start"
+  | "step_start"
+  | "step_complete"
+  | "step_skipped"
+  | "step_error"
+  | "wave_complete"
+  | "workflow_complete";
+
+export type WorkflowEvent = {
+  type: WorkflowEventType;
+  runId: string;
+  workflowId: string;
+  timestamp: string;
+  step?: number;
+  wave?: number;
+  plugin?: PluginId | string;
+  action?: string;
+  durationMs?: number;
+  success?: boolean;
+  skipped?: boolean;
+  data?: unknown;
+  error?: string;
 };
 
 export type WorkflowDefinition = {
@@ -90,7 +127,7 @@ export type WorkflowSpan = {
   step: number;
   startOffsetMs: number;
   durationMs: number;
-  status: "OK" | "ERROR";
+  status: "OK" | "ERROR" | "SKIPPED";
 };
 
 export type WorkflowRunReceipt = {
@@ -107,7 +144,9 @@ export type WorkflowRunReceipt = {
     step: number;
     plugin: PluginId;
     action: string;
+    skill?: string;
     success: boolean;
+    skipped?: boolean;
     durationMs: number;
     data: unknown;
   }>;
@@ -744,6 +783,7 @@ export const WORKFLOW_ACTIONS = [
   "autopilot_schedule_spec",
   "autopilot_run",
   "resume_workflow",
+  "get_events",
   "list_actions",
 ] as const;
 
@@ -755,6 +795,8 @@ export type WorkflowInput = {
   dynamic_intent?: DynamicWorkflowIntent;
   run_id?: string;
   concurrency_mode?: "sequential" | "concurrent_dag";
+  timeout_ms?: number;
+  on_event?: (event: WorkflowEvent) => void;
   target_plugin?: PluginId | "all";
   target_action?: string;
   custom_workflow?: {
@@ -889,10 +931,136 @@ export function formatWorkflowSummary(result: WorkflowResult): string {
       const data = result.data as any;
       return `Autopilot Schedule Spec: Cron "${data.CronExpression}" (Every ${data.RecommendedIntervalMinutes} min)`;
     }
+    case "get_events": {
+      const data = result.data as any;
+      return `Workflow Events (${data.total ?? 0}): ${data.events?.length ?? 0} events retrieved`;
+    }
   }
 }
 
 export const compactWorkflowResult = formatWorkflowSummary;
+
+/**
+ * Resolves a dot-delimited property path from an object safely.
+ */
+export function getNestedProperty(obj: any, path: string): any {
+  if (!obj || typeof obj !== "object") return undefined;
+  const parts = path.split(".");
+  let curr = obj;
+  for (const p of parts) {
+    if (curr === null || curr === undefined) return undefined;
+    curr = curr[p];
+  }
+  return curr;
+}
+
+/**
+ * Evaluates conditional expressions or structured conditions against the workflow step context.
+ */
+export function evaluateStepCondition(
+  condition: WorkflowStepCondition | string | undefined,
+  context: Record<string, any>,
+): boolean {
+  if (!condition) return true;
+
+  if (typeof condition === "object") {
+    const targetPath = condition.path ?? condition.field;
+    const fieldVal = targetPath ? getNestedProperty(context, targetPath) : undefined;
+    const targetVal = condition.value;
+
+    switch (condition.operator) {
+      case "truthy":
+        return Boolean(fieldVal);
+      case "falsy":
+        return !fieldVal;
+      case "equals":
+        return fieldVal === targetVal || String(fieldVal) === String(targetVal);
+      case "not_equals":
+        return fieldVal !== targetVal && String(fieldVal) !== String(targetVal);
+      case "greater_than":
+        return Number(fieldVal) > Number(targetVal);
+      case "less_than":
+        return Number(fieldVal) < Number(targetVal);
+      case "greater_equal":
+        return Number(fieldVal) >= Number(targetVal);
+      case "less_equal":
+        return Number(fieldVal) <= Number(targetVal);
+      case "contains":
+        if (Array.isArray(fieldVal)) return fieldVal.includes(targetVal);
+        return String(fieldVal).includes(String(targetVal));
+      default:
+        return true;
+    }
+  }
+
+  if (typeof condition === "string") {
+    // Check for unary "${expr} truthy" or "${expr} falsy"
+    const unaryMatch = condition.match(/^(.+?)\s+(truthy|falsy)$/);
+    if (unaryMatch) {
+      const expr = unaryMatch[1].trim();
+      const op = unaryMatch[2];
+      const cleaned = expr.replace(/^\$\{/, "").replace(/\}$/, "").trim();
+      const val = getNestedProperty(context, cleaned);
+      const isTruthy = Boolean(val);
+      return op === "truthy" ? isTruthy : !isTruthy;
+    }
+
+    // Interpolate ${stepX.path} references
+    const resolvedStr = condition.replace(/\$\{([^}]+)\}/g, (_, expr) => {
+      const val = getNestedProperty(context, expr.trim());
+      if (typeof val === "string") return `'${val}'`;
+      return String(val ?? "undefined");
+    }).trim();
+
+    // Direct boolean matches
+    if (resolvedStr === "true" || resolvedStr === "'true'") return true;
+    if (resolvedStr === "false" || resolvedStr === "'false'" || resolvedStr === "undefined") return false;
+
+    // Binary comparison pattern: left op right
+    const match = resolvedStr.match(/^(.+?)\s*(===|==|!==|!=|>=|<=|>|<)\s*(.+)$/);
+    if (match) {
+      const leftRaw = match[1].trim();
+      const op = match[2].trim();
+      const rightRaw = match[3].trim();
+
+      const parseVal = (s: string) => {
+        if ((s.startsWith("'") && s.endsWith("'")) || (s.startsWith('"') && s.endsWith('"'))) {
+          return s.slice(1, -1);
+        }
+        if (s === "true") return true;
+        if (s === "false") return false;
+        if (s === "null") return null;
+        if (s === "undefined") return undefined;
+        const n = Number(s);
+        return isNaN(n) ? s : n;
+      };
+
+      const left = parseVal(leftRaw);
+      const right = parseVal(rightRaw);
+
+      switch (op) {
+        case "===":
+        case "==":
+          return left == right;
+        case "!==":
+        case "!=":
+          return left != right;
+        case ">=":
+          return (left as any) >= (right as any);
+        case "<=":
+          return (left as any) <= (right as any);
+        case ">":
+          return (left as any) > (right as any);
+        case "<":
+          return (left as any) < (right as any);
+      }
+    }
+
+    return Boolean(resolvedStr && resolvedStr !== "undefined" && resolvedStr !== "null");
+  }
+
+  return true;
+}
 
 /**
  * Partitions workflow steps into concurrent DAG execution waves.
@@ -913,6 +1081,13 @@ export function scheduleDagWaves(steps: WorkflowStep[]): WorkflowStep[][] {
     if (s.parameters) {
       const jsonStr = JSON.stringify(s.parameters);
       const matches = Array.from(jsonStr.matchAll(/\$\{step(\d+)\.[^}]+\}/g));
+      for (const m of matches) {
+        deps.add(parseInt(m[1], 10));
+      }
+    }
+    if (s.condition) {
+      const condStr = typeof s.condition === "string" ? s.condition : JSON.stringify(s.condition);
+      const matches = Array.from(condStr.matchAll(/\$\{step(\d+)\.[^}]+\}/g));
       for (const m of matches) {
         deps.add(parseInt(m[1], 10));
       }
@@ -962,4 +1137,5 @@ export function scheduleDagWaves(steps: WorkflowStep[]): WorkflowStep[][] {
 
   return waves.filter((w) => w.length > 0);
 }
+
 
