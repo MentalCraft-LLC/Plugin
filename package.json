@@ -47,6 +47,8 @@
     "serve:company": "bun ./Domain/Company/mcp-server.ts",
     "sync:mcp": "bun ./.agents/scripts/sync-mcp.ts",
     "check:flywheel": "bun ./.agents/scripts/check-flywheel.ts",
+    "momentum:ledger": "bun ./Capability/Workflow/cli.ts momentum ledger",
+    "momentum:transmit": "bun ./Capability/Workflow/cli.ts momentum transmit",
     "audit:workspace": "bun ./.agents/scripts/audit-workspace.ts",
     "sync:domains": "bun ./.agents/scripts/sync-domains.ts",
     "verify": "bun ./.agents/scripts/verify-all.ts"

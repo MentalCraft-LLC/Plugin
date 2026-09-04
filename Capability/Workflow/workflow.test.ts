@@ -962,6 +962,55 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(infraData.report.scope).toContain("Infra Domain Flywheel");
   }, 10000);
 
+  test("workflowOperation supports live 42-channel momentum pulsing and ledger query", async () => {
+    // 1. Transmit momentum from Science to Business
+    const transmitRes = await workflowOperation({
+      action: "transmit_momentum",
+      from: "Science",
+      to: "Business",
+      name: "Empirical Trial Efficacy Evidence",
+      evidence: "Paper published with IRB approval",
+    });
+    expect(transmitRes.success).toBe(true);
+    const transmitData = transmitRes.data as any;
+    expect(transmitData.from).toBe("Science");
+    expect(transmitData.to).toBe("Business");
+    expect(transmitData.channelId).toBe("SCI_BIZ");
+    expect(transmitData.name).toBe("Empirical Trial Efficacy Evidence");
+    expect(transmitData.totalTransmissions).toBeGreaterThanOrEqual(1);
+
+    // 2. Transmit momentum from Business to Company
+    const transmitRes2 = await workflowOperation({
+      action: "transmit_momentum",
+      from: "Business",
+      to: "Company",
+      name: "Commercial Revenue Stream & Proof of Trajectory",
+      evidence: "$10,000 MRR Milestone Reached",
+    });
+    expect(transmitRes2.success).toBe(true);
+    const transmitData2 = transmitRes2.data as any;
+    expect(transmitData2.channelId).toBe("BIZ_CMP");
+
+    // 3. Query the momentum ledger
+    const ledgerRes = await workflowOperation({ action: "get_momentum_ledger" });
+    expect(ledgerRes.success).toBe(true);
+    const ledgerData = ledgerRes.data as any;
+    expect(ledgerData.totalChannels).toBe(42);
+    expect(ledgerData.totalTransmissions).toBeGreaterThanOrEqual(2);
+    expect(ledgerData.activeChannelsCount).toBeGreaterThanOrEqual(2);
+    expect(ledgerData.matrix.Science.Business).toBeGreaterThanOrEqual(1);
+    expect(ledgerData.matrix.Business.Company).toBeGreaterThanOrEqual(1);
+    expect(ledgerData.recentTransmissions.length).toBeGreaterThanOrEqual(2);
+
+    // 4. Validate rejection of invalid channel (self-loop or unknown domain)
+    const invalidRes = await workflowOperation({
+      action: "transmit_momentum",
+      from: "Science",
+      to: "Science",
+    });
+    expect(invalidRes.success).toBe(false);
+  });
+
   test("dispatchPluginAction dispatches cleanly across all 10 subsystems", async () => {
     // 1. Business
     const biz = await dispatchPluginAction("business", "venture_market_validation", { modality: "website" });

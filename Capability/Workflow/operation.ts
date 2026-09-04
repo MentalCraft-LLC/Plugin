@@ -360,6 +360,162 @@ function getStoragePaths() {
     telemetryFile: join(dir, "telemetry.json"),
     historyFile: join(dir, "history.json"),
     workflowsFile: join(dir, "workflows.json"),
+    momentumLedgerFile: join(dir, "momentum_ledger.json"),
+  };
+}
+
+export const CANONICAL_DOMAINS = [
+  "Business",
+  "Design",
+  "Content",
+  "Plugin",
+  "Science",
+  "Infra",
+  "Company",
+] as const;
+export type CanonicalDomain = (typeof CANONICAL_DOMAINS)[number];
+
+export interface MomentumPulse {
+  id: string;
+  timestamp: string;
+  from: CanonicalDomain;
+  to: CanonicalDomain;
+  channelId: string;
+  name: string;
+  payload?: Record<string, unknown>;
+  evidence?: string;
+}
+
+export interface MomentumMatrixReport {
+  totalTransmissions: number;
+  activeChannelsCount: number;
+  totalChannels: 42;
+  matrix: Record<CanonicalDomain, Record<CanonicalDomain, number>>;
+  channelSummary: Array<{
+    channelId: string;
+    from: CanonicalDomain;
+    to: CanonicalDomain;
+    pulsesCount: number;
+    lastActiveTimestamp?: string;
+  }>;
+  recentTransmissions: MomentumPulse[];
+}
+
+export function recordMomentumPulse(pulse: Omit<MomentumPulse, "id" | "timestamp" | "channelId"> & { channelId?: string }): MomentumPulse {
+  const { existsSync, readFileSync, writeFileSync, mkdirSync } = require("node:fs");
+  const { randomBytes } = require("node:crypto");
+  const { dir, momentumLedgerFile } = getStoragePaths();
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+
+  const prefixMap: Record<string, string> = {
+    Business: "BIZ",
+    Design: "DES",
+    Content: "CNT",
+    Plugin: "PLG",
+    Science: "SCI",
+    Infra: "INF",
+    Company: "CMP",
+  };
+  const fromPrefix = prefixMap[pulse.from] || String(pulse.from).toUpperCase().slice(0, 3);
+  const toPrefix = prefixMap[pulse.to] || String(pulse.to).toUpperCase().slice(0, 3);
+  const channelId = pulse.channelId || `${fromPrefix}_${toPrefix}`;
+
+  const fullPulse: MomentumPulse = {
+    id: `mom_${Date.now()}_${randomBytes(4).toString("hex")}`,
+    timestamp: new Date().toISOString(),
+    from: pulse.from,
+    to: pulse.to,
+    channelId,
+    name: pulse.name,
+    payload: pulse.payload,
+    evidence: pulse.evidence,
+  };
+
+  let ledger: MomentumPulse[] = [];
+  if (existsSync(momentumLedgerFile)) {
+    try {
+      ledger = JSON.parse(readFileSync(momentumLedgerFile, "utf8"));
+    } catch {}
+  }
+  ledger.push(fullPulse);
+  if (ledger.length > 1000) {
+    ledger = ledger.slice(-1000);
+  }
+  writeFileSync(momentumLedgerFile, JSON.stringify(ledger, null, 2), "utf8");
+  return fullPulse;
+}
+
+export function getMomentumLedgerReport(): MomentumMatrixReport {
+  const { existsSync, readFileSync } = require("node:fs");
+  const { momentumLedgerFile } = getStoragePaths();
+
+  let ledger: MomentumPulse[] = [];
+  if (existsSync(momentumLedgerFile)) {
+    try {
+      ledger = JSON.parse(readFileSync(momentumLedgerFile, "utf8"));
+    } catch {}
+  }
+
+  const matrix: any = {};
+  for (const d1 of CANONICAL_DOMAINS) {
+    matrix[d1] = {};
+    for (const d2 of CANONICAL_DOMAINS) {
+      if (d1 !== d2) {
+        matrix[d1][d2] = 0;
+      }
+    }
+  }
+
+  const channelMap = new Map<string, { from: CanonicalDomain; to: CanonicalDomain; count: number; lastTimestamp?: string }>();
+  const prefixMap: Record<string, string> = {
+    Business: "BIZ",
+    Design: "DES",
+    Content: "CNT",
+    Plugin: "PLG",
+    Science: "SCI",
+    Infra: "INF",
+    Company: "CMP",
+  };
+
+  for (const from of CANONICAL_DOMAINS) {
+    for (const to of CANONICAL_DOMAINS) {
+      if (from !== to) {
+        const chId = `${prefixMap[from]}_${prefixMap[to]}`;
+        channelMap.set(chId, { from, to, count: 0 });
+      }
+    }
+  }
+
+  for (const item of ledger) {
+    if (matrix[item.from] && matrix[item.from][item.to] !== undefined) {
+      matrix[item.from][item.to]++;
+    }
+    const entry = channelMap.get(item.channelId);
+    if (entry) {
+      entry.count++;
+      entry.lastTimestamp = item.timestamp;
+    }
+  }
+
+  const channelSummary = Array.from(channelMap.entries()).map(([channelId, data]) => ({
+    channelId,
+    from: data.from,
+    to: data.to,
+    pulsesCount: data.count,
+    lastActiveTimestamp: data.lastTimestamp,
+  }));
+
+  const activeChannelsCount = channelSummary.filter((c) => c.pulsesCount > 0).length;
+
+  return {
+    totalTransmissions: ledger.length,
+    activeChannelsCount,
+    totalChannels: 42,
+    matrix,
+    channelSummary,
+    recentTransmissions: ledger.slice(-20).reverse(),
   };
 }
 
@@ -489,6 +645,8 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "health_check",
       "dry_run",
       "check_flywheel",
+      "transmit_momentum",
+      "get_momentum_ledger",
       "audit_workspace",
       "run_diagnostics",
       "reset_circuit",
@@ -2566,6 +2724,68 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
           exitCode: res.status,
           ...(jsonReport ? { report: jsonReport } : {}),
         },
+      };
+    }
+
+    case "transmit_momentum": {
+      const from = (input.momentum?.from || input.from || "Business") as CanonicalDomain;
+      const to = (input.momentum?.to || input.to || "Design") as CanonicalDomain;
+      const name = input.momentum?.name || (input as any).name || "Cross-Domain Momentum";
+      const payload = input.momentum?.payload || (input as any).payload || {};
+      const evidence = input.momentum?.evidence || input.evidence || "Autonomous momentum transmission";
+
+      if (!CANONICAL_DOMAINS.includes(from) || !CANONICAL_DOMAINS.includes(to) || from === to) {
+        return {
+          protocol: WORKFLOW_PROTOCOL,
+          action: "transmit_momentum",
+          success: false,
+          timestamp,
+          data: null,
+          diagnostics: [`Invalid flywheel channel from '${from}' to '${to}'. Must be distinct canonical domains in: ${CANONICAL_DOMAINS.join(", ")}`],
+        };
+      }
+
+      const pulse = recordMomentumPulse({
+        from,
+        to,
+        name,
+        payload,
+        evidence,
+      });
+
+      emitWorkflowEvent({
+        type: "momentum_transmitted",
+        runId: pulse.id,
+        workflowId: pulse.channelId,
+        timestamp: pulse.timestamp,
+        from,
+        to,
+        name,
+      } as any, input.on_event);
+
+      const report = getMomentumLedgerReport();
+
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "transmit_momentum",
+        success: true,
+        timestamp,
+        data: {
+          ...pulse,
+          activeChannelsCount: report.activeChannelsCount,
+          totalTransmissions: report.totalTransmissions,
+        },
+      };
+    }
+
+    case "get_momentum_ledger": {
+      const report = getMomentumLedgerReport();
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "get_momentum_ledger",
+        success: true,
+        timestamp,
+        data: report,
       };
     }
 

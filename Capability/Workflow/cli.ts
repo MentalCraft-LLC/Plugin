@@ -7,7 +7,7 @@
  * interactive REPL console, and automatic documentation generation.
  */
 
-import { BUILTIN_WORKFLOWS, type PluginId } from "./core.ts";
+import { BUILTIN_WORKFLOWS, compactWorkflowResult, type PluginId } from "./core.ts";
 import { executeHealthCheck, workflowOperation, dispatchPluginAction } from "./operation.ts";
 import { formatAutopilotSummary } from "./autopilot.ts";
 import { startGatewayMcpStdio, startGatewayMcpHttp } from "./gateway.ts";
@@ -620,6 +620,60 @@ async function mainCommand(cmd: string) {
 
     case "flywheel":
     case "momentum": {
+      const sub = args[1];
+      if (sub === "ledger" || sub === "matrix") {
+        const res = await workflowOperation({ action: "get_momentum_ledger" });
+        const data = res.data as any;
+        console.log("\n=========================================================================================");
+        console.log(" 🌀 Holar 7-Domain ($K_7$) Momentum Pulse Matrix & Live Ledger");
+        console.log("=========================================================================================\n");
+        console.log(`Total Momentum Transmissions: ${data.totalTransmissions}`);
+        console.log(`Active Flywheel Channels:     ${data.activeChannelsCount}/${data.totalChannels} (${Math.round((data.activeChannelsCount / data.totalChannels) * 100)}% coverage)\n`);
+        
+        const domains = ["Business", "Design", "Content", "Plugin", "Science", "Infra", "Company"];
+        const headers = ["From \\ To", "BIZ", "DES", "CNT", "PLG", "SCI", "INF", "CMP"];
+        console.log(headers.map((h) => h.padEnd(10)).join(" | "));
+        console.log("-".repeat(95));
+        for (const from of domains) {
+          const row = [from.padEnd(10)];
+          for (const to of domains) {
+            if (from === to) {
+              row.push("-".padEnd(10));
+            } else {
+              const count = data.matrix[from]?.[to] ?? 0;
+              row.push(String(count).padEnd(10));
+            }
+          }
+          console.log(row.join(" | "));
+        }
+        if (data.recentTransmissions && data.recentTransmissions.length > 0) {
+          console.log("\nRecent Momentum Transmissions:");
+          for (const t of data.recentTransmissions.slice(0, 8)) {
+            console.log(` • [${t.timestamp.slice(11, 19)}] ${t.from} ➔ ${t.to} (${t.channelId}): ${t.name} — ${t.evidence || ""}`);
+          }
+        }
+        console.log("");
+        break;
+      }
+      if (sub === "transmit") {
+        const from = args.find((a) => a.startsWith("--from="))?.split("=")[1];
+        const to = args.find((a) => a.startsWith("--to="))?.split("=")[1];
+        const name = args.find((a) => a.startsWith("--name="))?.split("=")[1] || "Cross-Domain Momentum";
+        const evidence = args.find((a) => a.startsWith("--evidence="))?.split("=")[1] || "CLI transmission";
+        if (!from || !to) {
+          console.error("Error: --from=<Domain> and --to=<Domain> required for momentum transmit");
+          process.exit(1);
+        }
+        const res = await workflowOperation({
+          action: "transmit_momentum",
+          from,
+          to,
+          name,
+          evidence,
+        });
+        console.log(compactWorkflowResult(res));
+        break;
+      }
       const { spawnSync } = require("node:child_process");
       const script = join(__dirname, "../../.agents/scripts/check-flywheel.ts");
       const forwardArgs = args.slice(1);

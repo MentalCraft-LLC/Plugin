@@ -825,6 +825,8 @@ export const WORKFLOW_ACTIONS = [
   "resume_workflow",
   "get_events",
   "clear_cache",
+  "transmit_momentum",
+  "get_momentum_ledger",
   "list_actions",
 ] as const;
 
@@ -877,6 +879,19 @@ export type WorkflowInput = {
   };
   venture_name?: string;
   interval_minutes?: number;
+  domain?: string;
+  json?: boolean;
+  quiet?: boolean;
+  from?: string;
+  to?: string;
+  evidence?: string;
+  momentum?: {
+    from: "Business" | "Design" | "Content" | "Plugin" | "Science" | "Infra" | "Company" | string;
+    to: "Business" | "Design" | "Content" | "Plugin" | "Science" | "Infra" | "Company" | string;
+    name?: string;
+    payload?: Record<string, unknown>;
+    evidence?: string;
+  };
   benchmark_options?: {
     iterations?: number;
     warmupIterations?: number;
@@ -985,6 +1000,21 @@ export function formatWorkflowSummary(result: WorkflowResult): string {
     case "get_events": {
       const data = result.data as any;
       return `Workflow Events (${data.total ?? 0}): ${data.events?.length ?? 0} events retrieved`;
+    }
+    case "check_flywheel": {
+      const data = result.data as any;
+      if (data?.report) {
+        return `🌀 Flywheel [${data.report.scope}]: ${data.report.passedCount}/${data.report.totalCount} channels verified (${data.report.score}%)`;
+      }
+      return `🌀 Flywheel Connectivity Check: ${result.success ? "100% PASS" : "CHANNELS REQUIRE HEALING"}`;
+    }
+    case "transmit_momentum": {
+      const data = result.data as any;
+      return `✓ Flywheel Momentum Transmitted [${data.from} ➔ ${data.to}]: ${data.name} (channel: ${data.channelId})`;
+    }
+    case "get_momentum_ledger": {
+      const data = result.data as any;
+      return `Flywheel Momentum Ledger: ${data.totalTransmissions} pulses across ${data.activeChannelsCount}/${data.totalChannels} active channels`;
     }
     case "clear_cache": {
       const data = result.data as any;

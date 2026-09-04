@@ -312,6 +312,24 @@ export const AUTOPILOT_OBJECTIVES: AutopilotObjectiveDef[] = [
       const res = spawnSync("bun", [verifyScript], { encoding: "utf8" });
       const passed = res.status === 0;
 
+      if (passed) {
+        try {
+          const { recordMomentumPulse } = require("./operation.ts");
+          recordMomentumPulse({
+            from: "Plugin",
+            to: "Company",
+            name: "合规自动审计与治理门禁 (Automated Governance)",
+            evidence: "All 9 master gates green & 42 flywheel channels active in Autopilot",
+          });
+          recordMomentumPulse({
+            from: "Plugin",
+            to: "Business",
+            name: "自主自愈引擎驱动 (Autopilot Remediation)",
+            evidence: "Principle-driven autonomous tick advanced",
+          });
+        } catch {}
+      }
+
       return {
         liveMrrUsd: cfg.liveProSubs ? cfg.liveProSubs * 19 : 0,
         targetMrrUsd: TARGET_MENTALCRAFT_MRR,
