@@ -1909,6 +1909,8 @@
                   "infra_stripe_webhook_simulate",
                   "infra_publish_dispatch",
                   "infra_wechat_webhook_simulate",
+                  "infra_analytics_query",
+                  "infra_analytics_beacon_verify",
                   "list_actions"
                 ],
                 "description": "Infra action to perform"
@@ -3709,6 +3711,8 @@
               "infra_stripe_webhook_simulate",
               "infra_publish_dispatch",
               "infra_wechat_webhook_simulate",
+              "infra_analytics_query",
+              "infra_analytics_beacon_verify",
               "list_actions"
             ],
             "description": "Infra action to perform"
@@ -5499,7 +5503,7 @@
     },
     "infra": {
       "title": "Global Edge Microservices & Data Infrastructure",
-      "actions": 7,
+      "actions": 9,
       "schema": {
         "type": "object",
         "additionalProperties": false,
@@ -5516,6 +5520,8 @@
               "infra_stripe_webhook_simulate",
               "infra_publish_dispatch",
               "infra_wechat_webhook_simulate",
+              "infra_analytics_query",
+              "infra_analytics_beacon_verify",
               "list_actions"
             ],
             "description": "Infra action to perform"
@@ -5558,5 +5564,5 @@
   },
   "totalPlugins": 10,
   "totalTools": 10,
-  "totalMethods": 283
+  "totalMethods": 285
 }

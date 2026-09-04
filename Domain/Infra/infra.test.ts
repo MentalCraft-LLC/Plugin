@@ -77,4 +77,31 @@ describe("Plugin/Infra FastMCP Protocol Engine", () => {
     expect(wx.action).toBe("infra_wechat_webhook_simulate");
     expect((wx.result as any).matchedRule).toBe("keyword_automation");
   });
+
+  test("infraOperation executes infra_analytics_query and infra_analytics_beacon_verify", async () => {
+    const query = await infraOperation({
+      action: "analytics",
+      params: { domain: "mentalcraft.org" },
+    });
+    expect(query.action).toBe("infra_analytics_query");
+    const qData = query.result as any;
+    expect(qData.status).toBe("SUCCESS");
+    expect(qData.domain).toBe("mentalcraft.org");
+    expect(qData.realtimeVisitors).toBeGreaterThanOrEqual(1);
+    expect(qData.stats.visitors).toBeGreaterThanOrEqual(1);
+    expect(qData.breakdown.length).toBeGreaterThan(0);
+
+    const beacon = await infraOperation({
+      action: "beacon",
+      params: { domain: "mentalcraft.org" },
+    });
+    expect(beacon.action).toBe("infra_analytics_beacon_verify");
+    const bData = beacon.result as any;
+    expect(bData.snippet).toContain("analytics.mentalcraft.org/js/script.js");
+    expect(bData.zeroPiiGuaranteed).toBe(true);
+    expect(bData.compliant).toBe(true);
+
+    const list = await infraOperation("list_actions");
+    expect((list.result as any).totalActions).toBe(9);
+  });
 });

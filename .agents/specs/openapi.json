@@ -1993,6 +1993,8 @@
               "infra_stripe_webhook_simulate",
               "infra_publish_dispatch",
               "infra_wechat_webhook_simulate",
+              "infra_analytics_query",
+              "infra_analytics_beacon_verify",
               "list_actions"
             ],
             "description": "Infra action to perform"

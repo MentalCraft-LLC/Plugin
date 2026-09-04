@@ -19,6 +19,8 @@ export type InfraAction =
   | "infra_stripe_webhook_simulate"
   | "infra_publish_dispatch"
   | "infra_wechat_webhook_simulate"
+  | "infra_analytics_query"
+  | "infra_analytics_beacon_verify"
   | "list_actions";
 
 export const INFRA_ACTIONS: InfraAction[] = [
@@ -28,6 +30,8 @@ export const INFRA_ACTIONS: InfraAction[] = [
   "infra_stripe_webhook_simulate",
   "infra_publish_dispatch",
   "infra_wechat_webhook_simulate",
+  "infra_analytics_query",
+  "infra_analytics_beacon_verify",
   "list_actions",
 ];
 
@@ -123,5 +127,43 @@ export interface InfraWeChatWebhookSimulateOutput {
   matchedRule: string;
   replyText: string;
   latencyMs: number;
+}
+
+export interface InfraAnalyticsQueryInput {
+  domain?: string;
+  period?: "realtime" | "day" | "7d" | "30d" | "month";
+  property?: "page" | "source" | "country" | "device";
+}
+
+export interface InfraAnalyticsQueryOutput {
+  status: "SUCCESS" | "ERROR";
+  domain: string;
+  realtimeVisitors: number;
+  stats: {
+    visitors: number;
+    pageviews: number;
+    bounceRate: number;
+    visitDuration: number;
+    viewsPerVisit: number;
+  };
+  breakdown: Array<{
+    property: string;
+    visitors: number;
+    percentage: number;
+  }>;
+}
+
+export interface InfraAnalyticsBeaconVerifyInput {
+  domain?: string;
+}
+
+export interface InfraAnalyticsBeaconVerifyOutput {
+  domain: string;
+  snippet: string;
+  scriptEndpoint: string;
+  ingestEndpoint: string;
+  maxScriptSizeBytes: number;
+  zeroPiiGuaranteed: boolean;
+  compliant: boolean;
 }
 
