@@ -308,7 +308,7 @@ export const AUTOPILOT_OBJECTIVES: AutopilotObjectiveDef[] = [
     execute: async (cfg) => {
       const { spawnSync } = require("node:child_process");
       const { resolve } = require("node:path");
-      const verifyScript = resolve(__dirname, "../../.agents/scripts/verify-all.ts");
+      const verifyScript = resolve(import.meta.dirname, "../../.agents/scripts/verify-all.ts");
       const res = spawnSync("bun", [verifyScript], { encoding: "utf8" });
       const passed = res.status === 0;
 

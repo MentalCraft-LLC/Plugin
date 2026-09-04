@@ -675,7 +675,7 @@ async function mainCommand(cmd: string) {
         break;
       }
       const { spawnSync } = require("node:child_process");
-      const script = join(__dirname, "../../.agents/scripts/check-flywheel.ts");
+      const script = join(import.meta.dirname, "../../.agents/scripts/check-flywheel.ts");
       const forwardArgs = args.slice(1);
       const child = spawnSync("bun", [script, ...forwardArgs], { stdio: "inherit" });
       if (child.status !== 0) process.exit(child.status || 1);

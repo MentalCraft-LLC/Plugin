@@ -194,7 +194,8 @@ export async function handleGatewayRpc(request: JsonRpcRequest): Promise<JsonRpc
       } else if (toolName === "content") {
         output = await contentOperation(args as any);
       } else if (toolName === "browser" || toolName === "chrome") {
-        output = await executeChrome(args as any, undefined, { isProjectTrusted: () => true }, "gateway_session", undefined);
+        const session = (args as any)?.session_name ?? (args as any)?.tab_group_name ?? "gateway_session";
+        output = await executeChrome(args as any, undefined, { isProjectTrusted: () => true }, session, undefined);
       } else if (toolName === "message") {
         output = await executeMessage(args as any);
       } else if (toolName === "secret") {

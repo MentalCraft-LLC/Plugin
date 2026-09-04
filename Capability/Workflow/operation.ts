@@ -54,7 +54,14 @@ import {
 const rawExecuteBrowser = createBrowserContextOperation();
 const executeBrowser = async (input: any) => {
   const session = input?.session_name ?? input?.tab_group_name ?? "workflow_session";
-  return await rawExecuteBrowser(input, undefined, { isProjectTrusted: () => true }, session, undefined);
+  const controller = new AbortController();
+  const ms = Number(input?.timeout_ms ?? input?.timeoutMs ?? 2500);
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await rawExecuteBrowser(input, controller.signal, { isProjectTrusted: () => true }, session, undefined);
+  } finally {
+    clearTimeout(timer);
+  }
 };
 const executeChrome = executeBrowser;
 const executeMessage = createMessageOperation();
@@ -2703,7 +2710,7 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
     case "check_flywheel": {
       const { spawnSync } = require("node:child_process");
       const { resolve } = require("node:path");
-      const script = resolve(__dirname, "../../.agents/scripts/check-flywheel.ts");
+      const script = resolve(import.meta.dirname, "../../.agents/scripts/check-flywheel.ts");
       const args = [script];
       if (input.domain) args.push(`--domain=${input.domain}`);
       if (input.json) args.push("--json");
@@ -2792,7 +2799,7 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
     case "audit_workspace": {
       const { spawnSync } = require("node:child_process");
       const { resolve } = require("node:path");
-      const script = resolve(__dirname, "../../.agents/scripts/audit-workspace.ts");
+      const script = resolve(import.meta.dirname, "../../.agents/scripts/audit-workspace.ts");
       const res = spawnSync("bun", [script], { encoding: "utf8" });
       return {
         protocol: WORKFLOW_PROTOCOL,
@@ -2810,7 +2817,7 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
     case "run_diagnostics": {
       const { runMentalCraftDiagnostics } = require("./diagnostics.ts");
       const { resolve } = require("node:path");
-      const root = (input as any).workspaceRoot || (input as any).workspace_root || resolve(__dirname, "../../..");
+      const root = (input as any).workspaceRoot || (input as any).workspace_root || process.env.HOLAR_ROOT || resolve(import.meta.dirname, "../../..");
       const report = runMentalCraftDiagnostics(root);
       return {
         protocol: WORKFLOW_PROTOCOL,

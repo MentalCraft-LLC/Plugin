@@ -178,6 +178,38 @@ describe("Plugin Master Gateway MCP Server", () => {
     expect(res?.result).toBeDefined();
   });
 
+  it("handles browser actions with session_name and tab_group_name equivalence via tools/call", async () => {
+    const resSession = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 91,
+      method: "tools/call",
+      params: {
+        name: "browser",
+        arguments: {
+          action: "status",
+          session_name: "test_research_group",
+        },
+      },
+    });
+    expect(resSession?.error).toBeUndefined();
+    expect(resSession?.result).toBeDefined();
+
+    const resTabGroup = await handleGatewayRpc({
+      jsonrpc: "2.0",
+      id: 92,
+      method: "tools/call",
+      params: {
+        name: "browser",
+        arguments: {
+          action: "status",
+          tab_group_name: "test_research_group",
+        },
+      },
+    });
+    expect(resTabGroup?.error).toBeUndefined();
+    expect(resTabGroup?.result).toBeDefined();
+  });
+
   it("handles design catalog action via tools/call", async () => {
     const res = await handleGatewayRpc({
       jsonrpc: "2.0",
