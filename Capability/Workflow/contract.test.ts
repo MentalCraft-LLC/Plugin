@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { businessOperation } from "../../Domain/Business/operation.ts";
-import { scienceOperation } from "../../Domain/Science/operation.ts";
-import { designOperation } from "../../Domain/Design/operation.ts";
+import { businessOperation } from "../../Pipeline/Business/operation.ts";
+import { scienceOperation } from "../../Pipeline/Science/operation.ts";
+import { designOperation } from "../../Pipeline/Design/operation.ts";
 import { workflowOperation } from "./operation.ts";
-import { BUSINESS_PROTOCOL } from "../../Domain/Business/core.ts";
-import { SCIENCE_PROTOCOL } from "../../Domain/Science/core.ts";
-import { DESIGN_PROTOCOL } from "../../Domain/Design/core.ts";
+import { BUSINESS_PROTOCOL } from "../../Pipeline/Business/core.ts";
+import { SCIENCE_PROTOCOL } from "../../Pipeline/Science/core.ts";
+import { DESIGN_PROTOCOL } from "../../Pipeline/Design/core.ts";
 import { WORKFLOW_PROTOCOL } from "./core.ts";
 import { handleGatewayRpc } from "./gateway.ts";
 
@@ -152,7 +152,7 @@ describe("Golden Protocol & Contract Verification Across All 6 Plugins", () => {
   });
 
   test("Content plugin contract conforms to creative and marketing output schema", async () => {
-    const { contentOperation } = require("../../Domain/Content/operation.ts");
+    const { contentOperation } = require("../../Pipeline/Content/operation.ts");
     const actions = [
       "story_worldbuilding_forge",
       "story_character_arc_architect",

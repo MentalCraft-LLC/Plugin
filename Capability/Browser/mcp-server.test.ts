@@ -351,7 +351,7 @@ describe("Browser MCP adapter", () => {
       mcpServers: { browser: { command: string; args: string[] } };
     };
     expect(manifest.mcpServers.browser.command).toBe("bun");
-    expect(manifest.mcpServers.browser.args).toEqual(["Plugin/Tool/Browser/serve.mjs"]);
+    expect(manifest.mcpServers.browser.args).toEqual(["Plugin/Capability/Browser/serve.mjs"]);
     expect(readFileSync(resolve(here, "./serve.mjs"), "utf8")).toContain("locateServer");
   });
 });

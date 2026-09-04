@@ -11,26 +11,28 @@
  */
 
 import { workflowOperation } from "./operation.ts";
-import { designOperation } from "../../Domain/Design/operation.ts";
-import { businessOperation } from "../../Domain/Business/operation.ts";
-import { scienceOperation } from "../../Domain/Science/operation.ts";
-import { contentOperation } from "../../Domain/Content/operation.ts";
-import { createBrowserContextOperation } from "../../Tool/Browser/operation.ts";
-import { createMessageOperation } from "../../Tool/Message/operation.ts";
-import { secretOperation } from "../../Tool/Secret/operation.ts";
-import { infraOperation } from "../../Domain/Infra/operation.ts";
-import { companyOperation } from "../../Domain/Company/operation.ts";
+import { designOperation } from "../../Pipeline/Design/operation.ts";
+import { businessOperation } from "../../Pipeline/Business/operation.ts";
+import { scienceOperation } from "../../Pipeline/Science/operation.ts";
+import { contentOperation } from "../../Pipeline/Content/operation.ts";
+import { companyOperation } from "../../Pipeline/Company/operation.ts";
+import { createBrowserContextOperation } from "../Browser/operation.ts";
+import { createMessageOperation } from "../Message/operation.ts";
+import { secretOperation } from "../Secret/operation.ts";
+import { infraOperation } from "../Infra/operation.ts";
+import { aiOperation } from "../AI/operation.ts";
 
 import { WORKFLOW_INPUT_SCHEMA } from "./mcp-server.ts";
-import { DESIGN_INPUT_SCHEMA } from "../../Domain/Design/mcp-server.ts";
-import { BUSINESS_INPUT_SCHEMA } from "../../Domain/Business/mcp-server.ts";
-import { SCIENCE_INPUT_SCHEMA } from "../../Domain/Science/mcp-server.ts";
-import { CONTENT_INPUT_SCHEMA } from "../../Domain/Content/mcp-server.ts";
-import { BROWSER_INPUT_SCHEMA } from "../../Tool/Browser/mcp-server.ts";
-import { MESSAGE_INPUT_SCHEMA } from "../../Tool/Message/mcp-server.ts";
-import { SECRET_INPUT_SCHEMA } from "../../Tool/Secret/mcp-server.ts";
-import { INFRA_INPUT_SCHEMA } from "../../Domain/Infra/mcp-server.ts";
-import { COMPANY_INPUT_SCHEMA } from "../../Domain/Company/mcp-server.ts";
+import { DESIGN_INPUT_SCHEMA } from "../../Pipeline/Design/mcp-server.ts";
+import { BUSINESS_INPUT_SCHEMA } from "../../Pipeline/Business/mcp-server.ts";
+import { SCIENCE_INPUT_SCHEMA } from "../../Pipeline/Science/mcp-server.ts";
+import { CONTENT_INPUT_SCHEMA } from "../../Pipeline/Content/mcp-server.ts";
+import { COMPANY_INPUT_SCHEMA } from "../../Pipeline/Company/mcp-server.ts";
+import { BROWSER_INPUT_SCHEMA } from "../Browser/mcp-server.ts";
+import { MESSAGE_INPUT_SCHEMA } from "../Message/mcp-server.ts";
+import { SECRET_INPUT_SCHEMA } from "../Secret/mcp-server.ts";
+import { INFRA_INPUT_SCHEMA } from "../Infra/mcp-server.ts";
+import { AI_INPUT_SCHEMA } from "../AI/mcp-server.ts";
 
 export type JsonRpcId = string | number | null;
 
@@ -105,6 +107,11 @@ export const GATEWAY_TOOLS = [
     name: "company",
     description: "MentalCraft Corporate Governance & Entity Compliance Engine (Dual-Jurisdiction LLC/WFOE Verification, Cap Table Dilution Calculator, IP Assignment Audit, Annual Reports).",
     inputSchema: COMPANY_INPUT_SCHEMA,
+  },
+  {
+    name: "ai",
+    description: "MentalCraft Universal AI Inference Engine (BYOK, BYOS, Claude/OpenAI/Gemini/DeepSeek, reasoning budget, and JSON Schema).",
+    inputSchema: AI_INPUT_SCHEMA,
   },
 ];
 
@@ -205,6 +212,8 @@ export async function handleGatewayRpc(request: JsonRpcRequest): Promise<JsonRpc
         output = await infraOperation(args.action as any, (args.params as any) || args);
       } else if (toolName === "company") {
         output = await companyOperation(args.action as any, (args.params as any) || args);
+      } else if (toolName === "ai") {
+        output = await aiOperation(args as any);
       } else {
         return {
           jsonrpc: "2.0",

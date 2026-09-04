@@ -14,7 +14,8 @@ describe("Plugin Master Gateway MCP Server", () => {
     expect(toolNames).toContain("secret");
     expect(toolNames).toContain("infra");
     expect(toolNames).toContain("company");
-    expect(GATEWAY_TOOLS.length).toBe(10);
+    expect(toolNames).toContain("ai");
+    expect(GATEWAY_TOOLS.length).toBe(11);
   });
 
   it("handles initialize method compliant with MCP 2024-11-05", async () => {
@@ -46,7 +47,7 @@ describe("Plugin Master Gateway MCP Server", () => {
     expect(res?.id).toBe(2);
     const tools = (res?.result as any)?.tools;
     expect(Array.isArray(tools)).toBe(true);
-    expect(tools.length).toBe(10);
+    expect(tools.length).toBe(11);
   });
 
   it("returns null for notifications per JSON-RPC 2.0", async () => {

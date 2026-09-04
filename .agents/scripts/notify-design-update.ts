@@ -5,7 +5,7 @@
 
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { telegramSend } from "../../Tool/Message/channels/telegram.ts";
+import { telegramSend } from "../../Capability/Message/channels/telegram.ts";
 import { sendTelegramScreenshot } from "./send-telegram-screenshot.ts";
 
 export async function notifyDesignUpdate(options: {

@@ -30,8 +30,8 @@ export {
   type SpriteFlowPseoMatrixResult,
   type ZeroCostViralLoopsResult,
   type PseoKeywordEntry,
-} from "../../Domain/Business/core.ts";
-export { businessOperation, TrafficCvClient } from "../../Domain/Business/operation.ts";
+} from "../../Pipeline/Business/core.ts";
+export { businessOperation, TrafficCvClient } from "../../Pipeline/Business/operation.ts";
 
 // Science Subsystem (Domain)
 export {
@@ -71,7 +71,7 @@ export {
   type PatentClaimStructureResult,
   type PatentSpecScaffoldResult,
   type ScholarlyImpactForecastResult,
-} from "../../Domain/Science/core.ts";
+} from "../../Pipeline/Science/core.ts";
 export {
   scienceOperation,
   parseBibtexToAst,
@@ -82,7 +82,7 @@ export {
   performSocialScienceReviewAudit,
   formatChineseAcademicPaper,
   matchSsciTopJournals,
-} from "../../Domain/Science/operation.ts";
+} from "../../Pipeline/Science/operation.ts";
 
 // Design Subsystem (Domain)
 export {
@@ -103,8 +103,8 @@ export {
   type DuotonePaletteId,
   type SubstrateId,
   type EditorialManifest,
-} from "../../Domain/Design/core.ts";
-export { designOperation } from "../../Domain/Design/operation.ts";
+} from "../../Pipeline/Design/core.ts";
+export { designOperation } from "../../Pipeline/Design/operation.ts";
 
 // Content Subsystem (Domain)
 export {
@@ -112,8 +112,8 @@ export {
   type ContentAction,
   type ContentInput,
   type ContentResult,
-} from "../../Domain/Content/core.ts";
-export { contentOperation } from "../../Domain/Content/operation.ts";
+} from "../../Pipeline/Content/core.ts";
+export { contentOperation } from "../../Pipeline/Content/operation.ts";
 
 // Infra Subsystem (Domain)
 export {
@@ -129,14 +129,14 @@ export {
   type InfraWorkerBundleAuditOutput,
   type InfraStripeWebhookSimulateInput,
   type InfraStripeWebhookSimulateOutput,
-} from "../../Domain/Infra/core.ts";
+} from "../Infra/core.ts";
 export {
   infraOperation,
   executeInfraCanaryProbe,
   executeInfraD1SchemaAudit,
   executeInfraWorkerBundleAudit,
   executeInfraStripeWebhookSimulate,
-} from "../../Domain/Infra/operation.ts";
+} from "../Infra/operation.ts";
 
 // Company Subsystem (Domain)
 export {
@@ -152,14 +152,14 @@ export {
   type CompanyIpAssignmentAuditOutput,
   type CompanyComplianceCheckInput,
   type CompanyComplianceCheckOutput,
-} from "../../Domain/Company/core.ts";
+} from "../../Pipeline/Company/core.ts";
 export {
   companyOperation,
   executeCompanyEntityAudit,
   executeCompanyCapTableCalc,
   executeCompanyIpAssignmentAudit,
   executeCompanyComplianceCheck,
-} from "../../Domain/Company/operation.ts";
+} from "../../Pipeline/Company/operation.ts";
 
 // Workflow Subsystem (Capability)
 export {
@@ -215,30 +215,38 @@ export {
   type DiagnosticDimensionKey,
 } from "./diagnostics.ts";
 
-// Browser Subsystem (Tool)
+// Browser Subsystem (Capability)
 export {
   PROTOCOL as BROWSER_PROTOCOL,
   PROTOCOL as CHROME_PROTOCOL,
   compactBrowserResult,
   formatBrowserSummary,
-} from "../../Tool/Browser/core.ts";
+} from "../Browser/core.ts";
 export {
   createBrowserContextOperation,
   type BrowserContextInput,
   type BrowserContextOperation,
-} from "../../Tool/Browser/operation.ts";
+} from "../Browser/operation.ts";
 
-// Message Subsystem (Tool)
+// Message Subsystem (Capability)
 export {
   createMessageOperation,
   type MessageInput,
   type MessageResult,
-} from "../../Tool/Message/operation.ts";
+} from "../Message/operation.ts";
 
-// Secret Subsystem (Tool)
+// Secret Subsystem (Capability)
 export {
   secretOperation,
-} from "../../Tool/Secret/operation.ts";
+} from "../Secret/operation.ts";
+
+// AI Subsystem (Capability)
+export {
+  AI_PROTOCOL,
+  aiOperation,
+  type AIAction,
+  type AIInput,
+} from "../AI/index.ts";
 
 // Gateway
 export {
