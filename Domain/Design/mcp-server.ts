@@ -304,7 +304,10 @@ export async function handleDesignRpc(request: JsonRpcRequest): Promise<JsonRpcR
   };
 }
 
+import { protectStdioTransport } from "../../stdio.ts";
+
 export function startDesignMcpStdio() {
+  protectStdioTransport();
   let buffer = "";
   process.stdin.setEncoding("utf-8");
 

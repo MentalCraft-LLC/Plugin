@@ -1142,6 +1142,44 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
       process.stderr.write = origStderrWrite;
     }
   });
+
+  test("dry_run simulates dynamic workflows with DAG validation and preflight health", async () => {
+    const res = await workflowOperation({
+      action: "dry_run",
+      dynamic_intent: { goal: "launch_startup", venture: "AeroTest" },
+    });
+    expect(res.success).toBe(true);
+    expect(res.data.isDynamic).toBe(true);
+    expect(res.data.dagValidation.valid).toBe(true);
+    expect(res.data.plan.length).toBeGreaterThanOrEqual(4);
+    expect(res.data.preflightHealth).toBe("healthy");
+  });
+
+  test("dispatchPluginAction supports retry policies with backoff", async () => {
+    const res = await dispatchPluginAction(
+      "business",
+      "venture_market_validation",
+      { modality: "game", venture_name: "TestSprint" },
+      { retries: 2, retryDelayMs: 10 }
+    );
+    expect(res.success).toBe(true);
+    expect(res.data).toBeDefined();
+  });
+
+  test("batchExecute propagates task-level retries and circuit enforcement", async () => {
+    const { batchExecute } = require("./operation.ts");
+    const batch = await batchExecute(
+      [
+        { id: "b1", plugin: "business", action: "venture_market_validation", parameters: { modality: "app", venture_name: "BatchApp" }, retries: 1 },
+        { id: "b2", plugin: "science", action: "journal_submission_checklist", retries: 1 },
+      ],
+      2,
+      { enforceCircuit: true, retries: 1 }
+    );
+    expect(batch.total).toBe(2);
+    expect(batch.successful).toBe(2);
+    expect(batch.failed).toBe(0);
+  });
 });
 
 

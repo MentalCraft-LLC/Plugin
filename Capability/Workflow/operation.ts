@@ -55,7 +55,12 @@ export async function dispatchPluginAction(
   plugin: PluginId | string,
   actionOrParams: string | Record<string, unknown>,
   parameters: Record<string, unknown> = {},
-  options?: { enforceCircuit?: boolean }
+  options?: {
+    enforceCircuit?: boolean;
+    retries?: number;
+    retryDelayMs?: number;
+    backoffFactor?: number;
+  }
 ): Promise<{ success: boolean; data: unknown; protocol?: string; action?: string; [key: string]: unknown }> {
   let action: string;
   let params: Record<string, unknown>;
@@ -80,148 +85,126 @@ export async function dispatchPluginAction(
   const normalizedPlugin = (plugin || "").toLowerCase();
   const actionKey = action ? `${normalizedPlugin}.${action}` : normalizedPlugin;
   const shouldEnforceCircuit = options?.enforceCircuit ?? Boolean(params.enforce_circuit || params.enforce_circuit_breaker);
+  const maxRetries = options?.retries ?? Number(params.retries ?? params.max_retries ?? 0);
+  const baseDelayMs = options?.retryDelayMs ?? Number(params.retry_delay_ms ?? 50);
+  const backoffFactor = options?.backoffFactor ?? Number(params.backoff_factor ?? 2);
+  const maxAttempts = 1 + Math.max(0, maxRetries);
 
-  if (shouldEnforceCircuit && action) {
-    const circuitState = getCircuitState(actionKey);
-    if (circuitState === "OPEN") {
-      const entry = TELEMETRY_STORE.get(actionKey);
-      const remainingMs = entry ? Math.max(0, 15000 - (Date.now() - entry.lastFailureTime)) : 15000;
-      return {
-        success: false,
-        error: `Circuit breaker is OPEN for '${actionKey}' (tripped after repeated failures). Cooldown active (${remainingMs}ms remaining). Rejected to prevent cascading failure.`,
-        data: {
-          circuitState: "OPEN",
-          actionKey,
-          cooldownRemainingMs: remainingMs,
-        },
-        protocol: "mentalcraft.circuit_breaker.v1",
-        action,
-      };
+  let attempts = 0;
+  let lastError: any = null;
+
+  while (attempts < maxAttempts) {
+    attempts++;
+    if (shouldEnforceCircuit && action) {
+      const circuitState = getCircuitState(actionKey);
+      if (circuitState === "OPEN") {
+        const entry = TELEMETRY_STORE.get(actionKey);
+        const remainingMs = entry ? Math.max(0, 15000 - (Date.now() - entry.lastFailureTime)) : 15000;
+        return {
+          success: false,
+          error: `Circuit breaker is OPEN for '${actionKey}' (tripped after repeated failures). Cooldown active (${remainingMs}ms remaining). Rejected to prevent cascading failure.`,
+          data: {
+            circuitState: "OPEN",
+            actionKey,
+            cooldownRemainingMs: remainingMs,
+            attempts,
+          },
+          protocol: "mentalcraft.circuit_breaker.v1",
+          action,
+        };
+      }
     }
-  }
 
-  const t0 = performance.now();
-  let result: { success: boolean; data: unknown; protocol?: string; action?: string; [key: string]: unknown };
+    const t0 = performance.now();
+    let result: { success: boolean; data: unknown; protocol?: string; action?: string; [key: string]: unknown };
 
-  try {
-    switch (normalizedPlugin) {
-      case "business": {
-        result = (await businessOperation({ action: action as any, ...params })) as any;
-        break;
-      }
-      case "science": {
-        result = (await scienceOperation({ action: action as any, ...params })) as any;
-        break;
-      }
-      case "content": {
-        result = (await contentOperation({ action: action as any, ...params })) as any;
-        break;
-      }
-      case "design": {
-        result = (await designOperation({ action: action as any, ...params })) as any;
-        break;
-      }
-      case "workflow": {
-        result = (await workflowOperation({ action: action as any, ...params })) as any;
-        break;
-      }
-      case "browser":
-      case "chrome": {
-        if (action === "list_actions") {
-          result = {
-            success: true,
-            data: {
-              plugin: "browser",
-              actions: [
-                "navigate",
-                "screenshot",
-                "inspect_element",
-                "profile_vitals",
-                "evaluate_script",
-                "click",
-                "fill",
-                "hover",
-                "lighthouse_audit",
-                "performance_trace",
-                "heap_analysis",
-                "network_waterfall",
-                "security_audit",
-                "emulate_profile",
-                "accessibility_tree",
-                "smart_selector_heal",
-                "visual_regression_diff",
-                "journey_record_and_replay",
-                "session_isolation_vault",
-                "inp_interaction_vitals",
-                "persona_emulation",
-                "extract_structured_data",
-                "chaos_resilience_test",
-                "batch_tab_orchestration",
-                "network_mock_interceptor",
-                "har_replay_mock",
-                "web_vitals_radar",
-                "stealth_profile_guard",
-                "attention_heatmap_predict",
-                "e2e_spec_generator",
-                "memory_leak_tracer",
-                "responsive_matrix_linter",
-                "security_sandbox_audit",
-                "dom_race_profiler",
-                "lighthouse_ci_budget",
-                "disassemble",
-                "list_actions",
-              ],
-              totalActions: 37,
-              description: "MentalCraft Browser Automation & Native Bridge",
-            },
-            protocol: "spiral.browser.v1",
-            action: "list_actions",
-          };
+    try {
+      switch (normalizedPlugin) {
+        case "business": {
+          result = (await businessOperation({ action: action as any, ...params })) as any;
           break;
         }
-        const res = (await executeBrowser({ action: action as any, ...params })) as any;
-        result = { success: true, data: res, protocol: "spiral.browser.v1", action };
-        break;
+        case "science": {
+          result = (await scienceOperation({ action: action as any, ...params })) as any;
+          break;
+        }
+        case "content": {
+          result = (await contentOperation({ action: action as any, ...params })) as any;
+          break;
+        }
+        case "design": {
+          result = (await designOperation({ action: action as any, ...params })) as any;
+          break;
+        }
+        case "workflow": {
+          result = (await workflowOperation({ action: action as any, ...params })) as any;
+          break;
+        }
+        case "browser":
+        case "chrome": {
+          const res = (await executeBrowser({ action: action as any, ...params })) as any;
+          result = { success: true, data: res, protocol: "spiral.browser.v1", action };
+          break;
+        }
+        case "message": {
+          const res = (await executeMessage({ action: action as any, ...params })) as any;
+          result = { success: res.ok ?? true, data: res, protocol: "holar.message.v1", action };
+          break;
+        }
+        case "secret": {
+          const act = (action as string) || (params.content !== undefined ? "write" : "read");
+          const res = secretOperation({ ...params, action: act } as any) as any;
+          result = { success: res.ok ?? true, data: res, protocol: "holar.secret.v1", action: act };
+          break;
+        }
+        case "infra": {
+          const res = await infraOperation(action as any, params);
+          const isSuccess = (res.result as any)?.status !== "NON_COMPLIANT" && (res.result as any)?.status !== "INVALID";
+          result = { success: isSuccess, data: res.result, protocol: res.protocol, action: res.action };
+          break;
+        }
+        case "company": {
+          const res = await companyOperation(action as any, params);
+          const isSuccess = (res.result as any)?.status !== "NON_COMPLIANT";
+          result = { success: isSuccess, data: res.result, protocol: res.protocol, action: res.action };
+          break;
+        }
+        default:
+          throw new Error(`Unknown plugin '${plugin}'. Supported: business, science, content, design, workflow, browser, message, secret, infra, company`);
       }
-      case "message": {
-        const res = (await executeMessage({ action: action as any, ...params })) as any;
-        result = { success: res.ok ?? true, data: res, protocol: "holar.message.v1", action };
-        break;
-      }
-      case "secret": {
-        const act = (action as string) || (params.content !== undefined ? "write" : "read");
-        const res = secretOperation({ ...params, action: act } as any) as any;
-        result = { success: res.ok ?? true, data: res, protocol: "holar.secret.v1", action: act };
-        break;
-      }
-      case "infra": {
-        const res = await infraOperation(action as any, params);
-        const isSuccess = (res.result as any)?.status !== "NON_COMPLIANT" && (res.result as any)?.status !== "INVALID";
-        result = { success: isSuccess, data: res.result, protocol: res.protocol, action: res.action };
-        break;
-      }
-      case "company": {
-        const res = await companyOperation(action as any, params);
-        const isSuccess = (res.result as any)?.status !== "NON_COMPLIANT";
-        result = { success: isSuccess, data: res.result, protocol: res.protocol, action: res.action };
-        break;
-      }
-      default:
-        throw new Error(`Unknown plugin '${plugin}'. Supported: business, science, content, design, workflow, browser, message, secret, infra, company`);
-    }
 
-    const durMs = Math.round(performance.now() - t0);
-    if (action) {
-      recordTelemetry(`${normalizedPlugin}.${action}`, durMs, result.success ?? true);
+      const durMs = Math.round(performance.now() - t0);
+      const isOk = result.success ?? true;
+
+      if (!isOk && attempts < maxAttempts) {
+        const waitMs = Math.min(5000, Math.round(baseDelayMs * Math.pow(backoffFactor, attempts - 1)));
+        await new Promise((resolve) => setTimeout(resolve, waitMs));
+        continue;
+      }
+
+      if (action) {
+        recordTelemetry(`${normalizedPlugin}.${action}`, durMs, isOk);
+      }
+      if (attempts > 1) {
+        result.metadata = { ...((result.metadata as any) || {}), attempts, retried: true };
+      }
+      return result;
+    } catch (err) {
+      const durMs = Math.round(performance.now() - t0);
+      lastError = err;
+      if (attempts < maxAttempts) {
+        const waitMs = Math.min(5000, Math.round(baseDelayMs * Math.pow(backoffFactor, attempts - 1)));
+        await new Promise((resolve) => setTimeout(resolve, waitMs));
+        continue;
+      }
+      if (action) {
+        recordTelemetry(`${normalizedPlugin}.${action}`, durMs, false);
+      }
+      throw err;
     }
-    return result;
-  } catch (err) {
-    const durMs = Math.round(performance.now() - t0);
-    if (action) {
-      recordTelemetry(`${normalizedPlugin}.${action}`, durMs, false);
-    }
-    throw err;
   }
+
+  throw lastError ?? new Error(`Action '${plugin}.${action}' failed after ${attempts} attempts`);
 }
 
 const RUN_HISTORY: WorkflowRunReceipt[] = [];
@@ -1430,8 +1413,17 @@ export async function withRetry<T>(
 }
 
 export async function batchExecute(
-  tasks: Array<{ id: string; plugin: PluginId; action: string; parameters?: Record<string, unknown> }>,
-  concurrency = 5
+  tasks: Array<{
+    id: string;
+    plugin: PluginId;
+    action: string;
+    parameters?: Record<string, unknown>;
+    enforceCircuit?: boolean;
+    retries?: number;
+    retryDelayMs?: number;
+  }>,
+  concurrency = 5,
+  options?: { enforceCircuit?: boolean; retries?: number; retryDelayMs?: number }
 ): Promise<{ total: number; successful: number; failed: number; durationMs: number; results: any[] }> {
   const t0 = performance.now();
   const results: any[] = [];
@@ -1443,7 +1435,16 @@ export async function batchExecute(
       if (!task) break;
       const sT0 = performance.now();
       try {
-        const r = await dispatchPluginAction(task.plugin, task.action, (task.parameters ?? {}) as Record<string, unknown>);
+        const r = await dispatchPluginAction(
+          task.plugin,
+          task.action,
+          (task.parameters ?? {}) as Record<string, unknown>,
+          {
+            enforceCircuit: task.enforceCircuit ?? options?.enforceCircuit,
+            retries: task.retries ?? options?.retries,
+            retryDelayMs: task.retryDelayMs ?? options?.retryDelayMs,
+          }
+        );
         const dur = Math.round(performance.now() - sT0);
         results.push({
           id: task.id,
@@ -2546,7 +2547,10 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
         };
       }
 
-      const batchRes = await batchExecute(tasks, input.concurrency ?? 5);
+      const batchRes = await batchExecute(tasks, input.concurrency ?? 5, {
+        enforceCircuit: Boolean(input.enforce_circuit),
+        retries: Number(input.retries ?? 0),
+      });
       return {
         protocol: WORKFLOW_PROTOCOL,
         action: "batch_run",
@@ -2568,18 +2572,28 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
     }
 
     case "dry_run": {
-      const targetId = input.workflow_id ?? "academic_paper_to_journal_submission";
-      const all = getAllWorkflows();
-      const wf = all.find((w) => w.id === targetId);
-      if (!wf) {
-        return {
-          protocol: WORKFLOW_PROTOCOL,
-          action: "dry_run",
-          success: false,
-          timestamp,
-          data: null,
-          diagnostics: [`Workflow '${targetId}' not found. Available: ${all.map((w) => w.id).join(", ")}`],
-        };
+      let wf: WorkflowDefinition | undefined;
+      let isDynamic = false;
+
+      if (input.dynamic_intent) {
+        wf = synthesizeDynamicWorkflow(input.dynamic_intent);
+        isDynamic = true;
+      } else if (input.custom_workflow) {
+        wf = input.custom_workflow;
+      } else {
+        const targetId = input.workflow_id ?? "academic_paper_to_journal_submission";
+        const all = getAllWorkflows();
+        wf = all.find((w) => w.id === targetId);
+        if (!wf) {
+          return {
+            protocol: WORKFLOW_PROTOCOL,
+            action: "dry_run",
+            success: false,
+            timestamp,
+            data: null,
+            diagnostics: [`Workflow '${targetId}' not found. Available: ${all.map((w) => w.id).join(", ")}`],
+          };
+        }
       }
 
       const preflight = await executeHealthCheck("all");
@@ -2592,6 +2606,7 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
         timestamp,
         data: {
           workflow: wf,
+          isDynamic,
           preflightHealth: preflight.overallStatus,
           dagValidation: validation,
           estimatedDurationMs: wf.steps.length * 2,
@@ -2970,10 +2985,17 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
         stepResults.push({ step: 4, plugin: "business", action: "venture_growth_playbook", success: r4.success, durationMs: Math.round(performance.now() - s4), data: r4.data });
       } else {
         const stepContext: Record<string, any> = { input: input.parameters ?? {} };
+        const enforceCircuit = Boolean(input.enforce_circuit || (input.parameters as any)?.enforce_circuit);
+        const defaultRetries = Number(input.retries ?? (input.parameters as any)?.retries ?? (input.parameters as any)?.max_retries ?? 0);
+
         for (const s of wf.steps) {
           const sT0 = performance.now();
           const interpolated = { ...(input.parameters ?? {}), ...interpolateParams(s.parameters ?? {}, stepContext) };
-          const r = await dispatchPluginAction(s.plugin, s.action, interpolated as Record<string, unknown>);
+          const stepRetries = Number((s as any).maxRetries ?? (s as any).retries ?? defaultRetries);
+          const r = await dispatchPluginAction(s.plugin, s.action, interpolated as Record<string, unknown>, {
+            enforceCircuit,
+            retries: stepRetries,
+          });
           const dur = Math.round(performance.now() - sT0);
           stepResults.push({ step: s.step, plugin: s.plugin, action: s.action, skill: s.skill, success: r.success ?? true, durationMs: dur, data: r.data ?? r });
           stepContext[`step${s.step}`] = { data: r.data ?? r, success: r.success ?? true };

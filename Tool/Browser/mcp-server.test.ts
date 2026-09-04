@@ -99,6 +99,7 @@ describe("Browser MCP adapter", () => {
       "security_sandbox_audit",
       "dom_race_profiler",
       "lighthouse_ci_budget",
+      "list_actions",
     ]);
     expect(CHROME_INPUT_SCHEMA.required).toEqual(["action"]);
     expect(CHROME_INPUT_SCHEMA.additionalProperties).toBe(false);

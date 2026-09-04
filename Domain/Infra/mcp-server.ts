@@ -116,7 +116,10 @@ export async function handleInfraRpc(request: JsonRpcRequest): Promise<JsonRpcRe
   return { jsonrpc: "2.0", id, error: { code: -32601, message: `Method not found: ${request.method}` } };
 }
 
+import { protectStdioTransport } from "../../stdio.ts";
+
 export function startInfraMcpStdio() {
+  protectStdioTransport();
   let buffer = "";
   process.stdin.setEncoding("utf-8");
   process.stdin.on("data", async (chunk: string) => {

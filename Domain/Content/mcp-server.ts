@@ -156,7 +156,10 @@ export async function handleContentMcpMessage(request: any): Promise<any> {
   };
 }
 
+import { protectStdioTransport } from "../../stdio.ts";
+
 export function startContentMcpServer() {
+  protectStdioTransport();
   let buffer = "";
   process.stdin.setEncoding("utf-8");
 

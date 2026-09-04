@@ -1331,7 +1331,8 @@
                   "responsive_matrix_linter",
                   "security_sandbox_audit",
                   "dom_race_profiler",
-                  "lighthouse_ci_budget"
+                  "lighthouse_ci_budget",
+                  "list_actions"
                 ]
               },
               "url": {
@@ -3157,7 +3158,8 @@
               "responsive_matrix_linter",
               "security_sandbox_audit",
               "dom_race_profiler",
-              "lighthouse_ci_budget"
+              "lighthouse_ci_budget",
+              "list_actions"
             ]
           },
           "url": {
@@ -4839,7 +4841,7 @@
     },
     "browser": {
       "title": "Browser Automation & Native Bridge",
-      "actions": 75,
+      "actions": 76,
       "schema": {
         "type": "object",
         "additionalProperties": false,
@@ -4924,7 +4926,8 @@
               "responsive_matrix_linter",
               "security_sandbox_audit",
               "dom_race_profiler",
-              "lighthouse_ci_budget"
+              "lighthouse_ci_budget",
+              "list_actions"
             ]
           },
           "url": {
@@ -5474,5 +5477,5 @@
   },
   "totalPlugins": 10,
   "totalTools": 10,
-  "totalMethods": 273
+  "totalMethods": 274
 }

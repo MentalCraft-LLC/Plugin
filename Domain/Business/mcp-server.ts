@@ -458,7 +458,10 @@ export async function handleBusinessRpc(request: JsonRpcRequest): Promise<JsonRp
   };
 }
 
+import { protectStdioTransport } from "../../stdio.ts";
+
 export function startBusinessMcpServer() {
+  protectStdioTransport();
   let buffer = "";
   process.stdin.setEncoding("utf-8");
 

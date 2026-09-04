@@ -394,7 +394,10 @@ export async function handleScienceRpc(request: JsonRpcRequest): Promise<JsonRpc
   };
 }
 
+import { protectStdioTransport } from "../../stdio.ts";
+
 export function startScienceMcpServer() {
+  protectStdioTransport();
   let buffer = "";
   process.stdin.setEncoding("utf-8");
 

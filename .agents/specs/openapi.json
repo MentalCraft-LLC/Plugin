@@ -1469,7 +1469,8 @@
               "responsive_matrix_linter",
               "security_sandbox_audit",
               "dom_race_profiler",
-              "lighthouse_ci_budget"
+              "lighthouse_ci_budget",
+              "list_actions"
             ]
           },
           "url": {

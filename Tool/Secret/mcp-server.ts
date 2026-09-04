@@ -110,7 +110,10 @@ export function handleSecretRpc(request: JsonRpcRequest): object | null {
   };
 }
 
+import { protectStdioTransport } from "../../stdio.ts";
+
 export function startSecretMcpStdio(): void {
+  protectStdioTransport();
   let buffer = Buffer.alloc(0);
   process.stdin.on("data", (chunk: Buffer) => {
     buffer = Buffer.concat([buffer, chunk]);

@@ -96,6 +96,7 @@ export const CHROME_ACTIONS = [
   "security_sandbox_audit",
   "dom_race_profiler",
   "lighthouse_ci_budget",
+  "list_actions",
 ] as const;
 
 export const BROWSER_ACTIONS = CHROME_ACTIONS;
@@ -433,7 +434,10 @@ export function createDefaultChromeMcpDispatcher() {
   });
 }
 
+import { protectStdioTransport } from "../../stdio.ts";
+
 async function serveStdio(): Promise<void> {
+  protectStdioTransport();
   const dispatch = createDefaultChromeMcpDispatcher();
   const write = (message: object) => {
     writeSync(1, encodeMessage(message));

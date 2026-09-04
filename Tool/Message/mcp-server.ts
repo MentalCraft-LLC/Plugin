@@ -108,7 +108,10 @@ export function createMessageMcpDispatcher(execute = createMessageOperation()) {
   };
 }
 
+import { protectStdioTransport } from "../../stdio.ts";
+
 async function serveStdio(): Promise<void> {
+  protectStdioTransport();
   const dispatch = createMessageMcpDispatcher();
   const write = (message: object) => {
     writeSync(1, encodeMessage(message));

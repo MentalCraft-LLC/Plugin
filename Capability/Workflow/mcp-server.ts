@@ -222,7 +222,10 @@ export async function handleWorkflowRpc(request: JsonRpcRequest): Promise<JsonRp
   };
 }
 
+import { protectStdioTransport } from "../../stdio.ts";
+
 export function startWorkflowMcpStdio() {
+  protectStdioTransport();
   let buffer = "";
   process.stdin.setEncoding("utf-8");
 

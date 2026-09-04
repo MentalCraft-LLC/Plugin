@@ -53,7 +53,7 @@ import { profileDomRaceConditions } from "./modules/dom_race.ts";
 import { evaluateLighthouseCiBudget } from "./modules/lighthouse_budget.ts";
 
 export type BrowserContextInput = {
-  action: "status" | "repair" | "hot_reload" | "reload_page" | "open" | "controls" | "read_text" | "read_markdown" | "read_styles" | "read_scripts" | "disassemble" | "read_console" | "read_network" | "read_storage" | "set_storage" | "clear_storage" | "read_cookies" | "clear_cookies" | "performance_metrics" | "wait_for" | "inspect_element" | "evaluate_script" | "click" | "hover" | "scroll" | "press_key" | "drag_and_drop" | "upload_file" | "fill_public" | "fill_form" | "fill_local" | "press_enter" | "select_combobox" | "cdp_click" | "cdp_scroll" | "cdp_hover" | "cdp_key" | "capture_ga4_measurement_id" | "capture_clarity_token" | "capture_session" | "capture_screenshot" | "capture_video" | "record_video" | "capture_pdf" | "semantic_snapshot" | "annotate" | "emulate" | "lighthouse_audit" | "performance_trace" | "heap_analysis" | "network_waterfall" | "security_audit" | "emulate_profile" | "accessibility_tree" | "smart_selector_heal" | "visual_regression_diff" | "journey_record_and_replay" | "session_isolation_vault" | "inp_interaction_vitals" | "persona_emulation" | "extract_structured_data" | "chaos_resilience_test" | "batch_tab_orchestration" | "network_mock_interceptor" | "har_replay_mock" | "web_vitals_radar" | "stealth_profile_guard" | "attention_heatmap_predict" | "e2e_spec_generator" | "memory_leak_tracer" | "responsive_matrix_linter" | "security_sandbox_audit" | "dom_race_profiler" | "lighthouse_ci_budget";
+  action: string;
   mode?: "start" | "stop" | "list" | "add" | "remove" | "clear";
   url?: string;
   max_sections?: number;
@@ -226,6 +226,16 @@ export function createBrowserContextOperation(options: {
   return async (rawParams, signal, context = { isProjectTrusted: () => true }, sessionName = "browser_session", ownerRoute) => {
     const params: any = (rawParams as any).params ? { ...rawParams, ...(rawParams as any).params } : rawParams;
     requireTrusted(context?.isProjectTrusted ? context.isProjectTrusted() : true);
+    if (params.action === "list_actions") {
+      const { CHROME_ACTIONS } = require("./mcp-server.ts");
+      return {
+        plugin: "browser",
+        actions: CHROME_ACTIONS,
+        totalActions: CHROME_ACTIONS.length,
+        protocol: PROTOCOL,
+        description: "MentalCraft Browser Automation & Native Bridge",
+      };
+    }
     if (params.action === "status" || params.action === "repair") {
       if (params.action === "repair") installBrowserBridge();
       if (!client.available()) {
