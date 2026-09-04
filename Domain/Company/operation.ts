@@ -184,6 +184,21 @@ export async function companyOperation(
     case "company_compliance_check":
       result = executeCompanyComplianceCheck(params as CompanyComplianceCheckInput);
       break;
+    case "list_actions":
+      result = {
+        plugin: "company",
+        protocol: COMPANY_PROTOCOL,
+        actions: [
+          "company_entity_audit",
+          "company_cap_table_calc",
+          "company_ip_assignment_audit",
+          "company_compliance_check",
+          "list_actions",
+        ],
+        totalActions: 5,
+        description: "MentalCraft Corporate Governance & Entity Compliance Engine",
+      };
+      break;
     default:
       throw new Error(`Unknown Company action: ${actionStr}`);
   }

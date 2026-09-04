@@ -11,7 +11,7 @@ import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, renameSync
 import { dirname, resolve } from "node:path";
 import { atomicWriteSecret } from "./write.ts";
 
-export type SecretAction = "write" | "read" | "mask" | "rotate" | "audit" | "validate";
+export type SecretAction = "write" | "read" | "mask" | "rotate" | "audit" | "validate" | "list_actions";
 
 export type SecretTokenType =
   | "stripe"
@@ -171,6 +171,17 @@ export function secretOperation(origInput: SecretInput): Record<string, unknown>
   const raw: any = (origInput as any).params ? { ...origInput, ...(origInput as any).params } : origInput;
   const input = raw as SecretInput;
   const action = input.action;
+
+  if (action === "list_actions") {
+    return {
+      action: "list_actions",
+      ok: true,
+      plugin: "secret",
+      actions: ["write", "read", "mask", "rotate", "audit", "validate", "list_actions"],
+      totalActions: 7,
+      description: "MentalCraft Mode-0600 Local Credential Vault & POSIX Secret Engine",
+    };
+  }
 
   if (action === "mask") {
     const raw = input.secret ?? input.content ?? "";

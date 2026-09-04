@@ -10,6 +10,7 @@ export {
   startGatewayMcpHttp,
   handleGatewayRpc,
   GATEWAY_TOOLS,
+  protectStdioTransport,
 } from "./Capability/Workflow/gateway.ts";
 
 // Canonical Domain Operations

@@ -53,6 +53,34 @@ export async function designOperation(origInput: DesignInput): Promise<DesignRes
   const input = raw as DesignInput;
 
   switch (input.action) {
+    case "list_actions": {
+      return {
+        protocol: DESIGN_PROTOCOL,
+        action: "list_actions",
+        success: true,
+        timestamp,
+        data: {
+          plugin: "design",
+          actions: [
+            "catalog",
+            "inspect_component",
+            "theme_tokens",
+            "generate_ui",
+            "audit_ui",
+            "bridge_chrome",
+            "list_layers",
+            "resolve_imports",
+            "domain_presets",
+            "bundle_optimize",
+            "generate_editorial",
+            "list_actions",
+          ],
+          totalActions: 12,
+          description: "MentalCraft Design System & UI Intelligence Engine",
+        },
+      };
+    }
+
     case "list_layers": {
       return {
         protocol: DESIGN_PROTOCOL,

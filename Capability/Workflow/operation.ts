@@ -8,6 +8,7 @@
 import { resolve } from "node:path";
 import {
   WORKFLOW_PROTOCOL,
+  WORKFLOW_ACTIONS,
   BUILTIN_WORKFLOWS,
   type WorkflowInput,
   type WorkflowResult,
@@ -53,7 +54,8 @@ const executeMessage = createMessageOperation();
 export async function dispatchPluginAction(
   plugin: PluginId | string,
   actionOrParams: string | Record<string, unknown>,
-  parameters: Record<string, unknown> = {}
+  parameters: Record<string, unknown> = {},
+  options?: { enforceCircuit?: boolean }
 ): Promise<{ success: boolean; data: unknown; protocol?: string; action?: string; [key: string]: unknown }> {
   let action: string;
   let params: Record<string, unknown>;
@@ -76,6 +78,28 @@ export async function dispatchPluginAction(
   }
 
   const normalizedPlugin = (plugin || "").toLowerCase();
+  const actionKey = action ? `${normalizedPlugin}.${action}` : normalizedPlugin;
+  const shouldEnforceCircuit = options?.enforceCircuit ?? Boolean(params.enforce_circuit || params.enforce_circuit_breaker);
+
+  if (shouldEnforceCircuit && action) {
+    const circuitState = getCircuitState(actionKey);
+    if (circuitState === "OPEN") {
+      const entry = TELEMETRY_STORE.get(actionKey);
+      const remainingMs = entry ? Math.max(0, 15000 - (Date.now() - entry.lastFailureTime)) : 15000;
+      return {
+        success: false,
+        error: `Circuit breaker is OPEN for '${actionKey}' (tripped after repeated failures). Cooldown active (${remainingMs}ms remaining). Rejected to prevent cascading failure.`,
+        data: {
+          circuitState: "OPEN",
+          actionKey,
+          cooldownRemainingMs: remainingMs,
+        },
+        protocol: "mentalcraft.circuit_breaker.v1",
+        action,
+      };
+    }
+  }
+
   const t0 = performance.now();
   let result: { success: boolean; data: unknown; protocol?: string; action?: string; [key: string]: unknown };
 
@@ -103,6 +127,58 @@ export async function dispatchPluginAction(
       }
       case "browser":
       case "chrome": {
+        if (action === "list_actions") {
+          result = {
+            success: true,
+            data: {
+              plugin: "browser",
+              actions: [
+                "navigate",
+                "screenshot",
+                "inspect_element",
+                "profile_vitals",
+                "evaluate_script",
+                "click",
+                "fill",
+                "hover",
+                "lighthouse_audit",
+                "performance_trace",
+                "heap_analysis",
+                "network_waterfall",
+                "security_audit",
+                "emulate_profile",
+                "accessibility_tree",
+                "smart_selector_heal",
+                "visual_regression_diff",
+                "journey_record_and_replay",
+                "session_isolation_vault",
+                "inp_interaction_vitals",
+                "persona_emulation",
+                "extract_structured_data",
+                "chaos_resilience_test",
+                "batch_tab_orchestration",
+                "network_mock_interceptor",
+                "har_replay_mock",
+                "web_vitals_radar",
+                "stealth_profile_guard",
+                "attention_heatmap_predict",
+                "e2e_spec_generator",
+                "memory_leak_tracer",
+                "responsive_matrix_linter",
+                "security_sandbox_audit",
+                "dom_race_profiler",
+                "lighthouse_ci_budget",
+                "disassemble",
+                "list_actions",
+              ],
+              totalActions: 37,
+              description: "MentalCraft Browser Automation & Native Bridge",
+            },
+            protocol: "spiral.browser.v1",
+            action: "list_actions",
+          };
+          break;
+        }
         const res = (await executeBrowser({ action: action as any, ...params })) as any;
         result = { success: true, data: res, protocol: "spiral.browser.v1", action };
         break;
@@ -268,6 +344,8 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "resolve_imports",
       "domain_presets",
       "bundle_optimize",
+      "generate_editorial",
+      "list_actions",
     ],
     workflow: [
       "list_workflows",
@@ -299,6 +377,7 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "autopilot_status",
       "autopilot_schedule_spec",
       "autopilot_run",
+      "list_actions",
     ],
     browser: [
       "navigate",
@@ -337,6 +416,7 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "dom_race_profiler",
       "lighthouse_ci_budget",
       "disassemble",
+      "list_actions",
     ],
     chrome: [
       "navigate",
@@ -375,12 +455,15 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "dom_race_profiler",
       "lighthouse_ci_budget",
       "disassemble",
+      "list_actions",
     ],
     message: [
       "send",
+      "send_photo",
       "poll",
       "status",
       "bootstrap",
+      "list_actions",
     ],
     content: [
       "story_worldbuilding_forge",
@@ -393,6 +476,7 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "marketing_omnichannel_adapter",
       "marketing_viral_hook_generator",
       "marketing_campaign_playbook",
+      "list_actions",
     ],
     secret: [
       "write_secret",
@@ -403,18 +487,21 @@ export function validateWorkflowDag(steps: any[]): { valid: boolean; errors: str
       "rotate",
       "audit",
       "validate",
+      "list_actions",
     ],
     infra: [
       "infra_canary_probe",
       "infra_d1_schema_audit",
       "infra_worker_bundle_audit",
       "infra_stripe_webhook_simulate",
+      "list_actions",
     ],
     company: [
       "company_entity_audit",
       "company_cap_table_calc",
       "company_ip_assignment_audit",
       "company_compliance_check",
+      "list_actions",
     ],
   };
 
@@ -2067,6 +2154,9 @@ function normalizeWorkflowAction(action: string): string {
     case "circuit_state":
     case "get_circuit":
       return "get_circuit";
+    case "actions":
+    case "list_actions":
+      return "list_actions";
     default:
       return action;
   }
@@ -2298,15 +2388,46 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
 
     case "get_circuit": {
       const targetAction = (input as any).target_action;
-      const state = targetAction ? getCircuitState(targetAction) : "UNKNOWN";
+      if (targetAction) {
+        const state = getCircuitState(targetAction);
+        const meta = TELEMETRY_STORE.get(targetAction);
+        return {
+          protocol: WORKFLOW_PROTOCOL,
+          action: "get_circuit",
+          success: true,
+          timestamp,
+          data: {
+            targetAction,
+            circuitState: state,
+            consecutiveFailures: meta?.consecutiveFailures ?? 0,
+            lastFailureTime: meta?.lastFailureTime ?? 0,
+          },
+        };
+      }
+      loadPersistedState();
+      const circuits: Record<string, { circuitState: string; consecutiveFailures: number; lastFailureTime: number }> = {};
+      let openCount = 0;
+      let halfOpenCount = 0;
+      for (const [key, meta] of TELEMETRY_STORE.entries()) {
+        const state = getCircuitState(key);
+        circuits[key] = {
+          circuitState: state,
+          consecutiveFailures: meta.consecutiveFailures,
+          lastFailureTime: meta.lastFailureTime,
+        };
+        if (state === "OPEN") openCount++;
+        if (state === "HALF_OPEN") halfOpenCount++;
+      }
       return {
         protocol: WORKFLOW_PROTOCOL,
         action: "get_circuit",
         success: true,
         timestamp,
         data: {
-          targetAction,
-          circuitState: state,
+          circuits,
+          totalTracked: TELEMETRY_STORE.size,
+          openCircuitsCount: openCount,
+          halfOpenCircuitsCount: halfOpenCount,
         },
       };
     }
@@ -2319,6 +2440,32 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
         success: true,
         timestamp,
         data: resetRes,
+      };
+    }
+
+    case "list_actions": {
+      const target = (input as any).target_plugin;
+      if (target && target !== "all" && target !== "workflow") {
+        const res = await dispatchPluginAction(target, "list_actions");
+        return {
+          protocol: WORKFLOW_PROTOCOL,
+          action: "list_actions",
+          success: res.success ?? true,
+          timestamp,
+          data: res.data ?? res,
+        };
+      }
+      return {
+        protocol: WORKFLOW_PROTOCOL,
+        action: "list_actions",
+        success: true,
+        timestamp,
+        data: {
+          plugin: "workflow",
+          actions: WORKFLOW_ACTIONS,
+          totalActions: WORKFLOW_ACTIONS.length,
+          description: "MentalCraft Cross-Plugin Orchestrator & Health Diagnostics Engine",
+        },
       };
     }
 

@@ -16,7 +16,8 @@ export type InfraAction =
   | "infra_canary_probe"
   | "infra_d1_schema_audit"
   | "infra_worker_bundle_audit"
-  | "infra_stripe_webhook_simulate";
+  | "infra_stripe_webhook_simulate"
+  | "list_actions";
 
 export interface InfraCanaryProbeInput {
   endpoints?: string[];

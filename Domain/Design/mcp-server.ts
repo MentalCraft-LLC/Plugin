@@ -20,6 +20,7 @@ export const DESIGN_ACTIONS = [
   "domain_presets",
   "bundle_optimize",
   "generate_editorial",
+  "list_actions",
 ] as const;
 
 export const DESIGN_INPUT_SCHEMA = {

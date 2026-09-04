@@ -707,36 +707,40 @@ export function synthesizeDynamicWorkflow(intent: DynamicWorkflowIntent): Workfl
   };
 }
 
-export type WorkflowAction =
-  | "plan_dynamic_workflow"
-  | "run_dynamic_workflow"
-  | "list_workflows"
-  | "run_workflow"
-  | "register_workflow"
-  | "get_workflow_history"
-  | "export_config"
-  | "install_mcp_schemas"
-  | "sync_mcp"
-  | "export_schema_catalog"
-  | "export_openapi_catalog"
-  | "export_openrpc_spec"
-  | "export_openapi_spec"
-  | "benchmark"
-  | "get_metrics"
-  | "export_trace"
-  | "export_mermaid_dag"
-  | "batch_run"
-  | "health_check"
-  | "dry_run"
-  | "check_flywheel"
-  | "audit_workspace"
-  | "run_diagnostics"
-  | "reset_circuit"
-  | "get_circuit"
-  | "autopilot_step"
-  | "autopilot_status"
-  | "autopilot_schedule_spec"
-  | "autopilot_run";
+export const WORKFLOW_ACTIONS = [
+  "plan_dynamic_workflow",
+  "run_dynamic_workflow",
+  "list_workflows",
+  "run_workflow",
+  "register_workflow",
+  "get_workflow_history",
+  "export_config",
+  "install_mcp_schemas",
+  "sync_mcp",
+  "export_schema_catalog",
+  "export_openapi_catalog",
+  "export_openrpc_spec",
+  "export_openapi_spec",
+  "benchmark",
+  "get_metrics",
+  "export_trace",
+  "export_mermaid_dag",
+  "batch_run",
+  "health_check",
+  "dry_run",
+  "check_flywheel",
+  "audit_workspace",
+  "run_diagnostics",
+  "reset_circuit",
+  "get_circuit",
+  "autopilot_step",
+  "autopilot_status",
+  "autopilot_schedule_spec",
+  "autopilot_run",
+  "list_actions",
+] as const;
+
+export type WorkflowAction = (typeof WORKFLOW_ACTIONS)[number];
 
 export type WorkflowInput = {
   action: WorkflowAction;

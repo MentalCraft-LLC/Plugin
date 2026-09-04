@@ -12,6 +12,7 @@ export const COMPANY_ACTIONS = [
   "company_cap_table_calc",
   "company_ip_assignment_audit",
   "company_compliance_check",
+  "list_actions",
 ] as const;
 
 export const COMPANY_INPUT_SCHEMA = {

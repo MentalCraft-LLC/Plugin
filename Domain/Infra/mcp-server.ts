@@ -12,6 +12,7 @@ export const INFRA_ACTIONS = [
   "infra_d1_schema_audit",
   "infra_worker_bundle_audit",
   "infra_stripe_webhook_simulate",
+  "list_actions",
 ] as const;
 
 export const INFRA_INPUT_SCHEMA = {

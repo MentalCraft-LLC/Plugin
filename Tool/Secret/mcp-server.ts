@@ -14,7 +14,7 @@ export const SUPPORTED_PROTOCOL_VERSIONS = new Set([
 export const SERVER_NAME = "secret";
 export const SERVER_VERSION = "1.0.0";
 
-export const SECRET_ACTIONS = ["write", "read", "mask", "rotate", "audit", "validate"] as const;
+export const SECRET_ACTIONS = ["write", "read", "mask", "rotate", "audit", "validate", "list_actions"] as const;
 
 export const SECRET_INPUT_SCHEMA = {
   type: "object",

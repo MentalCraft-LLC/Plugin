@@ -173,7 +173,8 @@ export type DesignAction =
   | "resolve_imports"
   | "domain_presets"
   | "bundle_optimize"
-  | "generate_editorial";
+  | "generate_editorial"
+  | "list_actions";
 
 export type DesignInput = {
   action: DesignAction;

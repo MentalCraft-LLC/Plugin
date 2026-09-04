@@ -40,7 +40,8 @@ export type ContentAction =
   | "marketing_pas_copywriter"
   | "marketing_omnichannel_adapter"
   | "marketing_viral_hook_generator"
-  | "marketing_campaign_playbook";
+  | "marketing_campaign_playbook"
+  | "list_actions";
 
 export type ContentCommand =
   | {
@@ -99,6 +100,9 @@ export type ContentCommand =
       action: "marketing_campaign_playbook";
       product_name: string;
       campaign_name?: string;
+    }
+  | {
+      action: "list_actions";
     };
 
 export type ContentResult =
@@ -112,4 +116,5 @@ export type ContentResult =
   | { success: true; action: "marketing_omnichannel_adapter"; data: OmnichannelAdaptationResult }
   | { success: true; action: "marketing_viral_hook_generator"; data: ViralHookResult }
   | { success: true; action: "marketing_campaign_playbook"; data: CampaignSprintResult }
+  | { success: true; action: "list_actions"; data: { plugin: string; actions: string[]; totalActions: number; description: string } }
   | { success: false; error: string; action: string };

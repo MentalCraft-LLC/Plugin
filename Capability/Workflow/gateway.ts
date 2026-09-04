@@ -249,7 +249,18 @@ export async function handleGatewayRpc(request: JsonRpcRequest): Promise<JsonRpc
   };
 }
 
+export function protectStdioTransport(): void {
+  const toStderr = (...args: any[]) => {
+    process.stderr.write(args.map((a) => (typeof a === "object" ? JSON.stringify(a) : String(a))).join(" ") + "\n");
+  };
+  console.log = toStderr;
+  console.info = toStderr;
+  console.warn = toStderr;
+  console.debug = toStderr;
+}
+
 export function startGatewayMcpStdio() {
+  protectStdioTransport();
   let buffer = "";
   process.stdin.setEncoding("utf-8");
 

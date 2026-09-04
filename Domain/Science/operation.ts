@@ -2012,6 +2012,8 @@ export async function scienceOperation(origInput: ScienceInput): Promise<Science
           success: true,
           timestamp,
           data: {
+            plugin: "science",
+            description: "MentalCraft Academic Production & Research Intelligence Engine",
             totalActions: 43,
             modules: {
               paper: {

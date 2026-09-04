@@ -231,6 +231,8 @@ export {
 export {
   handleGatewayRpc,
   startGatewayMcpHttp,
+  startGatewayMcpStdio,
+  protectStdioTransport,
   GATEWAY_TOOLS,
 } from "./gateway.ts";
 

@@ -3,7 +3,7 @@ import { sendImessage, resolveRecipient, loadConfig as loadImessageConfig, watch
 import { loadConfig as loadSmtpConfig, sendEmail } from "./channels/email.ts";
 
 export type ChannelId = "telegram" | "imessage" | "email";
-export type MessageAction = "send" | "send_photo" | "poll" | "status" | "bootstrap";
+export type MessageAction = "send" | "send_photo" | "poll" | "status" | "bootstrap" | "list_actions";
 
 export type MessageInput = {
   action: MessageAction;
@@ -106,6 +106,16 @@ export function createMessageOperation() {
     const photoPath = raw.photoPath || raw.photo_path || text;
     const caption = raw.caption;
     const chatId = raw.chatId || raw.chat_id;
+
+    if (action === "list_actions") {
+      return {
+        ok: true,
+        plugin: "message",
+        actions: ["send", "send_photo", "poll", "status", "bootstrap", "list_actions"],
+        totalActions: 6,
+        description: "MentalCraft Agent Message Bus (Telegram, iMessage, Email)",
+      };
+    }
 
     if (action === "status") {
       const channels = channelOrder().map((ch) => ({

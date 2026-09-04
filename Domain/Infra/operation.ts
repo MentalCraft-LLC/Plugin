@@ -235,6 +235,21 @@ export async function infraOperation(
     case "infra_stripe_webhook_simulate":
       result = executeInfraStripeWebhookSimulate(params as InfraStripeWebhookSimulateInput);
       break;
+    case "list_actions":
+      result = {
+        plugin: "infra",
+        protocol: INFRA_PROTOCOL,
+        actions: [
+          "infra_canary_probe",
+          "infra_d1_schema_audit",
+          "infra_worker_bundle_audit",
+          "infra_stripe_webhook_simulate",
+          "list_actions",
+        ],
+        totalActions: 5,
+        description: "MentalCraft Edge Microservices & Data Infrastructure Engine",
+      };
+      break;
     default:
       throw new Error(`Unknown Infra action: ${actionStr}`);
   }

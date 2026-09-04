@@ -7,6 +7,7 @@ export {
   startGatewayMcpHttp,
   handleGatewayRpc,
   GATEWAY_TOOLS,
+  protectStdioTransport,
 } from "./Capability/Workflow/gateway.ts";
 
 import { startGatewayMcpHttp, startGatewayMcpStdio } from "./Capability/Workflow/gateway.ts";

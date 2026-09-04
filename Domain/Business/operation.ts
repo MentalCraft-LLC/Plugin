@@ -181,6 +181,8 @@ export async function businessOperation(origInput: BusinessInput): Promise<Busin
           timestamp,
           provider,
           data: {
+            plugin: "business",
+            description: "MentalCraft Business & Product Engineering Intelligence Engine",
             totalActions: 55,
             modalities: ["website", "app", "game", "shop"],
             modules: {

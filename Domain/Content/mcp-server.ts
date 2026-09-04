@@ -25,6 +25,7 @@ export const CONTENT_INPUT_SCHEMA = {
         "marketing_omnichannel_adapter",
         "marketing_viral_hook_generator",
         "marketing_campaign_playbook",
+        "list_actions",
       ],
       description: "Content Story & Marketing action to execute",
     },

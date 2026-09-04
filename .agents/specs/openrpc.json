@@ -68,7 +68,8 @@
                   "autopilot_step",
                   "autopilot_status",
                   "autopilot_schedule_spec",
-                  "autopilot_run"
+                  "autopilot_run",
+                  "list_actions"
                 ],
                 "description": "Workflow action: 'list_workflows' (catalog of pipelines), 'run_workflow' (live execution), 'register_workflow' (define custom DAG), 'get_workflow_history' (past execution receipts), 'export_config' (generate MCP client JSON configs), 'install_mcp_schemas' (install to Antigravity), 'sync_mcp' (auto-heal & sync all 11 FastMCP servers and schemas), 'export_schema_catalog' / 'export_openrpc_spec' (OpenRPC 1.3.2 specification), 'export_openapi_catalog' / 'export_openapi_spec' (OpenAPI 3.1.0 specification), 'benchmark' (P50/P90/P99 latency & ops/sec suite across all 10 subsystems), 'get_metrics' (live telemetry and circuit breaker state), 'get_circuit' (inspect circuit state), 'reset_circuit' (reset circuit breaker), 'export_trace' (OTel spans export), 'export_mermaid_dag' (Mermaid diagram), 'batch_run' (pooled parallel execution), 'health_check' (system diagnostics), 'dry_run' (plan graph inspection), 'run_diagnostics' (10-dimensional product health audit), 'autopilot_step' (autonomous sprint cycle)."
               },
@@ -859,7 +860,8 @@
                   "marketing_pas_copywriter",
                   "marketing_omnichannel_adapter",
                   "marketing_viral_hook_generator",
-                  "marketing_campaign_playbook"
+                  "marketing_campaign_playbook",
+                  "list_actions"
                 ],
                 "description": "Content Story & Marketing action to execute"
               },
@@ -1038,7 +1040,8 @@
                   "resolve_imports",
                   "domain_presets",
                   "bundle_optimize",
-                  "generate_editorial"
+                  "generate_editorial",
+                  "list_actions"
                 ],
                 "description": "Design action: 'catalog' (list components), 'inspect_component' (deep schema/props/example), 'theme_tokens' (colors, spacing, radius), 'generate_ui' (Svelte 5 runes recipe), 'audit_ui' (A11y/Token linter), 'bridge_chrome' (DOM to component mapper), 'list_layers' (5-layer architecture), 'resolve_imports' (calculate on-demand subpaths & savings), 'domain_presets' (clinical, chat_ai, analytics, commerce, auth, ecommerce_pdp, ecommerce_checkout, academic_manuscript_viewer, venture_telemetry_dashboard), 'bundle_optimize' (refactor monolithic imports), 'generate_editorial' (single-ink and controlled duotone print visual generation with Recipe Manifest)."
               },
@@ -1744,7 +1747,8 @@
                   "send_photo",
                   "poll",
                   "status",
-                  "bootstrap"
+                  "bootstrap",
+                  "list_actions"
                 ]
               },
               "text": {
@@ -1809,7 +1813,8 @@
                   "mask",
                   "rotate",
                   "audit",
-                  "validate"
+                  "validate",
+                  "list_actions"
                 ],
                 "description": "Secret operation to perform."
               },
@@ -1875,7 +1880,8 @@
                   "infra_canary_probe",
                   "infra_d1_schema_audit",
                   "infra_worker_bundle_audit",
-                  "infra_stripe_webhook_simulate"
+                  "infra_stripe_webhook_simulate",
+                  "list_actions"
                 ],
                 "description": "Infra action to perform"
               },
@@ -1916,7 +1922,8 @@
                   "company_entity_audit",
                   "company_cap_table_calc",
                   "company_ip_assignment_audit",
-                  "company_compliance_check"
+                  "company_compliance_check",
+                  "list_actions"
                 ],
                 "description": "Company action to perform"
               },
@@ -1977,7 +1984,8 @@
               "autopilot_step",
               "autopilot_status",
               "autopilot_schedule_spec",
-              "autopilot_run"
+              "autopilot_run",
+              "list_actions"
             ],
             "description": "Workflow action: 'list_workflows' (catalog of pipelines), 'run_workflow' (live execution), 'register_workflow' (define custom DAG), 'get_workflow_history' (past execution receipts), 'export_config' (generate MCP client JSON configs), 'install_mcp_schemas' (install to Antigravity), 'sync_mcp' (auto-heal & sync all 11 FastMCP servers and schemas), 'export_schema_catalog' / 'export_openrpc_spec' (OpenRPC 1.3.2 specification), 'export_openapi_catalog' / 'export_openapi_spec' (OpenAPI 3.1.0 specification), 'benchmark' (P50/P90/P99 latency & ops/sec suite across all 10 subsystems), 'get_metrics' (live telemetry and circuit breaker state), 'get_circuit' (inspect circuit state), 'reset_circuit' (reset circuit breaker), 'export_trace' (OTel spans export), 'export_mermaid_dag' (Mermaid diagram), 'batch_run' (pooled parallel execution), 'health_check' (system diagnostics), 'dry_run' (plan graph inspection), 'run_diagnostics' (10-dimensional product health audit), 'autopilot_step' (autonomous sprint cycle)."
           },
@@ -2714,7 +2722,8 @@
               "marketing_pas_copywriter",
               "marketing_omnichannel_adapter",
               "marketing_viral_hook_generator",
-              "marketing_campaign_playbook"
+              "marketing_campaign_playbook",
+              "list_actions"
             ],
             "description": "Content Story & Marketing action to execute"
           },
@@ -2875,7 +2884,8 @@
               "resolve_imports",
               "domain_presets",
               "bundle_optimize",
-              "generate_editorial"
+              "generate_editorial",
+              "list_actions"
             ],
             "description": "Design action: 'catalog' (list components), 'inspect_component' (deep schema/props/example), 'theme_tokens' (colors, spacing, radius), 'generate_ui' (Svelte 5 runes recipe), 'audit_ui' (A11y/Token linter), 'bridge_chrome' (DOM to component mapper), 'list_layers' (5-layer architecture), 'resolve_imports' (calculate on-demand subpaths & savings), 'domain_presets' (clinical, chat_ai, analytics, commerce, auth, ecommerce_pdp, ecommerce_checkout, academic_manuscript_viewer, venture_telemetry_dashboard), 'bundle_optimize' (refactor monolithic imports), 'generate_editorial' (single-ink and controlled duotone print visual generation with Recipe Manifest)."
           },
@@ -3545,7 +3555,8 @@
               "send_photo",
               "poll",
               "status",
-              "bootstrap"
+              "bootstrap",
+              "list_actions"
             ]
           },
           "text": {
@@ -3592,7 +3603,8 @@
               "mask",
               "rotate",
               "audit",
-              "validate"
+              "validate",
+              "list_actions"
             ],
             "description": "Secret operation to perform."
           },
@@ -3640,7 +3652,8 @@
               "infra_canary_probe",
               "infra_d1_schema_audit",
               "infra_worker_bundle_audit",
-              "infra_stripe_webhook_simulate"
+              "infra_stripe_webhook_simulate",
+              "list_actions"
             ],
             "description": "Infra action to perform"
           },
@@ -3663,7 +3676,8 @@
               "company_entity_audit",
               "company_cap_table_calc",
               "company_ip_assignment_audit",
-              "company_compliance_check"
+              "company_compliance_check",
+              "list_actions"
             ],
             "description": "Company action to perform"
           },
@@ -4304,7 +4318,7 @@
     },
     "content": {
       "title": "Story & Marketing Content Engine",
-      "actions": 10,
+      "actions": 11,
       "schema": {
         "type": "object",
         "required": [
@@ -4323,7 +4337,8 @@
               "marketing_pas_copywriter",
               "marketing_omnichannel_adapter",
               "marketing_viral_hook_generator",
-              "marketing_campaign_playbook"
+              "marketing_campaign_playbook",
+              "list_actions"
             ],
             "description": "Content Story & Marketing action to execute"
           },
@@ -4467,7 +4482,7 @@
     },
     "design": {
       "title": "5-Layer Design System & UI Intelligence",
-      "actions": 11,
+      "actions": 12,
       "schema": {
         "type": "object",
         "additionalProperties": false,
@@ -4488,7 +4503,8 @@
               "resolve_imports",
               "domain_presets",
               "bundle_optimize",
-              "generate_editorial"
+              "generate_editorial",
+              "list_actions"
             ],
             "description": "Design action: 'catalog' (list components), 'inspect_component' (deep schema/props/example), 'theme_tokens' (colors, spacing, radius), 'generate_ui' (Svelte 5 runes recipe), 'audit_ui' (A11y/Token linter), 'bridge_chrome' (DOM to component mapper), 'list_layers' (5-layer architecture), 'resolve_imports' (calculate on-demand subpaths & savings), 'domain_presets' (clinical, chat_ai, analytics, commerce, auth, ecommerce_pdp, ecommerce_checkout, academic_manuscript_viewer, venture_telemetry_dashboard), 'bundle_optimize' (refactor monolithic imports), 'generate_editorial' (single-ink and controlled duotone print visual generation with Recipe Manifest)."
           },
@@ -4679,7 +4695,7 @@
     },
     "workflow": {
       "title": "Cross-Plugin Orchestrator & Health Diagnostics",
-      "actions": 29,
+      "actions": 30,
       "schema": {
         "type": "object",
         "additionalProperties": false,
@@ -4718,7 +4734,8 @@
               "autopilot_step",
               "autopilot_status",
               "autopilot_schedule_spec",
-              "autopilot_run"
+              "autopilot_run",
+              "list_actions"
             ],
             "description": "Workflow action: 'list_workflows' (catalog of pipelines), 'run_workflow' (live execution), 'register_workflow' (define custom DAG), 'get_workflow_history' (past execution receipts), 'export_config' (generate MCP client JSON configs), 'install_mcp_schemas' (install to Antigravity), 'sync_mcp' (auto-heal & sync all 11 FastMCP servers and schemas), 'export_schema_catalog' / 'export_openrpc_spec' (OpenRPC 1.3.2 specification), 'export_openapi_catalog' / 'export_openapi_spec' (OpenAPI 3.1.0 specification), 'benchmark' (P50/P90/P99 latency & ops/sec suite across all 10 subsystems), 'get_metrics' (live telemetry and circuit breaker state), 'get_circuit' (inspect circuit state), 'reset_circuit' (reset circuit breaker), 'export_trace' (OTel spans export), 'export_mermaid_dag' (Mermaid diagram), 'batch_run' (pooled parallel execution), 'health_check' (system diagnostics), 'dry_run' (plan graph inspection), 'run_diagnostics' (10-dimensional product health audit), 'autopilot_step' (autonomous sprint cycle)."
           },
@@ -5294,7 +5311,7 @@
     },
     "message": {
       "title": "Agent Message Bus",
-      "actions": 5,
+      "actions": 6,
       "schema": {
         "type": "object",
         "additionalProperties": false,
@@ -5309,7 +5326,8 @@
               "send_photo",
               "poll",
               "status",
-              "bootstrap"
+              "bootstrap",
+              "list_actions"
             ]
           },
           "text": {
@@ -5344,7 +5362,7 @@
     },
     "secret": {
       "title": "Mode-0600 Local Credential Vault",
-      "actions": 6,
+      "actions": 7,
       "schema": {
         "type": "object",
         "additionalProperties": false,
@@ -5360,7 +5378,8 @@
               "mask",
               "rotate",
               "audit",
-              "validate"
+              "validate",
+              "list_actions"
             ],
             "description": "Secret operation to perform."
           },
@@ -5398,7 +5417,7 @@
     },
     "infra": {
       "title": "Global Edge Microservices & Data Infrastructure",
-      "actions": 4,
+      "actions": 5,
       "schema": {
         "type": "object",
         "additionalProperties": false,
@@ -5412,7 +5431,8 @@
               "infra_canary_probe",
               "infra_d1_schema_audit",
               "infra_worker_bundle_audit",
-              "infra_stripe_webhook_simulate"
+              "infra_stripe_webhook_simulate",
+              "list_actions"
             ],
             "description": "Infra action to perform"
           },
@@ -5425,7 +5445,7 @@
     },
     "company": {
       "title": "Corporate Governance & Legal Entity Compliance",
-      "actions": 4,
+      "actions": 5,
       "schema": {
         "type": "object",
         "additionalProperties": false,
@@ -5439,7 +5459,8 @@
               "company_entity_audit",
               "company_cap_table_calc",
               "company_ip_assignment_audit",
-              "company_compliance_check"
+              "company_compliance_check",
+              "list_actions"
             ],
             "description": "Company action to perform"
           },
@@ -5453,5 +5474,5 @@
   },
   "totalPlugins": 10,
   "totalTools": 10,
-  "totalMethods": 266
+  "totalMethods": 273
 }

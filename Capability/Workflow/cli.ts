@@ -262,7 +262,7 @@ async function mainCommand(cmd: string) {
       const fixFlag = args.includes("--fix");
       if (fixFlag) {
         console.log("\n🔧 Running Automatic Diagnostics & Self-Repair...");
-        const { installMcpSchemasToAgy } = require("./Workflow/operation.ts");
+        const { installMcpSchemasToAgy } = require("./operation.ts");
         const installRes = installMcpSchemasToAgy();
         console.log(`✓ Re-installed ${installRes.installedCount} tool schemas into Antigravity`);
       }

@@ -10,7 +10,7 @@ export const SUPPORTED_PROTOCOL_VERSIONS = new Set([
 export const SERVER_NAME = "message";
 export const SERVER_VERSION = "1.0.0";
 
-export const MESSAGE_ACTIONS = ["send", "send_photo", "poll", "status", "bootstrap"] as const;
+export const MESSAGE_ACTIONS = ["send", "send_photo", "poll", "status", "bootstrap", "list_actions"] as const;
 
 export const MESSAGE_INPUT_SCHEMA = {
   type: "object",

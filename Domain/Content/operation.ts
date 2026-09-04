@@ -148,6 +148,32 @@ export async function contentOperation(input: ContentCommand): Promise<ContentRe
         return { success: true, action, data };
       }
 
+      case "list_actions": {
+        const actions = [
+          "story_worldbuilding_forge",
+          "story_character_arc_architect",
+          "story_plot_beat_composer",
+          "story_sensory_prose_render",
+          "story_lore_consistency_linter",
+          "story_interactive_ink_exporter",
+          "marketing_pas_copywriter",
+          "marketing_omnichannel_adapter",
+          "marketing_viral_hook_generator",
+          "marketing_campaign_playbook",
+          "list_actions",
+        ];
+        return {
+          success: true,
+          action: "list_actions",
+          data: {
+            plugin: "content",
+            actions,
+            totalActions: actions.length,
+            description: "MentalCraft Creative & Commercial Content Production Engine",
+          },
+        };
+      }
+
       default: {
         return { success: false, action: raw.action || "unknown", error: `Unknown action: ${raw.action}` };
       }

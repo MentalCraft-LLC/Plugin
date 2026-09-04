@@ -17,7 +17,7 @@ function collectLines(buffer: Buffer): unknown[] {
 
 describe("Message MCP adapter", () => {
   test("public action list matches the message operation", () => {
-    expect([...MESSAGE_ACTIONS]).toEqual(["send", "send_photo", "poll", "status", "bootstrap"]);
+    expect([...MESSAGE_ACTIONS]).toEqual(["send", "send_photo", "poll", "status", "bootstrap", "list_actions"]);
     expect(MESSAGE_INPUT_SCHEMA.required).toEqual(["action"]);
     expect(MESSAGE_INPUT_SCHEMA.additionalProperties).toBe(false);
   });

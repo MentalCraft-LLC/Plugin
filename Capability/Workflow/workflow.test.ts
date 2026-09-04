@@ -1054,6 +1054,94 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     // Verify state returned to CLOSED
     expect(getCircuitState("test.failing_action")).toBe("CLOSED");
   });
+
+  test("dispatchPluginAction fast-fails when circuit breaker is OPEN and enforceCircuit is enabled", async () => {
+    const { recordTelemetry, resetCircuit } = require("./operation.ts");
+
+    // Trip circuit for infra.canary_probe
+    recordTelemetry("infra.infra_canary_probe", 10, false);
+    recordTelemetry("infra.infra_canary_probe", 15, false);
+    recordTelemetry("infra.infra_canary_probe", 20, false);
+
+    // Call with enforceCircuit: true
+    const fastFailRes = await dispatchPluginAction(
+      "infra",
+      "infra_canary_probe",
+      {},
+      { enforceCircuit: true }
+    );
+
+    expect(fastFailRes.success).toBe(false);
+    expect(String(fastFailRes.error)).toContain("Circuit breaker is OPEN");
+    expect((fastFailRes.data as any).circuitState).toBe("OPEN");
+
+    // Reset circuit
+    resetCircuit("infra.infra_canary_probe");
+
+    // Call again - should succeed now
+    const recoveredRes = await dispatchPluginAction(
+      "infra",
+      "infra_canary_probe",
+      {},
+      { enforceCircuit: true }
+    );
+    expect(recoveredRes.success).toBe(true);
+  });
+
+  test("workflowOperation get_circuit returns system-wide overview when target_action is omitted", async () => {
+    const res = await workflowOperation({ action: "get_circuit" } as any);
+    expect(res.success).toBe(true);
+    const data = res.data as any;
+    expect(typeof data.totalTracked).toBe("number");
+    expect(typeof data.openCircuitsCount).toBe("number");
+    expect(typeof data.halfOpenCircuitsCount).toBe("number");
+    expect(typeof data.circuits).toBe("object");
+  });
+
+  test("all 10 subsystems return standardized introspection manifest via list_actions", async () => {
+    const plugins = [
+      "business",
+      "science",
+      "design",
+      "content",
+      "workflow",
+      "browser",
+      "message",
+      "secret",
+      "infra",
+      "company",
+    ];
+
+    for (const p of plugins) {
+      const res = await dispatchPluginAction(p, "list_actions");
+      expect(res.success).toBe(true);
+      const data = res.data as any;
+      expect(Array.isArray(data.actions)).toBe(true);
+      expect(data.actions.length).toBeGreaterThanOrEqual(4);
+      expect(typeof data.description).toBe("string");
+      expect(typeof data.totalActions).toBe("number");
+    }
+  });
+
+  test("protectStdioTransport intercepts console logging to protect JSON-RPC stdout", () => {
+    const { protectStdioTransport } = require("./gateway.ts");
+    const origLog = console.log;
+    let stderrWritten = "";
+    const origStderrWrite = process.stderr.write;
+    try {
+      process.stderr.write = ((chunk: any) => {
+        stderrWritten += String(chunk);
+        return true;
+      }) as any;
+
+      protectStdioTransport();
+      console.log("stdio safety probe");
+      expect(stderrWritten).toContain("stdio safety probe");
+    } finally {
+      console.log = origLog;
+      process.stderr.write = origStderrWrite;
+    }
+  });
 });
 
 
