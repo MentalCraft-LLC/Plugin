@@ -12,7 +12,7 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-const rootDir = resolve(import.meta.dirname, "../../..");
+const rootDir = process.env.HOLAR_ROOT || resolve(import.meta.dirname, "../../..");
 const domains = ["Business", "Design", "Content", "Plugin", "Science", "Infra", "Company"] as const;
 const universalSkills = ["tone", "flywheel", "governance", "seo", "autopilot"] as const;
 

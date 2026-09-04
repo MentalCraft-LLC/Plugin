@@ -6,22 +6,9 @@
  */
 
 import { designOperation } from "./operation.ts";
-import { type DesignInput, DESIGN_PROTOCOL } from "./core.ts";
+import { type DesignInput, DESIGN_PROTOCOL, DESIGN_ACTIONS } from "./core.ts";
 
-export const DESIGN_ACTIONS = [
-  "catalog",
-  "inspect_component",
-  "theme_tokens",
-  "generate_ui",
-  "audit_ui",
-  "bridge_chrome",
-  "list_layers",
-  "resolve_imports",
-  "domain_presets",
-  "bundle_optimize",
-  "generate_editorial",
-  "list_actions",
-] as const;
+export { DESIGN_ACTIONS };
 
 export const DESIGN_INPUT_SCHEMA = {
   type: "object",

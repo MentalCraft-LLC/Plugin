@@ -10,14 +10,26 @@
 
 export const INFRA_PROTOCOL = "holar.infra.v1" as const;
 
-export type InfraModule = "canary" | "d1" | "worker" | "monetization";
+export type InfraModule = "canary" | "d1" | "worker" | "monetization" | "publish";
 
 export type InfraAction =
   | "infra_canary_probe"
   | "infra_d1_schema_audit"
   | "infra_worker_bundle_audit"
   | "infra_stripe_webhook_simulate"
+  | "infra_publish_dispatch"
+  | "infra_wechat_webhook_simulate"
   | "list_actions";
+
+export const INFRA_ACTIONS: InfraAction[] = [
+  "infra_canary_probe",
+  "infra_d1_schema_audit",
+  "infra_worker_bundle_audit",
+  "infra_stripe_webhook_simulate",
+  "infra_publish_dispatch",
+  "infra_wechat_webhook_simulate",
+  "list_actions",
+];
 
 export interface InfraCanaryProbeInput {
   endpoints?: string[];
@@ -82,3 +94,34 @@ export interface InfraStripeWebhookSimulateOutput {
   handled: boolean;
   dispatchDetails: string;
 }
+
+export interface InfraPublishDispatchInput {
+  title: string;
+  markdown: string;
+  author?: string;
+  destinations?: Array<{ platform: "wechat" | "xiaohongshu" | "zhihu" | "x"; mode?: "draft" | "publish" }>;
+}
+
+export interface InfraPublishDispatchOutput {
+  jobId: string;
+  status: "SUCCESS" | "FAILED";
+  results: Array<{
+    platform: string;
+    status: string;
+    postId?: string;
+    url?: string;
+  }>;
+}
+
+export interface InfraWeChatWebhookSimulateInput {
+  content?: string;
+  event?: "subscribe" | "unsubscribe" | "click";
+  eventKey?: string;
+}
+
+export interface InfraWeChatWebhookSimulateOutput {
+  matchedRule: string;
+  replyText: string;
+  latencyMs: number;
+}
+

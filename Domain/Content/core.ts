@@ -43,6 +43,20 @@ export type ContentAction =
   | "marketing_campaign_playbook"
   | "list_actions";
 
+export const CONTENT_ACTIONS: ContentAction[] = [
+  "story_worldbuilding_forge",
+  "story_character_arc_architect",
+  "story_plot_beat_composer",
+  "story_sensory_prose_render",
+  "story_lore_consistency_linter",
+  "story_interactive_ink_exporter",
+  "marketing_pas_copywriter",
+  "marketing_omnichannel_adapter",
+  "marketing_viral_hook_generator",
+  "marketing_campaign_playbook",
+  "list_actions",
+];
+
 export type ContentCommand =
   | {
       action: "story_worldbuilding_forge";

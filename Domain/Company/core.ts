@@ -19,6 +19,14 @@ export type CompanyAction =
   | "company_compliance_check"
   | "list_actions";
 
+export const COMPANY_ACTIONS: CompanyAction[] = [
+  "company_entity_audit",
+  "company_cap_table_calc",
+  "company_ip_assignment_audit",
+  "company_compliance_check",
+  "list_actions",
+];
+
 export interface CompanyEntityAuditInput {
   workspaceRoot?: string;
 }

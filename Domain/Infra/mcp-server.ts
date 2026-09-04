@@ -5,15 +5,9 @@
  */
 
 import { infraOperation } from "./operation.ts";
-import { type InfraAction } from "./core.ts";
+import { type InfraAction, INFRA_ACTIONS } from "./core.ts";
 
-export const INFRA_ACTIONS = [
-  "infra_canary_probe",
-  "infra_d1_schema_audit",
-  "infra_worker_bundle_audit",
-  "infra_stripe_webhook_simulate",
-  "list_actions",
-] as const;
+export { INFRA_ACTIONS };
 
 export const INFRA_INPUT_SCHEMA = {
   type: "object",

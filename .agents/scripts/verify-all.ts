@@ -16,7 +16,7 @@
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 
-const rootDir = resolve(import.meta.dirname, "../../..");
+const rootDir = process.env.HOLAR_ROOT || resolve(import.meta.dirname, "../../..");
 
 interface VerificationStep {
 	name: string;

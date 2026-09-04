@@ -176,6 +176,21 @@ export type DesignAction =
   | "generate_editorial"
   | "list_actions";
 
+export const DESIGN_ACTIONS: DesignAction[] = [
+  "catalog",
+  "inspect_component",
+  "theme_tokens",
+  "generate_ui",
+  "audit_ui",
+  "bridge_chrome",
+  "list_layers",
+  "resolve_imports",
+  "domain_presets",
+  "bundle_optimize",
+  "generate_editorial",
+  "list_actions",
+];
+
 export type DesignInput = {
   action: DesignAction;
   layer?: DesignLayer;

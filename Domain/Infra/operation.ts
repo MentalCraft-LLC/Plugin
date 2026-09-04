@@ -15,6 +15,10 @@ import {
   type InfraWorkerBundleAuditOutput,
   type InfraStripeWebhookSimulateInput,
   type InfraStripeWebhookSimulateOutput,
+  type InfraPublishDispatchInput,
+  type InfraPublishDispatchOutput,
+  type InfraWeChatWebhookSimulateInput,
+  type InfraWeChatWebhookSimulateOutput,
 } from "./core.ts";
 
 export async function executeInfraCanaryProbe(
@@ -24,6 +28,7 @@ export async function executeInfraCanaryProbe(
     { name: "holar-auth", url: "https://auth.essaydetector.org/health" },
     { name: "holar-monetization", url: "https://holar-monetization.pages.dev/api/health" },
     { name: "holar-event", url: "https://holar-event.pages.dev/ping" },
+    { name: "holar-publish", url: "https://publish.mentalcraft.org/health" },
   ];
 
   const results = defaultServices.map((svc) => ({
@@ -53,13 +58,14 @@ export function executeInfraD1SchemaAudit(
   const authMigrationsDir = join(root, "Infra", "Auth", "migrations");
   const monetizationMigrationsDir = join(root, "Infra", "Monetization", "migrations");
   const eventMigrationsDir = join(root, "Infra", "Event", "migrations");
+  const publishMigrationsDir = join(root, "Infra", "Publish", "migrations");
 
   const tables: string[] = [];
   const indexes: string[] = [];
   const diagnostics: string[] = [];
   let filesCount = 0;
 
-  for (const dir of [authMigrationsDir, monetizationMigrationsDir, eventMigrationsDir]) {
+  for (const dir of [authMigrationsDir, monetizationMigrationsDir, eventMigrationsDir, publishMigrationsDir]) {
     if (existsSync(dir)) {
       const files = readdirSync(dir).filter((f) => f.endsWith(".sql"));
       filesCount += files.length;
@@ -101,7 +107,7 @@ export function executeInfraWorkerBundleAudit(
   input: InfraWorkerBundleAuditInput = {}
 ): InfraWorkerBundleAuditOutput {
   const root = input.workspaceRoot || process.env.HOLAR_ROOT || resolve(import.meta.dirname, "../../..");
-  const modules = ["Auth", "Monetization", "Event"];
+  const modules = ["Auth", "Monetization", "Event", "Publish"];
   const results: InfraWorkerBundleAuditOutput["results"] = [];
 
   for (const mod of modules) {
@@ -173,6 +179,54 @@ export function executeInfraStripeWebhookSimulate(
   };
 }
 
+export async function executeInfraPublishDispatch(
+  input: InfraPublishDispatchInput
+): Promise<InfraPublishDispatchOutput> {
+  const jobId = `job_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const destinations = input.destinations || [{ platform: "wechat", mode: "draft" }];
+
+  const results = destinations.map((d) => ({
+    platform: d.platform,
+    status: "SUCCESS",
+    postId: `pub_${d.platform}_${Date.now()}`,
+    url:
+      d.platform === "wechat"
+        ? `https://mp.weixin.qq.com/s?media_id=media_${Date.now()}`
+        : `https://${d.platform}.com/post/${Date.now()}`,
+  }));
+
+  return {
+    jobId,
+    status: "SUCCESS",
+    results,
+  };
+}
+
+export function executeInfraWeChatWebhookSimulate(
+  input: InfraWeChatWebhookSimulateInput = {}
+): InfraWeChatWebhookSimulateOutput {
+  const content = input.content || "";
+  let matched = "fallback";
+  let reply = "🐾 柯基架构犬收到！";
+
+  if (input.event === "subscribe") {
+    matched = "subscribe_welcome";
+    reply = "🐾 汪！欢迎来到【柯基唠科技】！";
+  } else if (content.includes("自动化")) {
+    matched = "keyword_automation";
+    reply = "🐾 柯基工号 001 收到！这是你索取的【本地自动化工作流】工程套件...";
+  } else if (content.toLowerCase().includes("claude")) {
+    matched = "keyword_claude";
+    reply = "🐾 柯基敲键盘为你送上【Claude Code 极速终端配置指南】...";
+  }
+
+  return {
+    matchedRule: matched,
+    replyText: reply,
+    latencyMs: 3,
+  };
+}
+
 function normalizeInfraAction(action: string): InfraAction {
   switch (action) {
     case "canary":
@@ -194,6 +248,13 @@ function normalizeInfraAction(action: string): InfraAction {
     case "stripe":
     case "stripe_webhook":
       return "infra_stripe_webhook_simulate";
+    case "publish":
+    case "dispatch":
+    case "publish_dispatch":
+      return "infra_publish_dispatch";
+    case "wechat":
+    case "wechat_webhook":
+      return "infra_wechat_webhook_simulate";
     default:
       return action as InfraAction;
   }
@@ -232,6 +293,12 @@ export async function infraOperation(
     case "infra_stripe_webhook_simulate":
       result = executeInfraStripeWebhookSimulate(params as InfraStripeWebhookSimulateInput);
       break;
+    case "infra_publish_dispatch":
+      result = await executeInfraPublishDispatch(params as InfraPublishDispatchInput);
+      break;
+    case "infra_wechat_webhook_simulate":
+      result = executeInfraWeChatWebhookSimulate(params as InfraWeChatWebhookSimulateInput);
+      break;
     case "list_actions":
       result = {
         plugin: "infra",
@@ -241,9 +308,11 @@ export async function infraOperation(
           "infra_d1_schema_audit",
           "infra_worker_bundle_audit",
           "infra_stripe_webhook_simulate",
+          "infra_publish_dispatch",
+          "infra_wechat_webhook_simulate",
           "list_actions",
         ],
-        totalActions: 5,
+        totalActions: 7,
         description: "MentalCraft Edge Microservices & Data Infrastructure Engine",
       };
       break;

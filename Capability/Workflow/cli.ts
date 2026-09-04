@@ -7,13 +7,22 @@
  * interactive REPL console, and automatic documentation generation.
  */
 
-import { BUILTIN_WORKFLOWS, compactWorkflowResult, type PluginId } from "./core.ts";
+import { BUILTIN_WORKFLOWS, compactWorkflowResult, type PluginId, WORKFLOW_ACTIONS } from "./core.ts";
 import { executeHealthCheck, workflowOperation, dispatchPluginAction } from "./operation.ts";
 import { formatAutopilotSummary } from "./autopilot.ts";
 import { startGatewayMcpStdio, startGatewayMcpHttp } from "./gateway.ts";
 import { createInterface } from "node:readline/promises";
 import { writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
+import { BUSINESS_ACTIONS } from "../../Domain/Business/mcp-server.ts";
+import { SCIENCE_ACTIONS } from "../../Domain/Science/mcp-server.ts";
+import { CONTENT_ACTIONS } from "../../Domain/Content/core.ts";
+import { DESIGN_ACTIONS } from "../../Domain/Design/core.ts";
+import { CHROME_ACTIONS } from "../../Tool/Browser/mcp-server.ts";
+import { MESSAGE_ACTIONS } from "../../Tool/Message/mcp-server.ts";
+import { SECRET_ACTIONS } from "../../Tool/Secret/mcp-server.ts";
+import { INFRA_ACTIONS } from "../../Domain/Infra/core.ts";
+import { COMPANY_ACTIONS } from "../../Domain/Company/core.ts";
 
 const args = process.argv.slice(2);
 const command = args[0] || "help";
@@ -32,16 +41,18 @@ export function generateMarkdownCatalog(): string {
     "",
     "| Subsystem | Actions | Protocol | Key Domain Scope |",
     "|---|---|---|---|",
-    "| `Workflow` | 33 | `holar.workflow.v1` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |",
-    "| `Business` | 41 | `holar.business.v1` | 8-Stage Venture Lifecycle, Dual $10k MRR, SEO/LLMO Content Gen, Full-Stack Excellence |",
-    "| `Science` | 23 | `holar.science.v1` | 8-Stage Academic Production Lifecycle: Literature, CSS, Grants, Authoring, Peer Review, Journals, Patents, Impact |",
-    "| `Content` | 10 | `holar.content.v1` | Creative & Commercial Content: Fiction Worldbuilding, 15 Plot Beats, Character Arcs, PAS Copy, Omnichannel Matrix |",
-    "| `Design` | 10 | `holar.design.v1` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |",
-    "| `Browser` | 65 | `spiral.browser.v1` | DevTools Superset, Next-Gen Radar & Saliency, Anti-bot Stealth, E2E Codegen, Memory Tracer, Responsive Matrix |",
-    "| `Message` | 4 | `holar.message.v1` | Multi-channel priority bus (Telegram > iMessage > Email) with mode-0600 isolation |",
-    "| `Secret` | 6 | `holar.secret.v1` | Mode-0600 secure token vault with key derivation & encrypted credential isolation |",
-    "| `Infra` | 4 | `holar.infra.v1` | Global edge microservices, sub-15ms canary probes (Auth, Monetization, Event), SQLite D1 migrations & worker bundles |",
-    "| `Company` | 4 | `holar.company.v1` | Dual-jurisdiction entity audits (Wyoming parent LLC & Shanghai R&D), cap table dilution, IP chain & annual report compliance |",
+    `| \`Workflow\` | ${WORKFLOW_ACTIONS.length} | \`holar.workflow.v1\` | Multi-plugin compound DAG execution, benchmark suite, OpenRPC/OpenAPI, health diagnostics, telemetry & circuit breaker |`,
+    `| \`Business\` | ${BUSINESS_ACTIONS.length} | \`holar.business.v1\` | 8-Stage Venture Lifecycle, Dual $10k MRR, SEO/LLMO Content Gen, Full-Stack Excellence |`,
+    `| \`Science\` | ${SCIENCE_ACTIONS.length} | \`holar.science.v1\` | 8-Stage Academic Production Lifecycle: Literature, CSS, Grants, Authoring, Peer Review, Journals, Patents, Impact |`,
+    `| \`Content\` | ${CONTENT_ACTIONS.length} | \`holar.content.v1\` | Creative & Commercial Content: Fiction Worldbuilding, 15 Plot Beats, Character Arcs, PAS Copy, Omnichannel Matrix |`,
+    `| \`Design\` | ${DESIGN_ACTIONS.length} | \`holar.design.v1\` | 5-layer hierarchy, tokens, Svelte 5 runes UI generation, on-demand subpaths |`,
+    `| \`Browser\` | ${CHROME_ACTIONS.length} | \`spiral.browser.v1\` | DevTools Superset, Next-Gen Radar & Saliency, Anti-bot Stealth, E2E Codegen, Memory Tracer, Responsive Matrix |`,
+    `| \`Message\` | ${MESSAGE_ACTIONS.length} | \`holar.message.v1\` | Multi-channel priority bus (Telegram > iMessage > Email) with mode-0600 isolation |`,
+    `| \`Secret\` | ${SECRET_ACTIONS.length} | \`holar.secret.v1\` | Mode-0600 secure token vault with key derivation & encrypted credential isolation |`,
+    `| \`Infra\` | ${INFRA_ACTIONS.length} | \`holar.infra.v1\` | Global edge microservices, sub-15ms canary probes (Auth, Monetization, Event), SQLite D1 migrations & worker bundles |`,
+    `| \`Company\` | ${COMPANY_ACTIONS.length} | \`holar.company.v1\` | Dual-jurisdiction entity audits (Wyoming parent LLC & Shanghai R&D), cap table dilution, IP chain & annual report compliance |`,
+    "",
+    `> **Total Capabilities**: ${WORKFLOW_ACTIONS.length + BUSINESS_ACTIONS.length + SCIENCE_ACTIONS.length + CONTENT_ACTIONS.length + DESIGN_ACTIONS.length + CHROME_ACTIONS.length + MESSAGE_ACTIONS.length + SECRET_ACTIONS.length + INFRA_ACTIONS.length + COMPANY_ACTIONS.length} sovereign actions across 10 canonical subsystems.`,
     "",
     "---",
     "",

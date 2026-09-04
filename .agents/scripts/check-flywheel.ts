@@ -15,7 +15,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-const rootDir = resolve(import.meta.dirname, "../../..");
+const rootDir = process.env.HOLAR_ROOT || resolve(import.meta.dirname, "../../..");
 
 interface FlywheelChannel {
 	id: string;

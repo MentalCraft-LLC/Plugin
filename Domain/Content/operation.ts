@@ -7,6 +7,7 @@
 import {
   type ContentCommand,
   type ContentResult,
+  CONTENT_ACTIONS,
   forgeWorldRules,
   architectCharacterProfile,
   composePlotBeats,
@@ -149,26 +150,13 @@ export async function contentOperation(input: ContentCommand): Promise<ContentRe
       }
 
       case "list_actions": {
-        const actions = [
-          "story_worldbuilding_forge",
-          "story_character_arc_architect",
-          "story_plot_beat_composer",
-          "story_sensory_prose_render",
-          "story_lore_consistency_linter",
-          "story_interactive_ink_exporter",
-          "marketing_pas_copywriter",
-          "marketing_omnichannel_adapter",
-          "marketing_viral_hook_generator",
-          "marketing_campaign_playbook",
-          "list_actions",
-        ];
         return {
           success: true,
           action: "list_actions",
           data: {
             plugin: "content",
-            actions,
-            totalActions: actions.length,
+            actions: [...CONTENT_ACTIONS],
+            totalActions: CONTENT_ACTIONS.length,
             description: "MentalCraft Creative & Commercial Content Production Engine",
           },
         };

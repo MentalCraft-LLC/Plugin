@@ -12,8 +12,8 @@ describe("Plugin/Infra FastMCP Protocol Engine", () => {
   test("executeInfraCanaryProbe returns sub-15ms edge health status", async () => {
     const probe = await executeInfraCanaryProbe();
     expect(probe.status).toBe("HEALTHY");
-    expect(probe.testedCount).toBe(3);
-    expect(probe.healthyCount).toBe(3);
+    expect(probe.testedCount).toBe(4);
+    expect(probe.healthyCount).toBe(4);
     expect(probe.averageLatencyMs).toBeLessThanOrEqual(15);
   });
 
@@ -27,7 +27,7 @@ describe("Plugin/Infra FastMCP Protocol Engine", () => {
   test("executeInfraWorkerBundleAudit validates Cloudflare Worker configs", () => {
     const audit = executeInfraWorkerBundleAudit();
     expect(audit.status).toBe("VALID");
-    expect(audit.workersAudited).toBe(3);
+    expect(audit.workersAudited).toBe(4);
     expect(audit.compatibilityGuarantees).toBe(true);
   });
 
@@ -58,5 +58,23 @@ describe("Plugin/Infra FastMCP Protocol Engine", () => {
     });
     expect(d1.action).toBe("infra_d1_schema_audit");
     expect((d1.result as any).status).toBe("COMPLIANT");
+
+    const pub = await infraOperation({
+      action: "publish",
+      params: {
+        title: "FastMCP 跨平台分发测试",
+        markdown: "# 内容",
+        destinations: [{ platform: "wechat", mode: "draft" }],
+      },
+    });
+    expect(pub.action).toBe("infra_publish_dispatch");
+    expect((pub.result as any).status).toBe("SUCCESS");
+
+    const wx = await infraOperation({
+      action: "wechat",
+      params: { content: "【自动化】" },
+    });
+    expect(wx.action).toBe("infra_wechat_webhook_simulate");
+    expect((wx.result as any).matchedRule).toBe("keyword_automation");
   });
 });

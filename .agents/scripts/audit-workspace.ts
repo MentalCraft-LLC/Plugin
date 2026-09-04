@@ -11,7 +11,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
-const rootDir = resolve(import.meta.dirname, "../../..");
+const rootDir = process.env.HOLAR_ROOT || resolve(import.meta.dirname, "../../..");
 const domains = ["Business", "Design", "Content", "Plugin", "Science", "Infra", "Company"] as const;
 
 interface CheckResult {
