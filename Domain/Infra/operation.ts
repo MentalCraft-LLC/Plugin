@@ -199,7 +199,15 @@ export async function executeInfraPublishDispatch(
     url:
       d.platform === "wechat"
         ? `https://mp.weixin.qq.com/s?media_id=media_${Date.now()}`
-        : `https://${d.platform}.com/post/${Date.now()}`,
+        : d.platform === "xiaohongshu"
+        ? `https://www.xiaohongshu.com/explore/mock_${Date.now()}`
+        : d.platform === "zhihu"
+        ? `https://zhuanlan.zhihu.com/p/mock_${Date.now()}`
+        : d.platform === "x"
+        ? `https://x.com/status/mock_${Date.now()}`
+        : d.platform === "linkedin"
+        ? `https://www.linkedin.com/feed/update/urn:li:share:mock_${Date.now()}`
+        : `https://juejin.cn/post/mock_${Date.now()}`,
   }));
 
   return {

@@ -103,7 +103,10 @@ export interface InfraPublishDispatchInput {
   title: string;
   markdown: string;
   author?: string;
-  destinations?: Array<{ platform: "wechat" | "xiaohongshu" | "zhihu" | "x"; mode?: "draft" | "publish" }>;
+  destinations?: Array<{
+    platform: "wechat" | "xiaohongshu" | "zhihu" | "x" | "linkedin" | "juejin";
+    mode?: "draft" | "publish" | "preview" | "card_carousel" | "thread";
+  }>;
 }
 
 export interface InfraPublishDispatchOutput {
