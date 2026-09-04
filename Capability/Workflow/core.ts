@@ -701,7 +701,7 @@ export function synthesizeDynamicWorkflow(intent: DynamicWorkflowIntent): Workfl
         { step: 1, plugin: "business", action: "venture_market_validation", skill: "demand", description: `Analyze ${venture} conversion leaks, TAM/SAM/SOM, and pricing elasticity.` },
         { step: 2, plugin: "design", action: "audit_ui", skill: "positioning", description: `Validate ${venture} pricing and checkout cards against Twelve Ecosystem Virtues and single-word law.` },
         { step: 3, plugin: "design", action: "generate_ui", skill: "build", description: `Synthesize high-converting Svelte 5 runes checkout component with 1-click buy button.` },
-        { step: 4, plugin: "browser", action: "inspect_element", skill: "disassemble", description: `Empirically verify rendered ${venture} checkout DOM and state transition.` },
+        { step: 4, plugin: "browser", action: "inspect_element", skill: "disassemble", description: `Empirically verify rendered ${venture} checkout DOM and state transition.`, parameters: { url: intent.context?.url || `https://${venture.toLowerCase()}.org`, selector: "button, [role='button']" } },
         { step: 5, plugin: "business", action: "venture_monetization_telemetry", skill: "growth", description: `Track Stripe checkout session initiation, ARR velocity, and churn decay.` },
       ],
     };
@@ -718,7 +718,7 @@ export function synthesizeDynamicWorkflow(intent: DynamicWorkflowIntent): Workfl
         { step: 1, plugin: "science", action: "social_science_peer_review_audit", skill: "paper", description: `Audit ${venture} clinical scale validity, DSM-5 cutoff specificity, and psychometrics.` },
         { step: 2, plugin: "design", action: "audit_ui", skill: "design", description: `Audit clinical interactive tools for Swiss typography and OKLCH color token compliance.` },
         { step: 3, plugin: "design", action: "generate_ui", skill: "build", description: `Synthesize interactive Svelte 5 runes clinical cutoff and symptom breakdown composite.` },
-        { step: 4, plugin: "browser", action: "inspect_element", skill: "empirical", description: `Empirically verify 60fps interaction and zero layout shift on clinical tool surface.` },
+        { step: 4, plugin: "browser", action: "inspect_element", skill: "empirical", description: `Empirically verify 60fps interaction and zero layout shift on clinical tool surface.`, parameters: { url: intent.context?.url || `https://${venture.toLowerCase()}.org`, selector: "main, section" } },
         { step: 5, plugin: "business", action: "venture_monetization_telemetry", skill: "scale", description: `Wire practitioner Pro referral link and track clinical intake conversion.` },
       ],
     };

@@ -35,6 +35,31 @@ for (const domain of domains) {
 	console.log(`✅ [SKILLS]: Synced universal skills into ${domain}/.agents/skills/`);
 }
 
+// 1b. Sync canonical check-flywheel.ts script and package.json script into each domain repo
+for (const domain of domains) {
+	const targetScriptsDir = join(rootDir, domain, ".agents", "scripts");
+	mkdirSync(targetScriptsDir, { recursive: true });
+
+	const srcFlywheelScript = join(rootDir, "Plugin", ".agents", "scripts", "check-flywheel.ts");
+	const destFlywheelScript = join(targetScriptsDir, "check-flywheel.ts");
+	if (domain !== "Plugin" && existsSync(srcFlywheelScript)) {
+		cpSync(srcFlywheelScript, destFlywheelScript);
+	}
+
+	const pkgPath = join(rootDir, domain, "package.json");
+	if (existsSync(pkgPath)) {
+		try {
+			const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
+			if (!pkg.scripts) pkg.scripts = {};
+			pkg.scripts["check:flywheel"] = "bun ./.agents/scripts/check-flywheel.ts";
+			writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n", "utf8");
+		} catch (err) {
+			console.warn(`Could not update package.json in ${domain}:`, err);
+		}
+	}
+	console.log(`✅ [FLYWHEEL]: Synced check-flywheel.ts & package.json script into ${domain}/`);
+}
+
 // 2. Define Flywheel Domain Manifests for each AGENTS.md
 const domainManifests: Record<typeof domains[number], { title: string; role: string; consumes: string[]; produces: string[] }> = {
 	Business: {

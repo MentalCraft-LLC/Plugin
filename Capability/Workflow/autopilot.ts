@@ -437,7 +437,7 @@ export function computeAdaptiveRespiration(options: {
   return {
     gear: "CRUISE",
     delaySeconds: 8,
-    reason: "🟢 [CRUISE]: All 7 quality gates green. Cruise cadence (8s).",
+    reason: "🟢 [CRUISE]: All 9 master quality gates & 42 flywheel channels green. Cruise cadence (8s).",
   };
 }
 
@@ -569,7 +569,7 @@ export async function advanceAutopilotCycle(
         } else if (lower.includes("mrr") || lower.includes("收入")) {
           await telegramSend(`📊 [MRR 商业进度]\n目标: $10,000\n当前实时: $${checkpoint.liveMrrUsd.toLocaleString()}\n缺口: $${checkpoint.mrrGapUsd.toLocaleString()}\n模型: 350 Pro @ $19 + 17 Clinic @ $200`);
         } else if (lower.includes("status") || lower.includes("状态")) {
-          await telegramSend(`⚡️ [系统状态]\n生产端点: ${liveTelemetry.url}\n边缘延迟: ${liveTelemetry.latencyMs}ms\n状态: ${liveTelemetry.httpStatus} OK\n全域门禁: 🟢 7/7 100% 通过`);
+          await telegramSend(`⚡️ [系统状态]\n生产端点: ${liveTelemetry.url}\n边缘延迟: ${liveTelemetry.latencyMs}ms\n状态: ${liveTelemetry.httpStatus} OK\n全域门禁: 🟢 9/9 主门禁通过 | 🌀 42/42 飞轮连通`);
         } else {
           await telegramSend(`🤖 收到指令: "${msg}"\n已注入 Autopilot 推进流水线处理！`);
         }

@@ -944,6 +944,24 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(data.stepResults.length).toBe(5);
   }, 30000);
 
+  test("workflowOperation check_flywheel audits 42-channel heptagonal flywheel with domain filtering", async () => {
+    // 1. Overall flywheel check
+    const fullRes = await workflowOperation({ action: "check_flywheel", json: true });
+    expect(fullRes.success).toBe(true);
+    const fullData = fullRes.data as any;
+    expect(fullData.report.totalCount).toBe(42);
+    expect(fullData.report.passedCount).toBe(42);
+    expect(fullData.report.score).toBe(100);
+
+    // 2. Domain-specific scorecard
+    const infraRes = await workflowOperation({ action: "check_flywheel", domain: "Infra", json: true });
+    expect(infraRes.success).toBe(true);
+    const infraData = infraRes.data as any;
+    expect(infraData.report.totalCount).toBe(12);
+    expect(infraData.report.passedCount).toBe(12);
+    expect(infraData.report.scope).toContain("Infra Domain Flywheel");
+  }, 10000);
+
   test("dispatchPluginAction dispatches cleanly across all 10 subsystems", async () => {
     // 1. Business
     const biz = await dispatchPluginAction("business", "venture_market_validation", { modality: "website" });

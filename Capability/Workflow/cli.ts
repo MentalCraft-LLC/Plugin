@@ -618,6 +618,16 @@ async function mainCommand(cmd: string) {
       break;
     }
 
+    case "flywheel":
+    case "momentum": {
+      const { spawnSync } = require("node:child_process");
+      const script = join(__dirname, "../../.agents/scripts/check-flywheel.ts");
+      const forwardArgs = args.slice(1);
+      const child = spawnSync("bun", [script, ...forwardArgs], { stdio: "inherit" });
+      if (child.status !== 0) process.exit(child.status || 1);
+      break;
+    }
+
     case "autopilot": {
       const sub = args[1] || "step";
       const vName = args.find((a) => a.startsWith("--venture="))?.split("=")[1] || "MentalCraft";
@@ -830,6 +840,7 @@ Commands:
   docs, catalog            Generate Markdown CATALOG.md documentation
   benchmark, bench         Run P50/P90/P99 latency & ops/sec benchmark suite
   metrics, telemetry       Show live telemetry & circuit breaker status
+  flywheel, momentum       Inspect 42-channel K7 flywheel scorecard (--domain, --json)
   autopilot [step|status|cron] Run autonomous goal self-advancement cycle
   sprint, iterate          Execute standard 6-stage product iteration lifecycle
   repl, i                  Launch interactive developer REPL shell

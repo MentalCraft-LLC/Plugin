@@ -2,9 +2,14 @@
 /**
  * .agents/scripts/check-flywheel.ts
  *
- * Automated 20-Channel Pentagonal Interlocking Flywheel Connectivity Verifier.
- * Evaluates bidirectional momentum channels across all 5 Canonical Domains:
- * Business, Design, Content, Plugin, Science.
+ * Automated 42-Channel Heptagonal Interlocking Flywheel Connectivity Verifier.
+ * Evaluates bidirectional momentum channels across all 7 Canonical Domains:
+ * Business, Design, Content, Plugin, Science, Infra, Company ($K_7$ Topology).
+ *
+ * Supports:
+ *   --domain=<Domain>   Filter to 12 channels for a specific domain (6 in + 6 out)
+ *   --json              Emit structured JSON report for tooling/autopilot
+ *   --quiet             Emit only exit code and one-line summary
  */
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -637,32 +642,102 @@ const channels: FlywheelChannel[] = [
 	},
 ];
 
-console.log("\n=========================================================================================");
-console.log(" 🌀 Holar Heptagonal Interlocking Flywheel Connectivity Verifier (7-Domain Network)");
-console.log("=========================================================================================\n");
+const args = process.argv.slice(2);
+const domainArg = args.find((a) => a.startsWith("--domain="))?.split("=")[1]
+	|| args.find((a, i) => (a === "-d" || a === "--domain") && args[i + 1])
+	|| undefined;
+const isJson = args.includes("--json");
+const isQuiet = args.includes("--quiet");
 
-console.log(
-	"Channel ID | From ➔ To         | Flywheel Momentum Name           | Status  | Verified Evidence"
-);
-console.log(
-	"-----------+-------------------+----------------------------------+---------+---------------------------------------------------"
-);
+const activeChannels = domainArg
+	? channels.filter((c) => c.from.toLowerCase() === domainArg.toLowerCase() || c.to.toLowerCase() === domainArg.toLowerCase())
+	: channels;
 
-let passedCount = 0;
-for (const c of channels) {
-	const res = c.check();
-	if (res.passed) passedCount++;
-	const id = c.id.padEnd(10, " ");
-	const route = `${c.from.slice(0, 8)} ➔ ${c.to.slice(0, 8)}`.padEnd(17, " ");
-	const name = c.name.slice(0, 32).padEnd(32, " ");
-	const status = res.passed ? "🟢 PASS" : "🔴 FAIL";
-	const detail = res.detail.slice(0, 50);
-	console.log(`${id} | ${route} | ${name} | ${status} | ${detail}`);
+if (domainArg && activeChannels.length === 0) {
+	console.error(`Unknown domain '${domainArg}'. Valid domains: Business, Design, Content, Plugin, Science, Infra, Company`);
+	process.exit(1);
 }
 
-console.log("-----------+-------------------+----------------------------------+---------+---------------------------------------------------");
-const score = Math.round((passedCount / channels.length) * 100);
-console.log(`\nFlywheel Connectivity Index: ${passedCount}/${channels.length} Channels Verified (${score}%)\n`);
+const results = activeChannels.map((c) => {
+	const res = c.check();
+	return {
+		id: c.id,
+		from: c.from,
+		to: c.to,
+		name: c.name,
+		passed: res.passed,
+		detail: res.detail,
+	};
+});
+
+const passedCount = results.filter((r) => r.passed).length;
+const totalCount = results.length;
+const score = Math.round((passedCount / totalCount) * 100);
+
+if (isJson) {
+	console.log(JSON.stringify({
+		scope: domainArg ? `${domainArg} Domain Flywheel (${totalCount} channels)` : `Full 7-Domain K7 Flywheel (${totalCount} channels)`,
+		score,
+		passedCount,
+		totalCount,
+		allPassed: passedCount === totalCount,
+		channels: results,
+	}, null, 2));
+	if (passedCount < totalCount) process.exit(1);
+	process.exit(0);
+}
+
+if (!isQuiet) {
+	const title = domainArg
+		? ` 🌀 Holar [${domainArg}] Domain Flywheel Scorecard (12 Inbound/Outbound Channels)`
+		: " 🌀 Holar Heptagonal Interlocking Flywheel Connectivity Verifier (7-Domain Network)";
+	console.log("\n=========================================================================================");
+	console.log(title);
+	console.log("=========================================================================================\n");
+
+	if (domainArg) {
+		const inbounds = results.filter((r) => r.to.toLowerCase() === domainArg.toLowerCase());
+		const outbounds = results.filter((r) => r.from.toLowerCase() === domainArg.toLowerCase());
+
+		console.log(`📥 Inbound Momentum (Channels flowing INTO ${domainArg}):`);
+		console.log("Channel ID | From ➔ To         | Flywheel Momentum Name           | Status  | Verified Evidence");
+		console.log("-----------+-------------------+----------------------------------+---------+---------------------------------------------------");
+		for (const c of inbounds) {
+			const id = c.id.padEnd(10, " ");
+			const route = `${c.from.slice(0, 8)} ➔ ${c.to.slice(0, 8)}`.padEnd(17, " ");
+			const name = c.name.slice(0, 32).padEnd(32, " ");
+			const status = c.passed ? "🟢 PASS" : "🔴 FAIL";
+			const detail = c.detail.slice(0, 50);
+			console.log(`${id} | ${route} | ${name} | ${status} | ${detail}`);
+		}
+
+		console.log(`\n📤 Outbound Momentum (Channels flowing OUT OF ${domainArg}):`);
+		console.log("Channel ID | From ➔ To         | Flywheel Momentum Name           | Status  | Verified Evidence");
+		console.log("-----------+-------------------+----------------------------------+---------+---------------------------------------------------");
+		for (const c of outbounds) {
+			const id = c.id.padEnd(10, " ");
+			const route = `${c.from.slice(0, 8)} ➔ ${c.to.slice(0, 8)}`.padEnd(17, " ");
+			const name = c.name.slice(0, 32).padEnd(32, " ");
+			const status = c.passed ? "🟢 PASS" : "🔴 FAIL";
+			const detail = c.detail.slice(0, 50);
+			console.log(`${id} | ${route} | ${name} | ${status} | ${detail}`);
+		}
+	} else {
+		console.log("Channel ID | From ➔ To         | Flywheel Momentum Name           | Status  | Verified Evidence");
+		console.log("-----------+-------------------+----------------------------------+---------+---------------------------------------------------");
+		for (const c of results) {
+			const id = c.id.padEnd(10, " ");
+			const route = `${c.from.slice(0, 8)} ➔ ${c.to.slice(0, 8)}`.padEnd(17, " ");
+			const name = c.name.slice(0, 32).padEnd(32, " ");
+			const status = c.passed ? "🟢 PASS" : "🔴 FAIL";
+			const detail = c.detail.slice(0, 50);
+			console.log(`${id} | ${route} | ${name} | ${status} | ${detail}`);
+		}
+	}
+	console.log("-----------+-------------------+----------------------------------+---------+---------------------------------------------------");
+}
+
+console.log(`\nFlywheel Connectivity Index: ${passedCount}/${totalCount} Channels Verified (${score}%)\n`);
 
 if (score < 100) {
 	process.exit(1);
