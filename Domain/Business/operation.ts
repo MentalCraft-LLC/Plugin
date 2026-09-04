@@ -67,6 +67,11 @@ import {
   plausibleTrackerSnippet,
   plausibleWebsiteStats,
 } from "./modules/plausible.ts";
+import {
+  auditDispatchFivePillars,
+  computeDispatchMrr,
+  getDispatchMrrModel,
+} from "./modules/dispatch_growth.ts";
 
 
 export class TrafficCvClient {
@@ -2371,7 +2376,10 @@ export async function businessOperation(origInput: BusinessInput): Promise<Busin
 
       case "product_fullstack_excellence_audit": {
         const productName = input.product_name ?? input.venture_name ?? input.domain ?? "EssayHumanize.com";
-        const data = isMentalCraftSubject({ productName, domain: input.domain, ventureName: input.venture_name })
+        const isDispatch = productName.toLowerCase().includes("dispatch") || (input.domain ?? "").includes("dispatch");
+        const data = isDispatch
+          ? auditDispatchFivePillars()
+          : isMentalCraftSubject({ productName, domain: input.domain, ventureName: input.venture_name })
           ? auditMentalCraftFivePillars({
             productName,
             domain: input.domain ?? "mentalcraft.org",
