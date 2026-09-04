@@ -17,9 +17,9 @@ This repository is an autonomous constituent of the **7-Domain Canonical Ecosyst
 | **`Design`** | https://github.com/MentalCraft-LLC/Design | Single-word Svelte 5 Runes Components & OKLCH Design Token System |
 | **`Content`** | https://github.com/MentalCraft-LLC/Content | Creative Lore, 15-Beat Narratives & Psychological Conversion Copy |
 | **`Plugin`** | https://github.com/MentalCraft-LLC/Plugin | MCP Protocol Engines, CDP Browser Automation & Compound Workflows |
-| **`Science`** | https://github.com/MentalCraft-LLC/Science | Computational Social Science, Empirical Manuscripts, Grants & Patents |
+| **`Science`** | https://github.com/MentalCraft-LLC/Science | Computational Social Science, Empirical Manuscripts, Grants & Journals |
 | **`Infra`** | https://github.com/MentalCraft-LLC/Infra | Global Edge Microservices, Cloudflare Workers (Auth, Event, Monetization, KV, D1) |
-| **`Company`** | https://github.com/MentalCraft-LLC/Company | Corporate Governance, Legal Entities, Equity, Compliance & Capital |
+| **`Company`** | https://github.com/MentalCraft-LLC/Company | Corporate Governance, Legal Entities, Equity, Patents & IP, Compliance & Capital |
 
 ---
 

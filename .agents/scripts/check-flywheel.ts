@@ -520,11 +520,12 @@ const channels: FlywheelChannel[] = [
 		to: "Company",
 		name: "无形资产沉淀 (Patents & Publications)",
 		check: () => {
-			const patentDir = join(rootDir, "Science", "Patent");
-			const exists = existsSync(patentDir);
+			const paperDir = join(rootDir, "Science", "Paper");
+			const patentDir = join(rootDir, "Company", "Patent");
+			const exists = existsSync(paperDir) && existsSync(patentDir);
 			return {
 				passed: exists,
-				detail: exists ? "Academic research generates intellectual property assets" : "Missing patent directory",
+				detail: exists ? "Academic papers and research disclosures formalize into corporate patent assets" : "Missing paper or patent directory",
 			};
 		},
 	},

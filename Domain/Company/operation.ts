@@ -89,7 +89,7 @@ export function executeCompanyIpAssignmentAudit(
   input: CompanyIpAssignmentAuditInput = {}
 ): CompanyIpAssignmentAuditOutput {
   const root = input.workspaceRoot || process.env.HOLAR_ROOT || resolve(import.meta.dirname, "../../..");
-  const patentDir = join(root, "Science", "Patent");
+  const patentDir = join(root, "Company", "Patent");
 
   let patentCount = 0;
   if (existsSync(patentDir)) {
