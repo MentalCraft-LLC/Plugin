@@ -33,9 +33,11 @@ import {
 } from "./core.ts";
 import { assignConsistentVariant, getSubjectBucket } from "../../../Infra/Experiment/src/hasher.ts";
 import { localWorkflowEngine } from "../../../Infra/Workflow/src/local.ts";
-import { renderCardToSvg } from "../../../Infra/Media/src/local/svg.ts";
-import { renderCodeSnippetToSvg } from "../../../Infra/Media/src/local/code.ts";
-import { renderFormulaToSvg } from "../../../Infra/Media/src/local/math.ts";
+import {
+  renderCardToSvg,
+  renderCodeSnippetToSvg,
+  renderFormulaToSvg,
+} from "../../../Design/Svelte/src/lib/block/asset/vector.ts";
 
 export async function executeInfraCanaryProbe(
   input: InfraCanaryProbeInput = {}

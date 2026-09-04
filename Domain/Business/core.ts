@@ -22,6 +22,7 @@ export * from "./modules/essay_growth.ts";
 export * from "./modules/plausible.ts";
 export * from "./modules/mentalcraft_growth.ts";
 export * from "./modules/dispatch_growth.ts";
+export * from "./modules/radar_growth.ts";
 
 export const BUSINESS_PROTOCOL = "holar.business.v1" as const;
 
@@ -53,6 +54,9 @@ export type BusinessAction =
   | "venture_pricing_experiment"
   | "venture_growth_playbook"
   | "venture_expansion_moat"
+  | "business_radar_portfolio"
+  | "business_radar_ads"
+  | "business_radar_stack"
   | "spriteflow_mrr_engine"
   | "spriteflow_pseo_matrix"
   | "zero_cost_viral_loops"
@@ -579,9 +583,15 @@ export type BusinessInput = {
   paid_conversions?: number;
   engine_filter?: string;
   min_volume?: number;
-  max_kd?: number;
   scale_subscribers?: number;
   scale_price?: number;
+  // Radar Action Parameters
+  pub_id?: string;
+  amazon_tag?: string;
+  ga_id?: string;
+  platforms?: Array<"google" | "meta" | "tiktok" | "linkedin">;
+  html?: string;
+  ads_txt?: string;
 };
 
 export type BusinessResult = {

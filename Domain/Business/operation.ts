@@ -72,6 +72,11 @@ import {
   computeDispatchMrr,
   getDispatchMrrModel,
 } from "./modules/dispatch_growth.ts";
+import {
+  auditCompetitorPortfolio,
+  inspectCompetitorAds,
+  analyzeMonetizationStack,
+} from "./modules/radar_growth.ts";
 
 
 export class TrafficCvClient {
@@ -1326,6 +1331,54 @@ export async function businessOperation(origInput: BusinessInput): Promise<Busin
             ],
             estimatedMonthlyRevenueUsd: 120000,
           },
+        };
+      }
+
+      case "business_radar_portfolio": {
+        const query = {
+          domain: input.domain,
+          pubId: input.pub_id,
+          amazonTag: input.amazon_tag,
+          gaId: input.ga_id,
+        };
+        const portfolio = await auditCompetitorPortfolio(query);
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "business_radar_portfolio",
+          success: true,
+          timestamp,
+          provider: "radar",
+          data: portfolio,
+        };
+      }
+
+      case "business_radar_ads": {
+        const domain = input.domain || "saascraft.io";
+        const ads = await inspectCompetitorAds({ domain, platforms: input.platforms });
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "business_radar_ads",
+          success: true,
+          timestamp,
+          provider: "radar",
+          data: ads,
+        };
+      }
+
+      case "business_radar_stack": {
+        const domain = input.domain || "mentalcraft.org";
+        const stack = await analyzeMonetizationStack({
+          domain,
+          html: input.html,
+          adsTxt: input.ads_txt,
+        });
+        return {
+          protocol: BUSINESS_PROTOCOL,
+          action: "business_radar_stack",
+          success: true,
+          timestamp,
+          provider: "radar",
+          data: stack,
         };
       }
 
