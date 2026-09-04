@@ -2378,14 +2378,17 @@ export function syncMcpEcosystem(): SyncMcpResult {
     }
   }
 
-  // 2. Purge rogue chrome-devtools-mcp
+  // 2. Purge rogue chrome-devtools-mcp and legacy/abandoned servers
   let purgedCount = 0;
-  const rogueDir = join(agyMcpDir, "chrome-devtools-mcp");
-  if (existsSync(rogueDir)) {
-    try {
-      rmSync(rogueDir, { recursive: true, force: true });
-      purgedCount++;
-    } catch {}
+  const rogueNames = ["chrome-devtools-mcp", "arena-intel", "chrome", "cloudflare", "game-engine", "gefei"];
+  for (const name of rogueNames) {
+    const rogueDir = join(agyMcpDir, name);
+    if (existsSync(rogueDir)) {
+      try {
+        rmSync(rogueDir, { recursive: true, force: true });
+        purgedCount++;
+      } catch {}
+    }
   }
 
   // 3. Construct canonical 11 FastMCP config

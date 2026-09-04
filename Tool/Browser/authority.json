@@ -23,8 +23,9 @@
     "https://*/*"
   ],
   "targets": [
-    { "route": "Application/Assessment/Example", "key": "example" },
-    { "route": "Application/SpriteFlow", "key": "spriteflow" },
-    { "route": "Design/Website", "key": "design" }
+    { "route": "Business/Health/MentalCraft", "key": "mentalcraft" },
+    { "route": "Business/Utility/SpriteFlow", "key": "spriteflow" },
+    { "route": "Business/Education/HumanBench", "key": "humanbench" },
+    { "route": "Design/Svelte", "key": "design" }
   ]
 }

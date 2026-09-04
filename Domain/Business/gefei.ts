@@ -3,8 +3,10 @@
  * Powers atomic operations for keyword difficulty, SERP forensics, and Stripe Radar.
  */
 
-export const DEFAULT_GEFEI_TOKEN = "wc_mcp_7d13ce52f57fbfd371d48c3de6ed9f1d76c8150a8f94a426";
-export const DEFAULT_REF_TOKEN = "1787865231343.eb27980a1648a057fe0746f2c4e78d86eb7ac3910f7ad9f755eb637d2c9058ce";
+export const DEFAULT_GEFEI_TOKEN =
+  process.env.GEFEI_TOKEN ?? "wc_mcp_7d13ce52f57fbfd371d48c3de6ed9f1d76c8150a8f94a426";
+export const DEFAULT_REF_TOKEN =
+  process.env.GEFEI_REF_TOKEN ?? "1787865231343.eb27980a1648a057fe0746f2c4e78d86eb7ac3910f7ad9f755eb637d2c9058ce";
 export const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
