@@ -648,11 +648,20 @@ export function exportMermaidDag(wf: any): { mermaidCode: string; nodesCount: nu
       }
       edgesCount++;
     }
+
+    if (s.rollback) {
+      const rbPlugin = s.rollback.plugin ?? s.plugin;
+      lines.push(`  RB${s.step}["⤺ Compensate: [${rbPlugin}] ${s.rollback.action}"]:::${rbPlugin}`);
+      lines.push(`  S${s.step} -. "rollback" .-> RB${s.step}`);
+      edgesCount++;
+    }
   }
+
+  const rollbackNodesCount = wf.steps.filter((s: any) => Boolean(s.rollback)).length;
 
   return {
     mermaidCode: lines.join("\n"),
-    nodesCount: wf.steps.length,
+    nodesCount: wf.steps.length + rollbackNodesCount,
     edgesCount,
   };
 }
@@ -2248,6 +2257,173 @@ function normalizeWorkflowAction(action: string): string {
   }
 }
 
+export async function executeSagaRollback(
+  wf: { id: string; name: string; steps?: WorkflowStep[] },
+  stepResults: Array<{ step: number; plugin: PluginId; action: string; success: boolean; skipped?: boolean; durationMs: number; data: unknown }>,
+  stepContext: Record<string, any>,
+  runId: string,
+  onEvent?: (event: WorkflowEvent) => void,
+): Promise<{
+  rollbackStatus: "NONE" | "COMPLETED" | "FAILED" | "PARTIAL";
+  rollbackResults: Array<{
+    step: number;
+    plugin: PluginId;
+    action: string;
+    success: boolean;
+    durationMs: number;
+    data?: unknown;
+    error?: string;
+  }>;
+}> {
+  if (!wf.steps || wf.steps.length === 0) {
+    return { rollbackStatus: "NONE", rollbackResults: [] };
+  }
+
+  const rollbackResults: Array<{
+    step: number;
+    plugin: PluginId;
+    action: string;
+    success: boolean;
+    durationMs: number;
+    data?: unknown;
+    error?: string;
+  }> = [];
+
+  emitWorkflowEvent({
+    type: "rollback_start",
+    runId,
+    workflowId: wf.id,
+    timestamp: new Date().toISOString(),
+  }, onEvent);
+
+  // Succeeded non-skipped steps in reverse execution order
+  const succeededSteps = [...stepResults.filter((s) => s.success && !s.skipped)].reverse();
+  for (const succ of succeededSteps) {
+    const stepDef = wf.steps.find((s) => s.step === succ.step);
+    if (stepDef?.rollback) {
+      const rbT0 = performance.now();
+      const rbPlugin = stepDef.rollback.plugin ?? stepDef.plugin;
+      const rbAction = stepDef.rollback.action;
+      const rbParams = interpolateParams(stepDef.rollback.parameters ?? {}, stepContext);
+      try {
+        const rbRes = await dispatchPluginAction(rbPlugin, rbAction, rbParams as Record<string, unknown>, {
+          enforceCircuit: false,
+        });
+        const rbDur = Math.round(performance.now() - rbT0);
+        const rbOk = rbRes.success ?? true;
+        rollbackResults.push({
+          step: succ.step,
+          plugin: rbPlugin,
+          action: rbAction,
+          success: rbOk,
+          durationMs: rbDur,
+          data: rbRes.data ?? rbRes,
+        });
+        emitWorkflowEvent({
+          type: "rollback_step",
+          runId,
+          workflowId: wf.id,
+          timestamp: new Date().toISOString(),
+          step: succ.step,
+          plugin: rbPlugin,
+          action: rbAction,
+          durationMs: rbDur,
+          success: rbOk,
+        }, onEvent);
+      } catch (rbErr: any) {
+        const rbDur = Math.round(performance.now() - rbT0);
+        rollbackResults.push({
+          step: succ.step,
+          plugin: rbPlugin,
+          action: rbAction,
+          success: false,
+          durationMs: rbDur,
+          error: rbErr?.message || String(rbErr),
+        });
+        emitWorkflowEvent({
+          type: "rollback_step",
+          runId,
+          workflowId: wf.id,
+          timestamp: new Date().toISOString(),
+          step: succ.step,
+          plugin: rbPlugin,
+          action: rbAction,
+          durationMs: rbDur,
+          success: false,
+          error: rbErr?.message || String(rbErr),
+        }, onEvent);
+      }
+    }
+  }
+
+  let rollbackStatus: "NONE" | "COMPLETED" | "FAILED" | "PARTIAL" = "NONE";
+  if (rollbackResults.length > 0) {
+    const allOk = rollbackResults.every((r) => r.success);
+    const anyOk = rollbackResults.some((r) => r.success);
+    rollbackStatus = allOk ? "COMPLETED" : anyOk ? "PARTIAL" : "FAILED";
+  }
+
+  emitWorkflowEvent({
+    type: "rollback_complete",
+    runId,
+    workflowId: wf.id,
+    timestamp: new Date().toISOString(),
+    success: rollbackStatus === "COMPLETED",
+  }, onEvent);
+
+  return { rollbackStatus, rollbackResults };
+}
+
+export async function dispatchWorkflowNotification(
+  notifyConfig: WorkflowInput["notify"],
+  wf: { id: string; name: string; steps?: WorkflowStep[] },
+  isSuccess: boolean,
+  runId: string,
+  totalDuration: number,
+  stepsCount: number,
+  rollbackStatus?: "NONE" | "COMPLETED" | "FAILED" | "PARTIAL",
+  rollbackCount?: number,
+): Promise<WorkflowRunReceipt["notificationSent"] | undefined> {
+  if (!notifyConfig) return undefined;
+  const cond = notifyConfig.on ?? "always";
+  const shouldSend = cond === "always" || (cond === "success" && isSuccess) || (cond === "failure" && !isSuccess);
+  if (!shouldSend) return undefined;
+
+  const channel = notifyConfig.channel ?? "telegram";
+  const statusIcon = isSuccess ? "🟢" : "🔴";
+  const statusText = isSuccess ? "PASS" : "FAIL";
+  const title = notifyConfig.title ?? `Workflow ${wf.name}`;
+  const lines = [
+    `📢 [Workflow Alert] ${title}`,
+    `• ID: \`${wf.id}\` (Run: \`${runId}\`)`,
+    `• Status: ${statusIcon} ${statusText}`,
+    `• Execution: ${totalDuration}ms across ${stepsCount} step(s)`,
+  ];
+  if (rollbackStatus && rollbackStatus !== "NONE") {
+    lines.push(`• Saga Rollback: ${rollbackStatus} (${rollbackCount ?? 0} compensation action(s))`);
+  }
+
+  try {
+    const sendRes = await dispatchPluginAction("message", "send", {
+      channel,
+      chatId: notifyConfig.chatId,
+      text: lines.join("\n"),
+    });
+    return {
+      channel,
+      success: (sendRes as any)?.ok ?? sendRes.success ?? true,
+      timestamp: new Date().toISOString(),
+    };
+  } catch (err: any) {
+    return {
+      channel,
+      success: false,
+      timestamp: new Date().toISOString(),
+      error: err?.message || String(err),
+    };
+  }
+}
+
 export async function workflowOperation(origInput: WorkflowInput): Promise<WorkflowResult> {
   const timestamp = new Date().toISOString();
   const raw: any = (origInput as any).params ? { ...origInput, ...(origInput as any).params } : origInput;
@@ -3306,6 +3482,27 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
         status: s.skipped ? "SKIPPED" : s.success ? "OK" : "ERROR",
       }));
 
+      // Execute Saga Rollback if workflow failed and rollback_on_failure is enabled
+      let rollbackStatus: "NONE" | "COMPLETED" | "FAILED" | "PARTIAL" = "NONE";
+      let rollbackResults: WorkflowRunReceipt["rollbackResults"] = [];
+      if (!isSuccess && input.rollback_on_failure) {
+        const rb = await executeSagaRollback(wf, stepResults, stepContext, runId, input.on_event);
+        rollbackStatus = rb.rollbackStatus;
+        rollbackResults = rb.rollbackResults;
+      }
+
+      // Automated Notification Dispatch
+      const notificationSent = await dispatchWorkflowNotification(
+        input.notify,
+        wf,
+        isSuccess,
+        runId,
+        totalDuration,
+        stepResults.length,
+        rollbackStatus,
+        rollbackResults.length,
+      );
+
       const receipt: WorkflowRunReceipt = {
         runId,
         workflowId: targetId,
@@ -3323,6 +3520,9 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
           stepContext,
           resumable: isResumable,
         },
+        rollbackStatus: rollbackStatus !== "NONE" ? rollbackStatus : undefined,
+        rollbackResults: rollbackResults.length > 0 ? rollbackResults : undefined,
+        notificationSent,
       };
 
       RUN_HISTORY.push(receipt);
@@ -3645,6 +3845,27 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
         status: s.skipped ? "SKIPPED" : s.success ? "OK" : "ERROR",
       }));
 
+      // Execute Saga Rollback if workflow failed and rollback_on_failure is enabled
+      let rollbackStatus: "NONE" | "COMPLETED" | "FAILED" | "PARTIAL" = "NONE";
+      let rollbackResults: WorkflowRunReceipt["rollbackResults"] = [];
+      if (!isSuccess && input.rollback_on_failure) {
+        const rb = await executeSagaRollback(wf, stepResults, stepContext, newRunId, input.on_event);
+        rollbackStatus = rb.rollbackStatus;
+        rollbackResults = rb.rollbackResults;
+      }
+
+      // Automated Notification Dispatch
+      const notificationSent = await dispatchWorkflowNotification(
+        input.notify,
+        wf,
+        isSuccess,
+        newRunId,
+        totalDuration,
+        stepResults.length,
+        rollbackStatus,
+        rollbackResults.length,
+      );
+
       const receipt: WorkflowRunReceipt = {
         runId: newRunId,
         workflowId: wf.id,
@@ -3663,6 +3884,9 @@ export async function workflowOperation(origInput: WorkflowInput): Promise<Workf
           stepContext,
           resumable: isStillResumable,
         },
+        rollbackStatus: rollbackStatus !== "NONE" ? rollbackStatus : undefined,
+        rollbackResults: rollbackResults.length > 0 ? rollbackResults : undefined,
+        notificationSent,
       };
 
       RUN_HISTORY.push(receipt);

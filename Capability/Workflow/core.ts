@@ -71,6 +71,13 @@ export type WorkflowStepCondition = {
   value?: unknown;
 };
 
+export type WorkflowStepRollback = {
+  plugin?: PluginId;
+  action: string;
+  parameters?: Record<string, unknown>;
+  description?: string;
+};
+
 export type WorkflowStep = {
   step: number;
   plugin: PluginId;
@@ -83,6 +90,7 @@ export type WorkflowStep = {
   retries?: number;
   timeoutMs?: number;
   condition?: WorkflowStepCondition | string;
+  rollback?: WorkflowStepRollback;
 };
 
 export type WorkflowEventType =
@@ -93,6 +101,9 @@ export type WorkflowEventType =
   | "step_skipped"
   | "step_error"
   | "wave_complete"
+  | "rollback_start"
+  | "rollback_step"
+  | "rollback_complete"
   | "workflow_complete";
 
 export type WorkflowEvent = {
@@ -157,6 +168,22 @@ export type WorkflowRunReceipt = {
     resumable: boolean;
   };
   resumedFromRunId?: string;
+  rollbackStatus?: "NONE" | "COMPLETED" | "FAILED" | "PARTIAL";
+  rollbackResults?: Array<{
+    step: number;
+    plugin: PluginId;
+    action: string;
+    success: boolean;
+    durationMs: number;
+    data?: unknown;
+    error?: string;
+  }>;
+  notificationSent?: {
+    channel: string;
+    success: boolean;
+    timestamp: string;
+    error?: string;
+  };
 };
 
 export type ClientTargetConfig = "claude_desktop" | "cursor" | "antigravity" | "pi" | "all";
@@ -796,6 +823,13 @@ export type WorkflowInput = {
   run_id?: string;
   concurrency_mode?: "sequential" | "concurrent_dag";
   timeout_ms?: number;
+  rollback_on_failure?: boolean;
+  notify?: {
+    channel?: "telegram" | "imessage" | "email";
+    on?: "always" | "failure" | "success";
+    chatId?: number | string;
+    title?: string;
+  };
   on_event?: (event: WorkflowEvent) => void;
   target_plugin?: PluginId | "all";
   target_action?: string;

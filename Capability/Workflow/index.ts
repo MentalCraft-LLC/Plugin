@@ -174,6 +174,7 @@ export {
   type WorkflowId,
   type WorkflowStep,
   type WorkflowStepCondition,
+  type WorkflowStepRollback,
   type WorkflowEvent,
   type WorkflowEventType,
   type WorkflowDefinition,

@@ -1462,6 +1462,127 @@ describe("Plugin/Workflow Orchestrator & Health Engine", () => {
     expect(result.mermaidCode).toContain("classDef infra");
     expect(result.mermaidCode).toContain("classDef company");
   });
+
+  test("run_workflow executes Saga compensating rollback in reverse order upon step failure", async () => {
+    const emittedEvents: any[] = [];
+    const customWf = {
+      id: "test_saga_rollback_flow",
+      name: "Test Saga Rollback Flow",
+      description: "Tests Saga compensation pattern in reverse order",
+      requiredPlugins: ["science", "infra", "company"],
+      steps: [
+        {
+          step: 1,
+          plugin: "science" as const,
+          action: "journal_submission_checklist",
+          rollback: {
+            plugin: "science" as const,
+            action: "journal_submission_checklist",
+            parameters: { mode: "revert_step_1" },
+          },
+        },
+        {
+          step: 2,
+          plugin: "infra" as const,
+          action: "infra_canary_probe",
+          rollback: {
+            plugin: "infra" as const,
+            action: "infra_canary_probe",
+            parameters: { mode: "revert_step_2" },
+          },
+        },
+        {
+          step: 3,
+          plugin: "company" as const,
+          action: "non_existent_failing_action_triggering_rollback",
+        },
+      ],
+    };
+
+    const res = await workflowOperation({
+      action: "run_workflow",
+      custom_workflow: customWf,
+      rollback_on_failure: true,
+      on_event: (evt) => emittedEvents.push(evt),
+    });
+
+    expect(res.success).toBe(false);
+    const receipt = res.data as any;
+    expect(receipt.rollbackStatus).toBe("COMPLETED");
+    expect(receipt.rollbackResults?.length).toBe(2);
+
+    // Verify reverse execution order: step 2 compensated before step 1
+    expect(receipt.rollbackResults[0].step).toBe(2);
+    expect(receipt.rollbackResults[0].action).toBe("infra_canary_probe");
+    expect(receipt.rollbackResults[0].success).toBe(true);
+
+    expect(receipt.rollbackResults[1].step).toBe(1);
+    expect(receipt.rollbackResults[1].action).toBe("journal_submission_checklist");
+    expect(receipt.rollbackResults[1].success).toBe(true);
+
+    // Verify rollback events emitted
+    expect(emittedEvents.some((e) => e.type === "rollback_start")).toBe(true);
+    expect(emittedEvents.filter((e) => e.type === "rollback_step").length).toBe(2);
+    expect(emittedEvents.some((e) => e.type === "rollback_complete" && e.success === true)).toBe(true);
+  });
+
+  test("run_workflow dispatches automated notifications via Tool/Message", async () => {
+    const customWf = {
+      id: "test_notification_flow",
+      name: "Test Notification Flow",
+      description: "Tests automated alert delivery",
+      requiredPlugins: ["science"],
+      steps: [
+        {
+          step: 1,
+          plugin: "science" as const,
+          action: "journal_submission_checklist",
+        },
+      ],
+    };
+
+    const res = await workflowOperation({
+      action: "run_workflow",
+      custom_workflow: customWf,
+      notify: {
+        channel: "telegram",
+        on: "always",
+        title: "Test CI Pipeline Alert",
+      },
+    });
+
+    expect(res.success).toBe(true);
+    const receipt = res.data as any;
+    expect(receipt.notificationSent).toBeDefined();
+    expect(receipt.notificationSent.channel).toBe("telegram");
+    expect(receipt.notificationSent.success).toBe(true);
+  });
+
+  test("exportMermaidDag generates rollback compensation nodes and edges", () => {
+    const customWf = {
+      id: "test_mermaid_rollback_flow",
+      name: "Test Mermaid Rollback Flow",
+      description: "Tests rollback nodes in Mermaid",
+      requiredPlugins: ["infra"],
+      steps: [
+        {
+          step: 1,
+          plugin: "infra" as const,
+          action: "infra_canary_probe",
+          rollback: {
+            plugin: "infra" as const,
+            action: "infra_canary_probe",
+          },
+        },
+      ],
+    };
+
+    const result = exportMermaidDag(customWf);
+    expect(result.mermaidCode).toContain("RB1");
+    expect(result.mermaidCode).toContain("Compensate:");
+    expect(result.mermaidCode).toContain("-. \"rollback\" .->");
+    expect(result.nodesCount).toBe(2); // 1 normal step + 1 rollback node
+  });
 });
 
 
