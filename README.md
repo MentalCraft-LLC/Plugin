@@ -1,6 +1,14 @@
-# 🔌 MentalCraft Plugin & FastMCP Protocol Engine Network
+# 🔌 [DEPRECATED & ARCHIVED] MentalCraft Plugin
 
-Canonical tooling, FastMCP protocol engines, browser automation bridges, and workflow orchestrators for the 7 canonical domains (`MentalCraft-LLC/Plugin`).
+> [!IMPORTANT]
+> **This standalone repository is officially DEPRECATED and ARCHIVED.**
+> In accordance with the **Zero Entropy & Compounding Return Governance Axioms** and the **Six Canonical Domains ($K_6$) Network Architecture**, all plugin capabilities, FastMCP protocol engines, stdio transport guards, and multi-channel buses have been natively consolidated into **`MentalCraft-LLC/Infra`**:
+> - **FastMCP Protocol Engine & Master Gateway**: [`Infra/Plugin`](https://github.com/MentalCraft-LLC/Infra/tree/main/Plugin) (`@mentalcraft/infra-plugin`)
+> - **Creative Multimodal Synthesis Engine**: [`Infra/Generate`](https://github.com/MentalCraft-LLC/Infra/tree/main/Generate) (`@mentalcraft/infra-generate`)
+> - **Durable Workflows & Orchestration**: [`Infra/Workflow`](https://github.com/MentalCraft-LLC/Infra/tree/main/Workflow) (`@mentalcraft/infra-workflow`)
+> - **Perception & Action Primitives**: [`Infra/Browser`](https://github.com/MentalCraft-LLC/Infra/tree/main/Browser), [`Infra/Message`](https://github.com/MentalCraft-LLC/Infra/tree/main/Message), [`Infra/Secret`](https://github.com/MentalCraft-LLC/Infra/tree/main/Secret), [`Infra/AI`](https://github.com/MentalCraft-LLC/Infra/tree/main/AI)
+>
+> All active development and tool invocations now target `Infra`. This tree is preserved for historical reference and immutable lineage.
 
 ---
 
